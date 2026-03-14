@@ -42,14 +42,23 @@ enum Formatters {
 
     // MARK: - Distance
 
-    /// Returns a human-readable distance string.
-    /// Under 1000m shows meters; 1000m+ shows km with 2 decimals.
-    static func distanceString(meters: Double) -> String {
-        if meters >= 1000 {
-            let km = meters / 1000.0
-            return String(format: "%.2f km", km)
-        } else {
-            return String(format: "%.0f m", meters)
+    /// Returns a human-readable distance string respecting the chosen unit.
+    static func distanceString(meters: Double, unit: DistanceUnit = .km) -> String {
+        switch unit {
+        case .km:
+            if meters >= 1000 {
+                return String(format: "%.2f km", meters / 1000.0)
+            } else {
+                return String(format: "%.0f m", meters)
+            }
+        case .miles:
+            let miles = meters / 1609.344
+            if miles >= 1 {
+                return String(format: "%.2f mi", miles)
+            } else {
+                let feet = meters * 3.28084
+                return String(format: "%.0f ft", feet)
+            }
         }
     }
 
@@ -57,6 +66,19 @@ enum Formatters {
 
     static func speedString(metersPerSecond: Double) -> String {
         return String(format: "%.2f m/s", metersPerSecond)
+    }
+
+    // MARK: - Pace
+
+    /// Pace as min:sec per unit from distance in meters and duration in seconds.
+    static func paceString(distanceMeters: Double, durationSeconds: Double, unit: DistanceUnit = .km) -> String {
+        guard distanceMeters > 0 && durationSeconds > 0 else { return "—" }
+        let divisor: Double = unit == .km ? 1000.0 : 1609.344
+        let secondsPerUnit = (durationSeconds / distanceMeters) * divisor
+        let minutes = Int(secondsPerUnit) / 60
+        let secs = Int(secondsPerUnit) % 60
+        let label = unit == .km ? "/km" : "/mi"
+        return String(format: "%d:%02d %@", minutes, secs, label)
     }
 
     // MARK: - Heart Rate

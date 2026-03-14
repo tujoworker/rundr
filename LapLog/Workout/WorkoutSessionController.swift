@@ -122,11 +122,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         stopLocationUpdates()
 
         let endDate = Date()
-
-        // Stop HealthKit in background — don't block session end
-        Task {
-            await stopHealthKitWorkout(endDate: endDate)
-        }
+        Task { await stopHealthKitWorkout(endDate: endDate) }
 
         guard let startDate = sessionStartDate else { return nil }
 
@@ -242,13 +238,16 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     }
 
     private func stopHealthKitWorkout(endDate: Date) async {
-        hkWorkoutSession?.end()
+        guard let session = hkWorkoutSession, let builder = hkLiveBuilder else { return }
+        session.end()
         do {
-            try await hkLiveBuilder?.endCollection(at: endDate)
-            _ = try await hkLiveBuilder?.finishWorkout()
+            try await builder.endCollection(at: endDate)
+            _ = try await builder.finishWorkout()
         } catch {
             print("Failed to end HK workout: \(error)")
         }
+        hkWorkoutSession = nil
+        hkLiveBuilder = nil
     }
 
     // MARK: - Location

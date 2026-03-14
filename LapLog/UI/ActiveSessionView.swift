@@ -17,20 +17,8 @@ struct ActiveSessionView: View {
 
     @State private var endState: EndState = .none
 
-    private var currentTime: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        return formatter.string(from: Date())
-    }
-
     var body: some View {
         VStack(spacing: 0) {
-            Text(currentTime)
-                .font(.system(.caption2, design: .monospaced))
-                .foregroundStyle(.secondary)
-                .frame(maxWidth: .infinity, alignment: .center)
-                .padding(.top, 2)
-
             HStack {
                 switch endState {
                 case .confirmShown:
@@ -78,27 +66,24 @@ struct ActiveSessionView: View {
                     .buttonStyle(.plain)
                 }
 
-                Spacer()
-
-                VStack(alignment: .trailing, spacing: 0) {
-                    Image(systemName: "heart.fill")
-                        .foregroundColor(.red)
-                        .font(.caption2)
-                    Text(Formatters.heartRateString(bpm: workoutController.currentHeartRate))
-                        .font(.system(.caption, design: .monospaced))
-                }
             }
             .padding(.horizontal, 8)
             .padding(.top, 4)
 
-            // Large timer
-            Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
-                .font(.system(size: 40, weight: .bold, design: .monospaced))
-                .minimumScaleFactor(0.5)
-                .lineLimit(1)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 12)
+            // Timer + heart rate
+            HStack(alignment: .lastTextBaseline) {
+                Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
+                    .font(.system(size: 40, weight: .bold, design: .monospaced))
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
+                Spacer()
+                Text("\u{2661} " + Formatters.heartRateString(bpm: workoutController.currentHeartRate))
+                    .font(.system(.caption, design: .monospaced))
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 12)
 
             Spacer()
 
@@ -152,12 +137,12 @@ struct ActiveSessionView: View {
         let session = await workoutController.endSession()
         if let session {
             persistence.saveSession(session)
-            Task {
+            Task.detached {
                 do {
-                    let uuid = try await healthKitManager.saveWorkout(session: session)
+                    let uuid = try await self.healthKitManager.saveWorkout(session: session)
                     await MainActor.run {
                         session.healthKitWorkoutUUID = uuid
-                        try? persistence.modelContext.save()
+                        try? self.persistence.modelContext.save()
                     }
                 } catch {
                     print("HealthKit export failed: \(error)")

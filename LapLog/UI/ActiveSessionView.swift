@@ -200,6 +200,7 @@ struct LapCardView: View {
             }
         }
         .padding(isLatest ? 8 : 6)
+        .frame(minHeight: isLatest ? nil : 40)
         .foregroundColor(lap.lapType == .rest ? .black : .white)
         .background(lap.lapType == .rest ? Color.white.opacity(0.9) : Color.white.opacity(0.15))
         .cornerRadius(8)

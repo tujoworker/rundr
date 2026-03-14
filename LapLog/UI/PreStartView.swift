@@ -38,6 +38,15 @@ struct PreStartView: View {
                         TextField("e.g. 400", text: $distanceText)
                             .multilineTextAlignment(.leading)
                     }
+
+                    Text("Distance Unit")
+                        .font(.caption.bold())
+                    Picker("Unit", selection: $settings.distanceUnit) {
+                        ForEach(DistanceUnit.allCases) { unit in
+                            Text(unit.displayName).tag(unit)
+                        }
+                    }
+                    .pickerStyle(.navigationLink)
                 }
                 .padding(.horizontal, 4)
             }

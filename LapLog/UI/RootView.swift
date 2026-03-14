@@ -38,7 +38,6 @@ struct RootView: View {
                     })
                     .navigationBarBackButtonHidden(true)
                     .toolbar(.hidden, for: .navigationBar)
-                    .persistentSystemOverlays(.hidden)
                 case .sessionDetail(let sessionID):
                     if let session = persistence.fetchSession(id: sessionID) {
                         SessionDetailView(session: session)
@@ -50,5 +49,6 @@ struct RootView: View {
                 }
             }
         }
+        .persistentSystemOverlays(.hidden)
     }
 }

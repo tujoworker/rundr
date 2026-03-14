@@ -71,6 +71,7 @@
 		EFB9EDEF7841220E7F36CEFF /* ModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelTests.swift; sourceTree = "<group>"; };
 		F2ABF59CD03172874BEADEA0 /* LapLogApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapLogApp.swift; sourceTree = "<group>"; };
 		F6DEE2BD2F65FC180005ABAA /* DistanceUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceUnit.swift; sourceTree = "<group>"; };
+		F6DEE2BF2F66038A0005ABAA /* LapLog.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LapLog.entitlements; sourceTree = "<group>"; };
 		F80845E9FC8FEA57AA0E6D7F /* PreStartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreStartView.swift; sourceTree = "<group>"; };
 		FC5AEA32CF41F4A95EA655A2 /* SessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -161,6 +162,7 @@
 		6728A9E758BE484BE4D5E89A /* LapLog */ = {
 			isa = PBXGroup;
 			children = (
+				F6DEE2BF2F66038A0005ABAA /* LapLog.entitlements */,
 				F2ABF59CD03172874BEADEA0 /* LapLogApp.swift */,
 				17EC92BDA3D6F030AF7F9E5A /* Domain */,
 				75B762909BDB834AA9044E45 /* Health */,
@@ -330,6 +332,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = LapLog/LapLog.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"LapLog/Preview Content\"";
@@ -337,8 +340,9 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = LapLog;
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "LapLog reads heart rate data during workouts.";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "LapLog saves your workout sessions to Apple Health.";
+				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = "The app saves your workout sessions to Apple Health.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "The app reads heart rate data during workouts.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "The app saves your workout sessions to Apple Health.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LapLog uses GPS to track your running distance.";
 				INFOPLIST_KEY_WKApplication = YES;
 				INFOPLIST_KEY_WKWatchOnly = YES;
@@ -403,6 +407,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = LapLog/LapLog.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"LapLog/Preview Content\"";
@@ -410,8 +415,9 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = LapLog;
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "LapLog reads heart rate data during workouts.";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "LapLog saves your workout sessions to Apple Health.";
+				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = "The app saves your workout sessions to Apple Health.";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "The app reads heart rate data during workouts.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "The app saves your workout sessions to Apple Health.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LapLog uses GPS to track your running distance.";
 				INFOPLIST_KEY_WKApplication = YES;
 				INFOPLIST_KEY_WKWatchOnly = YES;

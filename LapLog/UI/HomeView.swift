@@ -26,7 +26,7 @@ struct HomeView: View {
                         .foregroundStyle(.secondary)
                         .padding(.top, 20)
                 } else {
-                    LazyVStack(spacing: 8) {
+                    List {
                         ForEach(viewModel.recentSessions, id: \.id) { session in
                             Button {
                                 onSelectSession(session)
@@ -34,6 +34,14 @@ struct HomeView: View {
                                 SessionRowView(session: session)
                             }
                             .buttonStyle(.plain)
+                            .swipeActions(edge: .trailing) {
+                                Button(role: .destructive) {
+                                    persistence.deleteSession(session)
+                                    viewModel.loadRecent(persistence: persistence)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
                         }
 
                         if viewModel.hasMoreSessions {
@@ -44,7 +52,7 @@ struct HomeView: View {
                             .padding(.top, 4)
                         }
                     }
-                    .padding(.horizontal, 4)
+                    .listStyle(.plain)
                 }
             }
             .padding(.vertical, 8)

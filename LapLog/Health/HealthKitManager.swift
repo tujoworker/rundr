@@ -143,7 +143,7 @@ final class HealthKitManager: ObservableObject {
                 "lapType": lap.lapTypeRaw
             ]
             if let bpm = lap.averageHeartRateBPM {
-                meta[HKMetadataKeyAverageHeartRate] = bpm
+                meta["averageHeartRate"] = bpm
             }
             if lap.distanceMeters > 0 {
                 meta["distanceMeters"] = lap.distanceMeters

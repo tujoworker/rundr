@@ -8,15 +8,39 @@ struct ActiveSessionView: View {
 
     var onSessionEnded: () -> Void
 
-    @State private var restPressed = false
+    private enum EndState {
+        case none
+        case xShown
+        case confirmShown
+    }
+
+    @State private var endState: EndState = .none
 
     var body: some View {
         VStack(spacing: 0) {
-            // Top bar: Rest/End on left, HR on right
             HStack {
-                if restPressed {
+                switch endState {
+                case .confirmShown:
                     Button {
                         Task { await endSession() }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Image(systemName: "xmark")
+                                .font(.caption.bold())
+                            Text("Confirm End")
+                                .font(.caption.bold())
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 6)
+                        .background(Color.red)
+                        .clipShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
+                case .xShown:
+                    Button {
+                        workoutController.commitFinalLap()
+                        endState = .confirmShown
                     } label: {
                         Image(systemName: "xmark")
                             .font(.caption.bold())
@@ -26,10 +50,10 @@ struct ActiveSessionView: View {
                             .clipShape(Circle())
                     }
                     .buttonStyle(.plain)
-                } else {
+                case .none:
                     Button {
                         workoutController.startRest()
-                        restPressed = true
+                        endState = .xShown
                     } label: {
                         Image(systemName: "pause.fill")
                             .font(.caption.bold())
@@ -66,9 +90,9 @@ struct ActiveSessionView: View {
             // Lap button (always visible)
             Button(action: {
                 workoutController.markLap()
-                restPressed = false
+                endState = .none
             }) {
-                Text("Lap")
+                Text(endState != .none ? "Resume" : "Lap")
                     .font(.title3.bold())
                     .frame(maxWidth: .infinity, minHeight: 44)
             }
@@ -83,7 +107,7 @@ struct ActiveSessionView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 6) {
                             ForEach(workoutController.completedLaps, id: \.id) { lap in
-                                LapCardView(lap: lap)
+                                LapCardView(lap: lap, trackingMode: workoutController.trackingMode)
                                     .id(lap.id)
                             }
                         }
@@ -103,14 +127,16 @@ struct ActiveSessionView: View {
     }
 
     private func endSession() async {
-        if let session = await workoutController.endSession() {
+        let session = await workoutController.endSession()
+        if let session {
             persistence.saveSession(session)
-            // Attempt HealthKit export
             Task {
                 do {
                     let uuid = try await healthKitManager.saveWorkout(session: session)
-                    session.healthKitWorkoutUUID = uuid
-                    try? persistence.modelContext.save()
+                    await MainActor.run {
+                        session.healthKitWorkoutUUID = uuid
+                        try? persistence.modelContext.save()
+                    }
                 } catch {
                     print("HealthKit export failed: \(error)")
                 }
@@ -122,6 +148,7 @@ struct ActiveSessionView: View {
 
 struct LapCardView: View {
     let lap: Lap
+    let trackingMode: TrackingMode
 
     var body: some View {
         VStack(spacing: 2) {
@@ -129,7 +156,7 @@ struct LapCardView: View {
                 .font(.system(.caption2, design: .monospaced).bold())
             Text(Formatters.timeString(from: lap.durationSeconds))
                 .font(.system(.caption2, design: .monospaced))
-            if lap.lapType != .rest {
+            if lap.lapType != .rest && trackingMode == .gps {
                 Text(Formatters.distanceString(meters: lap.distanceMeters))
                     .font(.system(.caption2, design: .monospaced))
             }

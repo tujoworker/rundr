@@ -37,6 +37,7 @@ struct RootView: View {
                         coordinator.sessionEnded()
                     })
                     .navigationBarBackButtonHidden(true)
+                    .toolbar(.hidden, for: .navigationBar)
                 case .sessionDetail(let sessionID):
                     if let session = persistence.fetchSession(id: sessionID) {
                         SessionDetailView(session: session)

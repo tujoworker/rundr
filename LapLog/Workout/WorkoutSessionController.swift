@@ -81,11 +81,20 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     }
 
     func markLap() {
-        guard runState == .active || runState == .rest else { return }
-        commitCurrentLap(source: .distanceTap)
-        if runState == .rest {
-            runState = .active
+        guard runState == .active || runState == .rest || runState == .ending else { return }
+        if runState != .ending {
+            commitCurrentLap(source: .distanceTap)
         }
+        runState = .active
+        startTimer()
+        playHaptic(.click)
+    }
+
+    func commitFinalLap() {
+        guard runState == .active || runState == .rest else { return }
+        commitCurrentLap(source: .sessionEndSplit)
+        runState = .ending
+        stopTimer()
         playHaptic(.click)
     }
 
@@ -96,17 +105,23 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     }
 
     func endSession() async -> Session? {
-        guard runState == .active || runState == .rest else { return nil }
+        guard runState == .active || runState == .rest || runState == .ending else { return nil }
 
-        // Commit final open segment
-        commitCurrentLap(source: .sessionEndSplit)
+        // Commit any remaining open segment (skipped if already committed by commitFinalLap)
+        if runState != .ending {
+            commitCurrentLap(source: .sessionEndSplit)
+        }
 
         runState = .ended
         stopTimer()
         stopLocationUpdates()
 
         let endDate = Date()
-        await stopHealthKitWorkout(endDate: endDate)
+
+        // Stop HealthKit in background — don't block session end
+        Task {
+            await stopHealthKitWorkout(endDate: endDate)
+        }
 
         guard let startDate = sessionStartDate else { return nil }
 

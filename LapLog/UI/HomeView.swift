@@ -3,6 +3,7 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject var persistence: PersistenceManager
     @EnvironmentObject var settings: SettingsStore
+    @EnvironmentObject var coordinator: NavigationCoordinator
     @StateObject private var viewModel = HomeViewModel()
 
     var onGetReady: () -> Void
@@ -49,6 +50,9 @@ struct HomeView: View {
             .padding(.vertical, 8)
         }
         .onAppear {
+            viewModel.loadRecent(persistence: persistence)
+        }
+        .onChange(of: coordinator.path) {
             viewModel.loadRecent(persistence: persistence)
         }
     }

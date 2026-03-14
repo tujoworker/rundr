@@ -5,5 +5,6 @@ enum WorkoutRunState: String, Equatable {
     case ready
     case active
     case rest
+    case ending
     case ended
 }

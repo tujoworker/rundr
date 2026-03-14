@@ -422,12 +422,20 @@ When entering rest mode:
 - next segment type becomes `rest`
 - elapsed timer never stops
 
-Because the requested UI only defines **Rest** then **End**, not **Resume**, implement the following explicit model:
+The end-session flow is a three-step confirmation sequence:
 
-- Pressing **Rest** marks the workout as entering rest state.
-- While in rest state, the top-left button becomes **End**.
+1. **Pause** (blue circle) – enters rest state; button changes to a red ✕.
+2. **✕** (red circle) – commits the current lap as a card, stops the timer; button changes to a red "Confirm End" capsule.
+3. **Confirm End** (red capsule) – ends the session in a single tap, saves to local storage, writes to HealthKit, and navigates home.
+
+At any point before step 3, pressing the **Resume** button (the main Lap button) cancels the end flow, restarts the timer, and returns to active state.
+
+Additional rules:
+
+- Pressing **Pause** marks the workout as entering rest state.
+- While in rest state, pressing the **Resume/Lap** button resumes active tracking and creates a new lap.
 - New laps created while in rest state are stored with `lapType = rest`.
-- Optional enhancement: add a separate lap/resume control later, but do not require it for v1.
+- The heart rate display remains visible throughout all end-flow states.
 
 ---
 

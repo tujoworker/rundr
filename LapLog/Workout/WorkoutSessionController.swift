@@ -56,7 +56,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     func getReady() {
         runState = .ready
-        playHaptic(.start)
+        playHaptic(.notification)
     }
 
     func start() async {
@@ -77,7 +77,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             startLocationUpdates()
         }
 
-        playHaptic(.start)
+        playHaptic(.notification)
     }
 
     func markLap() {
@@ -92,7 +92,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         }
         runState = .active
         startTimer()
-        playHaptic(.click)
+        playHaptic(.notification)
     }
 
     func commitFinalLap() {
@@ -100,13 +100,13 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         commitCurrentLap(source: .sessionEndSplit)
         runState = .ending
         stopTimer()
-        playHaptic(.click)
+        playHaptic(.notification)
     }
 
     func startRest() {
         guard runState == .active else { return }
         runState = .rest
-        playHaptic(.directionDown)
+        playHaptic(.notification)
     }
 
     func endSession() async -> Session? {
@@ -149,7 +149,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             snapshotDistanceDistanceMeters: trackingMode == .distanceDistance ? distanceLapDistanceMeters : nil
         )
 
-        playHaptic(.stop)
+        playHaptic(.notification)
         return session
     }
 

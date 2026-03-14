@@ -212,22 +212,22 @@ struct LapCardView: View {
             } else {
                 HStack(spacing: 6) {
                     Text("\(lap.index)")
-                        .font(.system(isLatest ? .body : .caption, design: .monospaced).bold())
+                        .font(.system(.caption, design: .monospaced).bold())
                     VStack(alignment: .leading, spacing: 2) {
                         Text(Formatters.compactTimeString(from: lap.durationSeconds))
-                            .font(.system(isLatest ? .body : .caption, design: .monospaced))
+                            .font(.system(.caption, design: .monospaced))
                             .fontWeight(isLatest ? .bold : .regular)
                         Text(Formatters.paceString(distanceMeters: lap.distanceMeters, durationSeconds: lap.durationSeconds, unit: distanceUnit))
-                            .font(.system(isLatest ? .caption : .caption2, design: .monospaced))
+                            .font(.system(.caption2, design: .monospaced))
                             .foregroundStyle(.secondary)
                     }
                 }
             }
         }
-        .padding(isLatest && !isRest ? 8 : 6)
-        .frame(minHeight: 44)
-        .foregroundColor(lap.lapType == .rest ? .black : .white)
-        .background(lap.lapType == .rest ? Color.white.opacity(0.9) : Color.white.opacity(0.15))
+        .padding(6)
+        .fixedSize(horizontal: true, vertical: false)
+        .foregroundColor(isRest ? .black : .white)
+        .background(isRest ? Color.white.opacity(0.9) : Color.white.opacity(0.15))
         .cornerRadius(8)
         .overlay(
             RoundedRectangle(cornerRadius: 8)

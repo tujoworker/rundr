@@ -209,7 +209,6 @@ struct LapCardView: View {
             if isRest {
                 Text(Formatters.compactTimeString(from: lap.durationSeconds))
                     .font(.system(.caption, design: .monospaced))
-                    .frame(maxHeight: .infinity, alignment: .center)
             } else {
                 HStack(spacing: 6) {
                     Text("\(lap.index)")
@@ -226,7 +225,7 @@ struct LapCardView: View {
             }
         }
         .padding(isLatest && !isRest ? 8 : 6)
-        .frame(minHeight: isLatest && !isRest ? nil : 40)
+        .fixedSize(horizontal: false, vertical: !isLatest || isRest)
         .foregroundColor(lap.lapType == .rest ? .black : .white)
         .background(lap.lapType == .rest ? Color.white.opacity(0.9) : Color.white.opacity(0.15))
         .cornerRadius(8)

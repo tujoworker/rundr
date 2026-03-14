@@ -4,7 +4,6 @@ import SwiftUI
 @MainActor
 final class NavigationCoordinator: ObservableObject {
     @Published var path: [AppScreenState] = []
-    @Published var showActiveSession = false
 
     func goHome() {
         path.removeAll()
@@ -19,7 +18,7 @@ final class NavigationCoordinator: ObservableObject {
         if let idx = path.lastIndex(of: .preStart) {
             path.remove(at: idx)
         }
-        showActiveSession = true
+        path.append(.activeSession)
     }
 
     func goToSessionDetail(id: UUID) {
@@ -27,7 +26,6 @@ final class NavigationCoordinator: ObservableObject {
     }
 
     func sessionEnded() {
-        showActiveSession = false
         path.removeAll()
     }
 }

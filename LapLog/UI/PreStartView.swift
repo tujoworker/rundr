@@ -6,6 +6,20 @@ struct PreStartView: View {
 
     @State private var distanceText: String = ""
 
+    private var distanceLabel: String {
+        switch settings.distanceUnit {
+        case .km: return "Lap Distance (meters)"
+        case .miles: return "Lap Distance (feet)"
+        }
+    }
+
+    private var distancePlaceholder: String {
+        switch settings.distanceUnit {
+        case .km: return "e.g. 400"
+        case .miles: return "e.g. 1320"
+        }
+    }
+
     var body: some View {
         ScrollView {
             VStack(spacing: 12) {
@@ -33,9 +47,9 @@ struct PreStartView: View {
                     .pickerStyle(.navigationLink)
 
                     if settings.trackingMode == .distanceDistance {
-                        Text("Lap Distance (meters)")
+                        Text(distanceLabel)
                             .font(.caption.bold())
-                        TextField("e.g. 400", text: $distanceText)
+                        TextField(distancePlaceholder, text: $distanceText)
                             .multilineTextAlignment(.leading)
                     }
 
@@ -54,13 +68,30 @@ struct PreStartView: View {
         }
         .navigationTitle("Setup")
         .onAppear {
-            distanceText = String(format: "%.0f", settings.distanceDistanceMeters)
+            distanceText = displayDistance()
+        }
+        .onChange(of: settings.distanceUnit) {
+            distanceText = displayDistance()
+        }
+    }
+
+    private func displayDistance() -> String {
+        let meters = settings.distanceDistanceMeters
+        switch settings.distanceUnit {
+        case .km:
+            return String(format: "%.0f", meters)
+        case .miles:
+            return String(format: "%.0f", meters * 3.28084)
         }
     }
 
     private func persistDistance() {
-        if let value = Double(distanceText), value > 0 {
+        guard let value = Double(distanceText), value > 0 else { return }
+        switch settings.distanceUnit {
+        case .km:
             settings.distanceDistanceMeters = value
+        case .miles:
+            settings.distanceDistanceMeters = value / 3.28084
         }
     }
 }

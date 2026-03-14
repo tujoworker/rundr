@@ -168,23 +168,21 @@ struct ActiveSessionView: View {
     }
 }
 
+private let latestCardHeight: CGFloat = 52
+
 struct PlaceholderLapCardView: View {
     var body: some View {
         HStack(spacing: 6) {
             Text("1")
                 .font(.system(.body, design: .monospaced).bold())
                 .foregroundColor(.gray)
-            VStack(alignment: .leading, spacing: 2) {
-                Text("—:——")
-                    .font(.system(.body, design: .monospaced))
-                    .fontWeight(.bold)
-                    .foregroundColor(.gray)
-                Text(" ")
-                    .font(.system(.caption, design: .monospaced))
-                    .foregroundColor(.clear)
-            }
+            Text("—:——")
+                .font(.system(.body, design: .monospaced))
+                .fontWeight(.bold)
+                .foregroundColor(.gray)
         }
         .padding(8)
+        .frame(height: latestCardHeight)
         .background(Color.white.opacity(0.15))
         .cornerRadius(8)
         .overlay(

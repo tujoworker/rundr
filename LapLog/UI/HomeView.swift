@@ -67,15 +67,16 @@ struct HomeView: View {
 
 struct SessionRowView: View {
     let session: Session
+    @EnvironmentObject var settings: SettingsStore
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(session.startedAt, style: .date)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
-            Text("Laps: \(session.totalLaps) • Avg: \(Formatters.speedString(metersPerSecond: session.averageSpeedMetersPerSecond))")
+            Text("Laps: \(session.totalLaps) • \(Formatters.paceString(distanceMeters: session.totalDistanceMeters, durationSeconds: session.durationSeconds, unit: settings.distanceUnit))")
                 .font(.caption)
-            Text("Time: \(Formatters.timeString(from: session.durationSeconds)) • Dist: \(Formatters.distanceString(meters: session.totalDistanceMeters))")
+            Text("Time: \(Formatters.timeString(from: session.durationSeconds)) • \(Formatters.distanceString(meters: session.totalDistanceMeters, unit: settings.distanceUnit))")
                 .font(.caption)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

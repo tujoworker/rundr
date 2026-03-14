@@ -21,6 +21,7 @@ xcodebuild test -project LapLog.xcodeproj -scheme LapLog -destination 'platform=
 
 ## Commits
 
+- Make a git commit after every new feature or logical change is completed.
 - Make meaningful commits with a clear scope and message.
 - Keep each commit focused on one logical change.
 - Do not bundle unrelated refactors, generated files, or incidental edits into the same commit.

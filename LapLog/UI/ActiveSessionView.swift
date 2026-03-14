@@ -174,13 +174,17 @@ struct PlaceholderLapCardView: View {
             Text("1")
                 .font(.system(.body, design: .monospaced).bold())
                 .foregroundColor(.gray)
-            Text("—:——")
-                .font(.system(.body, design: .monospaced))
-                .fontWeight(.bold)
-                .foregroundColor(.gray)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("—:——")
+                    .font(.system(.body, design: .monospaced))
+                    .fontWeight(.bold)
+                    .foregroundColor(.gray)
+                Text(" ")
+                    .font(.system(.caption, design: .monospaced))
+                    .foregroundColor(.clear)
+            }
         }
         .padding(8)
-        .frame(minHeight: 44)
         .background(Color.white.opacity(0.15))
         .cornerRadius(8)
         .overlay(

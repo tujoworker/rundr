@@ -14,11 +14,8 @@ final class NavigationCoordinator: ObservableObject {
     }
 
     func goToActiveSession() {
-        // Replace preStart with activeSession
-        if let idx = path.lastIndex(of: .preStart) {
-            path.remove(at: idx)
-        }
-        path.append(.activeSession)
+        // Replace entire path with just activeSession in a single mutation
+        path = [.activeSession]
     }
 
     func goToSessionDetail(id: UUID) {
@@ -26,6 +23,8 @@ final class NavigationCoordinator: ObservableObject {
     }
 
     func sessionEnded() {
-        path.removeAll()
+        DispatchQueue.main.async {
+            self.path = []
+        }
     }
 }

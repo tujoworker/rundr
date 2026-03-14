@@ -78,7 +78,7 @@ struct ActiveSessionView: View {
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
                 Spacer()
-                Text("\u{2661} " + Formatters.heartRateString(bpm: workoutController.currentHeartRate))
+                Text(Formatters.heartRateString(bpm: workoutController.currentHeartRate))
                     .font(.system(.caption, design: .monospaced))
                     .foregroundStyle(.secondary)
             }

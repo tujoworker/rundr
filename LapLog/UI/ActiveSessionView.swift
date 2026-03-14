@@ -211,7 +211,6 @@ struct LapCardView: View {
             if isRest {
                 Text(Formatters.compactTimeString(from: lap.durationSeconds))
                     .font(.system(.caption, design: .monospaced))
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
             } else {
                 HStack(spacing: 6) {
                     Text("\(lap.index)")

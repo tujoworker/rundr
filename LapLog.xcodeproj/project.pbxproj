@@ -1,0 +1,509 @@
+// !$*UTF8*$!
+{
+    archiveVersion = 1;
+    classes = {
+    };
+    objectVersion = 56;
+    objects = {
+
+/* Begin PBXBuildFile section */
+        ADF3C560149CC9D36C370A06 /* LapLogApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2ABF59CD03172874BEADEA0 /* LapLogApp.swift */; };
+        6CB934415EF3BDC0D65EF3E1 /* TrackingMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE97F98043246AF98F971416 /* TrackingMode.swift */; };
+        6E02E5DF235633F34728DC8C /* LapType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586AE861C21CF4145AD81D08 /* LapType.swift */; };
+        A6AC58E35DDE8D4C3006B265 /* LapSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4087CA1ACDF79F69B6F2FBEC /* LapSource.swift */; };
+        5D1F2DA465451D371A979B32 /* Lap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A88263B0A43413879ABF4DB7 /* Lap.swift */; };
+        33435AFF099565517A2981F6 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E613F59ADF522B5282AC2A3 /* Session.swift */; };
+        D5B5E557FB187878AF5A836B /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 803A3A092975B9BAB810BAB2 /* SettingsStore.swift */; };
+        52A98D9F8DEB461B7EA6583F /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A52D079F75CFBF9BB2BA7C41 /* HealthKitManager.swift */; };
+        29AE989F7AC9917AD935DF22 /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E3127CE770FF5C05C276665 /* Formatters.swift */; };
+        5B42CCC5F71E7FFD525E342C /* PersistenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6018669638742E3118B29041 /* PersistenceManager.swift */; };
+        FCBEE6361F5E5147C8E53373 /* WorkoutRunState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7B588DE96AFFC30AE7ABBA /* WorkoutRunState.swift */; };
+        E9FA61354F306ED894832978 /* WorkoutSessionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C461B28E60C157EE2885A142 /* WorkoutSessionController.swift */; };
+        CFBC8671050DDED6391381E7 /* AppScreenState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BDE8B1656261C1E67BD361 /* AppScreenState.swift */; };
+        EEF02F2BA438237E59FFD96E /* NavigationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B56B88EBFA89F92A11A0E1 /* NavigationCoordinator.swift */; };
+        52686DF91E00697D94B39D92 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A7AAFEB69EBE8A0D0FB048 /* RootView.swift */; };
+        FD7F3FB0395174CBAF09E673 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC650870DDC91DB05A48BBA /* HomeView.swift */; };
+        012B7841E2D242F37F954082 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A1B775A27201FA001C88AF /* HomeViewModel.swift */; };
+        4400B362EFED68F5CCBD88CF /* SessionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5AEA32CF41F4A95EA655A2 /* SessionDetailView.swift */; };
+        7BB47A6891185829ADD4094F /* PreStartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80845E9FC8FEA57AA0E6D7F /* PreStartView.swift */; };
+        1C5FBAD9B17FA11B1506817D /* ActiveSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A391721789A00DCE1A52C5 /* ActiveSessionView.swift */; };
+        826AF4CE8424BB9A4EF1F5CC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3C468A8CAAB5486BF89EDC4 /* Assets.xcassets */; };
+        437A1B72867C5867B354E553 /* FormattersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17AFAC5870B80DC3E8E64B00 /* FormattersTests.swift */; };
+        C49E8373AE1A8ED3EC6A2880 /* ModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB9EDEF7841220E7F36CEFF /* ModelTests.swift */; };
+        EB489A6095972420E5B254F4 /* WorkoutControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F85A1B319257D193FA45B6 /* WorkoutControllerTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+        5B0D864BD0A5C80A44B292AA /* PBXContainerItemProxy */ = {
+            isa = PBXContainerItemProxy;
+            containerPortal = 5299AC4324DC18342A8CCD96 /* Project object */;
+            proxyType = 1;
+            remoteGlobalIDString = E92819776D1D900150F17949;
+            remoteInfo = LapLog;
+        };
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+        F2ABF59CD03172874BEADEA0 /* LapLogApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LapLogApp.swift"; sourceTree = "<group>"; };
+        AE97F98043246AF98F971416 /* TrackingMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TrackingMode.swift"; sourceTree = "<group>"; };
+        586AE861C21CF4145AD81D08 /* LapType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LapType.swift"; sourceTree = "<group>"; };
+        4087CA1ACDF79F69B6F2FBEC /* LapSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LapSource.swift"; sourceTree = "<group>"; };
+        A88263B0A43413879ABF4DB7 /* Lap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Lap.swift"; sourceTree = "<group>"; };
+        5E613F59ADF522B5282AC2A3 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Session.swift"; sourceTree = "<group>"; };
+        803A3A092975B9BAB810BAB2 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsStore.swift"; sourceTree = "<group>"; };
+        A52D079F75CFBF9BB2BA7C41 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HealthKitManager.swift"; sourceTree = "<group>"; };
+        8E3127CE770FF5C05C276665 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Formatters.swift"; sourceTree = "<group>"; };
+        6018669638742E3118B29041 /* PersistenceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistenceManager.swift"; sourceTree = "<group>"; };
+        AF7B588DE96AFFC30AE7ABBA /* WorkoutRunState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WorkoutRunState.swift"; sourceTree = "<group>"; };
+        C461B28E60C157EE2885A142 /* WorkoutSessionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WorkoutSessionController.swift"; sourceTree = "<group>"; };
+        D8BDE8B1656261C1E67BD361 /* AppScreenState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppScreenState.swift"; sourceTree = "<group>"; };
+        58B56B88EBFA89F92A11A0E1 /* NavigationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NavigationCoordinator.swift"; sourceTree = "<group>"; };
+        22A7AAFEB69EBE8A0D0FB048 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RootView.swift"; sourceTree = "<group>"; };
+        2DC650870DDC91DB05A48BBA /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeView.swift"; sourceTree = "<group>"; };
+        E2A1B775A27201FA001C88AF /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "HomeViewModel.swift"; sourceTree = "<group>"; };
+        FC5AEA32CF41F4A95EA655A2 /* SessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SessionDetailView.swift"; sourceTree = "<group>"; };
+        F80845E9FC8FEA57AA0E6D7F /* PreStartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PreStartView.swift"; sourceTree = "<group>"; };
+        02A391721789A00DCE1A52C5 /* ActiveSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ActiveSessionView.swift"; sourceTree = "<group>"; };
+        17AFAC5870B80DC3E8E64B00 /* FormattersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "FormattersTests.swift"; sourceTree = "<group>"; };
+        EFB9EDEF7841220E7F36CEFF /* ModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ModelTests.swift"; sourceTree = "<group>"; };
+        E7F85A1B319257D193FA45B6 /* WorkoutControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WorkoutControllerTests.swift"; sourceTree = "<group>"; };
+        B3C468A8CAAB5486BF89EDC4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+        0C25755AF893FBC0ACEE2B23 /* Preview Content */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Preview Content"; sourceTree = "<group>"; };
+        8BEFD367C4AB92E0F59B0B1F /* LapLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LapLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
+        02AC43A08A4599D8442B24FA /* LapLogTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LapLogTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+        58A6AD7DA7544B8406AD7709 /* Frameworks */ = {
+            isa = PBXFrameworksBuildPhase;
+            buildActionMask = 2147483647;
+            files = (
+            );
+            runOnlyForDeploymentPostprocessing = 0;
+        };
+        E350EE90246378D4D995D966 /* Frameworks */ = {
+            isa = PBXFrameworksBuildPhase;
+            buildActionMask = 2147483647;
+            files = (
+            );
+            runOnlyForDeploymentPostprocessing = 0;
+        };
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+        5928955287B8089ED2177128 = {
+            isa = PBXGroup;
+            children = (
+                6728A9E758BE484BE4D5E89A /* LapLog */,
+                0DB76932C055B50DE5275514 /* LapLogTests */,
+                BF7A2D27A78D590BDEF15AF2 /* Products */,
+            );
+            sourceTree = "<group>";
+        };
+        BF7A2D27A78D590BDEF15AF2 /* Products */ = {
+            isa = PBXGroup;
+            children = (
+                8BEFD367C4AB92E0F59B0B1F /* LapLog.app */,
+                02AC43A08A4599D8442B24FA /* LapLogTests.xctest */,
+            );
+            name = Products;
+            sourceTree = "<group>";
+        };
+        6728A9E758BE484BE4D5E89A /* LapLog */ = {
+            isa = PBXGroup;
+            children = (
+                F2ABF59CD03172874BEADEA0 /* */,
+                17EC92BDA3D6F030AF7F9E5A /* */,
+                75B762909BDB834AA9044E45 /* */,
+                7675693986D84F095B28B67D /* */,
+                34612946D52F7ABFAA8B912E /* */,
+                5947E500C310CB92A269BFB0 /* */,
+                0EAB7458B5E343B5ED95EE6F /* */,
+                B3C468A8CAAB5486BF89EDC4 /* */,
+                0C25755AF893FBC0ACEE2B23 /* */,
+            );
+            path = LapLog;
+            sourceTree = "<group>";
+        };
+        17EC92BDA3D6F030AF7F9E5A /* Domain */ = {
+            isa = PBXGroup;
+            children = (
+                AE97F98043246AF98F971416 /* */,
+                586AE861C21CF4145AD81D08 /* */,
+                4087CA1ACDF79F69B6F2FBEC /* */,
+                A88263B0A43413879ABF4DB7 /* */,
+                5E613F59ADF522B5282AC2A3 /* */,
+                803A3A092975B9BAB810BAB2 /* */,
+            );
+            path = Domain;
+            sourceTree = "<group>";
+        };
+        75B762909BDB834AA9044E45 /* Health */ = {
+            isa = PBXGroup;
+            children = (
+                A52D079F75CFBF9BB2BA7C41 /* */,
+            );
+            path = Health;
+            sourceTree = "<group>";
+        };
+        7675693986D84F095B28B67D /* Helpers */ = {
+            isa = PBXGroup;
+            children = (
+                8E3127CE770FF5C05C276665 /* */,
+            );
+            path = Helpers;
+            sourceTree = "<group>";
+        };
+        34612946D52F7ABFAA8B912E /* Persistence */ = {
+            isa = PBXGroup;
+            children = (
+                6018669638742E3118B29041 /* */,
+            );
+            path = Persistence;
+            sourceTree = "<group>";
+        };
+        5947E500C310CB92A269BFB0 /* Workout */ = {
+            isa = PBXGroup;
+            children = (
+                AF7B588DE96AFFC30AE7ABBA /* */,
+                C461B28E60C157EE2885A142 /* */,
+            );
+            path = Workout;
+            sourceTree = "<group>";
+        };
+        0EAB7458B5E343B5ED95EE6F /* UI */ = {
+            isa = PBXGroup;
+            children = (
+                D8BDE8B1656261C1E67BD361 /* */,
+                58B56B88EBFA89F92A11A0E1 /* */,
+                22A7AAFEB69EBE8A0D0FB048 /* */,
+                2DC650870DDC91DB05A48BBA /* */,
+                E2A1B775A27201FA001C88AF /* */,
+                FC5AEA32CF41F4A95EA655A2 /* */,
+                F80845E9FC8FEA57AA0E6D7F /* */,
+                02A391721789A00DCE1A52C5 /* */,
+            );
+            path = UI;
+            sourceTree = "<group>";
+        };
+        0DB76932C055B50DE5275514 /* LapLogTests */ = {
+            isa = PBXGroup;
+            children = (
+                17AFAC5870B80DC3E8E64B00 /* */,
+                EFB9EDEF7841220E7F36CEFF /* */,
+                E7F85A1B319257D193FA45B6 /* */,
+            );
+            path = LapLogTests;
+            sourceTree = "<group>";
+        };
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+        E92819776D1D900150F17949 /* LapLog */ = {
+            isa = PBXNativeTarget;
+            buildConfigurationList = A5565127C23E2209755B64B6 /* Build configuration list for PBXNativeTarget "LapLog" */;
+            buildPhases = (
+                76444D7591C0121B498AF864 /* Sources */,
+                58A6AD7DA7544B8406AD7709 /* Frameworks */,
+                24F985E6D2A373B47700D575 /* Resources */,
+            );
+            buildRules = (
+            );
+            dependencies = (
+            );
+            name = LapLog;
+            productName = LapLog;
+            productReference = 8BEFD367C4AB92E0F59B0B1F /* LapLog.app */;
+            productType = "com.apple.product-type.application";
+        };
+        45972596DBEF12805283439E /* LapLogTests */ = {
+            isa = PBXNativeTarget;
+            buildConfigurationList = 938997E94E15DD5CF3243B0D /* Build configuration list for PBXNativeTarget "LapLogTests" */;
+            buildPhases = (
+                E36BB787EC76E27E13DAFFBA /* Sources */,
+                E350EE90246378D4D995D966 /* Frameworks */,
+            );
+            buildRules = (
+            );
+            dependencies = (
+                EE543492886B1A944A594DA2 /* PBXTargetDependency */,
+            );
+            name = LapLogTests;
+            productName = LapLogTests;
+            productReference = 02AC43A08A4599D8442B24FA /* LapLogTests.xctest */;
+            productType = "com.apple.product-type.bundle.unit-test";
+        };
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+        5299AC4324DC18342A8CCD96 /* Project object */ = {
+            isa = PBXProject;
+            attributes = {
+                BuildIndependentTargetsInParallel = 1;
+                LastSwiftUpdateCheck = 1540;
+                LastUpgradeCheck = 1540;
+            };
+            buildConfigurationList = FE422E61AE992D05BC2E14C2 /* Build configuration list for PBXProject "LapLog" */;
+            compatibilityVersion = "Xcode 14.0";
+            developmentRegion = en;
+            hasScannedForEncodings = 0;
+            knownRegions = (
+                en,
+                Base,
+            );
+            mainGroup = 5928955287B8089ED2177128;
+            productRefGroup = BF7A2D27A78D590BDEF15AF2 /* Products */;
+            projectDirPath = "";
+            projectRoot = "";
+            targets = (
+                E92819776D1D900150F17949 /* LapLog */,
+                45972596DBEF12805283439E /* LapLogTests */,
+            );
+        };
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+        24F985E6D2A373B47700D575 /* Resources */ = {
+            isa = PBXResourcesBuildPhase;
+            buildActionMask = 2147483647;
+            files = (
+                826AF4CE8424BB9A4EF1F5CC /* Assets.xcassets in Resources */,
+            );
+            runOnlyForDeploymentPostprocessing = 0;
+        };
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+        76444D7591C0121B498AF864 /* Sources */ = {
+            isa = PBXSourcesBuildPhase;
+            buildActionMask = 2147483647;
+            files = (
+                ADF3C560149CC9D36C370A06 /* LapLogApp.swift in Sources */,
+                6CB934415EF3BDC0D65EF3E1 /* TrackingMode.swift in Sources */,
+                6E02E5DF235633F34728DC8C /* LapType.swift in Sources */,
+                A6AC58E35DDE8D4C3006B265 /* LapSource.swift in Sources */,
+                5D1F2DA465451D371A979B32 /* Lap.swift in Sources */,
+                33435AFF099565517A2981F6 /* Session.swift in Sources */,
+                D5B5E557FB187878AF5A836B /* SettingsStore.swift in Sources */,
+                52A98D9F8DEB461B7EA6583F /* HealthKitManager.swift in Sources */,
+                29AE989F7AC9917AD935DF22 /* Formatters.swift in Sources */,
+                5B42CCC5F71E7FFD525E342C /* PersistenceManager.swift in Sources */,
+                FCBEE6361F5E5147C8E53373 /* WorkoutRunState.swift in Sources */,
+                E9FA61354F306ED894832978 /* WorkoutSessionController.swift in Sources */,
+                CFBC8671050DDED6391381E7 /* AppScreenState.swift in Sources */,
+                EEF02F2BA438237E59FFD96E /* NavigationCoordinator.swift in Sources */,
+                52686DF91E00697D94B39D92 /* RootView.swift in Sources */,
+                FD7F3FB0395174CBAF09E673 /* HomeView.swift in Sources */,
+                012B7841E2D242F37F954082 /* HomeViewModel.swift in Sources */,
+                4400B362EFED68F5CCBD88CF /* SessionDetailView.swift in Sources */,
+                7BB47A6891185829ADD4094F /* PreStartView.swift in Sources */,
+                1C5FBAD9B17FA11B1506817D /* ActiveSessionView.swift in Sources */,
+            );
+            runOnlyForDeploymentPostprocessing = 0;
+        };
+        E36BB787EC76E27E13DAFFBA /* Sources */ = {
+            isa = PBXSourcesBuildPhase;
+            buildActionMask = 2147483647;
+            files = (
+                437A1B72867C5867B354E553 /* FormattersTests.swift in Sources */,
+                C49E8373AE1A8ED3EC6A2880 /* ModelTests.swift in Sources */,
+                EB489A6095972420E5B254F4 /* WorkoutControllerTests.swift in Sources */,
+            );
+            runOnlyForDeploymentPostprocessing = 0;
+        };
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+        EE543492886B1A944A594DA2 /* PBXTargetDependency */ = {
+            isa = PBXTargetDependency;
+            target = E92819776D1D900150F17949 /* LapLog */;
+            targetProxy = 5B0D864BD0A5C80A44B292AA /* PBXContainerItemProxy */;
+        };
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+        B74382A4D110BEFC1DEB55E4 /* Debug */ = {
+            isa = XCBuildConfiguration;
+            buildSettings = {
+                ALWAYS_SEARCH_USER_PATHS = NO;
+                ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+                CLANG_ANALYZER_NONNULL = YES;
+                CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+                CLANG_ENABLE_MODULES = YES;
+                CLANG_ENABLE_OBJC_ARC = YES;
+                COPY_PHASE_STRIP = NO;
+                DEBUG_INFORMATION_FORMAT = dwarf;
+                ENABLE_STRICT_OBJC_MSGSEND = YES;
+                ENABLE_TESTABILITY = YES;
+                GCC_DYNAMIC_NO_PIC = NO;
+                GCC_OPTIMIZATION_LEVEL = 0;
+                GCC_PREPROCESSOR_DEFINITIONS = (
+                    "DEBUG=1",
+                    "$(inherited)",
+                );
+                MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+                ONLY_ACTIVE_ARCH = YES;
+                SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+                SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+                WATCHOS_DEPLOYMENT_TARGET = 10.0;
+            };
+            name = Debug;
+        };
+        F901A40D62D95EAB754CE15B /* Release */ = {
+            isa = XCBuildConfiguration;
+            buildSettings = {
+                ALWAYS_SEARCH_USER_PATHS = NO;
+                ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+                CLANG_ANALYZER_NONNULL = YES;
+                CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+                CLANG_ENABLE_MODULES = YES;
+                CLANG_ENABLE_OBJC_ARC = YES;
+                COPY_PHASE_STRIP = NO;
+                DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+                ENABLE_NS_ASSERTIONS = NO;
+                ENABLE_STRICT_OBJC_MSGSEND = YES;
+                MTL_ENABLE_DEBUG_INFO = NO;
+                SWIFT_COMPILATION_MODE = wholemodule;
+                VALIDATE_PRODUCT = YES;
+                WATCHOS_DEPLOYMENT_TARGET = 10.0;
+            };
+            name = Release;
+        };
+        1EC4855024DBC8C984257298 /* Debug */ = {
+            isa = XCBuildConfiguration;
+            buildSettings = {
+                ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+                CODE_SIGN_STYLE = Automatic;
+                CURRENT_PROJECT_VERSION = 1;
+                DEVELOPMENT_ASSET_PATHS = "\"LapLog/Preview Content\"";
+                ENABLE_PREVIEWS = YES;
+                GENERATE_INFOPLIST_FILE = YES;
+                INFOPLIST_KEY_CFBundleDisplayName = LapLog;
+                INFOPLIST_KEY_NSHealthShareUsageDescription = "LapLog reads heart rate data during workouts.";
+                INFOPLIST_KEY_NSHealthUpdateUsageDescription = "LapLog saves your workout sessions to Apple Health.";
+                INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LapLog uses GPS to track your running distance.";
+                INFOPLIST_KEY_WKApplication = YES;
+                INFOPLIST_KEY_WKWatchOnly = YES;
+                LD_RUNPATH_SEARCH_PATHS = (
+                    "$(inherited)",
+                    "@executable_path/Frameworks",
+                );
+                MARKETING_VERSION = 1.0;
+                PRODUCT_BUNDLE_IDENTIFIER = com.laplog.watchapp;
+                PRODUCT_NAME = "$(TARGET_NAME)";
+                SDKROOT = watchos;
+                SKIP_INSTALL = NO;
+                SUPPORTED_PLATFORMS = "watchos watchsimulator";
+                SWIFT_EMIT_LOC_STRINGS = YES;
+                SWIFT_VERSION = 5.0;
+                TARGETED_DEVICE_FAMILY = 4;
+                WATCHOS_DEPLOYMENT_TARGET = 10.0;
+            };
+            name = Debug;
+        };
+        A17D69B82EEA6AD12837DC68 /* Release */ = {
+            isa = XCBuildConfiguration;
+            buildSettings = {
+                ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+                CODE_SIGN_STYLE = Automatic;
+                CURRENT_PROJECT_VERSION = 1;
+                DEVELOPMENT_ASSET_PATHS = "\"LapLog/Preview Content\"";
+                ENABLE_PREVIEWS = YES;
+                GENERATE_INFOPLIST_FILE = YES;
+                INFOPLIST_KEY_CFBundleDisplayName = LapLog;
+                INFOPLIST_KEY_NSHealthShareUsageDescription = "LapLog reads heart rate data during workouts.";
+                INFOPLIST_KEY_NSHealthUpdateUsageDescription = "LapLog saves your workout sessions to Apple Health.";
+                INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LapLog uses GPS to track your running distance.";
+                INFOPLIST_KEY_WKApplication = YES;
+                INFOPLIST_KEY_WKWatchOnly = YES;
+                LD_RUNPATH_SEARCH_PATHS = (
+                    "$(inherited)",
+                    "@executable_path/Frameworks",
+                );
+                MARKETING_VERSION = 1.0;
+                PRODUCT_BUNDLE_IDENTIFIER = com.laplog.watchapp;
+                PRODUCT_NAME = "$(TARGET_NAME)";
+                SDKROOT = watchos;
+                SKIP_INSTALL = NO;
+                SUPPORTED_PLATFORMS = "watchos watchsimulator";
+                SWIFT_EMIT_LOC_STRINGS = YES;
+                SWIFT_VERSION = 5.0;
+                TARGETED_DEVICE_FAMILY = 4;
+                WATCHOS_DEPLOYMENT_TARGET = 10.0;
+            };
+            name = Release;
+        };
+        4B76C35BB1D534F10245EF37 /* Debug */ = {
+            isa = XCBuildConfiguration;
+            buildSettings = {
+                BUNDLE_LOADER = "$(TEST_HOST)";
+                CODE_SIGN_STYLE = Automatic;
+                CURRENT_PROJECT_VERSION = 1;
+                GENERATE_INFOPLIST_FILE = YES;
+                MARKETING_VERSION = 1.0;
+                PRODUCT_BUNDLE_IDENTIFIER = com.laplog.watchapp.tests;
+                PRODUCT_NAME = "$(TARGET_NAME)";
+                SDKROOT = watchos;
+                SUPPORTED_PLATFORMS = "watchos watchsimulator";
+                SWIFT_EMIT_LOC_STRINGS = NO;
+                SWIFT_VERSION = 5.0;
+                TARGETED_DEVICE_FAMILY = 4;
+                TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LapLog.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LapLog";
+                WATCHOS_DEPLOYMENT_TARGET = 10.0;
+            };
+            name = Debug;
+        };
+        819EE775D92C0EF73120C600 /* Release */ = {
+            isa = XCBuildConfiguration;
+            buildSettings = {
+                BUNDLE_LOADER = "$(TEST_HOST)";
+                CODE_SIGN_STYLE = Automatic;
+                CURRENT_PROJECT_VERSION = 1;
+                GENERATE_INFOPLIST_FILE = YES;
+                MARKETING_VERSION = 1.0;
+                PRODUCT_BUNDLE_IDENTIFIER = com.laplog.watchapp.tests;
+                PRODUCT_NAME = "$(TARGET_NAME)";
+                SDKROOT = watchos;
+                SUPPORTED_PLATFORMS = "watchos watchsimulator";
+                SWIFT_EMIT_LOC_STRINGS = NO;
+                SWIFT_VERSION = 5.0;
+                TARGETED_DEVICE_FAMILY = 4;
+                TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LapLog.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/LapLog";
+                WATCHOS_DEPLOYMENT_TARGET = 10.0;
+            };
+            name = Release;
+        };
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+        FE422E61AE992D05BC2E14C2 /* Build configuration list for PBXProject "LapLog" */ = {
+            isa = XCConfigurationList;
+            buildConfigurations = (
+                B74382A4D110BEFC1DEB55E4 /* Debug */,
+                F901A40D62D95EAB754CE15B /* Release */,
+            );
+            defaultConfigurationIsVisible = 0;
+            defaultConfigurationName = Release;
+        };
+        A5565127C23E2209755B64B6 /* Build configuration list for PBXNativeTarget "LapLog" */ = {
+            isa = XCConfigurationList;
+            buildConfigurations = (
+                1EC4855024DBC8C984257298 /* Debug */,
+                A17D69B82EEA6AD12837DC68 /* Release */,
+            );
+            defaultConfigurationIsVisible = 0;
+            defaultConfigurationName = Release;
+        };
+        938997E94E15DD5CF3243B0D /* Build configuration list for PBXNativeTarget "LapLogTests" */ = {
+            isa = XCConfigurationList;
+            buildConfigurations = (
+                4B76C35BB1D534F10245EF37 /* Debug */,
+                819EE775D92C0EF73120C600 /* Release */,
+            );
+            defaultConfigurationIsVisible = 0;
+            defaultConfigurationName = Release;
+        };
+/* End XCConfigurationList section */
+    };
+    rootObject = 5299AC4324DC18342A8CCD96 /* Project object */;
+}

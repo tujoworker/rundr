@@ -1,0 +1,75 @@
+import SwiftUI
+
+struct HomeView: View {
+    @EnvironmentObject var persistence: PersistenceManager
+    @EnvironmentObject var settings: SettingsStore
+    @StateObject private var viewModel = HomeViewModel()
+
+    var onGetReady: () -> Void
+    var onSelectSession: (Session) -> Void
+
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 12) {
+                Button(action: onGetReady) {
+                    Text("Get Ready")
+                        .font(.title3.bold())
+                        .frame(maxWidth: .infinity, minHeight: 50)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.green)
+                .padding(.horizontal)
+
+                if viewModel.recentSessions.isEmpty {
+                    Text("No sessions yet")
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 20)
+                } else {
+                    LazyVStack(spacing: 8) {
+                        ForEach(viewModel.recentSessions, id: \.id) { session in
+                            Button {
+                                onSelectSession(session)
+                            } label: {
+                                SessionRowView(session: session)
+                            }
+                            .buttonStyle(.plain)
+                        }
+
+                        if viewModel.hasMoreSessions {
+                            Button("Load More") {
+                                viewModel.loadMore(persistence: persistence)
+                            }
+                            .font(.footnote)
+                            .padding(.top, 4)
+                        }
+                    }
+                    .padding(.horizontal, 4)
+                }
+            }
+            .padding(.vertical, 8)
+        }
+        .onAppear {
+            viewModel.loadRecent(persistence: persistence)
+        }
+    }
+}
+
+struct SessionRowView: View {
+    let session: Session
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(session.startedAt, style: .date)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            Text("Laps: \(session.totalLaps) • Avg: \(Formatters.speedString(metersPerSecond: session.averageSpeedMetersPerSecond))")
+                .font(.caption)
+            Text("Time: \(Formatters.timeString(from: session.durationSeconds)) • Dist: \(Formatters.distanceString(meters: session.totalDistanceMeters))")
+                .font(.caption)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(8)
+        .background(Color.gray.opacity(0.15))
+        .cornerRadius(8)
+    }
+}

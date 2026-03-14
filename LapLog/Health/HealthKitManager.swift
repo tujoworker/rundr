@@ -138,14 +138,21 @@ final class HealthKitManager: ObservableObject {
             intervalConfig.activityType = lap.lapType == .rest ? .running : .running
             intervalConfig.locationType = session.mode == .gps ? .outdoor : .indoor
 
+            var meta: [String: Any] = [
+                "lapIndex": lap.index,
+                "lapType": lap.lapTypeRaw
+            ]
+            if let bpm = lap.averageHeartRateBPM {
+                meta[HKMetadataKeyAverageHeartRate] = bpm
+            }
+            if lap.distanceMeters > 0 {
+                meta["distanceMeters"] = lap.distanceMeters
+            }
             let activity = HKWorkoutActivity(
                 workoutConfiguration: intervalConfig,
                 start: lap.startedAt,
                 end: lap.endedAt,
-                metadata: [
-                    "lapIndex": lap.index,
-                    "lapType": lap.lapTypeRaw
-                ]
+                metadata: meta
             )
             try await builder.addWorkoutActivity(activity)
         }

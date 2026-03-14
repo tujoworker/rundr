@@ -242,9 +242,9 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         session.end()
         do {
             try await builder.endCollection(at: endDate)
-            _ = try await builder.finishWorkout()
+            builder.discardWorkout()
         } catch {
-            print("Failed to end HK workout: \(error)")
+            print("Failed to stop HK live session: \(error)")
         }
         hkWorkoutSession = nil
         hkLiveBuilder = nil

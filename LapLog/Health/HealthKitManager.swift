@@ -105,21 +105,9 @@ final class HealthKitManager: ObservableObject {
             try await builder.addSamples(samples)
         }
 
-        // Add workout events (pause/resume for rest, segment for active laps)
+        // Add segment events for active laps
         for lap in session.laps.sorted(by: { $0.startedAt < $1.startedAt }) {
-            if lap.lapType == .rest {
-                let pauseEvent = HKWorkoutEvent(
-                    type: .pause,
-                    dateInterval: DateInterval(start: lap.startedAt, duration: 0),
-                    metadata: nil
-                )
-                let resumeEvent = HKWorkoutEvent(
-                    type: .resume,
-                    dateInterval: DateInterval(start: lap.endedAt, duration: 0),
-                    metadata: nil
-                )
-                try await builder.addWorkoutEvents([pauseEvent, resumeEvent])
-            } else {
+            if lap.lapType != .rest {
                 let segmentEvent = HKWorkoutEvent(
                     type: .segment,
                     dateInterval: DateInterval(start: lap.startedAt, end: lap.endedAt),
@@ -135,7 +123,7 @@ final class HealthKitManager: ObservableObject {
         // Add interval workout activities for each lap so Fitness shows them
         for lap in session.laps.sorted(by: { $0.startedAt < $1.startedAt }) {
             let intervalConfig = HKWorkoutConfiguration()
-            intervalConfig.activityType = lap.lapType == .rest ? .running : .running
+            intervalConfig.activityType = lap.lapType == .rest ? .cooldown : .running
             intervalConfig.locationType = session.mode == .gps ? .outdoor : .indoor
 
             var meta: [String: Any] = [

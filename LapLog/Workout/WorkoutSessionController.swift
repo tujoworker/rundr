@@ -181,7 +181,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         var distance: Double
         if isRest {
             distance = 0
-        } else if trackingMode == .distanceDistance && source == .distanceTap {
+        } else if trackingMode == .distanceDistance {
             distance = distanceLapDistanceMeters
         } else {
             distance = currentLapDistanceMeters

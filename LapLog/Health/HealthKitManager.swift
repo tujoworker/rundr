@@ -106,17 +106,30 @@ final class HealthKitManager: ObservableObject {
         }
 
         // Add workout events for laps
-        for lap in session.laps.sorted(by: { $0.index < $1.index }) {
-            let eventType: HKWorkoutEventType = lap.lapType == .rest ? .pause : .lap
-            let event = HKWorkoutEvent(
-                type: eventType,
-                dateInterval: DateInterval(start: lap.startedAt, end: lap.endedAt),
-                metadata: [
-                    "lapIndex": lap.index,
-                    "lapType": lap.lapTypeRaw
-                ]
-            )
-            try await builder.addWorkoutEvents([event])
+        for lap in session.laps.sorted(by: { $0.startedAt < $1.startedAt }) {
+            if lap.lapType == .rest {
+                let pauseEvent = HKWorkoutEvent(
+                    type: .pause,
+                    dateInterval: DateInterval(start: lap.startedAt, duration: 0),
+                    metadata: nil
+                )
+                let resumeEvent = HKWorkoutEvent(
+                    type: .resume,
+                    dateInterval: DateInterval(start: lap.endedAt, duration: 0),
+                    metadata: nil
+                )
+                try await builder.addWorkoutEvents([pauseEvent, resumeEvent])
+            } else {
+                let event = HKWorkoutEvent(
+                    type: .lap,
+                    dateInterval: DateInterval(start: lap.startedAt, end: lap.endedAt),
+                    metadata: [
+                        "lapIndex": lap.index,
+                        "lapType": lap.lapTypeRaw
+                    ]
+                )
+                try await builder.addWorkoutEvents([event])
+            }
         }
 
         try await builder.endCollection(at: session.endedAt)

@@ -33,12 +33,7 @@ struct RootView: View {
                         coordinator.goToActiveSession()
                     })
                 case .activeSession:
-                    ActiveSessionView(onSessionEnded: {
-                        coordinator.sessionEnded()
-                    })
-                    .navigationBarBackButtonHidden(true)
-                    .toolbar(.hidden, for: .navigationBar)
-                    .persistentSystemOverlays(.hidden)
+                    EmptyView()
                 case .sessionDetail(let sessionID):
                     if let session = persistence.fetchSession(id: sessionID) {
                         SessionDetailView(session: session)
@@ -49,6 +44,11 @@ struct RootView: View {
                     EmptyView()
                 }
             }
+        }
+        .fullScreenCover(isPresented: $coordinator.showActiveSession) {
+            ActiveSessionView(onSessionEnded: {
+                coordinator.sessionEnded()
+            })
         }
     }
 }

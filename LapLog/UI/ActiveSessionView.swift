@@ -181,8 +181,7 @@ struct LapCardView: View {
         Group {
             if isRest {
                 Text(Formatters.compactTimeString(from: lap.durationSeconds))
-                    .font(.system(isLatest ? .body : .caption, design: .monospaced))
-                    .fontWeight(isLatest ? .bold : .regular)
+                    .font(.system(.caption, design: .monospaced))
                     .frame(maxHeight: .infinity, alignment: .center)
             } else {
                 HStack(spacing: 6) {
@@ -199,14 +198,14 @@ struct LapCardView: View {
                 }
             }
         }
-        .padding(isLatest ? 8 : 6)
-        .frame(minHeight: isLatest ? nil : 40)
+        .padding(isLatest && !isRest ? 8 : 6)
+        .frame(minHeight: isLatest && !isRest ? nil : 40)
         .foregroundColor(lap.lapType == .rest ? .black : .white)
         .background(lap.lapType == .rest ? Color.white.opacity(0.9) : Color.white.opacity(0.15))
         .cornerRadius(8)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .stroke(Color.white, lineWidth: isLatest ? 1.5 : 0)
+                .stroke(Color.white, lineWidth: isLatest && !isRest ? 1.5 : 0)
         )
     }
 }

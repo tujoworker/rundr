@@ -84,6 +84,11 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         guard runState == .active || runState == .rest || runState == .ending else { return }
         if runState != .ending {
             commitCurrentLap(source: .distanceTap)
+        } else {
+            currentLapStartDate = Date()
+            currentLapDistanceMeters = 0
+            currentLapHeartRateSamples = []
+            lapElapsedSeconds = 0
         }
         runState = .active
         startTimer()
@@ -151,7 +156,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     // MARK: - Timer
 
     private func startTimer() {
-        timerCancellable = Timer.publish(every: 0.5, on: .main, in: .common)
+        timerCancellable = Timer.publish(every: 0.01, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
                 guard let self, let start = self.sessionStartDate else { return }
@@ -176,13 +181,23 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         let duration = lapEnd.timeIntervalSince(lapStart)
         guard duration > 0.1 else { return }
 
-        let isRest = (runState == .rest)
-        let distance = isRest ? 0 : currentLapDistanceMeters
+        let isRest = (runState == .rest || runState == .ending)
+        var distance: Double
+        if isRest {
+            distance = 0
+        } else if trackingMode == .distanceDistance && source == .distanceTap {
+            distance = distanceLapDistanceMeters
+        } else {
+            distance = currentLapDistanceMeters
+        }
         let avgSpeed = duration > 0 && distance > 0 ? distance / duration : 0
         let avgHR: Double? = currentLapHeartRateSamples.isEmpty ? nil : currentLapHeartRateSamples.reduce(0, +) / Double(currentLapHeartRateSamples.count)
 
+        let activeLapCount = completedLaps.filter { $0.lapType != .rest }.count
+        let lapIndex = isRest ? 0 : activeLapCount + 1
+
         let lap = Lap(
-            index: completedLaps.count + 1,
+            index: lapIndex,
             startedAt: lapStart,
             endedAt: lapEnd,
             durationSeconds: duration,

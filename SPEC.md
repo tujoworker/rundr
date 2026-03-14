@@ -249,6 +249,7 @@ Purpose: live workout UI while running.
 - Top right: live heart rate
 - Below main timer: horizontally scrollable lap cards
 - Newest lap card appears on the **right**
+- The lap cards area must always occupy its fixed height (60pt), even when no laps exist yet, to prevent layout shifts when the first card appears
 
 #### Live timer
 

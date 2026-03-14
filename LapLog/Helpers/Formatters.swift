@@ -17,6 +17,29 @@ enum Formatters {
         }
     }
 
+    /// Precision format: 00:00.00 – minutes, seconds, and hundredths.
+    static func precisionTimeString(from seconds: Double) -> String {
+        let clamped = max(seconds, 0)
+        let totalSeconds = Int(clamped)
+        let minutes = totalSeconds / 60
+        let secs = totalSeconds % 60
+        let hundredths = Int((clamped - Double(totalSeconds)) * 100) % 100
+        return String(format: "%02d:%02d.%02d", minutes, secs, hundredths)
+    }
+
+    /// Compact format: 0:02, 1:30, 12:05 – no leading zero on minutes unless >= 10.
+    static func compactTimeString(from seconds: Double) -> String {
+        let totalSeconds = Int(max(seconds, 0))
+        let hours = totalSeconds / 3600
+        let minutes = (totalSeconds % 3600) / 60
+        let secs = totalSeconds % 60
+        if hours > 0 {
+            return String(format: "%d:%02d:%02d", hours, minutes, secs)
+        } else {
+            return String(format: "%d:%02d", minutes, secs)
+        }
+    }
+
     // MARK: - Distance
 
     /// Returns a human-readable distance string.

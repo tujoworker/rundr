@@ -24,3 +24,7 @@ xcodebuild test -project LapLog.xcodeproj -scheme LapLog -destination 'platform=
 - Make meaningful commits with a clear scope and message.
 - Keep each commit focused on one logical change.
 - Do not bundle unrelated refactors, generated files, or incidental edits into the same commit.
+
+## Active session layout
+
+- The lap cards scroll area at the bottom of `ActiveSessionView` must always reserve its fixed height (60pt), even when no laps exist yet, so the layout does not shift when the first card appears.

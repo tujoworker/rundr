@@ -27,6 +27,29 @@ final class FormattersTests: XCTestCase {
         XCTAssertEqual(Formatters.timeString(from: -10), "00:00")
     }
 
+    // MARK: - Compact Time Formatting
+
+    func testCompactTimeStringSeconds() {
+        XCTAssertEqual(Formatters.compactTimeString(from: 0), "0:00")
+        XCTAssertEqual(Formatters.compactTimeString(from: 2), "0:02")
+        XCTAssertEqual(Formatters.compactTimeString(from: 59), "0:59")
+    }
+
+    func testCompactTimeStringMinutes() {
+        XCTAssertEqual(Formatters.compactTimeString(from: 60), "1:00")
+        XCTAssertEqual(Formatters.compactTimeString(from: 90), "1:30")
+        XCTAssertEqual(Formatters.compactTimeString(from: 605), "10:05")
+    }
+
+    func testCompactTimeStringHours() {
+        XCTAssertEqual(Formatters.compactTimeString(from: 3600), "1:00:00")
+        XCTAssertEqual(Formatters.compactTimeString(from: 3661), "1:01:01")
+    }
+
+    func testCompactTimeStringNegative() {
+        XCTAssertEqual(Formatters.compactTimeString(from: -5), "0:00")
+    }
+
     // MARK: - Distance Formatting
 
     func testDistanceStringMeters() {

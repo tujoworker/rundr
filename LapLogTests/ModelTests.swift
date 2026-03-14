@@ -53,10 +53,11 @@ final class ModelTests: XCTestCase {
     // MARK: - WorkoutRunState
 
     func testWorkoutRunStateCases() {
-        let states: [WorkoutRunState] = [.idle, .ready, .active, .rest, .ended]
-        XCTAssertEqual(states.count, 5)
+        let states: [WorkoutRunState] = [.idle, .ready, .active, .rest, .ending, .ended]
+        XCTAssertEqual(states.count, 6)
         XCTAssertEqual(WorkoutRunState.idle, WorkoutRunState.idle)
         XCTAssertNotEqual(WorkoutRunState.idle, WorkoutRunState.active)
+        XCTAssertNotEqual(WorkoutRunState.ending, WorkoutRunState.ended)
     }
 
     // MARK: - Lap Initialization

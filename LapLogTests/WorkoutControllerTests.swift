@@ -47,4 +47,28 @@ final class WorkoutControllerTests: XCTestCase {
         controller.handleDistanceUpdate(additionalMeters: 50)
         XCTAssertEqual(controller.cumulativeDistanceMeters, 150)
     }
+
+    // MARK: - Commit Final Lap
+
+    func testCommitFinalLapFromRestStopsTimer() async {
+        let controller = makeController()
+        await controller.start()
+        XCTAssertEqual(controller.runState, .active)
+
+        controller.markLap()
+        controller.startRest()
+        XCTAssertEqual(controller.runState, .rest)
+
+        let lapCountBefore = controller.completedLaps.count
+        controller.commitFinalLap()
+        XCTAssertEqual(controller.runState, .ending)
+        XCTAssertEqual(controller.completedLaps.count, lapCountBefore + 1)
+    }
+
+    func testCommitFinalLapIgnoredWhenIdle() {
+        let controller = makeController()
+        controller.commitFinalLap()
+        XCTAssertEqual(controller.runState, .idle)
+        XCTAssertTrue(controller.completedLaps.isEmpty)
+    }
 }

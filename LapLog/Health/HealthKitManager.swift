@@ -123,7 +123,7 @@ final class HealthKitManager: ObservableObject {
         // Add interval workout activities for each lap so Fitness shows them
         for lap in session.laps.sorted(by: { $0.startedAt < $1.startedAt }) {
             let intervalConfig = HKWorkoutConfiguration()
-            intervalConfig.activityType = lap.lapType == .rest ? .cooldown : .running
+            intervalConfig.activityType = .running
             intervalConfig.locationType = session.mode == .gps ? .outdoor : .indoor
 
             var meta: [String: Any] = [

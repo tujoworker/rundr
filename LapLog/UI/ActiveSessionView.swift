@@ -66,6 +66,7 @@ struct ActiveSessionView: View {
                     .buttonStyle(.plain)
                 }
 
+                Spacer()
             }
             .padding(.horizontal, 8)
             .padding(.top, 4)

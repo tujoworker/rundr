@@ -107,6 +107,9 @@ struct ActiveSessionView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 6) {
                         Spacer(minLength: 0)
+                        if workoutController.completedLaps.isEmpty {
+                            PlaceholderLapCardView()
+                        }
                         ForEach(workoutController.completedLaps, id: \.id) { lap in
                             LapCardView(lap: lap, trackingMode: workoutController.trackingMode, distanceUnit: settings.distanceUnit, isLatest: lap.id == workoutController.completedLaps.last?.id)
                                 .id(lap.id)
@@ -162,6 +165,30 @@ struct ActiveSessionView: View {
             }
         }
         onSessionEnded()
+    }
+}
+
+struct PlaceholderLapCardView: View {
+    var body: some View {
+        HStack(spacing: 6) {
+            Text("1")
+                .font(.system(.body, design: .monospaced).bold())
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Go!")
+                    .font(.system(.body, design: .monospaced))
+                    .fontWeight(.bold)
+                Text(" ")
+                    .font(.system(.caption, design: .monospaced))
+            }
+        }
+        .padding(8)
+        .foregroundColor(.white)
+        .background(Color.white.opacity(0.15))
+        .cornerRadius(8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.white, lineWidth: 1.5)
+        )
     }
 }
 

@@ -174,7 +174,7 @@ struct PlaceholderLapCardView: View {
             Text("1")
                 .font(.system(.body, design: .monospaced).bold())
             VStack(alignment: .leading, spacing: 2) {
-                Text("Go!")
+                Text("—:——")
                     .font(.system(.body, design: .monospaced))
                     .fontWeight(.bold)
                 Text(" ")

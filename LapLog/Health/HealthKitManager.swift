@@ -63,7 +63,7 @@ final class HealthKitManager: ObservableObject {
         }
     }
 
-    /// Save a completed session to HealthKit as an HKWorkout with events and samples.
+    /// Save a completed session to HealthKit as an HKWorkout with interval activities.
     func saveWorkout(session: Session) async throws -> UUID? {
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = .running
@@ -72,9 +72,9 @@ final class HealthKitManager: ObservableObject {
         let builder = HKWorkoutBuilder(healthStore: healthStore, configuration: configuration, device: .local())
         try await builder.beginCollection(at: session.startedAt)
 
-        // Add distance samples per lap
+        // Add distance and heart rate samples per lap
         var samples: [HKQuantitySample] = []
-        for lap in session.laps.sorted(by: { $0.index < $1.index }) {
+        for lap in session.laps.sorted(by: { $0.startedAt < $1.startedAt }) {
             if lap.distanceMeters > 0,
                let distanceType = HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning) {
                 let quantity = HKQuantity(unit: .meter(), doubleValue: lap.distanceMeters)
@@ -105,7 +105,7 @@ final class HealthKitManager: ObservableObject {
             try await builder.addSamples(samples)
         }
 
-        // Add workout events for laps
+        // Add workout events (pause/resume for rest, segment for active laps)
         for lap in session.laps.sorted(by: { $0.startedAt < $1.startedAt }) {
             if lap.lapType == .rest {
                 let pauseEvent = HKWorkoutEvent(
@@ -120,16 +120,34 @@ final class HealthKitManager: ObservableObject {
                 )
                 try await builder.addWorkoutEvents([pauseEvent, resumeEvent])
             } else {
-                let event = HKWorkoutEvent(
-                    type: .lap,
+                let segmentEvent = HKWorkoutEvent(
+                    type: .segment,
                     dateInterval: DateInterval(start: lap.startedAt, end: lap.endedAt),
                     metadata: [
                         "lapIndex": lap.index,
                         "lapType": lap.lapTypeRaw
                     ]
                 )
-                try await builder.addWorkoutEvents([event])
+                try await builder.addWorkoutEvents([segmentEvent])
             }
+        }
+
+        // Add interval workout activities for each lap so Fitness shows them
+        for lap in session.laps.sorted(by: { $0.startedAt < $1.startedAt }) {
+            let intervalConfig = HKWorkoutConfiguration()
+            intervalConfig.activityType = lap.lapType == .rest ? .running : .running
+            intervalConfig.locationType = session.mode == .gps ? .outdoor : .indoor
+
+            let activity = HKWorkoutActivity(
+                workoutConfiguration: intervalConfig,
+                start: lap.startedAt,
+                end: lap.endedAt,
+                metadata: [
+                    "lapIndex": lap.index,
+                    "lapType": lap.lapTypeRaw
+                ]
+            )
+            try await builder.addWorkoutActivity(activity)
         }
 
         try await builder.endCollection(at: session.endedAt)

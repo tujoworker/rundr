@@ -32,7 +32,7 @@ struct PreStartView: View {
                         .frame(maxWidth: .infinity, minHeight: 50)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(.green)
+                .tint(settings.primaryAccentColor)
                 .disabled(settings.trackingMode == .distanceDistance && (Double(distanceText) ?? 0) <= 0)
 
                 VStack(alignment: .leading, spacing: 8) {
@@ -61,12 +61,22 @@ struct PreStartView: View {
                         }
                     }
                     .pickerStyle(.navigationLink)
+
+                    Text("Primary Color")
+                        .font(.caption.bold())
+                    Picker("Color", selection: $settings.primaryColor) {
+                        ForEach(PrimaryColorOption.allCases) { color in
+                            Text(color.displayName).tag(color)
+                        }
+                    }
+                    .pickerStyle(.navigationLink)
                 }
                 .padding(.horizontal, 4)
             }
             .padding(.vertical, 8)
         }
         .navigationTitle("Setup")
+        .tint(settings.primaryAccentColor)
         .onAppear {
             distanceText = displayDistance()
         }

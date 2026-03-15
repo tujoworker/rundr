@@ -11,6 +11,7 @@
 		1C5FBAD9B17FA11B1506817D /* ActiveSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A391721789A00DCE1A52C5 /* ActiveSessionView.swift */; };
 		29AE989F7AC9917AD935DF22 /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E3127CE770FF5C05C276665 /* Formatters.swift */; };
 		33435AFF099565517A2981F6 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E613F59ADF522B5282AC2A3 /* Session.swift */; };
+		3522748E3D40B521A48CBEA2 /* PrimaryColorOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3522748D3D40B521A48CBEA2 /* PrimaryColorOption.swift */; };
 		437A1B72867C5867B354E553 /* FormattersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17AFAC5870B80DC3E8E64B00 /* FormattersTests.swift */; };
 		4400B362EFED68F5CCBD88CF /* SessionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5AEA32CF41F4A95EA655A2 /* SessionDetailView.swift */; };
 		45B7D4110A16858C07A6357E /* ActionButtonCommandStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2F9EBC2633B3C17127B2A8 /* ActionButtonCommandStore.swift */; };
@@ -60,6 +61,7 @@
 		586AE861C21CF4145AD81D08 /* LapType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapType.swift; sourceTree = "<group>"; };
 		58B56B88EBFA89F92A11A0E1 /* NavigationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinator.swift; sourceTree = "<group>"; };
 		5E613F59ADF522B5282AC2A3 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
+		3522748D3D40B521A48CBEA2 /* PrimaryColorOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryColorOption.swift; sourceTree = "<group>"; };
 		6018669638742E3118B29041 /* PersistenceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceManager.swift; sourceTree = "<group>"; };
 		803A3A092975B9BAB810BAB2 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
 		8BEFD367C4AB92E0F59B0B1F /* LapLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LapLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -134,6 +136,7 @@
 			isa = PBXGroup;
 			children = (
 				F6DEE2BD2F65FC180005ABAA /* DistanceUnit.swift */,
+				3522748D3D40B521A48CBEA2 /* PrimaryColorOption.swift */,
 				AE97F98043246AF98F971416 /* TrackingMode.swift */,
 				586AE861C21CF4145AD81D08 /* LapType.swift */,
 				4087CA1ACDF79F69B6F2FBEC /* LapSource.swift */,
@@ -314,6 +317,7 @@
 				A6AC58E35DDE8D4C3006B265 /* LapSource.swift in Sources */,
 				5D1F2DA465451D371A979B32 /* Lap.swift in Sources */,
 				33435AFF099565517A2981F6 /* Session.swift in Sources */,
+				3522748E3D40B521A48CBEA2 /* PrimaryColorOption.swift in Sources */,
 				D5B5E557FB187878AF5A836B /* SettingsStore.swift in Sources */,
 				52A98D9F8DEB461B7EA6583F /* HealthKitManager.swift in Sources */,
 				29AE989F7AC9917AD935DF22 /* Formatters.swift in Sources */,

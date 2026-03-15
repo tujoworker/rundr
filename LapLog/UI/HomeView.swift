@@ -17,7 +17,7 @@ struct HomeView: View {
                     .frame(maxWidth: .infinity, minHeight: 50)
             }
             .buttonStyle(.borderedProminent)
-            .tint(.green)
+            .tint(settings.primaryAccentColor)
             .padding(.horizontal)
             .padding(.vertical, 8)
 
@@ -56,6 +56,7 @@ struct HomeView: View {
                 .listStyle(.plain)
             }
         }
+        .tint(settings.primaryAccentColor)
         .onAppear {
             viewModel.loadRecent(persistence: persistence)
         }

@@ -17,6 +17,12 @@ struct ActiveSessionView: View {
     @State private var endState: EndState = .none
     @State private var isTapFlashVisible = false
     @State private var isSessionMenuPresented = false
+    @State private var isTimerBounceActive = false
+    @State private var lastAnimatedLapCount = 0
+
+    private var primaryColor: Color {
+        settings.primaryAccentColor
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -53,12 +59,14 @@ struct ActiveSessionView: View {
                 .padding(.vertical, 18)
                 .background(
                     RoundedRectangle(cornerRadius: 22, style: .continuous)
-                        .fill(Color.white.opacity(0.12))
+                        .fill(isTimerBounceActive ? primaryColor : Color.white.opacity(0.12))
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 22, style: .continuous)
-                        .stroke(Color.blue, lineWidth: 5)
+                        .stroke(primaryColor, lineWidth: 5)
                 )
+                .scaleEffect(isTimerBounceActive ? 1.05 : 1)
+                .shadow(color: primaryColor.opacity(isTimerBounceActive ? 0.45 : 0), radius: 10)
                 .padding(.horizontal, 14)
                 .contentShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
                 .onTapGesture {
@@ -99,6 +107,12 @@ struct ActiveSessionView: View {
                             proxy.scrollTo(lastLap.id, anchor: .trailing)
                         }
                     }
+
+                    let lapCount = workoutController.completedLaps.count
+                    if lapCount > lastAnimatedLapCount && lapCount > 0 {
+                        animateTimerForNewLap()
+                    }
+                    lastAnimatedLapCount = lapCount
                 }
             }
             .frame(height: 64)
@@ -123,6 +137,10 @@ struct ActiveSessionView: View {
                 Task { await endSession() }
             }
             Button("Cancel", role: .cancel) {}
+        }
+        .tint(primaryColor)
+        .onAppear {
+            lastAnimatedLapCount = workoutController.completedLaps.count
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarHidden(true)
@@ -168,17 +186,30 @@ struct ActiveSessionView: View {
         }
     }
 
+    private func animateTimerForNewLap() {
+        withAnimation(.spring(response: 0.18, dampingFraction: 0.58)) {
+            isTimerBounceActive = true
+        }
+
+        Task {
+            try? await Task.sleep(for: .milliseconds(220))
+            await MainActor.run {
+                withAnimation(.spring(response: 0.28, dampingFraction: 0.72)) {
+                    isTimerBounceActive = false
+                }
+            }
+        }
+    }
+
     @ViewBuilder
     private var leftControlButton: some View {
         Button {
             isSessionMenuPresented = true
         } label: {
-            Image(systemName: "ellipsis")
-                .font(.system(size: 19, weight: .bold))
-                .foregroundColor(.white)
-                .frame(width: 44, height: 44)
-                .background(Color.blue)
-                .clipShape(Circle())
+            WorkoutControlIcon(
+                systemName: "ellipsis",
+                baseColor: primaryColor
+            )
         }
         .buttonStyle(.plain)
     }
@@ -191,12 +222,10 @@ struct ActiveSessionView: View {
                 workoutController.cancelRest()
                 endState = .none
             } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(width: 44, height: 44)
-                    .background(Color.red)
-                    .clipShape(Circle())
+                WorkoutControlIcon(
+                    systemName: "xmark",
+                    baseColor: primaryColor
+                )
             }
             .buttonStyle(.plain)
         case .none:
@@ -204,12 +233,10 @@ struct ActiveSessionView: View {
                 workoutController.startRest()
                 endState = .xShown
             } label: {
-                Image(systemName: "pause.fill")
-                    .font(.system(size: 18, weight: .bold))
-                    .foregroundColor(.white)
-                    .frame(width: 44, height: 44)
-                    .background(Color.blue)
-                    .clipShape(Circle())
+                WorkoutControlIcon(
+                    systemName: "pause.fill",
+                    baseColor: primaryColor
+                )
             }
             .buttonStyle(.plain)
         }
@@ -281,5 +308,37 @@ struct LapCardView: View {
             RoundedRectangle(cornerRadius: 8)
                 .stroke(Color.white, lineWidth: isLatest && !isRest ? 1.5 : 0)
         )
+    }
+}
+
+private struct WorkoutControlIcon: View {
+    let systemName: String
+    let baseColor: Color
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: [baseColor.opacity(0.98), baseColor.opacity(0.78)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+
+            Circle()
+                .stroke(Color.white.opacity(0.18), lineWidth: 1)
+
+            Circle()
+                .stroke(Color.black.opacity(0.35), lineWidth: 3)
+                .padding(1.5)
+        }
+        .overlay {
+            Image(systemName: systemName)
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(.white)
+        }
+        .frame(width: 46, height: 46)
+        .shadow(color: baseColor.opacity(0.28), radius: 6, y: 2)
     }
 }

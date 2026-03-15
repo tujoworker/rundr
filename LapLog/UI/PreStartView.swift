@@ -52,9 +52,7 @@ struct PreStartView: View {
 
     private var supportsActionButton: Bool {
         let screenBounds = WKInterfaceDevice.current().screenBounds
-        let width = Int(screenBounds.width.rounded())
-        let height = Int(screenBounds.height.rounded())
-        return width == 205 && height == 251
+        return screenBounds.width >= 205 && screenBounds.height >= 251
     }
 
     var body: some View {

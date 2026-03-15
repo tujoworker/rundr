@@ -57,12 +57,12 @@ struct ActiveSessionView: View {
                     .padding(.top, -10)
 
                     HStack(spacing: 6) {
-                        Image(systemName: workoutController.isGPSActive ? "location.fill" : "location.slash.fill")
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundStyle(workoutController.isGPSActive ? .green : .red)
-
                         Text(Formatters.heartRateString(bpm: workoutController.currentHeartRate))
                             .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.78))
+
+                        Image(systemName: "heart.fill")
+                            .font(.system(size: 10, weight: .semibold))
                             .foregroundStyle(.white.opacity(0.78))
                     }
                     .padding(.top, 22)
@@ -390,10 +390,26 @@ struct LapCardView: View {
                             .font(.system(.caption, design: .rounded))
                             .monospacedDigit()
                             .fontWeight(isLatest ? .bold : .regular)
-                        Text(Formatters.paceString(distanceMeters: lap.distanceMeters, durationSeconds: lap.durationSeconds, unit: distanceUnit))
-                            .font(.system(.caption2, design: .rounded))
-                            .monospacedDigit()
+                        if showsDistance {
+                            HStack(spacing: 4) {
+                                Text(Formatters.distanceString(meters: lap.distanceMeters, unit: distanceUnit))
+                                    .font(.system(.caption2, design: .rounded))
+                                    .monospacedDigit()
+
+                                Text("•")
+                                    .font(.system(size: 9, weight: .bold, design: .rounded))
+
+                                Text(Formatters.paceString(distanceMeters: lap.distanceMeters, durationSeconds: lap.durationSeconds, unit: distanceUnit))
+                                    .font(.system(.caption2, design: .rounded))
+                                    .monospacedDigit()
+                            }
                             .foregroundStyle(.secondary)
+                        } else {
+                            Text(Formatters.paceString(distanceMeters: lap.distanceMeters, durationSeconds: lap.durationSeconds, unit: distanceUnit))
+                                .font(.system(.caption2, design: .rounded))
+                                .monospacedDigit()
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
             }

@@ -18,6 +18,7 @@ struct SessionDetailView: View {
             .padding(.vertical, 4)
         }
         .navigationTitle("Session")
+        .background(Color.clear)
     }
 }
 
@@ -53,7 +54,7 @@ struct LapRowView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(6)
-        .background(lap.lapType == .rest ? Color.white.opacity(0.9) : Color.white.opacity(0.1))
+        .background(lap.lapType == .rest ? Color.white.opacity(0.9) : Color.white.opacity(0.15))
         .foregroundColor(lap.lapType == .rest ? .black : .white)
         .cornerRadius(6)
         .padding(.horizontal, 4)

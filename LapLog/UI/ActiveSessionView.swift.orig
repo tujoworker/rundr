@@ -11,7 +11,6 @@ struct ActiveSessionView: View {
     @State private var isTapFlashVisible = false
     @State private var isSessionMenuPresented = false
     @State private var isTimerBounceActive = false
-    @State private var isLapHistoryDragging = false
     @State private var lastAnimatedLapCount = 0
 
     private var primaryColor: Color {
@@ -22,13 +21,19 @@ struct ActiveSessionView: View {
         workoutController.runState == .rest
     }
 
-    private let topControlOffset: CGFloat = -8
+    private let topControlOffset: CGFloat = 0
     private let topHeaderHeight: CGFloat = 66
-    private let contentVerticalOffset: CGFloat = -4
-    private let menuButtonExtraOffset: CGFloat = -4
-    private let pauseButtonExtraOffset: CGFloat = -4
-    private let lapHistoryTrailingSpace: CGFloat = 34
-    private let lapHistoryContainerTrailingPadding: CGFloat = 12
+
+    private var backgroundGradient: LinearGradient {
+        LinearGradient(
+            colors: [
+                Color.black,
+                primaryColor.opacity(0.18)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    }
 
     var body: some View {
         ZStack {
@@ -43,10 +48,10 @@ struct ActiveSessionView: View {
                     HStack(alignment: .top) {
                         if isPaused {
                             sessionMenuButton
-                                .offset(y: topControlOffset + menuButtonExtraOffset)
+                                .offset(y: topControlOffset)
                         } else {
                             pauseButton
-                                .offset(y: topControlOffset + pauseButtonExtraOffset)
+                                .offset(y: topControlOffset)
                         }
 
                         Spacer()
@@ -71,11 +76,10 @@ struct ActiveSessionView: View {
                 .padding(.horizontal, 14)
                 .padding(.top, 4)
                 .frame(height: topHeaderHeight)
-                .padding(.bottom, 16)
+                .padding(.bottom, 20)
 
                 Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
-                    .font(.system(size: 42, weight: .bold, design: .rounded))
-                    .monospacedDigit()
+                    .font(.system(size: 42, weight: .bold, design: .monospaced))
                     .minimumScaleFactor(0.55)
                     .lineLimit(1)
                     .foregroundStyle(.white)
@@ -96,7 +100,7 @@ struct ActiveSessionView: View {
                             .font(.system(size: 11, weight: .semibold, design: .rounded))
                             .foregroundStyle(.white.opacity(0.82))
                             .opacity(workoutController.runState == .rest ? 1 : 0)
-                            .offset(y: -13)
+                            .offset(y: -11)
                     }
                 .scaleEffect(isTimerBounceActive ? 1.05 : 1)
                 .brightness(isTimerBounceActive ? 0.08 : 0)
@@ -121,41 +125,18 @@ struct ActiveSessionView: View {
                             Spacer(minLength: 0)
                             if workoutController.completedLaps.isEmpty {
                                 PlaceholderLapCardView()
-
-                                Color.clear
-                                    .frame(width: lapHistoryContainerTrailingPadding)
-                            } else {
-                                ForEach(workoutController.completedLaps, id: \.id) { lap in
-                                    LapCardView(lap: lap, trackingMode: workoutController.trackingMode, distanceUnit: settings.distanceUnit, isLatest: lap.id == workoutController.completedLaps.last?.id)
-                                        .id(lap.id)
-                                }
-
-                                if workoutController.completedLaps.count > 1 {
-                                    Color.clear
-                                        .frame(width: lapHistoryTrailingSpace)
-                                }
+                            }
+                            ForEach(workoutController.completedLaps, id: \.id) { lap in
+                                LapCardView(lap: lap, trackingMode: workoutController.trackingMode, distanceUnit: settings.distanceUnit, isLatest: lap.id == workoutController.completedLaps.last?.id)
+                                    .id(lap.id)
                             }
                         }
-                        .padding(.leading, 8)
-                        .padding(.trailing, 8)
+                        .padding(.horizontal, 8)
                         .frame(minWidth: WKInterfaceDevice.current().screenBounds.width)
                     }
                     .contentShape(Rectangle())
                     .simultaneousGesture(
-                        DragGesture(minimumDistance: 4)
-                            .onChanged { _ in
-                                isLapHistoryDragging = true
-                            }
-                            .onEnded { _ in
-                                Task { @MainActor in
-                                    try? await Task.sleep(for: .milliseconds(120))
-                                    isLapHistoryDragging = false
-                                }
-                            }
-                    )
-                    .simultaneousGesture(
                         TapGesture().onEnded {
-                            guard !isLapHistoryDragging else { return }
                             handleLapTap()
                         }
                     )
@@ -174,7 +155,6 @@ struct ActiveSessionView: View {
                     }
                 }
                 .frame(height: 64)
-                .padding(.trailing, lapHistoryContainerTrailingPadding)
                 .padding(.bottom, 4)
 
                 Color.clear
@@ -184,12 +164,9 @@ struct ActiveSessionView: View {
                         handleLapTap()
                     }
             }
-                                            Color.clear
-                                                .frame(width: lapHistoryTrailingSpace)
-            .offset(y: contentVerticalOffset)
         }
-                                        .padding(.trailing, 8)
-        .background(AppScreenBackground(accentColor: primaryColor))
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background(backgroundGradient.ignoresSafeArea())
         .overlay {
             Color.white
                 .opacity(isTapFlashVisible ? 0.22 : 0)
@@ -297,36 +274,25 @@ struct ActiveSessionView: View {
 }
 
 private let latestCardHeight: CGFloat = 54
-private let lapCardTopPadding: CGFloat = 8
-private let lapCardLeadingPadding: CGFloat = 8
-private let lapCardBottomPadding: CGFloat = 8
-private let lapCardTrailingPadding: CGFloat = 14
-private let standardLapCardBackground = Color.white.opacity(0.15)
 
 struct PlaceholderLapCardView: View {
     var body: some View {
         HStack(spacing: 6) {
             Text("1")
-                .font(.system(.caption, design: .rounded, weight: .bold))
-                .monospacedDigit()
-                .foregroundColor(.white)
+                .font(.system(.body, design: .monospaced).bold())
+                .foregroundColor(.gray)
             Text("—:——")
-                .font(.system(.caption, design: .rounded))
-                .monospacedDigit()
+                .font(.system(.body, design: .monospaced))
                 .fontWeight(.bold)
-                .foregroundColor(.white)
+                .foregroundColor(.gray)
         }
-        .padding(.top, lapCardTopPadding)
-        .padding(.leading, lapCardLeadingPadding)
-        .padding(.bottom, lapCardBottomPadding)
-        .padding(.trailing, lapCardTrailingPadding)
+        .padding(8)
         .frame(height: latestCardHeight)
-        .background(standardLapCardBackground)
+        .background(Color.white.opacity(0.15))
         .cornerRadius(8)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .inset(by: 1.5)
-                .stroke(Color.white.opacity(0.78), lineWidth: 3)
+                .stroke(Color.white.opacity(0.6), lineWidth: 2)
         )
     }
 }
@@ -343,50 +309,34 @@ struct LapCardView: View {
 
     private var isRest: Bool { lap.lapType == .rest }
 
-    private var cardBackgroundColor: Color {
-        if isRest {
-            return Color.white.opacity(0.9)
-        }
-
-        return standardLapCardBackground
-    }
-
     var body: some View {
         Group {
             if isRest {
                 Text(Formatters.compactTimeString(from: lap.durationSeconds))
-                    .font(.system(.caption, design: .rounded))
-                    .monospacedDigit()
+                    .font(.system(.caption, design: .monospaced))
             } else {
                 HStack(spacing: 6) {
                     Text("\(lap.index)")
-                        .font(.system(.caption, design: .rounded, weight: .bold))
-                        .monospacedDigit()
+                        .font(.system(.caption, design: .monospaced).bold())
                     VStack(alignment: .leading, spacing: 2) {
                         Text(Formatters.compactTimeString(from: lap.durationSeconds))
-                            .font(.system(.caption, design: .rounded))
-                            .monospacedDigit()
+                            .font(.system(.caption, design: .monospaced))
                             .fontWeight(isLatest ? .bold : .regular)
                         Text(Formatters.paceString(distanceMeters: lap.distanceMeters, durationSeconds: lap.durationSeconds, unit: distanceUnit))
-                            .font(.system(.caption2, design: .rounded))
-                            .monospacedDigit()
+                            .font(.system(.caption2, design: .monospaced))
                             .foregroundStyle(.secondary)
                     }
                 }
             }
         }
-        .padding(.top, lapCardTopPadding)
-        .padding(.leading, lapCardLeadingPadding)
-        .padding(.bottom, lapCardBottomPadding)
-        .padding(.trailing, lapCardTrailingPadding)
+        .padding(6)
         .fixedSize(horizontal: true, vertical: false)
         .foregroundColor(isRest ? .black : .white)
-        .background(cardBackgroundColor)
+        .background(isRest ? Color.white.opacity(0.9) : Color.white.opacity(0.15))
         .cornerRadius(8)
         .overlay(
             RoundedRectangle(cornerRadius: 8)
-                .inset(by: isLatest && !isRest ? 1.5 : 0)
-                .stroke(Color.white.opacity(0.78), lineWidth: isLatest && !isRest ? 3 : 0)
+                .stroke(Color.white.opacity(0.6), lineWidth: isLatest && !isRest ? 2 : 0)
         )
     }
 }

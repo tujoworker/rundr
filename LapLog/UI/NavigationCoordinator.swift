@@ -4,12 +4,14 @@ import SwiftUI
 @MainActor
 final class NavigationCoordinator: ObservableObject {
     @Published var path: [AppScreenState] = []
+    @Published var isShowingActiveSession = false
 
     var currentScreen: AppScreenState {
         path.last ?? .home
     }
 
     func goHome() {
+        isShowingActiveSession = false
         path.removeAll()
     }
 
@@ -18,8 +20,7 @@ final class NavigationCoordinator: ObservableObject {
     }
 
     func goToActiveSession() {
-        // Replace entire path with just activeSession in a single mutation
-        path = [.activeSession]
+        isShowingActiveSession = true
     }
 
     func goToSessionDetail(id: UUID) {
@@ -28,6 +29,7 @@ final class NavigationCoordinator: ObservableObject {
 
     func sessionEnded() {
         DispatchQueue.main.async {
+            self.isShowingActiveSession = false
             self.path = []
         }
     }

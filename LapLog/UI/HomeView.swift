@@ -10,51 +10,53 @@ struct HomeView: View {
     var onSelectSession: (Session) -> Void
 
     var body: some View {
-        VStack(spacing: 0) {
-            Button(action: onGetReady) {
-                Text("Get Ready")
-                    .font(.title3.bold())
-                    .frame(maxWidth: .infinity, minHeight: 50)
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(settings.primaryAccentColor)
-            .padding(.horizontal)
-            .padding(.vertical, 8)
-
-            if viewModel.recentSessions.isEmpty {
-                Spacer()
-                Text("No sessions yet")
-                    .foregroundStyle(.secondary)
-                Spacer()
-            } else {
-                List {
-                    ForEach(viewModel.recentSessions, id: \.id) { session in
-                        Button {
-                            onSelectSession(session)
-                        } label: {
-                            SessionRowView(session: session)
-                        }
-                        .buttonStyle(.plain)
-                        .listRowInsets(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4))
-                    }
-                    .onDelete { indexSet in
-                        for index in indexSet {
-                            let session = viewModel.recentSessions[index]
-                            persistence.deleteSession(session)
-                        }
-                        viewModel.loadRecent(persistence: persistence)
-                    }
-
-                    if viewModel.hasMoreSessions {
-                        Button("Load More") {
-                            viewModel.loadMore(persistence: persistence)
-                        }
-                        .font(.footnote)
-                        .padding(.top, 4)
-                    }
+        ScrollView {
+            VStack(spacing: 0) {
+                Button(action: onGetReady) {
+                    Text("Get Ready")
+                        .font(.title3.bold())
+                        .frame(maxWidth: .infinity, minHeight: 50)
                 }
-                .listStyle(.plain)
+                .buttonStyle(.borderedProminent)
+                .tint(settings.primaryAccentColor)
+                .padding(.horizontal)
+                .padding(.top, 8)
+                .padding(.bottom, 18)
+
+                if viewModel.recentSessions.isEmpty {
+                    Text("No sessions yet")
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 24)
+                } else {
+                    LazyVStack(spacing: 4) {
+                        ForEach(viewModel.recentSessions, id: \.id) { session in
+                            Button {
+                                onSelectSession(session)
+                            } label: {
+                                SessionRowView(session: session)
+                            }
+                            .buttonStyle(.plain)
+                            .contextMenu {
+                                Button("Delete", role: .destructive) {
+                                    persistence.deleteSession(session)
+                                    viewModel.loadRecent(persistence: persistence)
+                                }
+                            }
+                        }
+
+                        if viewModel.hasMoreSessions {
+                            Button("Load More") {
+                                viewModel.loadMore(persistence: persistence)
+                            }
+                            .font(.footnote)
+                            .padding(.top, 4)
+                        }
+                    }
+                    .padding(.horizontal, 4)
+                }
             }
+            .padding(.bottom, 8)
         }
         .tint(settings.primaryAccentColor)
         .onAppear {
@@ -63,6 +65,7 @@ struct HomeView: View {
         .onChange(of: coordinator.path) {
             viewModel.loadRecent(persistence: persistence)
         }
+        .background(Color.clear)
     }
 }
 
@@ -82,7 +85,7 @@ struct SessionRowView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(8)
-        .background(Color.gray.opacity(0.15))
+        .background(Color.white.opacity(0.15))
         .cornerRadius(8)
     }
 }

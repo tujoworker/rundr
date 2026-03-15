@@ -12,86 +12,69 @@ struct ActiveSessionView: View {
     private enum EndState {
         case none
         case xShown
-        case confirmShown
     }
 
     @State private var endState: EndState = .none
+    @State private var isTapFlashVisible = false
+    @State private var isSessionMenuPresented = false
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
-                switch endState {
-                case .confirmShown:
-                    Button {
-                        Task { await endSession() }
-                    } label: {
-                        HStack(spacing: 4) {
-                            Image(systemName: "xmark")
-                                .font(.caption.bold())
-                            Text("Confirm End")
-                                .font(.caption.bold())
-                        }
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 6)
-                        .background(Color.red)
-                        .clipShape(Capsule())
-                    }
-                    .buttonStyle(.plain)
-                case .xShown:
-                    Button {
-                        workoutController.commitFinalLap()
-                        endState = .confirmShown
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.caption.bold())
-                            .foregroundColor(.white)
-                            .frame(width: 28, height: 28)
-                            .background(Color.red)
-                            .clipShape(Circle())
-                    }
-                    .buttonStyle(.plain)
-                case .none:
-                    Button {
-                        workoutController.startRest()
-                        endState = .xShown
-                    } label: {
-                        Image(systemName: "pause.fill")
-                            .font(.caption.bold())
-                            .foregroundColor(.white)
-                            .frame(width: 28, height: 28)
-                            .background(Color.blue)
-                            .clipShape(Circle())
-                    }
-                    .buttonStyle(.plain)
+            HStack(alignment: .center) {
+                leftControlButton
+
+                Spacer(minLength: 10)
+
+                Text(Date(), style: .time)
+                    .font(.system(size: 24, weight: .semibold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    handleLapTap()
                 }
 
-                Spacer()
+                Spacer(minLength: 10)
+
+                pauseButton
             }
-            .padding(.horizontal, 8)
-            .padding(.top, 4)
+            .padding(.horizontal, 14)
+            .padding(.top, 18)
+            .padding(.bottom, 24)
 
-            // Timer + heart rate
-            HStack(alignment: .lastTextBaseline) {
-                Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
-                    .font(.system(size: 40, weight: .bold, design: .monospaced))
-                    .minimumScaleFactor(0.5)
-                    .lineLimit(1)
-                Spacer()
-                Text(Formatters.heartRateString(bpm: workoutController.currentHeartRate))
-                    .font(.system(.caption, design: .monospaced))
-                    .foregroundStyle(.secondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 8)
-            .padding(.vertical, 12)
+            Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
+                .font(.system(size: 42, weight: .bold, design: .monospaced))
+                .minimumScaleFactor(0.55)
+                .lineLimit(1)
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 18)
+                .background(
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .fill(Color.white.opacity(0.12))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .stroke(Color.blue, lineWidth: 5)
+                )
+                .padding(.horizontal, 14)
+                .contentShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                .onTapGesture {
+                    handleLapTap()
+                }
 
-            Spacer()
+            Color.clear
+                .frame(maxWidth: .infinity, minHeight: 8, maxHeight: .infinity)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    handleLapTap()
+                }
 
-            // Horizontal scrolling lap cards – fixed height to avoid layout shift
             ScrollViewReader { proxy in
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 6) {
+                    HStack(spacing: 8) {
                         Spacer(minLength: 0)
                         if workoutController.completedLaps.isEmpty {
                             PlaceholderLapCardView()
@@ -104,6 +87,12 @@ struct ActiveSessionView: View {
                     .padding(.horizontal, 8)
                     .frame(minWidth: WKInterfaceDevice.current().screenBounds.width)
                 }
+                .contentShape(Rectangle())
+                .simultaneousGesture(
+                    TapGesture().onEnded {
+                        handleLapTap()
+                    }
+                )
                 .onChange(of: workoutController.completedLaps.count) {
                     if let lastLap = workoutController.completedLaps.last {
                         withAnimation {
@@ -112,23 +101,28 @@ struct ActiveSessionView: View {
                     }
                 }
             }
-            .frame(height: 60)
-            .padding(.bottom, 8)
+            .frame(height: 64)
+            .padding(.bottom, 10)
 
-            // Lap button (always visible)
-            Button(action: {
-                workoutController.markLap()
-                endState = .none
-            }) {
-                Text(endState != .none ? "Resume" : "Lap")
-                    .font(.title3.bold())
-                    .frame(maxWidth: .infinity, minHeight: 44)
+            Color.clear
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    handleLapTap()
+                }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .overlay {
+            Color.white
+                .opacity(isTapFlashVisible ? 0.22 : 0)
+                .ignoresSafeArea()
+                .allowsHitTesting(false)
+        }
+        .confirmationDialog("Session", isPresented: $isSessionMenuPresented) {
+            Button("End Session", role: .destructive) {
+                Task { await endSession() }
             }
-            .buttonStyle(.borderedProminent)
-            .tint(.white)
-            .foregroundColor(.black)
-            .padding(.horizontal, 8)
-            .padding(.bottom, 4)
+            Button("Cancel", role: .cancel) {}
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarHidden(true)
@@ -152,9 +146,77 @@ struct ActiveSessionView: View {
         }
         onSessionEnded()
     }
+
+    private func handleLapTap() {
+        flashTapBorder()
+        workoutController.markLap()
+        endState = .none
+    }
+
+    private func flashTapBorder() {
+        withAnimation(.easeOut(duration: 0.08)) {
+            isTapFlashVisible = true
+        }
+
+        Task {
+            try? await Task.sleep(for: .milliseconds(180))
+            await MainActor.run {
+                withAnimation(.easeIn(duration: 0.18)) {
+                    isTapFlashVisible = false
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var leftControlButton: some View {
+        Button {
+            isSessionMenuPresented = true
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.system(size: 19, weight: .bold))
+                .foregroundColor(.white)
+                .frame(width: 44, height: 44)
+                .background(Color.blue)
+                .clipShape(Circle())
+        }
+        .buttonStyle(.plain)
+    }
+
+    @ViewBuilder
+    private var pauseButton: some View {
+        switch endState {
+        case .xShown:
+            Button {
+                workoutController.cancelRest()
+                endState = .none
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.white)
+                    .frame(width: 44, height: 44)
+                    .background(Color.red)
+                    .clipShape(Circle())
+            }
+            .buttonStyle(.plain)
+        case .none:
+            Button {
+                workoutController.startRest()
+                endState = .xShown
+            } label: {
+                Image(systemName: "pause.fill")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(.white)
+                    .frame(width: 44, height: 44)
+                    .background(Color.blue)
+                    .clipShape(Circle())
+            }
+            .buttonStyle(.plain)
+        }
+    }
 }
 
-private let latestCardHeight: CGFloat = 52
+private let latestCardHeight: CGFloat = 54
 
 struct PlaceholderLapCardView: View {
     var body: some View {

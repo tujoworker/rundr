@@ -109,6 +109,13 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         playHaptic(.notification)
     }
 
+    func cancelRest() {
+        guard runState == .rest else { return }
+        runState = .active
+        startTimer()
+        playHaptic(.click)
+    }
+
     func endSession() async -> Session? {
         guard runState == .active || runState == .rest || runState == .ending else { return nil }
 

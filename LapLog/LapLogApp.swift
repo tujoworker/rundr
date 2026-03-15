@@ -26,7 +26,6 @@ struct LapLogApp: App {
                 .environmentObject(coordinator)
                 .modelContainer(persistence.modelContainer)
                 .task {
-                    await healthKitManager.requestAuthorization()
                     if actionButtonObserver == nil {
                         let observer = ActionButtonCommandObserver {
                             processPendingActionButtonCommand()

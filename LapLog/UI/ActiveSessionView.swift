@@ -11,6 +11,7 @@ struct ActiveSessionView: View {
     @State private var isTapFlashVisible = false
     @State private var isSessionMenuPresented = false
     @State private var isTimerBounceActive = false
+    @State private var isTimerGlowActive = false
     @State private var isLapHistoryDragging = false
     @State private var lastAnimatedLapCount = 0
 
@@ -27,7 +28,6 @@ struct ActiveSessionView: View {
     private let contentVerticalOffset: CGFloat = -4
     private let menuButtonExtraOffset: CGFloat = -4
     private let pauseButtonExtraOffset: CGFloat = -4
-    private let lapHistoryTrailingSpace: CGFloat = 34
     private let lapHistoryContainerTrailingPadding: CGFloat = 12
 
     var body: some View {
@@ -91,6 +91,11 @@ struct ActiveSessionView: View {
                             .stroke(Color.black.opacity(0.42), lineWidth: 8)
                             .padding(1.5)
                     )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 22, style: .continuous)
+                            .stroke(Color.white.opacity(isTimerGlowActive ? 0.6 : 0), lineWidth: 3)
+                            .blur(radius: isTimerGlowActive ? 3 : 0)
+                    )
                     .overlay(alignment: .top) {
                         Text("Pause Mode")
                             .font(.system(size: 11, weight: .semibold, design: .rounded))
@@ -98,9 +103,10 @@ struct ActiveSessionView: View {
                             .opacity(workoutController.runState == .rest ? 1 : 0)
                             .offset(y: -13)
                     }
-                .scaleEffect(isTimerBounceActive ? 1.05 : 1)
-                .brightness(isTimerBounceActive ? 0.08 : 0)
-                .shadow(color: primaryColor.opacity(isTimerBounceActive ? 0.32 : 0), radius: 10)
+                .scaleEffect(isTimerBounceActive ? 1.11 : 1)
+                .brightness(isTimerGlowActive ? 0.3 : 0)
+                .shadow(color: Color.white.opacity(isTimerGlowActive ? 0.5 : 0), radius: 18)
+                .shadow(color: primaryColor.opacity(isTimerGlowActive ? 0.72 : 0), radius: 24)
                 .animation(.easeInOut(duration: 0.16), value: isPaused)
                 .padding(.horizontal, 14)
                 .contentShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
@@ -118,28 +124,21 @@ struct ActiveSessionView: View {
                 ScrollViewReader { proxy in
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
-                            Spacer(minLength: 0)
                             if workoutController.completedLaps.isEmpty {
                                 PlaceholderLapCardView()
-
-                                Color.clear
-                                    .frame(width: lapHistoryContainerTrailingPadding)
+                                    .offset(x: -8)
                             } else {
                                 ForEach(workoutController.completedLaps, id: \.id) { lap in
                                     LapCardView(lap: lap, trackingMode: workoutController.trackingMode, distanceUnit: settings.distanceUnit, isLatest: lap.id == workoutController.completedLaps.last?.id)
                                         .id(lap.id)
                                 }
-
-                                if workoutController.completedLaps.count > 1 {
-                                    Color.clear
-                                        .frame(width: lapHistoryTrailingSpace)
-                                }
                             }
                         }
                         .padding(.leading, 8)
                         .padding(.trailing, 8)
-                        .frame(minWidth: WKInterfaceDevice.current().screenBounds.width)
+                        .frame(minWidth: WKInterfaceDevice.current().screenBounds.width, alignment: .trailing)
                     }
+                    .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
                     .contentShape(Rectangle())
                     .simultaneousGesture(
                         DragGesture(minimumDistance: 4)
@@ -184,17 +183,28 @@ struct ActiveSessionView: View {
                         handleLapTap()
                     }
             }
-                                            Color.clear
-                                                .frame(width: lapHistoryTrailingSpace)
             .offset(y: contentVerticalOffset)
         }
-                                        .padding(.trailing, 8)
         .background(AppScreenBackground(accentColor: primaryColor))
         .overlay {
-            Color.white
-                .opacity(isTapFlashVisible ? 0.22 : 0)
+            ZStack {
+                RadialGradient(
+                    colors: [
+                        Color.white.opacity(isTimerGlowActive ? 0.14 : 0),
+                        primaryColor.opacity(isTimerGlowActive ? 0.2 : 0),
+                        .clear
+                    ],
+                    center: .center,
+                    startRadius: 18,
+                    endRadius: 170
+                )
                 .ignoresSafeArea()
-                .allowsHitTesting(false)
+
+                Color.white
+                    .opacity(isTapFlashVisible ? 0.22 : 0)
+                    .ignoresSafeArea()
+            }
+            .allowsHitTesting(false)
         }
         .confirmationDialog("", isPresented: $isSessionMenuPresented, titleVisibility: .hidden) {
             if isPaused {
@@ -255,15 +265,28 @@ struct ActiveSessionView: View {
     }
 
     private func animateTimerForNewLap() {
-        withAnimation(.spring(response: 0.18, dampingFraction: 0.58)) {
+        withAnimation(.easeOut(duration: 0.08)) {
+            isTimerGlowActive = true
+        }
+
+        withAnimation(.spring(response: 0.18, dampingFraction: 0.5)) {
             isTimerBounceActive = true
         }
 
         Task {
-            try? await Task.sleep(for: .milliseconds(220))
+            try? await Task.sleep(for: .milliseconds(140))
             await MainActor.run {
-                withAnimation(.spring(response: 0.28, dampingFraction: 0.72)) {
+                withAnimation(.spring(response: 0.46, dampingFraction: 0.72)) {
                     isTimerBounceActive = false
+                }
+            }
+        }
+
+        Task {
+            try? await Task.sleep(for: .milliseconds(420))
+            await MainActor.run {
+                withAnimation(.easeOut(duration: 0.42)) {
+                    isTimerGlowActive = false
                 }
             }
         }

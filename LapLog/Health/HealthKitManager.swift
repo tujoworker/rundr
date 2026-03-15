@@ -63,6 +63,36 @@ final class HealthKitManager: ObservableObject {
         }
     }
 
+    func fetchMostRecentHeartRate() async -> Double? {
+        guard HKHealthStore.isHealthDataAvailable(),
+              let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate) else {
+            return nil
+        }
+
+        let predicate = HKQuery.predicateForSamples(withStart: Date().addingTimeInterval(-15 * 60), end: nil)
+        let sortDescriptors = [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]
+
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(
+                sampleType: heartRateType,
+                predicate: predicate,
+                limit: 1,
+                sortDescriptors: sortDescriptors
+            ) { _, samples, error in
+                guard error == nil,
+                      let sample = samples?.first as? HKQuantitySample else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+
+                let unit = HKUnit.count().unitDivided(by: .minute())
+                continuation.resume(returning: sample.quantity.doubleValue(for: unit))
+            }
+
+            self.healthStore.execute(query)
+        }
+    }
+
     /// Save a completed session to HealthKit as an HKWorkout with interval activities.
     func saveWorkout(session: Session) async throws -> UUID? {
         let configuration = HKWorkoutConfiguration()

@@ -1,16 +1,24 @@
 import SwiftUI
 import CoreLocation
+import WatchKit
 
 struct PreStartView: View {
+    @EnvironmentObject var workoutController: WorkoutSessionController
+    @EnvironmentObject var healthKitManager: HealthKitManager
     @EnvironmentObject var settings: SettingsStore
     var onStart: () -> Void
 
     @State private var distanceText: String = ""
+    @State private var readyStartDate = Date()
+    @State private var readyElapsedSeconds = 0
+    @State private var latestHeartRate: Double?
     @State private var isGPSPermissionAlertPresented = false
     @State private var isTrackingModeDialogPresented = false
     @State private var isDistanceUnitDialogPresented = false
     @State private var isPrimaryColorDialogPresented = false
     @StateObject private var locationPermissionRequester = LocationPermissionRequester()
+
+    private let readyTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     private var distanceLabel: String {
         switch settings.distanceUnit {
@@ -30,21 +38,65 @@ struct PreStartView: View {
         distanceText.isEmpty ? distancePlaceholder : distanceText
     }
 
+    private var readyTimerText: String {
+        String(format: "%02d", readyElapsedSeconds)
+    }
+
+    private var readyHeartRateText: String {
+        Formatters.heartRateString(bpm: latestHeartRate)
+    }
+
+    private var isStartDisabled: Bool {
+        settings.trackingMode == .distanceDistance && (Double(distanceText) ?? 0) <= 0
+    }
+
+    private var supportsActionButton: Bool {
+        let screenBounds = WKInterfaceDevice.current().screenBounds
+        let width = Int(screenBounds.width.rounded())
+        let height = Int(screenBounds.height.rounded())
+        return width == 205 && height == 251
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                Button(action: {
-                    persistDistance()
-                    onStart()
-                }) {
-                    Text("Start")
-                        .font(.title3.bold())
-                        .frame(maxWidth: .infinity, minHeight: 50)
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(alignment: .firstTextBaseline, spacing: 2) {
+                            Text(readyTimerText)
+                                .font(.system(size: 26, weight: .bold, design: .rounded))
+                                .monospacedDigit()
+                                .foregroundStyle(.white)
+
+                            Text("s")
+                                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                                .foregroundStyle(.white.opacity(0.78))
+                        }
+
+                        ReadyHeartIndicator(heartRateText: readyHeartRateText)
+                    }
+
+                    Spacer(minLength: 12)
+
+                    Button(action: startSession) {
+                        ReadyStartIcon(baseColor: settings.primaryAccentColor)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isStartDisabled)
+                    .opacity(isStartDisabled ? 0.5 : 1)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(settings.primaryAccentColor)
-                .disabled(settings.trackingMode == .distanceDistance && (Double(distanceText) ?? 0) <= 0)
-                .padding(.bottom, 18)
+
+                Color.clear
+                    .frame(height: 6)
+
+                if supportsActionButton {
+                    Text("Press the Action Button")
+                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.84))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 6)
+                        .padding(.bottom, 2)
+                }
 
                 Text("Settings")
                     .font(.headline.weight(.semibold))
@@ -100,7 +152,7 @@ struct PreStartView: View {
                     SettingsCardRow(
                         icon: "paintpalette",
                         iconColor: settings.primaryAccentColor,
-                        title: "Primary Color",
+                        title: "Color",
                         value: settings.primaryColor.displayName
                     )
                 }
@@ -112,7 +164,16 @@ struct PreStartView: View {
         .tint(settings.primaryAccentColor)
         .background(Color.clear)
         .onAppear {
+            readyStartDate = Date()
+            readyElapsedSeconds = 0
             distanceText = displayDistance()
+            refreshHeartRate()
+        }
+        .onReceive(readyTimer) { currentDate in
+            readyElapsedSeconds = Int(currentDate.timeIntervalSince(readyStartDate))
+
+            guard readyElapsedSeconds == 0 || readyElapsedSeconds % 3 == 0 else { return }
+            refreshHeartRate()
         }
         .onChange(of: settings.trackingMode) { _, newValue in
             guard newValue == .gps else { return }
@@ -175,6 +236,68 @@ struct PreStartView: View {
         case .miles:
             settings.distanceDistanceMeters = value / 3.28084
         }
+    }
+
+    private func startSession() {
+        persistDistance()
+        onStart()
+    }
+
+    private func refreshHeartRate() {
+        Task {
+            let bpm = await healthKitManager.fetchMostRecentHeartRate()
+            await MainActor.run {
+                latestHeartRate = bpm ?? workoutController.currentHeartRate
+            }
+        }
+    }
+}
+
+private struct ReadyHeartIndicator: View {
+    let heartRateText: String
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Text(heartRateText)
+                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
+                .monospacedDigit()
+
+            Image(systemName: "heart.fill")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.white)
+        }
+    }
+}
+
+private struct ReadyStartIcon: View {
+    let baseColor: Color
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(
+                    LinearGradient(
+                        colors: [baseColor.opacity(0.98), baseColor.opacity(0.78)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+
+            Circle()
+                .stroke(Color.white.opacity(0.18), lineWidth: 1)
+
+            Circle()
+                .stroke(Color.black.opacity(0.35), lineWidth: 3)
+                .padding(1.5)
+        }
+        .overlay {
+            Image(systemName: "figure.run")
+                .font(.system(size: 18, weight: .bold))
+                .foregroundStyle(.white)
+        }
+        .frame(width: 46, height: 46)
+        .shadow(color: baseColor.opacity(0.28), radius: 6, y: 2)
     }
 }
 

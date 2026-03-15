@@ -5,6 +5,10 @@ import SwiftUI
 final class NavigationCoordinator: ObservableObject {
     @Published var path: [AppScreenState] = []
 
+    var currentScreen: AppScreenState {
+        path.last ?? .home
+    }
+
     func goHome() {
         path.removeAll()
     }

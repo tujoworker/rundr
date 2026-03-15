@@ -13,7 +13,12 @@
 		33435AFF099565517A2981F6 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E613F59ADF522B5282AC2A3 /* Session.swift */; };
 		437A1B72867C5867B354E553 /* FormattersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17AFAC5870B80DC3E8E64B00 /* FormattersTests.swift */; };
 		4400B362EFED68F5CCBD88CF /* SessionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5AEA32CF41F4A95EA655A2 /* SessionDetailView.swift */; };
+		45B7D4110A16858C07A6357E /* ActionButtonCommandStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2F9EBC2633B3C17127B2A8 /* ActionButtonCommandStore.swift */; };
+		4631A319E31F7DD1259C594B /* MarkLapIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F786B38610A7C830AC765F1 /* MarkLapIntent.swift */; };
+		472DD6F47869F929F51C29B0 /* StartRunningWorkoutIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8912F0A720200E8D9538C4D5 /* StartRunningWorkoutIntent.swift */; };
+		4F356F5E44F096D44C41E43B /* ActionButtonCommandObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9C66FDE63E4D65F194A3975 /* ActionButtonCommandObserver.swift */; };
 		52686DF91E00697D94B39D92 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A7AAFEB69EBE8A0D0FB048 /* RootView.swift */; };
+		51E4D39D4B5D45B68ED4C11A /* LapLogShortcutsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D1123CC9D14257B8A27313 /* LapLogShortcutsProvider.swift */; };
 		52A98D9F8DEB461B7EA6583F /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A52D079F75CFBF9BB2BA7C41 /* HealthKitManager.swift */; };
 		5B42CCC5F71E7FFD525E342C /* PersistenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6018669638742E3118B29041 /* PersistenceManager.swift */; };
 		5D1F2DA465451D371A979B32 /* Lap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A88263B0A43413879ABF4DB7 /* Lap.swift */; };
@@ -58,6 +63,9 @@
 		6018669638742E3118B29041 /* PersistenceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceManager.swift; sourceTree = "<group>"; };
 		803A3A092975B9BAB810BAB2 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
 		8BEFD367C4AB92E0F59B0B1F /* LapLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LapLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8B2F9EBC2633B3C17127B2A8 /* ActionButtonCommandStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonCommandStore.swift; sourceTree = "<group>"; };
+		8912F0A720200E8D9538C4D5 /* StartRunningWorkoutIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartRunningWorkoutIntent.swift; sourceTree = "<group>"; };
+		4F786B38610A7C830AC765F1 /* MarkLapIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkLapIntent.swift; sourceTree = "<group>"; };
 		8E3127CE770FF5C05C276665 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
 		A52D079F75CFBF9BB2BA7C41 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
 		A88263B0A43413879ABF4DB7 /* Lap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lap.swift; sourceTree = "<group>"; };
@@ -65,13 +73,16 @@
 		AF7B588DE96AFFC30AE7ABBA /* WorkoutRunState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutRunState.swift; sourceTree = "<group>"; };
 		B3C468A8CAAB5486BF89EDC4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C461B28E60C157EE2885A142 /* WorkoutSessionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutSessionController.swift; sourceTree = "<group>"; };
+		C9C66FDE63E4D65F194A3975 /* ActionButtonCommandObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonCommandObserver.swift; sourceTree = "<group>"; };
 		D8BDE8B1656261C1E67BD361 /* AppScreenState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppScreenState.swift; sourceTree = "<group>"; };
 		E2A1B775A27201FA001C88AF /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		E7F85A1B319257D193FA45B6 /* WorkoutControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutControllerTests.swift; sourceTree = "<group>"; };
 		EFB9EDEF7841220E7F36CEFF /* ModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelTests.swift; sourceTree = "<group>"; };
 		F2ABF59CD03172874BEADEA0 /* LapLogApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapLogApp.swift; sourceTree = "<group>"; };
+		F1D1123CC9D14257B8A27313 /* LapLogShortcutsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapLogShortcutsProvider.swift; sourceTree = "<group>"; };
 		F6DEE2BD2F65FC180005ABAA /* DistanceUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceUnit.swift; sourceTree = "<group>"; };
 		F6DEE2BF2F66038A0005ABAA /* LapLog.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LapLog.entitlements; sourceTree = "<group>"; };
+		F6DEE2C22F6612F00005ABAA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		F80845E9FC8FEA57AA0E6D7F /* PreStartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreStartView.swift; sourceTree = "<group>"; };
 		FC5AEA32CF41F4A95EA655A2 /* SessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -141,6 +152,18 @@
 			path = Persistence;
 			sourceTree = "<group>";
 		};
+		382EA684D1D74C7A2B0D30AC /* Intents */ = {
+			isa = PBXGroup;
+			children = (
+				C9C66FDE63E4D65F194A3975 /* ActionButtonCommandObserver.swift */,
+				8B2F9EBC2633B3C17127B2A8 /* ActionButtonCommandStore.swift */,
+				F1D1123CC9D14257B8A27313 /* LapLogShortcutsProvider.swift */,
+				4F786B38610A7C830AC765F1 /* MarkLapIntent.swift */,
+				8912F0A720200E8D9538C4D5 /* StartRunningWorkoutIntent.swift */,
+			);
+			path = Intents;
+			sourceTree = "<group>";
+		};
 		5928955287B8089ED2177128 = {
 			isa = PBXGroup;
 			children = (
@@ -162,11 +185,13 @@
 		6728A9E758BE484BE4D5E89A /* LapLog */ = {
 			isa = PBXGroup;
 			children = (
+				F6DEE2C22F6612F00005ABAA /* Info.plist */,
 				F6DEE2BF2F66038A0005ABAA /* LapLog.entitlements */,
 				F2ABF59CD03172874BEADEA0 /* LapLogApp.swift */,
 				17EC92BDA3D6F030AF7F9E5A /* Domain */,
 				75B762909BDB834AA9044E45 /* Health */,
 				7675693986D84F095B28B67D /* Helpers */,
+				382EA684D1D74C7A2B0D30AC /* Intents */,
 				34612946D52F7ABFAA8B912E /* Persistence */,
 				5947E500C310CB92A269BFB0 /* Workout */,
 				0EAB7458B5E343B5ED95EE6F /* UI */,
@@ -303,6 +328,11 @@
 				4400B362EFED68F5CCBD88CF /* SessionDetailView.swift in Sources */,
 				7BB47A6891185829ADD4094F /* PreStartView.swift in Sources */,
 				1C5FBAD9B17FA11B1506817D /* ActiveSessionView.swift in Sources */,
+				4F356F5E44F096D44C41E43B /* ActionButtonCommandObserver.swift in Sources */,
+				45B7D4110A16858C07A6357E /* ActionButtonCommandStore.swift in Sources */,
+				51E4D39D4B5D45B68ED4C11A /* LapLogShortcutsProvider.swift in Sources */,
+				4631A319E31F7DD1259C594B /* MarkLapIntent.swift in Sources */,
+				472DD6F47869F929F51C29B0 /* StartRunningWorkoutIntent.swift in Sources */,
 				F6DEE2BE2F65FC180005ABAA /* DistanceUnit.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -340,7 +370,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = LapLog;
-				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = "The app saves your workout sessions to Apple Health.";
+				INFOPLIST_FILE = LapLog/Info.plist;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "The app reads heart rate data during workouts.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "The app saves your workout sessions to Apple Health.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LapLog uses GPS to track your running distance.";
@@ -415,7 +445,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = LapLog;
-				INFOPLIST_KEY_NSHealthClinicalHealthRecordsShareUsageDescription = "The app saves your workout sessions to Apple Health.";
+				INFOPLIST_FILE = LapLog/Info.plist;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "The app reads heart rate data during workouts.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "The app saves your workout sessions to Apple Health.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LapLog uses GPS to track your running distance.";

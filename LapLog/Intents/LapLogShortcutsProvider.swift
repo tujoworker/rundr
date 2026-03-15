@@ -1,0 +1,16 @@
+import AppIntents
+
+struct LapLogShortcutsProvider: AppShortcutsProvider {
+    static var appShortcuts: [AppShortcut] {
+        AppShortcut(
+            intent: StartRunningWorkoutIntent(style: .running),
+            phrases: [
+                "Start \(\.$workoutStyle) in \(.applicationName)",
+                "Start a workout in \(.applicationName)",
+                "Start an outdoor run in \(.applicationName)"
+            ],
+            shortTitle: "Start Workout",
+            systemImageName: "figure.run"
+        )
+    }
+}

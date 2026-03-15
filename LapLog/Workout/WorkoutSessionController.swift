@@ -80,10 +80,10 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         playHaptic(.notification)
     }
 
-    func markLap() {
+    func markLap(source: LapSource = .distanceTap) {
         guard runState == .active || runState == .rest || runState == .ending else { return }
         if runState != .ending {
-            commitCurrentLap(source: .distanceTap)
+            commitCurrentLap(source: source)
         } else {
             currentLapStartDate = Date()
             currentLapDistanceMeters = 0
@@ -147,6 +147,22 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
         playHaptic(.notification)
         return session
+    }
+
+    func resetForNextSession() {
+        runState = .idle
+        elapsedSeconds = 0
+        lapElapsedSeconds = 0
+        currentHeartRate = nil
+        cumulativeDistanceMeters = 0
+        completedLaps = []
+        isGPSActive = false
+        sessionStartDate = nil
+        currentLapStartDate = nil
+        currentLapDistanceMeters = 0
+        currentLapHeartRateSamples = []
+        stopTimer()
+        stopLocationUpdates()
     }
 
     // MARK: - Timer

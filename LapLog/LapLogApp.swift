@@ -52,30 +52,39 @@ struct LapLogApp: App {
 
         switch command {
         case .startWorkout:
-            advanceActionButtonFlow()
+            handleActionButtonPress()
         case .markLap:
-            switch workoutController.runState {
-            case .active, .rest:
-                workoutController.markLap(source: .actionButton)
-            case .idle, .ready:
-                advanceActionButtonFlow()
-            default:
-                return
-            }
+            handleActionButtonPress()
         }
     }
 
-    private func advanceActionButtonFlow() {
+    private func handleActionButtonPress() {
         if workoutController.runState == .ended {
             workoutController.resetForNextSession()
+            coordinator.goHome()
         }
 
-        switch workoutController.runState {
-        case .idle:
-            workoutController.getReady()
+        if coordinator.isShowingActiveSession {
+            switch workoutController.runState {
+            case .active, .rest:
+                workoutController.markLap(source: .actionButton)
+            default:
+                break
+            }
+            return
+        }
+
+        switch coordinator.currentScreen {
+        case .home, .sessionDetail:
+            if workoutController.runState == .idle {
+                workoutController.getReady()
+            }
             coordinator.goToPreStart()
-        case .ready:
-            if coordinator.currentScreen == .preStart {
+        case .preStart:
+            switch workoutController.runState {
+            case .idle:
+                workoutController.getReady()
+            case .ready:
                 workoutController.configure(
                     trackingMode: settings.trackingMode,
                     distanceLapDistanceMeters: settings.distanceDistanceMeters,
@@ -85,11 +94,9 @@ struct LapLogApp: App {
                     await workoutController.start()
                 }
                 coordinator.goToActiveSession()
-            } else {
-                coordinator.goToPreStart()
+            default:
+                break
             }
-        default:
-            return
         }
     }
 }

@@ -16,6 +16,7 @@ final class NavigationCoordinator: ObservableObject {
     }
 
     func goToPreStart() {
+        guard currentScreen != .preStart else { return }
         path.append(.preStart)
     }
 

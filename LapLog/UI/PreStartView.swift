@@ -333,16 +333,17 @@ private struct SettingsCardRow: View {
     }
 }
 
-@MainActor
-private final class LocationPermissionRequester: NSObject, ObservableObject, CLLocationManagerDelegate {
+private final class LocationPermissionRequester: NSObject, ObservableObject {
     private let manager = CLLocationManager()
     private var continuation: CheckedContinuation<Bool, Never>?
 
+    @MainActor
     override init() {
         super.init()
         manager.delegate = self
     }
 
+    @MainActor
     func requestIfNeeded() async -> Bool {
         switch manager.authorizationStatus {
         case .authorizedAlways, .authorizedWhenInUse:
@@ -359,7 +360,8 @@ private final class LocationPermissionRequester: NSObject, ObservableObject, CLL
         }
     }
 
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+    @MainActor
+    private func handleAuthorizationChange(_ manager: CLLocationManager) {
         guard let continuation else { return }
 
         switch manager.authorizationStatus {
@@ -374,6 +376,14 @@ private final class LocationPermissionRequester: NSObject, ObservableObject, CLL
         @unknown default:
             continuation.resume(returning: false)
             self.continuation = nil
+        }
+    }
+}
+
+extension LocationPermissionRequester: CLLocationManagerDelegate {
+    nonisolated func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        Task { @MainActor in
+            self.handleAuthorizationChange(manager)
         }
     }
 }

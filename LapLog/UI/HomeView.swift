@@ -37,10 +37,12 @@ struct HomeView: View {
                                 SessionRowView(session: session)
                             }
                             .buttonStyle(.plain)
-                            .contextMenu {
-                                Button("Delete", role: .destructive) {
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
                                     persistence.deleteSession(session)
                                     viewModel.loadRecent(persistence: persistence)
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
                                 }
                             }
                         }

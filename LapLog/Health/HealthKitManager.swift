@@ -37,9 +37,7 @@ final class HealthKitManager: ObservableObject {
             types.insert(energy)
         }
         types.insert(HKObjectType.workoutType())
-        if let routeType = HKSeriesType.workoutRoute() as? HKSampleType {
-            types.insert(routeType)
-        }
+        types.insert(HKSeriesType.workoutRoute())
         return types
     }
 

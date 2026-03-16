@@ -86,12 +86,6 @@ struct ActiveSessionView: View {
 
     var body: some View {
         ZStack {
-            Color.clear
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    handleLapTap()
-                }
-
             VStack(spacing: 0) {
                 ZStack(alignment: .top) {
                     HStack(alignment: .top) {
@@ -135,9 +129,7 @@ struct ActiveSessionView: View {
                 Color.clear
                     .frame(height: 6)
                     .contentShape(Rectangle())
-                    .onTapGesture {
-                        handleLapTap()
-                    }
+                    .onTapGesture { handleLapTap() }
 
                 ScrollViewReader { proxy in
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -149,12 +141,10 @@ struct ActiveSessionView: View {
                                 ForEach(workoutController.completedLaps, id: \.id) { lap in
                                     LapCardView(lap: lap, trackingMode: workoutController.trackingMode, distanceUnit: settings.distanceUnit, isLatest: lap.id == workoutController.completedLaps.last?.id)
                                         .contentShape(Rectangle())
-                                        .highPriorityGesture(
-                                            TapGesture().onEnded { _ in
-                                                lapToDelete = lap.id
-                                                isDeleteLapDialogPresented = true
-                                            }
-                                        )
+                                        .onTapGesture {
+                                            lapToDelete = lap.id
+                                            isDeleteLapDialogPresented = true
+                                        }
                                         .id(lap.id)
                                 }
                             }
@@ -177,12 +167,6 @@ struct ActiveSessionView: View {
                                 }
                             }
                     )
-                    .simultaneousGesture(
-                        TapGesture().onEnded {
-                            guard !isLapHistoryDragging else { return }
-                            handleLapTap()
-                        }
-                    )
                     .onChange(of: workoutController.completedLaps.count) {
                         if let lastLap = workoutController.completedLaps.last {
                             withAnimation {
@@ -204,10 +188,6 @@ struct ActiveSessionView: View {
 
                 Color.clear
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .contentShape(Rectangle())
-                    .onTapGesture {
-                        handleLapTap()
-                    }
             }
             .offset(y: contentVerticalOffset)
         }

@@ -380,9 +380,9 @@ struct PlaceholderLapCardView: View {
         .padding(.trailing, lapCardTrailingPadding)
         .frame(height: latestCardHeight)
         .background(standardLapCardBackground)
-        .cornerRadius(8)
+        .cornerRadius(14)
         .overlay(
-            RoundedRectangle(cornerRadius: 8)
+            RoundedRectangle(cornerRadius: 14)
                 .inset(by: 1.5)
                 .stroke(Color.white.opacity(0.78), lineWidth: 3)
         )
@@ -456,9 +456,9 @@ struct LapCardView: View {
         .fixedSize(horizontal: true, vertical: false)
         .foregroundColor(isRest ? .black : .white)
         .background(cardBackgroundColor)
-        .cornerRadius(8)
+        .cornerRadius(14)
         .overlay(
-            RoundedRectangle(cornerRadius: 8)
+            RoundedRectangle(cornerRadius: 14)
                 .inset(by: isLatest && !isRest ? 1.5 : 0)
                 .stroke(Color.white.opacity(0.78), lineWidth: isLatest && !isRest ? 3 : 0)
         )

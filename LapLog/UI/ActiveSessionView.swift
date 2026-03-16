@@ -93,7 +93,7 @@ struct ActiveSessionView: View {
                     .overlay(
                         Capsule()
                             .stroke(
-                                Color.black.opacity(isPaused ? (pauseBlinkPhase ? 0.42 : 0.12) : 0.42),
+                                isPaused ? (pauseBlinkPhase ? primaryColor : Color.white) : Color.black.opacity(0.42),
                                 lineWidth: 8
                             )
                             .padding(1.5)

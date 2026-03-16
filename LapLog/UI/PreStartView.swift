@@ -39,7 +39,7 @@ struct PreStartView: View {
     }
 
     private var readyTimerText: String {
-        String(format: "%02d", readyElapsedSeconds)
+        Formatters.timeString(from: Double(readyElapsedSeconds))
     }
 
     private var readyHeartRateText: String {
@@ -60,16 +60,10 @@ struct PreStartView: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 4) {
-                        HStack(alignment: .firstTextBaseline, spacing: 2) {
-                            Text(readyTimerText)
-                                .font(.system(size: 26, weight: .bold, design: .rounded))
-                                .monospacedDigit()
-                                .foregroundStyle(.white)
-
-                            Text("s")
-                                .font(.system(size: 13, weight: .semibold, design: .rounded))
-                                .foregroundStyle(.white.opacity(0.78))
-                        }
+                        Text(readyTimerText)
+                            .font(.system(size: 26, weight: .bold, design: .rounded))
+                            .monospacedDigit()
+                            .foregroundStyle(.white)
 
                         ReadyHeartIndicator(heartRateText: readyHeartRateText)
                     }

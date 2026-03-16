@@ -6,11 +6,10 @@ enum PrimaryColorOption: String, CaseIterable, Identifiable {
     case yellow
     case orange
     case pink
-    case white
     case dark = "black"
 
     static var allCases: [PrimaryColorOption] {
-        [.blue, .green, .yellow, .orange, .pink, .white, .dark]
+        [.blue, .green, .yellow, .orange, .pink, .dark]
     }
 
     var id: String { rawValue }
@@ -22,7 +21,6 @@ enum PrimaryColorOption: String, CaseIterable, Identifiable {
         case .yellow: return L10n.yellow
         case .orange: return L10n.orange
         case .pink: return L10n.pink
-        case .white: return L10n.white
         case .dark: return L10n.dark
         }
     }
@@ -30,7 +28,7 @@ enum PrimaryColorOption: String, CaseIterable, Identifiable {
     var color: Color {
         switch self {
         case .blue:
-            return Color(red: 0.09, green: 0.48, blue: 0.93)
+            return Color(red: 0, green: 101 / 255.0, blue: 219 / 255.0)  // #0065DB
         case .green:
             return Color(red: 0.14, green: 0.72, blue: 0.33)
         case .yellow:
@@ -39,8 +37,6 @@ enum PrimaryColorOption: String, CaseIterable, Identifiable {
             return Color(red: 0.79, green: 0.32, blue: 0.15)
         case .pink:
             return Color(red: 0.79, green: 0.18, blue: 0.47)
-        case .white:
-            return Color.white
         case .dark:
             return Color(red: 0.12, green: 0.12, blue: 0.14)
         }

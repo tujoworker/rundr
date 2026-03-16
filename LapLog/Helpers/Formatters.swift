@@ -44,12 +44,13 @@ enum Formatters {
 
     /// Returns a human-readable distance string respecting the chosen unit.
     static func distanceString(meters: Double, unit: DistanceUnit = .km) -> String {
+        let hasDecimals = meters != floor(meters)
         switch unit {
         case .km:
             if meters >= 1000 {
                 return String(format: "%.2f km", meters / 1000.0)
             } else {
-                return String(format: "%.0f m", meters)
+                return hasDecimals ? String(format: "%g m", meters) : String(format: "%.0f m", meters)
             }
         case .miles:
             let miles = meters / 1609.344
@@ -57,7 +58,7 @@ enum Formatters {
                 return String(format: "%.2f mi", miles)
             } else {
                 let feet = meters * 3.28084
-                return String(format: "%.0f ft", feet)
+                return feet != floor(feet) ? String(format: "%g ft", feet) : String(format: "%.0f ft", feet)
             }
         }
     }
@@ -78,7 +79,7 @@ enum Formatters {
         let minutes = Int(secondsPerUnit) / 60
         let secs = Int(secondsPerUnit) % 60
         let label = unit == .km ? "/km" : "/mi"
-        return String(format: "%d:%02d %@", minutes, secs, label)
+        return String(format: "%d:%02d\u{2009}%@", minutes, secs, label)
     }
 
     // MARK: - Heart Rate

@@ -52,18 +52,22 @@ struct LapLogApp: App {
 
         switch command {
         case .startWorkout:
-            handleActionButtonPress()
+            handleStartWorkoutCommand()
         case .markLap:
-            handleActionButtonPress()
+            handleMarkLapCommand()
         }
     }
 
-    private func handleActionButtonPress() {
-        if workoutController.runState == .ended {
-            workoutController.resetForNextSession()
-            coordinator.goHome()
+    private func handleStartWorkoutCommand() {
+        switch coordinator.currentScreen {
+        case .home, .sessionDetail:
+            break
+        case .preStart:
+            startWorkoutFromPreStart()
         }
+    }
 
+    private func handleMarkLapCommand() {
         if coordinator.isShowingActiveSession {
             switch workoutController.runState {
             case .active, .rest:
@@ -76,27 +80,28 @@ struct LapLogApp: App {
 
         switch coordinator.currentScreen {
         case .home, .sessionDetail:
-            if workoutController.runState == .idle {
-                workoutController.getReady()
-            }
-            coordinator.goToPreStart()
+            break
         case .preStart:
-            switch workoutController.runState {
-            case .idle:
-                workoutController.getReady()
-            case .ready:
-                workoutController.configure(
-                    trackingMode: settings.trackingMode,
-                    distanceLapDistanceMeters: settings.distanceDistanceMeters,
-                    healthKitManager: healthKitManager
-                )
-                Task {
-                    await workoutController.start()
-                }
-                coordinator.goToActiveSession()
-            default:
-                break
+            startWorkoutFromPreStart()
+        }
+    }
+
+    private func startWorkoutFromPreStart() {
+        switch workoutController.runState {
+        case .idle:
+            workoutController.getReady()
+        case .ready:
+            workoutController.configure(
+                trackingMode: settings.trackingMode,
+                distanceLapDistanceMeters: settings.distanceDistanceMeters,
+                healthKitManager: healthKitManager
+            )
+            Task {
+                await workoutController.start()
             }
+            coordinator.goToActiveSession()
+        default:
+            break
         }
     }
 }

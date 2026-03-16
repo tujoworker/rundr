@@ -154,6 +154,7 @@ struct PreStartView: View {
                             .padding(.horizontal, 8)
 
                         TextField(distancePlaceholder, text: $distanceText)
+                            .keyboardType(.decimalPad)
                             .multilineTextAlignment(.leading)
                             .font(.system(size: 20, weight: .semibold, design: .rounded))
                             .foregroundStyle(.white)

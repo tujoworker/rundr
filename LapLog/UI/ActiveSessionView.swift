@@ -36,14 +36,14 @@ struct ActiveSessionView: View {
     @ViewBuilder
     private var sessionTimerView: some View {
         Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
-            .font(.system(size: 65, weight: .bold, design: .rounded))
+            .font(.system(size: 72, weight: .bold, design: .rounded))
             .monospacedDigit()
-            .minimumScaleFactor(0.55)
+            .minimumScaleFactor(0.5)
             .lineLimit(1)
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 18)
+            .padding(.horizontal, 28)
+            .padding(.vertical, 24)
             .background(Capsule().fill(primaryColor))
             .overlay(
                 Capsule()

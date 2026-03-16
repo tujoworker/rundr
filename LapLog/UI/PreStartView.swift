@@ -22,6 +22,13 @@ struct PreStartView: View {
 
     private var distanceLabel: String { "Distance" }
 
+    private var distanceInputLabel: String {
+        switch settings.distanceUnit {
+        case .km: return "Distance (meters)"
+        case .miles: return "Distance (feet)"
+        }
+    }
+
     private var distancePlaceholder: String {
         switch settings.distanceUnit {
         case .km: return "e.g. 400"
@@ -144,7 +151,7 @@ struct PreStartView: View {
                 if settings.trackingMode == .distanceDistance {
                     NavigationLink {
                         DistanceInputView(
-                            label: distanceLabel,
+                            label: distanceInputLabel,
                             placeholder: distancePlaceholder,
                             text: $distanceText,
                             onValueChange: persistDistance

@@ -347,8 +347,15 @@ private struct SettingsCardRow: View {
     let title: String
     let value: String
 
+    private var iconHorizontalPadding: CGFloat {
+        let w = WKInterfaceDevice.current().screenBounds.width
+        if w < 200 { return 8 }
+        if w < 210 { return 12 }
+        return 18
+    }
+
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
+        HStack(alignment: .center, spacing: iconHorizontalPadding > 12 ? 12 : 8) {
             Image(systemName: icon)
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(iconColor)
@@ -366,8 +373,8 @@ private struct SettingsCardRow: View {
 
             Spacer(minLength: 6)
         }
-        .padding(.leading, 18)
-        .padding(.trailing, 10)
+        .padding(.leading, iconHorizontalPadding)
+        .padding(.trailing, 0)
         .padding(.vertical, 18)
         .background(
             RoundedRectangle(cornerRadius: 22, style: .continuous)

@@ -63,8 +63,8 @@ struct ActiveSessionView: View {
             .lineLimit(1)
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 20)
+            .padding(.horizontal, timerInnerHorizontalPadding)
+            .padding(.vertical, timerVerticalPadding)
             .background(Capsule().fill(primaryColor))
             .overlay(pauseBorderOverlay)
             .overlay(lapGlowOverlay)
@@ -79,13 +79,62 @@ struct ActiveSessionView: View {
             .brightness(isTimerGlowActive ? 0.3 : 0)
             .shadow(color: Color.white.opacity(isTimerGlowActive ? 0.5 : 0), radius: 18)
             .shadow(color: primaryColor.opacity(isTimerGlowActive ? 0.72 : 0), radius: 24)
-            .padding(.horizontal, 4)
+            .padding(.horizontal, timerHorizontalMargin)
             .contentShape(Capsule())
             .onTapGesture { handleLapTap() }
     }
 
     private let topHeaderHeight: CGFloat = 56
     private let lapHistoryContainerTrailingPadding: CGFloat = 12
+
+    /// Smaller watches: timer moves up more to fit. Timer, pause text, and distance stay relative.
+    private var timerVerticalOffset: CGFloat {
+        let bounds = WKInterfaceDevice.current().screenBounds
+        if bounds.height < 230 { return -9 }
+        if bounds.height < 251 { return -6 }
+        return -3
+    }
+
+    /// Smaller watches: negative margin so timer extends to screen edges.
+    private var timerHorizontalMargin: CGFloat {
+        let w = WKInterfaceDevice.current().screenBounds.width
+        if w < 177 { return -2 }
+        if w < 200 { return 0 }
+        if w < 220 { return 0 }
+        return 0
+    }
+
+    /// Smallest screens: heart rate 2px more up.
+    private var heartRateVerticalOffset: CGFloat {
+        WKInterfaceDevice.current().screenBounds.width < 177 ? -10 : -8
+    }
+
+    /// Smaller watches: top buttons (pause) way more to the left.
+    private var headerHorizontalPadding: CGFloat {
+        let w = WKInterfaceDevice.current().screenBounds.width
+        if w < 177 { return 0 }
+        if w < 195 { return 2 }
+        if w < 210 { return 6 }
+        return 14
+    }
+
+
+    /// Smaller watches: less inner padding so time has more room.
+    private var timerInnerHorizontalPadding: CGFloat {
+        let w = WKInterfaceDevice.current().screenBounds.width
+        if w < 200 { return 6 }
+        if w < 215 { return 8 }
+        if w < 230 { return 10 }
+        return 14
+    }
+
+    /// Smaller watches: 8px less vertical padding (4px top + 4px bottom).
+    private var timerVerticalPadding: CGFloat {
+        let h = WKInterfaceDevice.current().screenBounds.height
+        if h < 230 { return 12 }
+        if h < 251 { return 16 }
+        return 20
+    }
 
     var body: some View {
         ZStack {
@@ -99,7 +148,7 @@ struct ActiveSessionView: View {
 
                     Spacer()
 
-                    HStack(spacing: 6) {
+                    HStack(spacing: 4) {
                         Text(Formatters.heartRateString(bpm: workoutController.currentHeartRate))
                             .font(.system(size: 16, weight: .bold, design: .rounded))
                             .foregroundStyle(.white)
@@ -109,17 +158,20 @@ struct ActiveSessionView: View {
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundStyle(.white)
                     }
+                    .offset(y: heartRateVerticalOffset)
 
                     Spacer()
 
                     Color.clear
                         .frame(width: 48, height: 48)
                 }
-                .padding(.horizontal, 14)
+                .padding(.horizontal, headerHorizontalPadding)
                 .frame(height: topHeaderHeight)
+                .offset(y: -12)
                 .padding(.bottom, 12)
 
                 sessionTimerView
+                    .offset(y: timerVerticalOffset)
 
                 Color.clear
                     .frame(height: 6)

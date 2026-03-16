@@ -26,25 +26,25 @@ struct ActiveSessionView: View {
         workoutController.runState == .rest
     }
 
-    private var timerStrokeColor: Color {
+    private var timerStrokeOpacity: Double {
         if isPaused {
-            return pauseBlinkPhase ? primaryColor : Color.white
+            return pauseBlinkPhase ? 0.95 : 0.08
         }
-        return Color.black.opacity(0.42)
+        return 0.42
     }
 
-    private var pauseGlowOpacity: Double {
-        isPaused ? (pauseBlinkPhase ? 0.9 : 0.25) : 0
+    private var timerStrokeColor: Color {
+        isPaused ? Color.white : Color.black
     }
 
     private var pauseBorderOverlay: some View {
         ZStack {
             Capsule()
-                .stroke(timerStrokeColor, lineWidth: 8)
+                .stroke(timerStrokeColor.opacity(timerStrokeOpacity), lineWidth: 8)
                 .padding(1.5)
                 .animation(.easeInOut(duration: 0.5), value: pauseBlinkPhase)
             Capsule()
-                .stroke(Color.white.opacity(pauseGlowOpacity), lineWidth: 4)
+                .stroke(Color.white.opacity(isPaused ? (pauseBlinkPhase ? 0.9 : 0.05) : 0), lineWidth: 4)
                 .blur(radius: 6)
                 .padding(1.5)
                 .animation(.easeInOut(duration: 0.5), value: pauseBlinkPhase)
@@ -132,7 +132,7 @@ struct ActiveSessionView: View {
                             .foregroundStyle(.white)
                     }
                     .padding(.top, 2)
-                    .offset(y: -14)
+                    .offset(y: -16)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .padding(.horizontal, 14)

@@ -77,7 +77,7 @@ struct ActiveSessionView: View {
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .padding(.horizontal, 22)
-            .padding(.vertical, 24)
+            .padding(.vertical, 20)
             .background(Capsule().fill(primaryColor))
             .overlay(pauseBorderOverlay)
             .overlay(lapGlowOverlay)
@@ -214,7 +214,7 @@ struct ActiveSessionView: View {
                 .frame(height: 64)
                 .padding(.trailing, lapHistoryContainerTrailingPadding)
                 .padding(.bottom, 4)
-                .offset(y: -4)
+                .offset(y: -10)
 
                 Color.clear
                     .frame(maxWidth: .infinity, maxHeight: .infinity)

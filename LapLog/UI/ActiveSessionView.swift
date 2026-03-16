@@ -204,6 +204,7 @@ struct ActiveSessionView: View {
                 .frame(height: 64)
                 .padding(.trailing, lapHistoryContainerTrailingPadding)
                 .padding(.bottom, 4)
+                .offset(y: -4)
 
                 Color.clear
                     .frame(maxWidth: .infinity, maxHeight: .infinity)

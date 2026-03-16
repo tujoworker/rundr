@@ -76,7 +76,7 @@ struct ActiveSessionView: View {
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
                     .foregroundStyle(.white.opacity(0.82))
                     .opacity(workoutController.runState == .rest ? 1 : 0)
-                    .offset(y: -13)
+                    .offset(y: -19)
             }
             .scaleEffect(isTimerBounceActive ? 1.11 : 1)
             .brightness(isTimerGlowActive ? 0.3 : 0)

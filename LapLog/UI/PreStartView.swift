@@ -39,7 +39,16 @@ struct PreStartView: View {
     }
 
     private var readyTimerText: String {
-        Formatters.timeString(from: Double(readyElapsedSeconds))
+        let s = readyElapsedSeconds
+        if s < 60 {
+            return "\(s) s"
+        }
+        let m = s / 60
+        let secs = s % 60
+        if secs == 0 {
+            return "\(m) m"
+        }
+        return "\(m) m \(secs) s"
     }
 
     private var readyHeartRateText: String {

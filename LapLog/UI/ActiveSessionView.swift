@@ -116,11 +116,11 @@ struct ActiveSessionView: View {
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundStyle(.white)
                     }
-                    .padding(.top, 22)
+                    .padding(.top, 2)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .padding(.horizontal, 14)
-                .padding(.top, 4)
+                .padding(.top, 2)
                 .frame(height: topHeaderHeight)
                 .padding(.bottom, 16)
 

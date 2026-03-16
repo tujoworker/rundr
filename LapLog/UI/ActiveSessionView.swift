@@ -14,10 +14,6 @@ struct ActiveSessionView: View {
     @State private var isTimerGlowActive = false
     @State private var isLapHistoryDragging = false
     @State private var lastAnimatedLapCount = 0
-    @State private var pauseBlinkPhase = false
-
-    private let pauseBlinkTimer = Timer.publish(every: 1.4, on: .main, in: .common)
-
     private var primaryColor: Color {
         settings.primaryAccentColor
     }
@@ -40,10 +36,6 @@ struct ActiveSessionView: View {
         Capsule()
             .stroke(Color.black.opacity(0.42), lineWidth: 8)
             .padding(1.5)
-    }
-
-    private var pauseBackgroundGlowOpacity: Double {
-        isPaused ? (pauseBlinkPhase ? 0.85 : 0.45) : 0
     }
 
     private var lapGlowOverlay: some View {
@@ -225,20 +217,6 @@ struct ActiveSessionView: View {
                 )
                 .ignoresSafeArea()
 
-                RadialGradient(
-                    colors: [
-                        Color.white.opacity(pauseBackgroundGlowOpacity * 0.6),
-                        primaryColor.opacity(pauseBackgroundGlowOpacity),
-                        primaryColor.opacity(pauseBackgroundGlowOpacity * 0.5),
-                        .clear
-                    ],
-                    center: .center,
-                    startRadius: 10,
-                    endRadius: 220
-                )
-                .ignoresSafeArea()
-                .animation(.easeInOut(duration: 0.7), value: pauseBlinkPhase)
-
                 Color.white
                     .opacity(isTapFlashVisible ? 0.22 : 0)
                     .ignoresSafeArea()
@@ -259,11 +237,6 @@ struct ActiveSessionView: View {
         .tint(primaryColor)
         .onAppear {
             lastAnimatedLapCount = workoutController.completedLaps.count
-        }
-        .onReceive(pauseBlinkTimer.autoconnect()) { _ in
-            if isPaused {
-                pauseBlinkPhase.toggle()
-            }
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarHidden(true)

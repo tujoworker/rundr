@@ -20,6 +20,9 @@ final class HealthKitManager: ObservableObject {
         if let energy = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned) {
             types.insert(energy)
         }
+        if let bodyMass = HKQuantityType.quantityType(forIdentifier: .bodyMass) {
+            types.insert(bodyMass)
+        }
         types.insert(HKObjectType.workoutType())
         return types
     }
@@ -58,6 +61,34 @@ final class HealthKitManager: ObservableObject {
             await MainActor.run {
                 self.authorizationError = error.localizedDescription
             }
+        }
+    }
+
+    /// Fetches the most recent body mass (weight) in kg for calorie estimation.
+    func fetchMostRecentWeightKg() async -> Double? {
+        guard HKHealthStore.isHealthDataAvailable(),
+              let bodyMassType = HKQuantityType.quantityType(forIdentifier: .bodyMass) else {
+            return nil
+        }
+
+        let sortDescriptors = [NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)]
+
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(
+                sampleType: bodyMassType,
+                predicate: nil,
+                limit: 1,
+                sortDescriptors: sortDescriptors
+            ) { _, samples, error in
+                guard error == nil,
+                      let sample = samples?.first as? HKQuantitySample else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+                let kg = sample.quantity.doubleValue(for: .gramUnit(with: .kilo))
+                continuation.resume(returning: kg)
+            }
+            self.healthStore.execute(query)
         }
     }
 
@@ -100,7 +131,9 @@ final class HealthKitManager: ObservableObject {
         let builder = HKWorkoutBuilder(healthStore: healthStore, configuration: configuration, device: .local())
         try await builder.beginCollection(at: session.startedAt)
 
-        // Add distance and heart rate samples per lap
+        let weightKg = await fetchMostRecentWeightKg() ?? 70
+
+        // Add distance, heart rate, and energy samples per lap
         var samples: [HKQuantitySample] = []
         for lap in session.laps.sorted(by: { $0.startedAt < $1.startedAt }) {
             if lap.distanceMeters > 0,
@@ -126,6 +159,22 @@ final class HealthKitManager: ObservableObject {
                     end: lap.endedAt
                 )
                 samples.append(sample)
+            }
+
+            if lap.lapType != .rest,
+               let energyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned) {
+                let hours = lap.durationSeconds / 3600
+                let kcal = 8 * weightKg * hours
+                if kcal > 0 {
+                    let quantity = HKQuantity(unit: .kilocalorie(), doubleValue: kcal)
+                    let sample = HKQuantitySample(
+                        type: energyType,
+                        quantity: quantity,
+                        start: lap.startedAt,
+                        end: lap.endedAt
+                    )
+                    samples.append(sample)
+                }
             }
         }
 

@@ -68,7 +68,7 @@ struct ActiveSessionView: View {
             .shadow(color: Color.white.opacity(isTimerGlowActive ? 0.5 : 0), radius: 18)
             .shadow(color: primaryColor.opacity(isTimerGlowActive ? 0.72 : 0), radius: 24)
             .animation(.easeInOut(duration: 0.16), value: isPaused)
-            .padding(.horizontal, 14)
+            .padding(.horizontal, 8)
             .contentShape(Capsule())
             .onTapGesture { handleLapTap() }
     }

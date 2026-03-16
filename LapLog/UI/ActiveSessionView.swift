@@ -38,11 +38,11 @@ struct ActiveSessionView: View {
         Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
             .font(.system(size: 72, weight: .bold, design: .rounded))
             .monospacedDigit()
-            .minimumScaleFactor(0.5)
+            .minimumScaleFactor(0.45)
             .lineLimit(1)
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
-            .padding(.horizontal, 28)
+            .padding(.horizontal, 22)
             .padding(.vertical, 24)
             .background(Capsule().fill(primaryColor))
             .overlay(
@@ -68,7 +68,7 @@ struct ActiveSessionView: View {
             .shadow(color: Color.white.opacity(isTimerGlowActive ? 0.5 : 0), radius: 18)
             .shadow(color: primaryColor.opacity(isTimerGlowActive ? 0.72 : 0), radius: 24)
             .animation(.easeInOut(duration: 0.16), value: isPaused)
-            .padding(.horizontal, 8)
+            .padding(.horizontal, 4)
             .contentShape(Capsule())
             .onTapGesture { handleLapTap() }
     }
@@ -117,7 +117,7 @@ struct ActiveSessionView: View {
                             .foregroundStyle(.white)
                     }
                     .padding(.top, 2)
-                    .offset(y: -10)
+                    .offset(y: -14)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .padding(.horizontal, 14)

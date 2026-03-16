@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		012B7841E2D242F37F954082 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A1B775A27201FA001C88AF /* HomeViewModel.swift */; };
-		90A0B0C0D0E0F00112233445 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 90A0B0C0D0E0F00112233446 /* Assets.xcassets */; };
 		1C5FBAD9B17FA11B1506817D /* ActiveSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A391721789A00DCE1A52C5 /* ActiveSessionView.swift */; };
 		29AE989F7AC9917AD935DF22 /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E3127CE770FF5C05C276665 /* Formatters.swift */; };
 		33435AFF099565517A2981F6 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E613F59ADF522B5282AC2A3 /* Session.swift */; };
@@ -19,8 +18,8 @@
 		4631A319E31F7DD1259C594B /* MarkLapIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F786B38610A7C830AC765F1 /* MarkLapIntent.swift */; };
 		472DD6F47869F929F51C29B0 /* StartRunningWorkoutIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8912F0A720200E8D9538C4D5 /* StartRunningWorkoutIntent.swift */; };
 		4F356F5E44F096D44C41E43B /* ActionButtonCommandObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9C66FDE63E4D65F194A3975 /* ActionButtonCommandObserver.swift */; };
-		52686DF91E00697D94B39D92 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A7AAFEB69EBE8A0D0FB048 /* RootView.swift */; };
 		51E4D39D4B5D45B68ED4C11A /* LapLogShortcutsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D1123CC9D14257B8A27313 /* LapLogShortcutsProvider.swift */; };
+		52686DF91E00697D94B39D92 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A7AAFEB69EBE8A0D0FB048 /* RootView.swift */; };
 		52A98D9F8DEB461B7EA6583F /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A52D079F75CFBF9BB2BA7C41 /* HealthKitManager.swift */; };
 		5B42CCC5F71E7FFD525E342C /* PersistenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6018669638742E3118B29041 /* PersistenceManager.swift */; };
 		5D1F2DA465451D371A979B32 /* Lap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A88263B0A43413879ABF4DB7 /* Lap.swift */; };
@@ -28,6 +27,7 @@
 		6E02E5DF235633F34728DC8C /* LapType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586AE861C21CF4145AD81D08 /* LapType.swift */; };
 		7BB47A6891185829ADD4094F /* PreStartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80845E9FC8FEA57AA0E6D7F /* PreStartView.swift */; };
 		826AF4CE8424BB9A4EF1F5CC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3C468A8CAAB5486BF89EDC4 /* Assets.xcassets */; };
+		90A0B0C0D0E0F00112233445 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 90A0B0C0D0E0F00112233446 /* Assets.xcassets */; };
 		A6AC58E35DDE8D4C3006B265 /* LapSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4087CA1ACDF79F69B6F2FBEC /* LapSource.swift */; };
 		ADF3C560149CC9D36C370A06 /* LapLogApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2ABF59CD03172874BEADEA0 /* LapLogApp.swift */; };
 		C49E8373AE1A8ED3EC6A2880 /* ModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB9EDEF7841220E7F36CEFF /* ModelTests.swift */; };
@@ -58,20 +58,20 @@
 		17AFAC5870B80DC3E8E64B00 /* FormattersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormattersTests.swift; sourceTree = "<group>"; };
 		22A7AAFEB69EBE8A0D0FB048 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		2DC650870DDC91DB05A48BBA /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		3522748D3D40B521A48CBEA2 /* PrimaryColorOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryColorOption.swift; sourceTree = "<group>"; };
 		4087CA1ACDF79F69B6F2FBEC /* LapSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapSource.swift; sourceTree = "<group>"; };
+		4F786B38610A7C830AC765F1 /* MarkLapIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkLapIntent.swift; sourceTree = "<group>"; };
 		586AE861C21CF4145AD81D08 /* LapType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapType.swift; sourceTree = "<group>"; };
 		58B56B88EBFA89F92A11A0E1 /* NavigationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinator.swift; sourceTree = "<group>"; };
-		90A0B0C0D0E0F00112233446 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		90A0B0C0D0E0F00112233447 /* LapLog Companion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "LapLog Companion.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5E613F59ADF522B5282AC2A3 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
-		3522748D3D40B521A48CBEA2 /* PrimaryColorOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryColorOption.swift; sourceTree = "<group>"; };
 		6018669638742E3118B29041 /* PersistenceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceManager.swift; sourceTree = "<group>"; };
 		803A3A092975B9BAB810BAB2 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
-		8BEFD367C4AB92E0F59B0B1F /* LapLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LapLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		8B2F9EBC2633B3C17127B2A8 /* ActionButtonCommandStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonCommandStore.swift; sourceTree = "<group>"; };
 		8912F0A720200E8D9538C4D5 /* StartRunningWorkoutIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartRunningWorkoutIntent.swift; sourceTree = "<group>"; };
-		4F786B38610A7C830AC765F1 /* MarkLapIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkLapIntent.swift; sourceTree = "<group>"; };
+		8B2F9EBC2633B3C17127B2A8 /* ActionButtonCommandStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonCommandStore.swift; sourceTree = "<group>"; };
+		8BEFD367C4AB92E0F59B0B1F /* LapLog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LapLog.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8E3127CE770FF5C05C276665 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
+		90A0B0C0D0E0F00112233446 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		90A0B0C0D0E0F00112233447 /* LapLog Companion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "LapLog Companion.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A52D079F75CFBF9BB2BA7C41 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
 		A88263B0A43413879ABF4DB7 /* Lap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lap.swift; sourceTree = "<group>"; };
 		AE97F98043246AF98F971416 /* TrackingMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackingMode.swift; sourceTree = "<group>"; };
@@ -83,8 +83,8 @@
 		E2A1B775A27201FA001C88AF /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		E7F85A1B319257D193FA45B6 /* WorkoutControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutControllerTests.swift; sourceTree = "<group>"; };
 		EFB9EDEF7841220E7F36CEFF /* ModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelTests.swift; sourceTree = "<group>"; };
-		F2ABF59CD03172874BEADEA0 /* LapLogApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapLogApp.swift; sourceTree = "<group>"; };
 		F1D1123CC9D14257B8A27313 /* LapLogShortcutsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapLogShortcutsProvider.swift; sourceTree = "<group>"; };
+		F2ABF59CD03172874BEADEA0 /* LapLogApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapLogApp.swift; sourceTree = "<group>"; };
 		F6DEE2BD2F65FC180005ABAA /* DistanceUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceUnit.swift; sourceTree = "<group>"; };
 		F6DEE2BF2F66038A0005ABAA /* LapLog.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LapLog.entitlements; sourceTree = "<group>"; };
 		F6DEE2C22F6612F00005ABAA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -216,20 +216,20 @@
 			path = Health;
 			sourceTree = "<group>";
 		};
-		90A0B0C0D0E0F00112233448 /* LapLog Companion */ = {
-			isa = PBXGroup;
-			children = (
-				90A0B0C0D0E0F00112233446 /* Assets.xcassets */,
-			);
-			path = "LapLog Companion";
-			sourceTree = "<group>";
-		};
 		7675693986D84F095B28B67D /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
 				8E3127CE770FF5C05C276665 /* Formatters.swift */,
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		90A0B0C0D0E0F00112233448 /* LapLog Companion */ = {
+			isa = PBXGroup;
+			children = (
+				90A0B0C0D0E0F00112233446 /* Assets.xcassets */,
+			);
+			path = "LapLog Companion";
 			sourceTree = "<group>";
 		};
 		BF7A2D27A78D590BDEF15AF2 /* Products */ = {
@@ -302,7 +302,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1540;
-				LastUpgradeCheck = 1540;
+				LastUpgradeCheck = 2630;
 			};
 			buildConfigurationList = FE422E61AE992D05BC2E14C2 /* Build configuration list for PBXProject "LapLog" */;
 			compatibilityVersion = "Xcode 14.0";
@@ -410,13 +410,13 @@
 				DEVELOPMENT_TEAM = D7U32ULZSD;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = LapLog;
 				INFOPLIST_FILE = LapLog/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LapLog;
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "The app reads heart rate data during workouts.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "The app saves your workout sessions to Apple Health.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LapLog uses GPS to track your running distance.";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.laplog;
 				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.laplog;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -431,27 +431,6 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
 				WATCHOS_DEPLOYMENT_TARGET = 10.0;
-			};
-			name = Debug;
-		};
-		90A0B0C0D0E0F0011223344B /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = D7U32ULZSD;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = LapLog;
-				INFOPLIST_KEY_LSRequiresIPhoneOS = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.laplog;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SKIP_INSTALL = NO;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -495,40 +474,26 @@
 			};
 			name = Release;
 		};
-		A17D69B82EEA6AD12837DC68 /* Release */ = {
+		90A0B0C0D0E0F0011223344B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = LapLog/LapLog.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"LapLog/Preview Content\"";
 				DEVELOPMENT_TEAM = D7U32ULZSD;
-				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = LapLog;
-				INFOPLIST_FILE = LapLog/Info.plist;
-				INFOPLIST_KEY_NSHealthShareUsageDescription = "The app reads heart rate data during workouts.";
-				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "The app saves your workout sessions to Apple Health.";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LapLog uses GPS to track your running distance.";
-				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.laplog;
-				INFOPLIST_KEY_WKApplication = YES;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				INFOPLIST_KEY_LSRequiresIPhoneOS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.laplog.watchapp;
+				PRODUCT_BUNDLE_IDENTIFIER = com.laplog;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
+				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
-				SUPPORTED_PLATFORMS = "watchos watchsimulator";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
-			name = Release;
+			name = Debug;
 		};
 		90A0B0C0D0E0F0011223344C /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -552,6 +517,41 @@
 			};
 			name = Release;
 		};
+		A17D69B82EEA6AD12837DC68 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = LapLog/LapLog.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"LapLog/Preview Content\"";
+				DEVELOPMENT_TEAM = D7U32ULZSD;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LapLog/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = LapLog;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "The app reads heart rate data during workouts.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "The app saves your workout sessions to Apple Health.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "LapLog uses GPS to track your running distance.";
+				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.laplog;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.laplog.watchapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = NO;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
 		B74382A4D110BEFC1DEB55E4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -561,18 +561,46 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				WATCHOS_DEPLOYMENT_TARGET = 10.0;
@@ -588,11 +616,39 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 				WATCHOS_DEPLOYMENT_TARGET = 10.0;
@@ -602,20 +658,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		938997E94E15DD5CF3243B0D /* Build configuration list for PBXNativeTarget "LapLogTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4B76C35BB1D534F10245EF37 /* Debug */,
-				819EE775D92C0EF73120C600 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		90A0B0C0D0E0F0011223344D /* Build configuration list for PBXNativeTarget "LapLog Companion" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				90A0B0C0D0E0F0011223344B /* Debug */,
 				90A0B0C0D0E0F0011223344C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		938997E94E15DD5CF3243B0D /* Build configuration list for PBXNativeTarget "LapLogTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4B76C35BB1D534F10245EF37 /* Debug */,
+				819EE775D92C0EF73120C600 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

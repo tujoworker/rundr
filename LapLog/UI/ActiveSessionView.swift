@@ -57,7 +57,7 @@ struct ActiveSessionView: View {
     @ViewBuilder
     private var sessionTimerView: some View {
         Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
-            .font(.system(size: timerFontSize, weight: .bold, design: .rounded))
+            .font(.system(size: timerFontSize, weight: .medium, design: .rounded))
             .monospacedDigit()
             .minimumScaleFactor(0.45)
             .lineLimit(1)
@@ -129,16 +129,17 @@ struct ActiveSessionView: View {
         WKInterfaceDevice.current().screenBounds.width < 177 ? -10 : -8
     }
 
-    /// 42mm: header moves down 2px. 44mm: 14px up. 46mm: 12px up. 49mm: 22px up. All -7px.
-    /// 49mm: use height >= 249 (tallest) since width can vary.
+    /// 42mm: header moves down 2px. 44mm: 14px up. 46mm: 12px up. 49mm: 22px up.
+    /// 187×223 variant: apply 8 (same as 42mm).
     private var headerVerticalOffset: CGFloat {
         let bounds = WKInterfaceDevice.current().screenBounds
         let w = bounds.width
         let h = bounds.height
-        if h >= 249 { return -14 }  // 49mm
-        if w >= 205 && w <= 212 && h >= 245 && h <= 252 { return -4 }   // 46mm
-        if h >= 220 && h <= 230 { return -6 }   // 44mm
-        if h >= 192 && h <= 196 { return 10 }   // 42mm
+        if h >= 249 { return -16 }  // 49mm
+        if w >= 205 && w <= 212 && h >= 245 && h <= 252 { return -12 }  // 46mm
+        if w >= 182 && w <= 192 && h >= 220 && h <= 230 { return -17 }  // 44mm (184×224, 187×223)
+        if (w >= 158 && w <= 168 && h >= 194 && h <= 202) || (w >= 318 && w <= 328 && h >= 390 && h <= 405) { return -4 }  // 40mm (162×197)
+        if (w >= 152 && w <= 161) || (w >= 308 && w <= 318) { return 8 }  // 42mm
         return 8
     }
 
@@ -172,11 +173,11 @@ struct ActiveSessionView: View {
         let bounds = WKInterfaceDevice.current().screenBounds
         let w = bounds.width
         let h = bounds.height
-        if w >= 205 && w <= 212 && h >= 245 && h <= 252 { return 86 }  // 46mm
-        if w >= 200 && w <= 215 && h >= 248 && h <= 255 { return 84 }  // 49mm
-        if h >= 220 && h <= 230 { return 80 }   // 44mm
-        if h < 230 { return 76 }   // 42mm, 40mm
-        return 78
+        if w >= 205 && w <= 212 && h >= 245 && h <= 252 { return 92 }  // 46mm
+        if w >= 200 && w <= 215 && h >= 248 && h <= 255 { return 90 }  // 49mm
+        if h >= 220 && h <= 230 { return 86 }   // 44mm
+        if h < 230 { return 82 }   // 42mm, 40mm
+        return 84
     }
 
     /// Smaller capsule: less inner padding.
@@ -188,12 +189,12 @@ struct ActiveSessionView: View {
         return 10
     }
 
-    /// Smaller capsule: less vertical padding.
+    /// Smaller capsule: less vertical padding (reduced to keep height same with larger font).
     private var timerVerticalPadding: CGFloat {
         let h = WKInterfaceDevice.current().screenBounds.height
-        if h < 230 { return 8 }
-        if h < 251 { return 12 }
-        return 16
+        if h < 230 { return 6 }
+        if h < 251 { return 10 }
+        return 12
     }
 
     var body: some View {
@@ -358,7 +359,7 @@ struct ActiveSessionView: View {
             lastAnimatedLapCount = workoutController.completedLaps.count
             #if DEBUG
             let b = WKInterfaceDevice.current().screenBounds
-            print("[LapLog] Screen: \(b.width)×\(b.height) headerLeadingExtra=\(headerLeadingExtra)")
+            print("[LapLog] Screen: \(b.width)×\(b.height) headerLeadingExtra=\(headerLeadingExtra) headerVerticalOffset=\(headerVerticalOffset)")
             #endif
         }
         .toolbar(.hidden, for: .navigationBar)

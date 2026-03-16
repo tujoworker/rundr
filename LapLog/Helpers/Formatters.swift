@@ -17,13 +17,16 @@ enum Formatters {
         }
     }
 
-    /// Precision format: 00:00.00 – minutes, seconds, and hundredths.
+    /// Precision format: 0:00.00 under 10 min, 10:00.00 at 10+ min.
     static func precisionTimeString(from seconds: Double) -> String {
         let clamped = max(seconds, 0)
         let totalSeconds = Int(clamped)
         let minutes = totalSeconds / 60
         let secs = totalSeconds % 60
         let hundredths = Int((clamped - Double(totalSeconds)) * 100) % 100
+        if minutes < 10 {
+            return String(format: "%d:%02d.%02d", minutes, secs, hundredths)
+        }
         return String(format: "%02d:%02d.%02d", minutes, secs, hundredths)
     }
 

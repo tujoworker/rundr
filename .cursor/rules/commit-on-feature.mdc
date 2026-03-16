@@ -1,0 +1,12 @@
+---
+description: Commit each new feature to git
+alwaysApply: true
+---
+
+# Git Commits on New Features
+
+When adding a new feature, make a git commit after the feature is complete.
+
+- Stage the relevant files
+- Use a clear, descriptive commit message (e.g. "Add X", "Match Y to Z", "Remove X from Y")
+- Commit before moving on to the next feature or task

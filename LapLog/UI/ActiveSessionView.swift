@@ -315,9 +315,9 @@ struct ActiveSessionView: View {
         }
 
         Task {
-            try? await Task.sleep(for: .milliseconds(420))
+            try? await Task.sleep(for: .milliseconds(180))
             await MainActor.run {
-                withAnimation(.easeOut(duration: 0.42)) {
+                withAnimation(.easeOut(duration: 0.18)) {
                     isTimerGlowActive = false
                 }
             }

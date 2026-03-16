@@ -57,7 +57,7 @@ struct ActiveSessionView: View {
     @ViewBuilder
     private var sessionTimerView: some View {
         Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
-            .font(.system(size: 72, weight: .bold, design: .rounded))
+            .font(.system(size: timerFontSize, weight: .bold, design: .rounded))
             .monospacedDigit()
             .minimumScaleFactor(0.45)
             .lineLimit(1)
@@ -102,12 +102,17 @@ struct ActiveSessionView: View {
         return 8
     }
 
-    /// Smaller watches: timer moves up more to fit. Timer, pause text, and distance stay relative.
+    /// Smaller watches: timer moves up more to fit. 49mm: 4px extra up. All +2px up.
     private var timerVerticalOffset: CGFloat {
         let bounds = WKInterfaceDevice.current().screenBounds
-        if bounds.height < 230 { return -9 }
-        if bounds.height < 251 { return -6 }
-        return -3
+        let w = bounds.width
+        let h = bounds.height
+        var base: CGFloat
+        if h < 230 { base = -11 }
+        else if h < 251 { base = -8 }
+        else { base = -5 }
+        if w >= 200 && w <= 215 && h >= 248 && h <= 255 { base -= 4 }  // 49mm
+        return base
     }
 
     /// Smaller watches: negative margin so timer extends to screen edges.
@@ -124,17 +129,17 @@ struct ActiveSessionView: View {
         WKInterfaceDevice.current().screenBounds.width < 177 ? -10 : -8
     }
 
-    /// 42mm: header moves down 2px. 44mm: 14px up. 46mm: 10px up. 49mm: 12px up.
-    /// Use height (matches timerVerticalOffset) since it's more reliable.
+    /// 42mm: header moves down 2px. 44mm: 14px up. 46mm: 12px up. 49mm: 22px up. All -7px.
+    /// 49mm: use height >= 249 (tallest) since width can vary.
     private var headerVerticalOffset: CGFloat {
         let bounds = WKInterfaceDevice.current().screenBounds
         let w = bounds.width
         let h = bounds.height
-        if w >= 202 && w <= 210 && h >= 249 && h <= 255 { return -12 }  // 49mm (205×251pt)
-        if w >= 205 && w <= 212 && h >= 245 && h <= 252 { return -12 }  // 46mm (208×248pt)
-        if h >= 220 && h <= 230 { return -14 }  // 44mm (224pt)
-        if h >= 192 && h <= 196 { return 2 }    // 42mm (195pt), exclude 40mm (197pt)
-        return 0
+        if h >= 249 { return -14 }  // 49mm
+        if w >= 205 && w <= 212 && h >= 245 && h <= 252 { return -4 }   // 46mm
+        if h >= 220 && h <= 230 { return -6 }   // 44mm
+        if h >= 192 && h <= 196 { return 10 }   // 42mm
+        return 8
     }
 
     /// Smaller watches: top buttons (pause) way more to the left.
@@ -148,9 +153,8 @@ struct ActiveSessionView: View {
 
     /// 46mm, 49mm: lap cards move down 4px.
     private var lapCardsVerticalOffset: CGFloat {
-        let w = WKInterfaceDevice.current().screenBounds.width
         let h = WKInterfaceDevice.current().screenBounds.height
-        return (w >= 202 && w <= 212 && h >= 245 && h <= 255) ? 4 : 0
+        return h >= 245 ? 4 : 0
     }
 
     /// Top buttons move right on smaller/larger watches for better alignment.
@@ -163,21 +167,33 @@ struct ActiveSessionView: View {
     }
 
 
-    /// Smaller watches: less inner padding so time has more room.
-    private var timerInnerHorizontalPadding: CGFloat {
-        let w = WKInterfaceDevice.current().screenBounds.width
-        if w < 200 { return 6 }
-        if w < 215 { return 8 }
-        if w < 230 { return 10 }
-        return 14
+    /// Timer font: larger overall, even larger on 46mm.
+    private var timerFontSize: CGFloat {
+        let bounds = WKInterfaceDevice.current().screenBounds
+        let w = bounds.width
+        let h = bounds.height
+        if w >= 205 && w <= 212 && h >= 245 && h <= 252 { return 86 }  // 46mm
+        if w >= 200 && w <= 215 && h >= 248 && h <= 255 { return 84 }  // 49mm
+        if h >= 220 && h <= 230 { return 80 }   // 44mm
+        if h < 230 { return 76 }   // 42mm, 40mm
+        return 78
     }
 
-    /// Smaller watches: 8px less vertical padding (4px top + 4px bottom).
+    /// Smaller capsule: less inner padding.
+    private var timerInnerHorizontalPadding: CGFloat {
+        let w = WKInterfaceDevice.current().screenBounds.width
+        if w < 200 { return 4 }
+        if w < 215 { return 6 }
+        if w < 230 { return 8 }
+        return 10
+    }
+
+    /// Smaller capsule: less vertical padding.
     private var timerVerticalPadding: CGFloat {
         let h = WKInterfaceDevice.current().screenBounds.height
-        if h < 230 { return 12 }
-        if h < 251 { return 16 }
-        return 20
+        if h < 230 { return 8 }
+        if h < 251 { return 12 }
+        return 16
     }
 
     var body: some View {

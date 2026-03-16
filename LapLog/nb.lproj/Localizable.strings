@@ -9,6 +9,9 @@
 "Distance (feet)" = "Distanse (fot)";
 "Unit" = "Enhet";
 "Color" = "Farge";
+"Pause" = "Pause";
+"Manual" = "Manuell";
+"Auto" = "Auto";
 "e.g. 400" = "f.eks. 400";
 "e.g. 1320" = "f.eks. 1320";
 "Location Required" = "Plassering kreves";

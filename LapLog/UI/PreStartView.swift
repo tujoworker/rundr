@@ -16,6 +16,7 @@ struct PreStartView: View {
     @State private var isTrackingModeDialogPresented = false
     @State private var isDistanceUnitDialogPresented = false
     @State private var isPrimaryColorDialogPresented = false
+    @State private var isPauseModeDialogPresented = false
     @StateObject private var locationPermissionRequester = LocationPermissionRequester()
 
     private let readyTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -190,6 +191,18 @@ struct PreStartView: View {
                     )
                 }
                 .buttonStyle(.plain)
+
+                Button {
+                    isPauseModeDialogPresented = true
+                } label: {
+                    SettingsCardRow(
+                        icon: "pause.circle",
+                        iconColor: settings.primaryAccentColor,
+                        title: L10n.pause,
+                        value: settings.pauseMode.displayName
+                    )
+                }
+                .buttonStyle(.plain)
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 8)
@@ -245,6 +258,14 @@ struct PreStartView: View {
             ForEach(PrimaryColorOption.allCases) { color in
                 Button(color.displayName) {
                     settings.primaryColor = color
+                }
+            }
+            Button(L10n.cancel, role: .cancel) {}
+        }
+        .confirmationDialog(L10n.pause, isPresented: $isPauseModeDialogPresented) {
+            ForEach(PauseMode.allCases) { mode in
+                Button(mode.displayName) {
+                    settings.pauseMode = mode
                 }
             }
             Button(L10n.cancel, role: .cancel) {}

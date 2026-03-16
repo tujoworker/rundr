@@ -9,6 +9,9 @@
 "Distance (feet)" = "Distanz (Fuß)";
 "Unit" = "Einheit";
 "Color" = "Farbe";
+"Pause" = "Pause";
+"Manual" = "Manuell";
+"Auto" = "Auto";
 "e.g. 400" = "z.B. 400";
 "e.g. 1320" = "z.B. 1320";
 "Location Required" = "Standort erforderlich";

@@ -102,7 +102,7 @@ struct ActiveSessionView: View {
         return 8
     }
 
-    /// Smaller watches: timer moves up more to fit. 49mm: 4px extra up. All +2px up.
+    /// Smaller watches: timer moves up more to fit. 49mm: 8px extra up. All +2px up.
     private var timerVerticalOffset: CGFloat {
         let bounds = WKInterfaceDevice.current().screenBounds
         let w = bounds.width
@@ -111,7 +111,8 @@ struct ActiveSessionView: View {
         if h < 230 { base = -11 }
         else if h < 251 { base = -8 }
         else { base = -5 }
-        if w >= 200 && w <= 215 && h >= 248 && h <= 255 { base -= 4 }  // 49mm
+        // 49mm Ultra/Ultra 2: tallest watch (410×502 pts → 205×251 or 410×502)
+        if h >= 250 && w >= 198 { base -= 8 }  // 49mm
         return base
     }
 
@@ -168,13 +169,13 @@ struct ActiveSessionView: View {
     }
 
 
-    /// Timer font: larger overall, even larger on 46mm.
+    /// Timer font: larger overall, even larger on 46mm, largest on 49mm.
     private var timerFontSize: CGFloat {
         let bounds = WKInterfaceDevice.current().screenBounds
         let w = bounds.width
         let h = bounds.height
+        if h >= 250 && w >= 198 { return 96 }  // 49mm (largest)
         if w >= 205 && w <= 212 && h >= 245 && h <= 252 { return 92 }  // 46mm
-        if w >= 200 && w <= 215 && h >= 248 && h <= 255 { return 90 }  // 49mm
         if h >= 220 && h <= 230 { return 86 }   // 44mm
         if h < 230 { return 82 }   // 42mm, 40mm
         return 84
@@ -357,10 +358,6 @@ struct ActiveSessionView: View {
         .tint(primaryColor)
         .onAppear {
             lastAnimatedLapCount = workoutController.completedLaps.count
-            #if DEBUG
-            let b = WKInterfaceDevice.current().screenBounds
-            print("[LapLog] Screen: \(b.width)×\(b.height) headerLeadingExtra=\(headerLeadingExtra) headerVerticalOffset=\(headerVerticalOffset)")
-            #endif
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarHidden(true)
@@ -378,7 +375,7 @@ struct ActiveSessionView: View {
                         try? self.persistence.modelContext.save()
                     }
                 } catch {
-                    print("HealthKit export failed: \(error)")
+                    // HealthKit export failed silently
                 }
             }
         }

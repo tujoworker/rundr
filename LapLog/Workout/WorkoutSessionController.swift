@@ -22,6 +22,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     private(set) var trackingMode: TrackingMode = .gps
     private(set) var distanceLapDistanceMeters: Double = 400
+    private(set) var pauseMode: PauseMode = .manual
 
     // MARK: - Internal
 
@@ -45,10 +46,12 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     func configure(
         trackingMode: TrackingMode,
         distanceLapDistanceMeters: Double,
+        pauseMode: PauseMode,
         healthKitManager: HealthKitManager
     ) {
         self.trackingMode = trackingMode
         self.distanceLapDistanceMeters = distanceLapDistanceMeters
+        self.pauseMode = pauseMode
         self.healthKitManager = healthKitManager
     }
 
@@ -121,15 +124,15 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     func startRest() {
         guard runState == .active else { return }
-        runState = .rest
         playHaptic(.notification)
+        runState = .rest
     }
 
     func cancelRest() {
         guard runState == .rest else { return }
+        playHaptic(.click)
         runState = .active
         startTimer()
-        playHaptic(.click)
     }
 
     func endSession() async -> Session? {
@@ -275,7 +278,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             session.startActivity(with: Date())
             try await builder.beginCollection(at: Date())
         } catch {
-            print("Failed to start HK workout: \(error)")
+            // Failed to start HK workout
         }
     }
 
@@ -286,7 +289,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             try await builder.endCollection(at: endDate)
             builder.discardWorkout()
         } catch {
-            print("Failed to stop HK live session: \(error)")
+            // Failed to stop HK live session
         }
         hkWorkoutSession = nil
         hkLiveBuilder = nil
@@ -356,9 +359,27 @@ extension WorkoutSessionController: HKWorkoutSessionDelegate {
 
     nonisolated func workoutSession(
         _ workoutSession: HKWorkoutSession,
+        didGenerate event: HKWorkoutEvent
+    ) {
+        let eventType = event.type
+        Task { @MainActor in
+            guard self.pauseMode == .autoDetect else { return }
+            switch eventType {
+            case .motionPaused:
+                self.startRest()
+            case .motionResumed:
+                self.cancelRest()
+            default:
+                break
+            }
+        }
+    }
+
+    nonisolated func workoutSession(
+        _ workoutSession: HKWorkoutSession,
         didFailWithError error: Error
     ) {
-        print("Workout session error: \(error)")
+        // Workout session error
     }
 }
 

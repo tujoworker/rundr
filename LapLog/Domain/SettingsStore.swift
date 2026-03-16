@@ -6,6 +6,7 @@ final class SettingsStore: ObservableObject {
     @AppStorage("distanceDistanceMeters") var distanceDistanceMeters: Double = 400
     @AppStorage("distanceUnit") var distanceUnit: DistanceUnit = .km
     @AppStorage("primaryColor") var primaryColor: PrimaryColorOption = .blue
+    @AppStorage("pauseMode") var pauseMode: PauseMode = .manual
 
     var primaryAccentColor: Color {
         primaryColor.color

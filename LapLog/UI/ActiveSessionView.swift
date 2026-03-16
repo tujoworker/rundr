@@ -43,7 +43,7 @@ struct ActiveSessionView: View {
     }
 
     private var pauseBackgroundGlowOpacity: Double {
-        isPaused ? (pauseBlinkPhase ? 0.22 : 0.06) : 0
+        isPaused ? (pauseBlinkPhase ? 0.32 : 0.1) : 0
     }
 
     private var lapGlowOverlay: some View {

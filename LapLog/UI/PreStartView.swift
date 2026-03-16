@@ -291,10 +291,10 @@ private struct ReadyStartIcon: View {
         }
         .overlay {
             Image(systemName: "figure.run")
-                .font(.system(size: 28, weight: .bold))
+                .font(.system(size: 34, weight: .bold))
                 .foregroundStyle(.white)
         }
-        .frame(width: 65, height: 65)
+        .frame(width: 78, height: 78)
         .shadow(color: baseColor.opacity(0.28), radius: 6, y: 2)
     }
 }

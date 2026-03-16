@@ -447,6 +447,11 @@ struct LapCardView: View {
                                     .monospacedDigit()
                             }
                             .foregroundStyle(.secondary)
+                        } else {
+                            Text(Formatters.paceString(distanceMeters: lap.distanceMeters, durationSeconds: lap.durationSeconds, unit: distanceUnit))
+                                .font(.system(size: 18, design: .rounded))
+                                .monospacedDigit()
+                                .foregroundStyle(.secondary)
                         }
                     }
                 }

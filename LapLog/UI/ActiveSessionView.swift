@@ -16,7 +16,7 @@ struct ActiveSessionView: View {
     @State private var lastAnimatedLapCount = 0
     @State private var pauseBlinkPhase = false
 
-    private let pauseBlinkTimer = Timer.publish(every: 0.8, on: .main, in: .common)
+    private let pauseBlinkTimer = Timer.publish(every: 0.7, on: .main, in: .common)
 
     private var primaryColor: Color {
         settings.primaryAccentColor
@@ -28,13 +28,17 @@ struct ActiveSessionView: View {
 
     private var timerStrokeOpacity: Double {
         if isPaused {
-            return pauseBlinkPhase ? 0.95 : 0.08
+            return pauseBlinkPhase ? 0.95 : 0.25
         }
         return 0.42
     }
 
     private var timerStrokeColor: Color {
         isPaused ? Color.white : Color.black
+    }
+
+    private var pauseGlowOpacity: Double {
+        isPaused ? (pauseBlinkPhase ? 0.95 : 0.2) : 0
     }
 
     private var pauseBorderOverlay: some View {
@@ -44,11 +48,17 @@ struct ActiveSessionView: View {
                 .padding(1.5)
                 .animation(.easeInOut(duration: 0.5), value: pauseBlinkPhase)
             Capsule()
-                .stroke(Color.white.opacity(isPaused ? (pauseBlinkPhase ? 0.9 : 0.05) : 0), lineWidth: 4)
+                .stroke(primaryColor.opacity(pauseGlowOpacity * 0.8), lineWidth: 5)
                 .blur(radius: 6)
                 .padding(1.5)
                 .animation(.easeInOut(duration: 0.5), value: pauseBlinkPhase)
+            Capsule()
+                .stroke(Color.white.opacity(pauseGlowOpacity), lineWidth: 6)
+                .blur(radius: 8)
+                .padding(1.5)
+                .animation(.easeInOut(duration: 0.5), value: pauseBlinkPhase)
         }
+        .allowsHitTesting(false)
     }
 
     private var lapGlowOverlay: some View {

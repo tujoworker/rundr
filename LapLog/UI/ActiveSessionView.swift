@@ -16,7 +16,7 @@ struct ActiveSessionView: View {
     @State private var lastAnimatedLapCount = 0
     @State private var pauseBlinkPhase = false
 
-    private let pauseBlinkTimer = Timer.publish(every: 0.6, on: .main, in: .common)
+    private let pauseBlinkTimer = Timer.publish(every: 0.8, on: .main, in: .common)
 
     private var primaryColor: Color {
         settings.primaryAccentColor
@@ -33,6 +33,30 @@ struct ActiveSessionView: View {
         return Color.black.opacity(0.42)
     }
 
+    private var pauseGlowOpacity: Double {
+        isPaused ? (pauseBlinkPhase ? 0.9 : 0.25) : 0
+    }
+
+    private var pauseBorderOverlay: some View {
+        ZStack {
+            Capsule()
+                .stroke(timerStrokeColor, lineWidth: 8)
+                .padding(1.5)
+                .animation(.easeInOut(duration: 0.5), value: pauseBlinkPhase)
+            Capsule()
+                .stroke(Color.white.opacity(pauseGlowOpacity), lineWidth: 4)
+                .blur(radius: 6)
+                .padding(1.5)
+                .animation(.easeInOut(duration: 0.5), value: pauseBlinkPhase)
+        }
+    }
+
+    private var lapGlowOverlay: some View {
+        Capsule()
+            .stroke(Color.white.opacity(isTimerGlowActive ? 0.6 : 0), lineWidth: 3)
+            .blur(radius: isTimerGlowActive ? 3 : 0)
+    }
+
     @ViewBuilder
     private var sessionTimerView: some View {
         Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
@@ -45,17 +69,8 @@ struct ActiveSessionView: View {
             .padding(.horizontal, 22)
             .padding(.vertical, 24)
             .background(Capsule().fill(primaryColor))
-            .overlay(
-                Capsule()
-                    .stroke(timerStrokeColor, lineWidth: 8)
-                    .padding(1.5)
-                    .animation(.easeInOut(duration: 0.3), value: pauseBlinkPhase)
-            )
-            .overlay(
-                Capsule()
-                    .stroke(Color.white.opacity(isTimerGlowActive ? 0.6 : 0), lineWidth: 3)
-                    .blur(radius: isTimerGlowActive ? 3 : 0)
-            )
+            .overlay(pauseBorderOverlay)
+            .overlay(lapGlowOverlay)
             .overlay(alignment: .top) {
                 Text("Pause Mode")
                     .font(.system(size: 11, weight: .semibold, design: .rounded))

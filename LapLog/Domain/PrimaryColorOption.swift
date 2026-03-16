@@ -7,10 +7,10 @@ enum PrimaryColorOption: String, CaseIterable, Identifiable {
     case orange
     case pink
     case white
-    case black
+    case dark = "black"
 
     static var allCases: [PrimaryColorOption] {
-        [.blue, .green, .yellow, .orange, .pink, .white, .black]
+        [.blue, .green, .yellow, .orange, .pink, .white, .dark]
     }
 
     var id: String { rawValue }
@@ -29,8 +29,8 @@ enum PrimaryColorOption: String, CaseIterable, Identifiable {
             return "Pink"
         case .white:
             return "White"
-        case .black:
-            return "Black"
+        case .dark:
+            return "Dark"
         }
     }
 
@@ -48,8 +48,8 @@ enum PrimaryColorOption: String, CaseIterable, Identifiable {
             return Color(red: 0.79, green: 0.18, blue: 0.47)
         case .white:
             return Color.white
-        case .black:
-            return Color.black
+        case .dark:
+            return Color(red: 0.45, green: 0.45, blue: 0.5)
         }
     }
 }

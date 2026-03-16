@@ -364,9 +364,10 @@ private struct SettingsCardRow: View {
                     .foregroundStyle(.white.opacity(0.7))
             }
 
-            Spacer(minLength: 10)
+            Spacer(minLength: 6)
         }
-        .padding(.horizontal, 18)
+        .padding(.leading, 18)
+        .padding(.trailing, 10)
         .padding(.vertical, 18)
         .background(
             RoundedRectangle(cornerRadius: 22, style: .continuous)

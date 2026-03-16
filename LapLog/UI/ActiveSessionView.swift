@@ -75,7 +75,7 @@ struct ActiveSessionView: View {
                 .padding(.bottom, 16)
 
                 Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
-                    .font(.system(size: 46, weight: .bold, design: .rounded))
+                    .font(.system(size: 52, weight: .bold, design: .rounded))
                     .monospacedDigit()
                     .minimumScaleFactor(0.55)
                     .lineLimit(1)

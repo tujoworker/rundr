@@ -1,6 +1,156 @@
 {
   "images" : [
     {
+      "filename" : "LapLog-AppIcon-22.png",
+      "idiom" : "watch",
+      "role" : "notificationCenter",
+      "scale" : "2x",
+      "subtype" : "40mm",
+      "size" : "22x22"
+    },
+    {
+      "filename" : "LapLog-AppIcon-24.png",
+      "idiom" : "watch",
+      "role" : "notificationCenter",
+      "scale" : "2x",
+      "subtype" : "38mm",
+      "size" : "24x24"
+    },
+    {
+      "filename" : "LapLog-AppIcon-27.5.png",
+      "idiom" : "watch",
+      "role" : "notificationCenter",
+      "scale" : "2x",
+      "subtype" : "42mm",
+      "size" : "27.5x27.5"
+    },
+    {
+      "filename" : "LapLog-AppIcon-29.png",
+      "idiom" : "watch",
+      "role" : "companionSettings",
+      "scale" : "2x",
+      "size" : "29x29"
+    },
+    {
+      "filename" : "LapLog-AppIcon-30.png",
+      "idiom" : "watch",
+      "role" : "notificationCenter",
+      "scale" : "2x",
+      "subtype" : "44mm",
+      "size" : "30x30"
+    },
+    {
+      "filename" : "LapLog-AppIcon-32.png",
+      "idiom" : "watch",
+      "role" : "notificationCenter",
+      "scale" : "2x",
+      "subtype" : "45mm",
+      "size" : "32x32"
+    },
+    {
+      "filename" : "LapLog-AppIcon-33.png",
+      "idiom" : "watch",
+      "role" : "notificationCenter",
+      "scale" : "2x",
+      "subtype" : "49mm",
+      "size" : "33x33"
+    },
+    {
+      "filename" : "LapLog-AppIcon-40.png",
+      "idiom" : "watch",
+      "role" : "appLauncher",
+      "scale" : "2x",
+      "subtype" : "38mm",
+      "size" : "40x40"
+    },
+    {
+      "filename" : "LapLog-AppIcon-43.5.png",
+      "idiom" : "watch",
+      "role" : "companionSettings",
+      "scale" : "3x",
+      "size" : "29x29"
+    },
+    {
+      "filename" : "LapLog-AppIcon-44.png",
+      "idiom" : "watch",
+      "role" : "appLauncher",
+      "scale" : "2x",
+      "subtype" : "42mm",
+      "size" : "44x44"
+    },
+    {
+      "filename" : "LapLog-AppIcon-46.png",
+      "idiom" : "watch",
+      "role" : "appLauncher",
+      "scale" : "2x",
+      "subtype" : "41mm",
+      "size" : "46x46"
+    },
+    {
+      "filename" : "LapLog-AppIcon-50.png",
+      "idiom" : "watch",
+      "role" : "appLauncher",
+      "scale" : "2x",
+      "subtype" : "44mm",
+      "size" : "50x50"
+    },
+    {
+      "filename" : "LapLog-AppIcon-51.png",
+      "idiom" : "watch",
+      "role" : "appLauncher",
+      "scale" : "2x",
+      "subtype" : "45mm",
+      "size" : "51x51"
+    },
+    {
+      "filename" : "LapLog-AppIcon-54.png",
+      "idiom" : "watch",
+      "role" : "appLauncher",
+      "scale" : "2x",
+      "subtype" : "49mm",
+      "size" : "54x54"
+    },
+    {
+      "filename" : "LapLog-AppIcon-86.png",
+      "idiom" : "watch",
+      "role" : "quickLook",
+      "scale" : "2x",
+      "subtype" : "38mm",
+      "size" : "86x86"
+    },
+    {
+      "filename" : "LapLog-AppIcon-98.png",
+      "idiom" : "watch",
+      "role" : "quickLook",
+      "scale" : "2x",
+      "subtype" : "42mm",
+      "size" : "98x98"
+    },
+    {
+      "filename" : "LapLog-AppIcon-108.png",
+      "idiom" : "watch",
+      "role" : "quickLook",
+      "scale" : "2x",
+      "subtype" : "44mm",
+      "size" : "108x108"
+    },
+    {
+      "filename" : "LapLog-AppIcon-117.png",
+      "idiom" : "watch",
+      "role" : "quickLook",
+      "scale" : "2x",
+      "subtype" : "45mm",
+      "size" : "117x117"
+    },
+    {
+      "filename" : "LapLog-AppIcon-129.png",
+      "idiom" : "watch",
+      "role" : "quickLook",
+      "scale" : "2x",
+      "subtype" : "49mm",
+      "size" : "129x129"
+    },
+    {
       "filename" : "LapLog-AppIcon-1024.png",
       "idiom" : "watch-marketing",
       "scale" : "1x",

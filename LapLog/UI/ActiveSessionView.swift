@@ -85,7 +85,22 @@ struct ActiveSessionView: View {
     }
 
     private let topHeaderHeight: CGFloat = 56
-    private let lapHistoryContainerTrailingPadding: CGFloat = 12
+
+    /// Smaller watches: less right padding, same as timer.
+    private var lapHistoryContainerTrailingPadding: CGFloat {
+        let w = WKInterfaceDevice.current().screenBounds.width
+        if w < 177 { return 4 }
+        if w < 200 { return 6 }
+        if w < 220 { return 8 }
+        return 12
+    }
+
+    private var lapCardsContentTrailingPadding: CGFloat {
+        let w = WKInterfaceDevice.current().screenBounds.width
+        if w < 177 { return 4 }
+        if w < 220 { return 6 }
+        return 8
+    }
 
     /// Smaller watches: timer moves up more to fit. Timer, pause text, and distance stay relative.
     private var timerVerticalOffset: CGFloat {
@@ -109,6 +124,19 @@ struct ActiveSessionView: View {
         WKInterfaceDevice.current().screenBounds.width < 177 ? -10 : -8
     }
 
+    /// 42mm: header moves down 2px. 44mm: 14px up. 46mm: 10px up. 49mm: 12px up.
+    /// Use height (matches timerVerticalOffset) since it's more reliable.
+    private var headerVerticalOffset: CGFloat {
+        let bounds = WKInterfaceDevice.current().screenBounds
+        let w = bounds.width
+        let h = bounds.height
+        if w >= 202 && w <= 210 && h >= 249 && h <= 255 { return -12 }  // 49mm (205×251pt)
+        if w >= 205 && w <= 212 && h >= 245 && h <= 252 { return -12 }  // 46mm (208×248pt)
+        if h >= 220 && h <= 230 { return -14 }  // 44mm (224pt)
+        if h >= 192 && h <= 196 { return 2 }    // 42mm (195pt), exclude 40mm (197pt)
+        return 0
+    }
+
     /// Smaller watches: top buttons (pause) way more to the left.
     private var headerHorizontalPadding: CGFloat {
         let w = WKInterfaceDevice.current().screenBounds.width
@@ -116,6 +144,22 @@ struct ActiveSessionView: View {
         if w < 195 { return 2 }
         if w < 210 { return 6 }
         return 14
+    }
+
+    /// 46mm, 49mm: lap cards move down 4px.
+    private var lapCardsVerticalOffset: CGFloat {
+        let w = WKInterfaceDevice.current().screenBounds.width
+        let h = WKInterfaceDevice.current().screenBounds.height
+        return (w >= 202 && w <= 212 && h >= 245 && h <= 255) ? 4 : 0
+    }
+
+    /// Top buttons move right on smaller/larger watches for better alignment.
+    private var headerLeadingExtra: CGFloat {
+        let w = WKInterfaceDevice.current().screenBounds.width
+        let h = WKInterfaceDevice.current().screenBounds.height
+        if w >= 202 && w <= 212 && h >= 245 && h <= 255 { return 12 }  // 46mm, 49mm
+        if (w >= 152 && w <= 161) || (w >= 184 && w <= 190 && h >= 220 && h <= 226) { return 6 }  // 42mm, 44mm
+        return 0
     }
 
 
@@ -140,11 +184,14 @@ struct ActiveSessionView: View {
         ZStack {
             VStack(spacing: 0) {
                 HStack(alignment: .center, spacing: 0) {
-                    if isPaused {
-                        sessionMenuButton
-                    } else {
-                        pauseButton
+                    Group {
+                        if isPaused {
+                            sessionMenuButton
+                        } else {
+                            pauseButton
+                        }
                     }
+                    .offset(x: headerLeadingExtra)
 
                     Spacer()
 
@@ -167,7 +214,7 @@ struct ActiveSessionView: View {
                 }
                 .padding(.horizontal, headerHorizontalPadding)
                 .frame(height: topHeaderHeight)
-                .offset(y: -12)
+                .offset(y: -12 + headerVerticalOffset)
                 .padding(.bottom, 12)
 
                 sessionTimerView
@@ -182,7 +229,13 @@ struct ActiveSessionView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             if workoutController.completedLaps.isEmpty {
-                                PlaceholderLapCardView()
+                                PlaceholderLapCardView(
+                                    trackingMode: workoutController.trackingMode,
+                                    distanceUnit: settings.distanceUnit,
+                                    lapElapsedSeconds: workoutController.lapElapsedSeconds,
+                                    currentLapDistanceMeters: workoutController.currentLapDistanceMeters,
+                                    targetDistanceMeters: workoutController.trackingMode == .distanceDistance ? settings.distanceDistanceMeters : nil
+                                )
                                     .offset(x: -8)
                             } else {
                                 ForEach(workoutController.completedLaps, id: \.id) { lap in
@@ -197,7 +250,7 @@ struct ActiveSessionView: View {
                             }
                         }
                         .padding(.leading, 8)
-                        .padding(.trailing, 8)
+                        .padding(.trailing, lapCardsContentTrailingPadding)
                         .frame(minWidth: WKInterfaceDevice.current().screenBounds.width, alignment: .trailing)
                     }
                     .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
@@ -231,7 +284,7 @@ struct ActiveSessionView: View {
                 .frame(height: 64)
                 .padding(.trailing, lapHistoryContainerTrailingPadding)
                 .padding(.bottom, 4)
-                .offset(y: -10)
+                .offset(y: -10 + lapCardsVerticalOffset)
 
                 Color.clear
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -287,6 +340,10 @@ struct ActiveSessionView: View {
         .tint(primaryColor)
         .onAppear {
             lastAnimatedLapCount = workoutController.completedLaps.count
+            #if DEBUG
+            let b = WKInterfaceDevice.current().screenBounds
+            print("[LapLog] Screen: \(b.width)×\(b.height) headerLeadingExtra=\(headerLeadingExtra)")
+            #endif
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarHidden(true)
@@ -394,30 +451,57 @@ private let lapCardTrailingPadding: CGFloat = 14
 private let standardLapCardBackground = Color.white.opacity(0.15)
 
 struct PlaceholderLapCardView: View {
+    let trackingMode: TrackingMode
+    let distanceUnit: DistanceUnit
+    let lapElapsedSeconds: Double
+    let currentLapDistanceMeters: Double
+    var targetDistanceMeters: Double? = nil
+
+    private var secondLine: String {
+        if trackingMode == .distanceDistance {
+            return "— \(distanceUnit == .km ? "/km" : "/mi")"
+        }
+        // GPS: distance • pace
+        let distStr = Formatters.distanceString(meters: currentLapDistanceMeters, unit: distanceUnit)
+        let paceStr = Formatters.paceString(distanceMeters: currentLapDistanceMeters, durationSeconds: lapElapsedSeconds, unit: distanceUnit)
+        if currentLapDistanceMeters > 0 && lapElapsedSeconds > 0 {
+            return "\(distStr) • \(paceStr)"
+        }
+        if currentLapDistanceMeters > 0 {
+            return distStr
+        }
+        return ""
+    }
+
     var body: some View {
         HStack(spacing: 6) {
             Text("1")
                 .font(.system(size: 19, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .foregroundColor(.white)
-            Text("—:——")
-                .font(.system(size: 19, design: .rounded))
-                .monospacedDigit()
-                .fontWeight(.bold)
-                .foregroundColor(.white)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Active")
+                    .font(.system(size: 19, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                if !secondLine.isEmpty {
+                    Text(secondLine)
+                        .font(.system(size: 18, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(.white.opacity(0.88))
+                } else {
+                    Text(" ")
+                        .font(.system(size: 18, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.88))
+                }
+            }
         }
         .padding(.top, lapCardTopPadding)
         .padding(.leading, lapCardLeadingPadding)
         .padding(.bottom, lapCardBottomPadding)
         .padding(.trailing, lapCardTrailingPadding)
-        .frame(height: latestCardHeight)
+        .fixedSize(horizontal: true, vertical: false)
         .background(standardLapCardBackground)
         .cornerRadius(14)
-        .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .inset(by: 1.5)
-                .stroke(Color.white.opacity(0.78), lineWidth: 3)
-        )
     }
 }
 
@@ -470,12 +554,12 @@ struct LapCardView: View {
                                     .font(.system(size: 18, design: .rounded))
                                     .monospacedDigit()
                             }
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.white.opacity(0.88))
                         } else {
                             Text(Formatters.paceString(distanceMeters: lap.distanceMeters, durationSeconds: lap.durationSeconds, unit: distanceUnit))
                                 .font(.system(size: 18, design: .rounded))
                                 .monospacedDigit()
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(.white.opacity(0.88))
                         }
                     }
                 }

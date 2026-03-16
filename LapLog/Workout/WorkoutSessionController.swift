@@ -14,6 +14,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     @Published var lapElapsedSeconds: Double = 0
     @Published var currentHeartRate: Double? = nil
     @Published var cumulativeDistanceMeters: Double = 0
+    @Published var currentLapDistanceMeters: Double = 0
     @Published var completedLaps: [Lap] = []
     @Published var isGPSActive: Bool = false
 
@@ -26,7 +27,6 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     private var sessionStartDate: Date?
     private var currentLapStartDate: Date?
-    private var currentLapDistanceMeters: Double = 0
     private var currentLapHeartRateSamples: [Double] = []
 
     private var timerCancellable: AnyCancellable?

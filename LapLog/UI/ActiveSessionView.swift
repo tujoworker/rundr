@@ -25,6 +25,13 @@ struct ActiveSessionView: View {
         workoutController.runState == .rest
     }
 
+    private var deleteLapDialogTitle: String {
+        guard let lap = lapToDelete.flatMap({ id in workoutController.completedLaps.first { $0.id == id } }) else {
+            return "Delete Lap"
+        }
+        return "Lap \(lap.index)"
+    }
+
     private var timerTopLabel: String {
         if isPaused {
             return "Pause Mode"
@@ -77,32 +84,20 @@ struct ActiveSessionView: View {
             .onTapGesture { handleLapTap() }
     }
 
-    private let topControlOffset: CGFloat = -8
-    private let topHeaderHeight: CGFloat = 66
-    private let contentVerticalOffset: CGFloat = -4
-    private let menuButtonExtraOffset: CGFloat = -4
-    private let pauseButtonExtraOffset: CGFloat = -4
+    private let topHeaderHeight: CGFloat = 56
     private let lapHistoryContainerTrailingPadding: CGFloat = 12
 
     var body: some View {
         ZStack {
             VStack(spacing: 0) {
-                ZStack(alignment: .top) {
-                    HStack(alignment: .top) {
-                        if isPaused {
-                            sessionMenuButton
-                                .offset(y: topControlOffset + menuButtonExtraOffset)
-                        } else {
-                            pauseButton
-                                .offset(y: topControlOffset + pauseButtonExtraOffset)
-                        }
-
-                        Spacer()
-
-                        Color.clear
-                            .frame(width: 48, height: 48)
+                HStack(alignment: .center, spacing: 0) {
+                    if isPaused {
+                        sessionMenuButton
+                    } else {
+                        pauseButton
                     }
-                    .padding(.top, -10)
+
+                    Spacer()
 
                     HStack(spacing: 6) {
                         Text(Formatters.heartRateString(bpm: workoutController.currentHeartRate))
@@ -114,17 +109,17 @@ struct ActiveSessionView: View {
                             .font(.system(size: 12, weight: .semibold))
                             .foregroundStyle(.white)
                     }
-                    .padding(.top, 2)
-                    .offset(y: -16)
-                    .frame(maxWidth: .infinity, alignment: .center)
+
+                    Spacer()
+
+                    Color.clear
+                        .frame(width: 48, height: 48)
                 }
                 .padding(.horizontal, 14)
-                .padding(.top, 2)
                 .frame(height: topHeaderHeight)
-                .padding(.bottom, 16)
+                .padding(.bottom, 12)
 
                 sessionTimerView
-                    .offset(y: -15)
 
                 Color.clear
                     .frame(height: 6)
@@ -189,7 +184,6 @@ struct ActiveSessionView: View {
                 Color.clear
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .offset(y: contentVerticalOffset)
         }
         .background(AppScreenBackground(accentColor: primaryColor))
         .overlay {
@@ -223,7 +217,7 @@ struct ActiveSessionView: View {
             }
             Button("Cancel", role: .cancel) {}
         }
-        .confirmationDialog("Delete Lap", isPresented: $isDeleteLapDialogPresented, titleVisibility: .visible) {
+        .confirmationDialog(deleteLapDialogTitle, isPresented: $isDeleteLapDialogPresented, titleVisibility: .visible) {
             Button("Delete", role: .destructive) {
                 if let id = lapToDelete {
                     workoutController.deleteLap(id: id)

@@ -16,7 +16,7 @@ struct ActiveSessionView: View {
     @State private var lastAnimatedLapCount = 0
     @State private var pauseBlinkPhase = false
 
-    private let pauseBlinkTimer = Timer.publish(every: 0.7, on: .main, in: .common)
+    private let pauseBlinkTimer = Timer.publish(every: 1.4, on: .main, in: .common)
 
     private var primaryColor: Color {
         settings.primaryAccentColor
@@ -36,39 +36,14 @@ struct ActiveSessionView: View {
         return ""
     }
 
-    private var timerStrokeOpacity: Double {
-        if isPaused {
-            return pauseBlinkPhase ? 0.95 : 0.25
-        }
-        return 0.42
-    }
-
-    private var timerStrokeColor: Color {
-        isPaused ? Color.white : Color.black
-    }
-
-    private var pauseGlowOpacity: Double {
-        isPaused ? (pauseBlinkPhase ? 0.95 : 0.2) : 0
-    }
-
     private var pauseBorderOverlay: some View {
-        ZStack {
-            Capsule()
-                .stroke(timerStrokeColor.opacity(timerStrokeOpacity), lineWidth: 8)
-                .padding(1.5)
-                .animation(.easeInOut(duration: 0.5), value: pauseBlinkPhase)
-            Capsule()
-                .stroke(primaryColor.opacity(pauseGlowOpacity * 0.8), lineWidth: 5)
-                .blur(radius: 6)
-                .padding(1.5)
-                .animation(.easeInOut(duration: 0.5), value: pauseBlinkPhase)
-            Capsule()
-                .stroke(Color.white.opacity(pauseGlowOpacity), lineWidth: 6)
-                .blur(radius: 8)
-                .padding(1.5)
-                .animation(.easeInOut(duration: 0.5), value: pauseBlinkPhase)
-        }
-        .allowsHitTesting(false)
+        Capsule()
+            .stroke(Color.black.opacity(0.42), lineWidth: 8)
+            .padding(1.5)
+    }
+
+    private var pauseBackgroundGlowOpacity: Double {
+        isPaused ? (pauseBlinkPhase ? 0.22 : 0.06) : 0
     }
 
     private var lapGlowOverlay: some View {
@@ -249,6 +224,19 @@ struct ActiveSessionView: View {
                     endRadius: 170
                 )
                 .ignoresSafeArea()
+
+                RadialGradient(
+                    colors: [
+                        primaryColor.opacity(pauseBackgroundGlowOpacity),
+                        primaryColor.opacity(pauseBackgroundGlowOpacity * 0.5),
+                        .clear
+                    ],
+                    center: .center,
+                    startRadius: 40,
+                    endRadius: 180
+                )
+                .ignoresSafeArea()
+                .animation(.easeInOut(duration: 0.7), value: pauseBlinkPhase)
 
                 Color.white
                     .opacity(isTapFlashVisible ? 0.22 : 0)
@@ -459,11 +447,6 @@ struct LapCardView: View {
                                     .monospacedDigit()
                             }
                             .foregroundStyle(.secondary)
-                        } else {
-                            Text(Formatters.paceString(distanceMeters: lap.distanceMeters, durationSeconds: lap.durationSeconds, unit: distanceUnit))
-                                .font(.system(size: 18, design: .rounded))
-                                .monospacedDigit()
-                                .foregroundStyle(.secondary)
                         }
                     }
                 }

@@ -26,6 +26,16 @@ struct ActiveSessionView: View {
         workoutController.runState == .rest
     }
 
+    private var timerTopLabel: String {
+        if isPaused {
+            return "Pause Mode"
+        }
+        if workoutController.trackingMode == .distanceDistance {
+            return Formatters.distanceString(meters: settings.distanceDistanceMeters, unit: settings.distanceUnit)
+        }
+        return ""
+    }
+
     private var timerStrokeOpacity: Double {
         if isPaused {
             return pauseBlinkPhase ? 0.95 : 0.25
@@ -82,10 +92,10 @@ struct ActiveSessionView: View {
             .overlay(pauseBorderOverlay)
             .overlay(lapGlowOverlay)
             .overlay(alignment: .top) {
-                Text("Pause Mode")
+                Text(timerTopLabel)
                     .font(.system(size: 11, weight: .semibold, design: .rounded))
                     .foregroundStyle(.white.opacity(0.82))
-                    .opacity(workoutController.runState == .rest ? 1 : 0)
+                    .opacity(timerTopLabel.isEmpty ? 0 : 1)
                     .offset(y: -19)
             }
             .scaleEffect(isTimerBounceActive ? 1.11 : 1)

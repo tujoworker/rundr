@@ -234,7 +234,9 @@ struct ActiveSessionView: View {
                 lapToDelete = nil
             }
         } message: {
-            Text("Remove this lap from the session?")
+            if let lap = lapToDelete.flatMap({ id in workoutController.completedLaps.first { $0.id == id } }) {
+                Text(Formatters.lapSummaryString(lap: lap, trackingMode: workoutController.trackingMode, unit: settings.distanceUnit))
+            }
         }
         .tint(primaryColor)
         .onAppear {

@@ -14,6 +14,8 @@ struct ActiveSessionView: View {
     @State private var isTimerGlowActive = false
     @State private var isLapHistoryDragging = false
     @State private var lastAnimatedLapCount = 0
+    @State private var lapToDelete: UUID?
+    @State private var isDeleteLapDialogPresented = false
 
     private var primaryColor: Color {
         settings.primaryAccentColor
@@ -146,6 +148,13 @@ struct ActiveSessionView: View {
                             } else {
                                 ForEach(workoutController.completedLaps, id: \.id) { lap in
                                     LapCardView(lap: lap, trackingMode: workoutController.trackingMode, distanceUnit: settings.distanceUnit, isLatest: lap.id == workoutController.completedLaps.last?.id)
+                                        .contentShape(Rectangle())
+                                        .highPriorityGesture(
+                                            TapGesture().onEnded { _ in
+                                                lapToDelete = lap.id
+                                                isDeleteLapDialogPresented = true
+                                            }
+                                        )
                                         .id(lap.id)
                                 }
                             }
@@ -233,6 +242,19 @@ struct ActiveSessionView: View {
                 Task { await endSession() }
             }
             Button("Cancel", role: .cancel) {}
+        }
+        .confirmationDialog("Delete Lap", isPresented: $isDeleteLapDialogPresented, titleVisibility: .visible) {
+            Button("Delete", role: .destructive) {
+                if let id = lapToDelete {
+                    workoutController.deleteLap(id: id)
+                }
+                lapToDelete = nil
+            }
+            Button("Cancel", role: .cancel) {
+                lapToDelete = nil
+            }
+        } message: {
+            Text("Remove this lap from the session?")
         }
         .tint(primaryColor)
         .onAppear {

@@ -80,6 +80,22 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         playHaptic(.notification)
     }
 
+    func deleteLap(id: UUID) {
+        guard runState == .active || runState == .rest || runState == .ending else { return }
+        guard let index = completedLaps.firstIndex(where: { $0.id == id }) else { return }
+        let lap = completedLaps[index]
+        completedLaps.remove(at: index)
+        cumulativeDistanceMeters = max(0, cumulativeDistanceMeters - lap.distanceMeters)
+        var activeIndex = 1
+        for i in completedLaps.indices {
+            if completedLaps[i].lapType != .rest {
+                completedLaps[i].index = activeIndex
+                activeIndex += 1
+            }
+        }
+        playHaptic(.click)
+    }
+
     func markLap(source: LapSource = .distanceTap) {
         guard runState == .active || runState == .rest || runState == .ending else { return }
         if runState != .ending {

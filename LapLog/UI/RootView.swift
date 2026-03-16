@@ -125,7 +125,7 @@ private struct HealthAccessPromptView: View {
             Spacer()
 
             VStack(spacing: 14) {
-                Text("LapLog needs to use:")
+                Text("LapLog needs:")
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundStyle(.white.opacity(0.8))
                     .multilineTextAlignment(.center)

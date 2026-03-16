@@ -26,6 +26,7 @@
 		6CB934415EF3BDC0D65EF3E1 /* TrackingMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE97F98043246AF98F971416 /* TrackingMode.swift */; };
 		6E02E5DF235633F34728DC8C /* LapType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586AE861C21CF4145AD81D08 /* LapType.swift */; };
 		7BB47A6891185829ADD4094F /* PreStartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80845E9FC8FEA57AA0E6D7F /* PreStartView.swift */; };
+		DistanceInputViewRef /* DistanceInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DistanceInputViewFile /* DistanceInputView.swift */; };
 		826AF4CE8424BB9A4EF1F5CC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3C468A8CAAB5486BF89EDC4 /* Assets.xcassets */; };
 		90A0B0C0D0E0F00112233445 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 90A0B0C0D0E0F00112233446 /* Assets.xcassets */; };
 		A6AC58E35DDE8D4C3006B265 /* LapSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4087CA1ACDF79F69B6F2FBEC /* LapSource.swift */; };
@@ -88,6 +89,7 @@
 		F6DEE2BD2F65FC180005ABAA /* DistanceUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceUnit.swift; sourceTree = "<group>"; };
 		F6DEE2BF2F66038A0005ABAA /* LapLog.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LapLog.entitlements; sourceTree = "<group>"; };
 		F6DEE2C22F6612F00005ABAA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		DistanceInputViewFile /* DistanceInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceInputView.swift; sourceTree = "<group>"; };
 		F80845E9FC8FEA57AA0E6D7F /* PreStartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreStartView.swift; sourceTree = "<group>"; };
 		FC5AEA32CF41F4A95EA655A2 /* SessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -129,6 +131,7 @@
 				2DC650870DDC91DB05A48BBA /* HomeView.swift */,
 				E2A1B775A27201FA001C88AF /* HomeViewModel.swift */,
 				FC5AEA32CF41F4A95EA655A2 /* SessionDetailView.swift */,
+				DistanceInputViewFile /* DistanceInputView.swift */,
 				F80845E9FC8FEA57AA0E6D7F /* PreStartView.swift */,
 				02A391721789A00DCE1A52C5 /* ActiveSessionView.swift */,
 			);
@@ -367,6 +370,7 @@
 				FD7F3FB0395174CBAF09E673 /* HomeView.swift in Sources */,
 				012B7841E2D242F37F954082 /* HomeViewModel.swift in Sources */,
 				4400B362EFED68F5CCBD88CF /* SessionDetailView.swift in Sources */,
+				DistanceInputViewRef /* DistanceInputView.swift in Sources */,
 				7BB47A6891185829ADD4094F /* PreStartView.swift in Sources */,
 				1C5FBAD9B17FA11B1506817D /* ActiveSessionView.swift in Sources */,
 				4F356F5E44F096D44C41E43B /* ActionButtonCommandObserver.swift in Sources */,

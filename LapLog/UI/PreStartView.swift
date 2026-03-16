@@ -20,12 +20,7 @@ struct PreStartView: View {
 
     private let readyTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
-    private var distanceLabel: String {
-        switch settings.distanceUnit {
-        case .km: return "Lap Distance (meters)"
-        case .miles: return "Lap Distance (feet)"
-        }
-    }
+    private var distanceLabel: String { "Distance" }
 
     private var distancePlaceholder: String {
         switch settings.distanceUnit {
@@ -147,33 +142,31 @@ struct PreStartView: View {
                 .buttonStyle(.plain)
 
                 if settings.trackingMode == .distanceDistance {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(distanceLabel)
-                            .font(.caption.bold())
-                            .foregroundStyle(.white.opacity(0.72))
-                            .padding(.horizontal, 8)
-
-                        TextField(distancePlaceholder, text: $distanceText)
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.leading)
-                            .font(.system(size: 20, weight: .semibold, design: .rounded))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 18)
-                            .padding(.vertical, 16)
-                            .background(
-                                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                                    .fill(Color.white.opacity(0.12))
-                            )
+                    NavigationLink {
+                        DistanceInputView(
+                            label: distanceLabel,
+                            placeholder: distancePlaceholder,
+                            text: $distanceText,
+                            onValueChange: persistDistance
+                        )
+                    } label: {
+                        SettingsCardRow(
+                            icon: "ruler",
+                            iconColor: .yellow,
+                            title: distanceLabel,
+                            value: distanceText.isEmpty ? distancePlaceholder : distanceText
+                        )
                     }
+                    .buttonStyle(.plain)
                 }
 
                 Button {
                     isDistanceUnitDialogPresented = true
                 } label: {
                     SettingsCardRow(
-                        icon: "ruler",
+                        icon: "arrow.triangle.2.circlepath",
                         iconColor: .yellow,
-                        title: "Distance",
+                        title: "Unit",
                         value: settings.distanceUnit.displayName
                     )
                 }
@@ -255,14 +248,21 @@ struct PreStartView: View {
         let meters = settings.distanceDistanceMeters
         switch settings.distanceUnit {
         case .km:
-            return String(format: "%.0f", meters)
+            return formatDistance(meters)
         case .miles:
-            return String(format: "%.0f", meters * 3.28084)
+            return formatDistance(meters * 3.28084)
         }
     }
 
+    private func formatDistance(_ value: Double) -> String {
+        value == floor(value)
+            ? String(format: "%.0f", value)
+            : String(format: "%g", value)
+    }
+
     private func persistDistance() {
-        guard let value = Double(distanceText), value > 0 else { return }
+        let normalized = distanceText.hasPrefix(".") ? "0" + distanceText : distanceText
+        guard let value = Double(normalized), value > 0 else { return }
         switch settings.distanceUnit {
         case .km:
             settings.distanceDistanceMeters = value

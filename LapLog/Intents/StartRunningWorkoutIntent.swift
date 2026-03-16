@@ -10,8 +10,8 @@ enum LapLogWorkoutStyle: String, AppEnum {
 }
 
 struct StartRunningWorkoutIntent: StartWorkoutIntent {
-    static let title: LocalizedStringResource = "Start LapLog Intervals"
-    static let description = IntentDescription("Start a LapLog intervals workout.")
+    static let title: LocalizedStringResource = "Start Intervals"
+    static let description = IntentDescription("Start a intervals workout.")
     static let openAppWhenRun = true
     static let suggestedWorkouts: [StartRunningWorkoutIntent] = [
         .init(style: .running)

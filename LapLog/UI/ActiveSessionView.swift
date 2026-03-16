@@ -14,13 +14,6 @@ struct ActiveSessionView: View {
     @State private var isTimerGlowActive = false
     @State private var isLapHistoryDragging = false
     @State private var lastAnimatedLapCount = 0
-    @State private var pauseGlowPhase = false
-
-    private let pauseGlowTimer = Timer.publish(every: 2.0, on: .main, in: .common)
-
-    private var showTimerGlow: Bool {
-        isTimerGlowActive || (isPaused && pauseGlowPhase)
-    }
 
     private var primaryColor: Color {
         settings.primaryAccentColor
@@ -48,9 +41,8 @@ struct ActiveSessionView: View {
 
     private var lapGlowOverlay: some View {
         Capsule()
-            .stroke(Color.white.opacity(showTimerGlow ? 0.6 : 0), lineWidth: 3)
-            .blur(radius: showTimerGlow ? 3 : 0)
-            .animation(.easeInOut(duration: 1.0), value: pauseGlowPhase)
+            .stroke(Color.white.opacity(isTimerGlowActive ? 0.6 : 0), lineWidth: 3)
+            .blur(radius: isTimerGlowActive ? 3 : 0)
     }
 
     @ViewBuilder
@@ -75,10 +67,9 @@ struct ActiveSessionView: View {
                     .offset(y: -19)
             }
             .scaleEffect(isTimerBounceActive ? 1.11 : 1)
-            .brightness(showTimerGlow ? 0.3 : 0)
-            .shadow(color: Color.white.opacity(showTimerGlow ? 0.5 : 0), radius: 18)
-            .shadow(color: primaryColor.opacity(showTimerGlow ? 0.72 : 0), radius: 24)
-            .animation(.easeInOut(duration: isPaused ? 1.0 : 0.16), value: showTimerGlow)
+            .brightness(isTimerGlowActive ? 0.3 : 0)
+            .shadow(color: Color.white.opacity(isTimerGlowActive ? 0.5 : 0), radius: 18)
+            .shadow(color: primaryColor.opacity(isTimerGlowActive ? 0.72 : 0), radius: 24)
             .padding(.horizontal, 4)
             .contentShape(Capsule())
             .onTapGesture { handleLapTap() }
@@ -216,8 +207,8 @@ struct ActiveSessionView: View {
             ZStack {
                 RadialGradient(
                     colors: [
-                        Color.white.opacity(showTimerGlow ? 0.14 : 0),
-                        primaryColor.opacity(showTimerGlow ? 0.2 : 0),
+                        Color.white.opacity(isTimerGlowActive ? 0.14 : 0),
+                        primaryColor.opacity(isTimerGlowActive ? 0.2 : 0),
                         .clear
                     ],
                     center: .center,
@@ -225,7 +216,6 @@ struct ActiveSessionView: View {
                     endRadius: 170
                 )
                 .ignoresSafeArea()
-                .animation(.easeInOut(duration: 1.0), value: showTimerGlow)
 
                 Color.white
                     .opacity(isTapFlashVisible ? 0.22 : 0)
@@ -247,11 +237,6 @@ struct ActiveSessionView: View {
         .tint(primaryColor)
         .onAppear {
             lastAnimatedLapCount = workoutController.completedLaps.count
-        }
-        .onReceive(pauseGlowTimer.autoconnect()) { _ in
-            if isPaused {
-                pauseGlowPhase.toggle()
-            }
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarHidden(true)

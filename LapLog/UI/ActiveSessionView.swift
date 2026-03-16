@@ -68,7 +68,7 @@ struct ActiveSessionView: View {
             .overlay(lapGlowOverlay)
             .overlay(alignment: .top) {
                 Text(timerTopLabel)
-                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
                     .foregroundStyle(.white.opacity(0.82))
                     .opacity(timerTopLabel.isEmpty ? 0 : 1)
                     .offset(y: -19)

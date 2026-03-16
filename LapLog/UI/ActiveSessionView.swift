@@ -26,6 +26,53 @@ struct ActiveSessionView: View {
         workoutController.runState == .rest
     }
 
+    private var timerStrokeColor: Color {
+        if isPaused {
+            return pauseBlinkPhase ? primaryColor : Color.white
+        }
+        return Color.black.opacity(0.42)
+    }
+
+    @ViewBuilder
+    private var sessionTimerView: some View {
+        Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
+            .font(.system(size: 65, weight: .bold, design: .rounded))
+            .monospacedDigit()
+            .minimumScaleFactor(0.55)
+            .lineLimit(1)
+            .foregroundStyle(.white)
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 18)
+            .background(Capsule().fill(primaryColor))
+            .overlay(
+                Capsule()
+                    .stroke(timerStrokeColor, lineWidth: 8)
+                    .padding(1.5)
+                    .animation(.easeInOut(duration: 0.3), value: pauseBlinkPhase)
+            )
+            .overlay(
+                Capsule()
+                    .stroke(Color.white.opacity(isTimerGlowActive ? 0.6 : 0), lineWidth: 3)
+                    .blur(radius: isTimerGlowActive ? 3 : 0)
+            )
+            .overlay(alignment: .top) {
+                Text("Pause Mode")
+                    .font(.system(size: 11, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.82))
+                    .opacity(workoutController.runState == .rest ? 1 : 0)
+                    .offset(y: -13)
+            }
+            .scaleEffect(isTimerBounceActive ? 1.11 : 1)
+            .brightness(isTimerGlowActive ? 0.3 : 0)
+            .shadow(color: Color.white.opacity(isTimerGlowActive ? 0.5 : 0), radius: 18)
+            .shadow(color: primaryColor.opacity(isTimerGlowActive ? 0.72 : 0), radius: 24)
+            .animation(.easeInOut(duration: 0.16), value: isPaused)
+            .padding(.horizontal, 14)
+            .contentShape(Capsule())
+            .onTapGesture { handleLapTap() }
+    }
+
     private let topControlOffset: CGFloat = -8
     private let topHeaderHeight: CGFloat = 66
     private let contentVerticalOffset: CGFloat = -4
@@ -77,50 +124,7 @@ struct ActiveSessionView: View {
                 .frame(height: topHeaderHeight)
                 .padding(.bottom, 16)
 
-                Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
-                    .font(.system(size: 65, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-                    .minimumScaleFactor(0.55)
-                    .lineLimit(1)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 18)
-                    .background(
-                        Capsule()
-                            .fill(primaryColor)
-                    )
-                    .overlay(
-                        Capsule()
-                            .stroke(
-                                isPaused ? (pauseBlinkPhase ? primaryColor : Color.white) : Color.black.opacity(0.42),
-                                lineWidth: 8
-                            )
-                            .padding(1.5)
-                            .animation(.easeInOut(duration: 0.3), value: pauseBlinkPhase)
-                    )
-                    .overlay(
-                        Capsule()
-                            .stroke(Color.white.opacity(isTimerGlowActive ? 0.6 : 0), lineWidth: 3)
-                            .blur(radius: isTimerGlowActive ? 3 : 0)
-                    )
-                    .overlay(alignment: .top) {
-                        Text("Pause Mode")
-                            .font(.system(size: 11, weight: .semibold, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.82))
-                            .opacity(workoutController.runState == .rest ? 1 : 0)
-                            .offset(y: -13)
-                    }
-                .scaleEffect(isTimerBounceActive ? 1.11 : 1)
-                .brightness(isTimerGlowActive ? 0.3 : 0)
-                .shadow(color: Color.white.opacity(isTimerGlowActive ? 0.5 : 0), radius: 18)
-                .shadow(color: primaryColor.opacity(isTimerGlowActive ? 0.72 : 0), radius: 24)
-                .animation(.easeInOut(duration: 0.16), value: isPaused)
-                .padding(.horizontal, 14)
-                .contentShape(Capsule())
-                .onTapGesture {
-                    handleLapTap()
-                }
+                sessionTimerView
 
                 Color.clear
                     .frame(height: 6)

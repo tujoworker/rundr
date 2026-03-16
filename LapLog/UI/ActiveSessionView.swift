@@ -43,7 +43,7 @@ struct ActiveSessionView: View {
     }
 
     private var pauseBackgroundGlowOpacity: Double {
-        isPaused ? (pauseBlinkPhase ? 0.32 : 0.1) : 0
+        isPaused ? (pauseBlinkPhase ? 0.55 : 0.2) : 0
     }
 
     private var lapGlowOverlay: some View {
@@ -227,13 +227,14 @@ struct ActiveSessionView: View {
 
                 RadialGradient(
                     colors: [
+                        Color.white.opacity(pauseBackgroundGlowOpacity * 0.4),
                         primaryColor.opacity(pauseBackgroundGlowOpacity),
-                        primaryColor.opacity(pauseBackgroundGlowOpacity * 0.5),
+                        primaryColor.opacity(pauseBackgroundGlowOpacity * 0.3),
                         .clear
                     ],
                     center: .center,
-                    startRadius: 40,
-                    endRadius: 180
+                    startRadius: 20,
+                    endRadius: 200
                 )
                 .ignoresSafeArea()
                 .animation(.easeInOut(duration: 0.7), value: pauseBlinkPhase)

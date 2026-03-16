@@ -5,13 +5,13 @@ enum LapLogWorkoutStyle: String, AppEnum {
 
     static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Workout")
     static let caseDisplayRepresentations: [LapLogWorkoutStyle: DisplayRepresentation] = [
-        .running: "Outdoor Run"
+        .running: "Intervals"
     ]
 }
 
 struct StartRunningWorkoutIntent: StartWorkoutIntent {
-    static let title: LocalizedStringResource = "Start LapLog Workout"
-    static let description = IntentDescription("Start a LapLog running workout.")
+    static let title: LocalizedStringResource = "Start LapLog Intervals"
+    static let description = IntentDescription("Start a LapLog intervals workout.")
     static let openAppWhenRun = true
     static let suggestedWorkouts: [StartRunningWorkoutIntent] = [
         .init(style: .running)
@@ -33,7 +33,7 @@ struct StartRunningWorkoutIntent: StartWorkoutIntent {
     var displayRepresentation: DisplayRepresentation {
         switch workoutStyle {
         case .running:
-            return DisplayRepresentation(title: "Outdoor Run")
+            return DisplayRepresentation(title: "Intervals")
         }
     }
 

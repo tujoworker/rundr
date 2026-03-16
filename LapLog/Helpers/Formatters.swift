@@ -82,7 +82,7 @@ enum Formatters {
         return String(format: "%d:%02d\u{2009}%@", minutes, secs, label)
     }
 
-    /// One-line summary for a lap: index, time, distance (if GPS), pace.
+    /// One-line summary for a lap: time, distance (if GPS), pace. No lap index.
     static func lapSummaryString(lap: Lap, trackingMode: TrackingMode, unit: DistanceUnit) -> String {
         let time = compactTimeString(from: lap.durationSeconds)
         if lap.lapType == .rest {
@@ -91,9 +91,9 @@ enum Formatters {
         let pace = paceString(distanceMeters: lap.distanceMeters, durationSeconds: lap.durationSeconds, unit: unit)
         if trackingMode == .gps {
             let dist = distanceString(meters: lap.distanceMeters, unit: unit)
-            return "\(lap.index) • \(time) • \(dist) • \(pace)"
+            return "\(time) • \(dist) • \(pace)"
         }
-        return "\(lap.index) • \(time) • \(pace)"
+        return "\(time) • \(pace)"
     }
 
     // MARK: - Heart Rate

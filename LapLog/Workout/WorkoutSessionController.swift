@@ -151,7 +151,10 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
         let duration = endDate.timeIntervalSince(startDate)
         let totalDist = completedLaps.reduce(0) { $0 + $1.distanceMeters }
-        let avgSpeed = duration > 0 ? totalDist / duration : 0
+        let activeDuration = completedLaps
+            .filter { $0.lapType != .rest }
+            .reduce(0.0) { $0 + $1.durationSeconds }
+        let avgSpeed = activeDuration > 0 && totalDist > 0 ? totalDist / activeDuration : 0
 
         let session = Session(
             startedAt: startDate,

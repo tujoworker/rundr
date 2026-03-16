@@ -125,6 +125,7 @@ struct ActiveSessionView: View {
                 .padding(.bottom, 16)
 
                 sessionTimerView
+                    .offset(y: -15)
 
                 Color.clear
                     .frame(height: 6)

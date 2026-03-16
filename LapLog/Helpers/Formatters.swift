@@ -85,6 +85,6 @@ enum Formatters {
 
     static func heartRateString(bpm: Double?) -> String {
         guard let bpm = bpm else { return "—" }
-        return "\(Int(bpm)) bpm"
+        return "\(Int(bpm))"
     }
 }

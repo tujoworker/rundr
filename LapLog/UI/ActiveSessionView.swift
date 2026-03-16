@@ -58,12 +58,13 @@ struct ActiveSessionView: View {
 
                     HStack(spacing: 6) {
                         Text(Formatters.heartRateString(bpm: workoutController.currentHeartRate))
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.78))
+                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                            .monospacedDigit()
 
                         Image(systemName: "heart.fill")
-                            .font(.system(size: 10, weight: .semibold))
-                            .foregroundStyle(.white.opacity(0.78))
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(.white)
                     }
                     .padding(.top, 22)
                     .frame(maxWidth: .infinity, alignment: .center)

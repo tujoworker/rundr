@@ -79,7 +79,7 @@ final class FormattersTests: XCTestCase {
     }
 
     func testHeartRateStringValue() {
-        XCTAssertEqual(Formatters.heartRateString(bpm: 163.0), "163 bpm")
-        XCTAssertEqual(Formatters.heartRateString(bpm: 72.8), "72 bpm")
+        XCTAssertEqual(Formatters.heartRateString(bpm: 163.0), "163")
+        XCTAssertEqual(Formatters.heartRateString(bpm: 72.8), "72")
     }
 }

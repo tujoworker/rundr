@@ -17,20 +17,13 @@ enum PrimaryColorOption: String, CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
-        case .blue:
-            return "Blue"
-        case .green:
-            return "Green"
-        case .yellow:
-            return "Yellow"
-        case .orange:
-            return "Orange"
-        case .pink:
-            return "Pink"
-        case .white:
-            return "White"
-        case .dark:
-            return "Dark"
+        case .blue: return L10n.blue
+        case .green: return L10n.green
+        case .yellow: return L10n.yellow
+        case .orange: return L10n.orange
+        case .pink: return L10n.pink
+        case .white: return L10n.white
+        case .dark: return L10n.dark
         }
     }
 

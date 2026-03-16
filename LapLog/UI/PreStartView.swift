@@ -20,19 +20,19 @@ struct PreStartView: View {
 
     private let readyTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
-    private var distanceLabel: String { "Distance" }
+    private var distanceLabel: String { L10n.distance }
 
     private var distanceInputLabel: String {
         switch settings.distanceUnit {
-        case .km: return "Distance (meters)"
-        case .miles: return "Distance (feet)"
+        case .km: return L10n.distanceMeters
+        case .miles: return L10n.distanceFeet
         }
     }
 
     private var distancePlaceholder: String {
         switch settings.distanceUnit {
-        case .km: return "e.g. 400"
-        case .miles: return "e.g. 1320"
+        case .km: return L10n.distancePlaceholderKm
+        case .miles: return L10n.distancePlaceholderMiles
         }
     }
 
@@ -53,7 +53,7 @@ struct PreStartView: View {
                     .font(bigFont)
                     .monospacedDigit()
                     .foregroundStyle(.white)
-                Text("s")
+                Text(L10n.secondsAbbrev)
                     .font(smallFont)
                     .foregroundStyle(smallColor)
             } else {
@@ -64,7 +64,7 @@ struct PreStartView: View {
                         .font(bigFont)
                         .monospacedDigit()
                         .foregroundStyle(.white)
-                    Text("m")
+                    Text(L10n.minutesAbbrev)
                         .font(smallFont)
                         .foregroundStyle(smallColor)
                 } else {
@@ -72,14 +72,14 @@ struct PreStartView: View {
                         .font(bigFont)
                         .monospacedDigit()
                         .foregroundStyle(.white)
-                    Text("m")
+                    Text(L10n.minutesAbbrev)
                         .font(smallFont)
                         .foregroundStyle(smallColor)
                     Text("\(secs)")
                         .font(bigFont)
                         .monospacedDigit()
                         .foregroundStyle(.white)
-                    Text("s")
+                    Text(L10n.secondsAbbrev)
                         .font(smallFont)
                         .foregroundStyle(smallColor)
                 }
@@ -124,7 +124,7 @@ struct PreStartView: View {
                     .frame(height: 6)
 
                 if supportsActionButton {
-                    Text("Press the Action Button")
+                    Text(L10n.pressActionButton)
                         .font(.system(size: 13, weight: .medium, design: .rounded))
                         .foregroundStyle(.white.opacity(0.84))
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -132,7 +132,7 @@ struct PreStartView: View {
                         .padding(.bottom, 2)
                 }
 
-                Text("Settings")
+                Text(L10n.settings)
                     .font(.headline.weight(.semibold))
                     .padding(.horizontal, 6)
 
@@ -142,7 +142,7 @@ struct PreStartView: View {
                     SettingsCardRow(
                         icon: "location",
                         iconColor: settings.primaryAccentColor,
-                        title: "Mode",
+                        title: L10n.mode,
                         value: settings.trackingMode.displayName
                     )
                 }
@@ -173,7 +173,7 @@ struct PreStartView: View {
                     SettingsCardRow(
                         icon: "arrow.triangle.2.circlepath",
                         iconColor: .yellow,
-                        title: "Unit",
+                        title: L10n.unit,
                         value: settings.distanceUnit.displayName
                     )
                 }
@@ -185,7 +185,7 @@ struct PreStartView: View {
                     SettingsCardRow(
                         icon: "paintpalette",
                         iconColor: settings.primaryAccentColor,
-                        title: "Color",
+                        title: L10n.color,
                         value: settings.primaryColor.displayName
                     )
                 }
@@ -220,34 +220,34 @@ struct PreStartView: View {
         .onChange(of: settings.distanceUnit) {
             distanceText = displayDistance()
         }
-        .alert("Location Required", isPresented: $isGPSPermissionAlertPresented) {
-            Button("OK", role: .cancel) {}
+        .alert(L10n.locationRequired, isPresented: $isGPSPermissionAlertPresented) {
+            Button(L10n.ok, role: .cancel) {}
         } message: {
-            Text("GPS mode needs location access. The mode was switched back to Distance.")
+            Text(L10n.gpsModeNeedsLocation)
         }
-        .confirmationDialog("Mode", isPresented: $isTrackingModeDialogPresented) {
+        .confirmationDialog(L10n.mode, isPresented: $isTrackingModeDialogPresented) {
             ForEach(TrackingMode.allCases) { mode in
                 Button(mode.displayName) {
                     settings.trackingMode = mode
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(L10n.cancel, role: .cancel) {}
         }
-        .confirmationDialog("Distance Unit", isPresented: $isDistanceUnitDialogPresented) {
+        .confirmationDialog(L10n.distanceUnit, isPresented: $isDistanceUnitDialogPresented) {
             ForEach(DistanceUnit.allCases) { unit in
                 Button(unit.displayName) {
                     settings.distanceUnit = unit
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(L10n.cancel, role: .cancel) {}
         }
-        .confirmationDialog("Primary Color", isPresented: $isPrimaryColorDialogPresented) {
+        .confirmationDialog(L10n.primaryColor, isPresented: $isPrimaryColorDialogPresented) {
             ForEach(PrimaryColorOption.allCases) { color in
                 Button(color.displayName) {
                     settings.primaryColor = color
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(L10n.cancel, role: .cancel) {}
         }
     }
 

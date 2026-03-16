@@ -47,7 +47,7 @@ final class HealthKitManager: ObservableObject {
     func requestAuthorization() async {
         guard HKHealthStore.isHealthDataAvailable() else {
             await MainActor.run {
-                self.authorizationError = "Health data not available on this device."
+                self.authorizationError = L10n.healthDataNotAvailable
             }
             return
         }

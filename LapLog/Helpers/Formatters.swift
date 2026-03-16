@@ -51,17 +51,17 @@ enum Formatters {
         switch unit {
         case .km:
             if meters >= 1000 {
-                return String(format: "%.2f km", meters / 1000.0)
+                return String(format: "%.2f %@", meters / 1000.0, L10n.kmSuffix)
             } else {
-                return hasDecimals ? String(format: "%g m", meters) : String(format: "%.0f m", meters)
+                return hasDecimals ? String(format: "%g %@", meters, L10n.mSuffix) : String(format: "%.0f %@", meters, L10n.mSuffix)
             }
         case .miles:
             let miles = meters / 1609.344
             if miles >= 1 {
-                return String(format: "%.2f mi", miles)
+                return String(format: "%.2f %@", miles, L10n.miSuffix)
             } else {
                 let feet = meters * 3.28084
-                return feet != floor(feet) ? String(format: "%g ft", feet) : String(format: "%.0f ft", feet)
+                return feet != floor(feet) ? String(format: "%g %@", feet, L10n.ftSuffix) : String(format: "%.0f %@", feet, L10n.ftSuffix)
             }
         }
     }
@@ -76,12 +76,12 @@ enum Formatters {
 
     /// Pace as min:sec per unit from distance in meters and duration in seconds.
     static func paceString(distanceMeters: Double, durationSeconds: Double, unit: DistanceUnit = .km) -> String {
-        guard distanceMeters > 0 && durationSeconds > 0 else { return "—" }
+        guard distanceMeters > 0 && durationSeconds > 0 else { return L10n.dash }
         let divisor: Double = unit == .km ? 1000.0 : 1609.344
         let secondsPerUnit = (durationSeconds / distanceMeters) * divisor
         let minutes = Int(secondsPerUnit) / 60
         let secs = Int(secondsPerUnit) % 60
-        let label = unit == .km ? "/km" : "/mi"
+        let label = unit == .km ? L10n.pacePerKm : L10n.pacePerMi
         return String(format: "%d:%02d\u{2009}%@", minutes, secs, label)
     }
 
@@ -102,7 +102,7 @@ enum Formatters {
     // MARK: - Heart Rate
 
     static func heartRateString(bpm: Double?) -> String {
-        guard let bpm = bpm else { return "—" }
+        guard let bpm = bpm else { return L10n.dash }
         return "\(Int(bpm))"
     }
 }

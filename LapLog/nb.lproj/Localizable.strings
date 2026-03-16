@@ -1,0 +1,86 @@
+/* Norwegian (Bokmål) translations for LapLog */
+
+/* PreStart */
+"Press the Action Button" = "Trykk på handlingsknappen";
+"Settings" = "Innstillinger";
+"Mode" = "Modus";
+"Distance" = "Distanse";
+"Distance (meters)" = "Distanse (meter)";
+"Distance (feet)" = "Distanse (fot)";
+"Unit" = "Enhet";
+"Color" = "Farge";
+"e.g. 400" = "f.eks. 400";
+"e.g. 1320" = "f.eks. 1320";
+"Location Required" = "Plassering kreves";
+"OK" = "OK";
+"GPS mode needs location access. The mode was switched back to Distance." = "GPS-modus krever tilgang til plassering. Modusen ble byttet tilbake til Distanse.";
+"Cancel" = "Avbryt";
+"Distance Unit" = "Distanseenhet";
+"Primary Color" = "Hovedfarge";
+"s" = "s";
+"m" = "m";
+
+/* Active Session */
+"Delete Lap" = "Slett runde";
+"Lap %d" = "Runde %d";
+"Pause Mode" = "Pausemodus";
+"Cancel Pause" = "Avbryt pause";
+"End Session" = "Avslutt økt";
+"Delete" = "Slett";
+"Active" = "Aktiv";
+
+/* Pace / Units */
+"/km" = "/km";
+"/mi" = "/mi";
+"—" = "—";
+
+/* Home */
+"Get Ready" = "Gjør deg klar";
+"No sessions yet" = "Ingen økter ennå";
+"Load More" = "Last mer";
+"Laps: %d • %@" = "Runder: %d • %@";
+"Time: %@ • %@" = "Tid: %@ • %@";
+
+/* Root / Health */
+"Session not found" = "Økten ble ikke funnet";
+"LapLog needs:" = "LapLog trenger:";
+"Health Access" = "Helsetilgang";
+"Not now" = "Ikke nå";
+"Health data not available on this device." = "Helsedata er ikke tilgjengelig på denne enheten.";
+
+/* Session Detail */
+"Session" = "Økt";
+"Rest" = "Hvile";
+
+/* Tracking Mode */
+"GPS" = "GPS";
+"Distance" = "Distanse";
+
+/* Distance Unit */
+"Kilometers" = "Kilometer";
+"Miles" = "Miles";
+
+/* Primary Color */
+"Blue" = "Blå";
+"Green" = "Grønn";
+"Yellow" = "Gul";
+"Orange" = "Oransje";
+"Pink" = "Rosa";
+"White" = "Hvit";
+"Dark" = "Mørk";
+
+/* Lap Type */
+"Activity" = "Aktivitet";
+
+/* Intents */
+"Start Intervals" = "Start intervaller";
+"Start a intervals workout." = "Start en intervalltrening.";
+"Workout" = "Trening";
+"Intervals" = "Intervaller";
+"Lap" = "Runde";
+
+/* Distance/Unit suffixes - "m" is used for both minutes and meters */
+"km" = "km";
+"m" = "m";
+"mi" = "mi";
+"ft" = "fot";

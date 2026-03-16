@@ -17,7 +17,7 @@ struct SessionDetailView: View {
             }
             .padding(.vertical, 4)
         }
-        .navigationTitle("Session")
+        .navigationTitle(L10n.session)
         .background(Color.clear)
     }
 }
@@ -29,10 +29,10 @@ struct LapRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             if lap.lapType == .rest {
-                Text("Rest")
+                Text(L10n.rest)
                     .font(.caption.bold())
             } else {
-                Text("Lap \(lap.index)")
+                Text(L10n.lapIndex(lap.index))
                     .font(.caption.bold())
             }
             HStack {

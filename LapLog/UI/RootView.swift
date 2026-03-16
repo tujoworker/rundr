@@ -68,7 +68,7 @@ struct RootView: View {
                             if let session = persistence.fetchSession(id: sessionID) {
                                 SessionDetailView(session: session)
                             } else {
-                                Text("Session not found")
+                                Text(L10n.sessionNotFound)
                             }
                         case .home:
                             EmptyView()
@@ -135,7 +135,7 @@ private struct HealthAccessPromptView: View {
                         ProgressView()
                             .frame(maxWidth: .infinity, minHeight: 50)
                     } else {
-                        Text("Health Access")
+                        Text(L10n.healthAccess)
                             .font(.title3.bold())
                             .frame(maxWidth: .infinity, minHeight: 50)
                     }
@@ -144,7 +144,7 @@ private struct HealthAccessPromptView: View {
                 .tint(accentColor)
                 .disabled(isRequestingAccess)
 
-                Button("Not now", action: onContinueWithoutHealth)
+                Button(L10n.notNow, action: onContinueWithoutHealth)
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(.white.opacity(0.72))
 

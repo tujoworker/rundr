@@ -8,8 +8,8 @@ enum DistanceUnit: String, CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
-        case .km: return "Kilometers"
-        case .miles: return "Miles"
+        case .km: return L10n.kilometers
+        case .miles: return L10n.miles
         }
     }
 }

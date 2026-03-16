@@ -27,14 +27,14 @@ struct ActiveSessionView: View {
 
     private var deleteLapDialogTitle: String {
         guard let lap = lapToDelete.flatMap({ id in workoutController.completedLaps.first { $0.id == id } }) else {
-            return "Delete Lap"
+            return L10n.deleteLap
         }
-        return "Lap \(lap.index)"
+        return L10n.lapIndex(lap.index)
     }
 
     private var timerTopLabel: String {
         if isPaused {
-            return "Pause Mode"
+            return L10n.pauseMode
         }
         if workoutController.trackingMode == .distanceDistance {
             return Formatters.distanceString(meters: settings.distanceDistanceMeters, unit: settings.distanceUnit)
@@ -330,23 +330,23 @@ struct ActiveSessionView: View {
         }
         .confirmationDialog("", isPresented: $isSessionMenuPresented, titleVisibility: .hidden) {
             if isPaused {
-                Button("Cancel Pause") {
+                Button(L10n.cancelPause) {
                     workoutController.cancelRest()
                 }
             }
-            Button("End Session", role: .destructive) {
+            Button(L10n.endSession, role: .destructive) {
                 Task { await endSession() }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(L10n.cancel, role: .cancel) {}
         }
         .confirmationDialog(deleteLapDialogTitle, isPresented: $isDeleteLapDialogPresented, titleVisibility: .visible) {
-            Button("Delete", role: .destructive) {
+            Button(L10n.delete, role: .destructive) {
                 if let id = lapToDelete {
                     workoutController.deleteLap(id: id)
                 }
                 lapToDelete = nil
             }
-            Button("Cancel", role: .cancel) {
+            Button(L10n.cancel, role: .cancel) {
                 lapToDelete = nil
             }
         } message: {
@@ -476,7 +476,7 @@ struct PlaceholderLapCardView: View {
 
     private var secondLine: String {
         if trackingMode == .distanceDistance {
-            return "— \(distanceUnit == .km ? "/km" : "/mi")"
+            return "\(L10n.dash) \(distanceUnit == .km ? L10n.pacePerKm : L10n.pacePerMi)"
         }
         // GPS: distance • pace
         let distStr = Formatters.distanceString(meters: currentLapDistanceMeters, unit: distanceUnit)
@@ -497,7 +497,7 @@ struct PlaceholderLapCardView: View {
                 .monospacedDigit()
                 .foregroundColor(.white)
             VStack(alignment: .leading, spacing: 2) {
-                Text("Active")
+                Text(L10n.active)
                     .font(.system(size: 19, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
                 if !secondLine.isEmpty {

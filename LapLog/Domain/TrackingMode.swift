@@ -8,8 +8,8 @@ enum TrackingMode: String, Codable, CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
-        case .gps: return "GPS"
-        case .distanceDistance: return "Distance"
+        case .gps: return L10n.gps
+        case .distanceDistance: return L10n.distanceMode
         }
     }
 }

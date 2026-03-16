@@ -1,0 +1,86 @@
+/* German translations for LapLog */
+
+/* PreStart */
+"Press the Action Button" = "Drücke die Aktions-Taste";
+"Settings" = "Einstellungen";
+"Mode" = "Modus";
+"Distance" = "Distanz";
+"Distance (meters)" = "Distanz (Meter)";
+"Distance (feet)" = "Distanz (Fuß)";
+"Unit" = "Einheit";
+"Color" = "Farbe";
+"e.g. 400" = "z.B. 400";
+"e.g. 1320" = "z.B. 1320";
+"Location Required" = "Standort erforderlich";
+"OK" = "OK";
+"GPS mode needs location access. The mode was switched back to Distance." = "GPS-Modus benötigt Standortzugriff. Der Modus wurde auf Distanz zurückgestellt.";
+"Cancel" = "Abbrechen";
+"Distance Unit" = "Distanzeinheit";
+"Primary Color" = "Hauptfarbe";
+"s" = "s";
+"m" = "m";
+
+/* Active Session */
+"Delete Lap" = "Runde löschen";
+"Lap %d" = "Runde %d";
+"Pause Mode" = "Pausenmodus";
+"Cancel Pause" = "Pause abbrechen";
+"End Session" = "Training beenden";
+"Delete" = "Löschen";
+"Active" = "Aktiv";
+
+/* Pace / Units */
+"/km" = "/km";
+"/mi" = "/mi";
+"—" = "—";
+
+/* Home */
+"Get Ready" = "Bereit machen";
+"No sessions yet" = "Noch keine Trainings";
+"Load More" = "Mehr laden";
+"Laps: %d • %@" = "Runden: %d • %@";
+"Time: %@ • %@" = "Zeit: %@ • %@";
+
+/* Root / Health */
+"Session not found" = "Training nicht gefunden";
+"LapLog needs:" = "LapLog benötigt:";
+"Health Access" = "Gesundheitszugriff";
+"Not now" = "Nicht jetzt";
+"Health data not available on this device." = "Gesundheitsdaten sind auf diesem Gerät nicht verfügbar.";
+
+/* Session Detail */
+"Session" = "Training";
+"Rest" = "Pause";
+
+/* Tracking Mode */
+"GPS" = "GPS";
+"Distance" = "Distanz";
+
+/* Distance Unit */
+"Kilometers" = "Kilometer";
+"Miles" = "Meilen";
+
+/* Primary Color */
+"Blue" = "Blau";
+"Green" = "Grün";
+"Yellow" = "Gelb";
+"Orange" = "Orange";
+"Pink" = "Rosa";
+"White" = "Weiß";
+"Dark" = "Dunkel";
+
+/* Lap Type */
+"Activity" = "Aktivität";
+
+/* Intents */
+"Start Intervals" = "Intervalle starten";
+"Start a intervals workout." = "Ein Intervalltraining starten.";
+"Workout" = "Training";
+"Intervals" = "Intervalle";
+"Lap" = "Runde";
+
+/* Distance/Unit suffixes - "m" is used for both minutes and meters */
+"km" = "km";
+"m" = "m";
+"mi" = "mi";
+"ft" = "ft";

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		L10nBuildRef /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = L10nFileRef /* L10n.swift */; };
+		LocalizableStringsBuildRef /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = LocalizableStringsGroupRef /* Localizable.strings */; };
 		012B7841E2D242F37F954082 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A1B775A27201FA001C88AF /* HomeViewModel.swift */; };
 		1C5FBAD9B17FA11B1506817D /* ActiveSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A391721789A00DCE1A52C5 /* ActiveSessionView.swift */; };
 		29AE989F7AC9917AD935DF22 /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E3127CE770FF5C05C276665 /* Formatters.swift */; };
@@ -53,6 +55,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		L10nFileRef /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
+		LocalizableStringsNbRef /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
+		LocalizableStringsDeRef /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		02A391721789A00DCE1A52C5 /* ActiveSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveSessionView.swift; sourceTree = "<group>"; };
 		02AC43A08A4599D8442B24FA /* LapLogTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LapLogTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0C25755AF893FBC0ACEE2B23 /* Preview Content */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Preview Content"; sourceTree = "<group>"; };
@@ -110,6 +115,18 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		LocalizableStringsGroupRef /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				LocalizableStringsDeRef /* de */,
+				LocalizableStringsNbRef /* nb */,
+			);
+			name = "Localizable.strings";
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin PBXGroup section */
 		0DB76932C055B50DE5275514 /* LapLogTests */ = {
@@ -195,6 +212,7 @@
 		6728A9E758BE484BE4D5E89A /* LapLog */ = {
 			isa = PBXGroup;
 			children = (
+				LocalizableStringsGroupRef /* Localizable.strings */,
 				F6DEE2C22F6612F00005ABAA /* Info.plist */,
 				F6DEE2BF2F66038A0005ABAA /* LapLog.entitlements */,
 				F2ABF59CD03172874BEADEA0 /* LapLogApp.swift */,
@@ -223,6 +241,7 @@
 			isa = PBXGroup;
 			children = (
 				8E3127CE770FF5C05C276665 /* Formatters.swift */,
+				L10nFileRef /* L10n.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -312,7 +331,9 @@
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				de,
 				en,
+				nb,
 				Base,
 			);
 			mainGroup = 5928955287B8089ED2177128;
@@ -333,6 +354,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				826AF4CE8424BB9A4EF1F5CC /* Assets.xcassets in Resources */,
+				LocalizableStringsBuildRef /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -361,6 +383,7 @@
 				D5B5E557FB187878AF5A836B /* SettingsStore.swift in Sources */,
 				52A98D9F8DEB461B7EA6583F /* HealthKitManager.swift in Sources */,
 				29AE989F7AC9917AD935DF22 /* Formatters.swift in Sources */,
+				L10nBuildRef /* L10n.swift in Sources */,
 				5B42CCC5F71E7FFD525E342C /* PersistenceManager.swift in Sources */,
 				FCBEE6361F5E5147C8E53373 /* WorkoutRunState.swift in Sources */,
 				E9FA61354F306ED894832978 /* WorkoutSessionController.swift in Sources */,

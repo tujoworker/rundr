@@ -10,8 +10,8 @@ struct HomeView: View {
     var onSelectSession: (Session) -> Void
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 0) {
+        List {
+            Section {
                 Button(action: onGetReady) {
                     Text("Get Ready")
                         .font(.title3.bold())
@@ -19,55 +19,55 @@ struct HomeView: View {
                 }
                 .buttonStyle(.borderedProminent)
                 .tint(settings.primaryAccentColor)
-                .padding(.horizontal)
-                .padding(.top, 8)
-                .padding(.bottom, 18)
+                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 18, trailing: 12))
+                .listRowBackground(Color.clear)
 
                 if viewModel.recentSessions.isEmpty {
                     Text("No sessions yet")
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity)
-                        .padding(.top, 24)
+                        .padding(.vertical, 24)
+                        .listRowBackground(Color.clear)
                 } else {
-                    LazyVStack(spacing: 4) {
-                        ForEach(viewModel.recentSessions, id: \.id) { session in
-                            Button {
-                                onSelectSession(session)
+                    ForEach(viewModel.recentSessions, id: \.id) { session in
+                        Button {
+                            onSelectSession(session)
+                        } label: {
+                            SessionRowView(session: session)
+                        }
+                        .buttonStyle(.plain)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                persistence.deleteSession(session)
+                                viewModel.loadRecent(persistence: persistence)
                             } label: {
-                                SessionRowView(session: session)
-                            }
-                            .buttonStyle(.plain)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    persistence.deleteSession(session)
-                                    viewModel.loadRecent(persistence: persistence)
-                                } label: {
-                                    Label("Delete", systemImage: "trash")
-                                }
+                                Label("Delete", systemImage: "trash")
                             }
                         }
-
-                        if viewModel.hasMoreSessions {
-                            Button("Load More") {
-                                viewModel.loadMore(persistence: persistence)
-                            }
-                            .font(.footnote)
-                            .padding(.top, 4)
-                        }
+                        .listRowInsets(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4))
+                        .listRowBackground(Color.clear)
                     }
-                    .padding(.horizontal, 4)
+
+                    if viewModel.hasMoreSessions {
+                        Button("Load More") {
+                            viewModel.loadMore(persistence: persistence)
+                        }
+                        .font(.footnote)
+                        .listRowBackground(Color.clear)
+                    }
                 }
             }
-            .padding(.bottom, 8)
         }
         .tint(settings.primaryAccentColor)
+        .listStyle(.carousel)
+        .scrollContentBackground(.hidden)
+        .background(Color.clear)
         .onAppear {
             viewModel.loadRecent(persistence: persistence)
         }
         .onChange(of: coordinator.path) {
             viewModel.loadRecent(persistence: persistence)
         }
-        .background(Color.clear)
     }
 }
 

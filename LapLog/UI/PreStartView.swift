@@ -38,17 +38,51 @@ struct PreStartView: View {
         distanceText.isEmpty ? distancePlaceholder : distanceText
     }
 
-    private var readyTimerText: String {
+    @ViewBuilder
+    private var readyTimerView: some View {
         let s = readyElapsedSeconds
-        if s < 60 {
-            return "\(s) s"
+        let bigFont = Font.system(size: 26, weight: .bold, design: .rounded)
+        let smallFont = Font.system(size: 13, weight: .semibold, design: .rounded)
+        let smallColor = Color.white.opacity(0.78)
+
+        HStack(alignment: .firstTextBaseline, spacing: 2) {
+            if s < 60 {
+                Text("\(s)")
+                    .font(bigFont)
+                    .monospacedDigit()
+                    .foregroundStyle(.white)
+                Text("s")
+                    .font(smallFont)
+                    .foregroundStyle(smallColor)
+            } else {
+                let m = s / 60
+                let secs = s % 60
+                if secs == 0 {
+                    Text("\(m)")
+                        .font(bigFont)
+                        .monospacedDigit()
+                        .foregroundStyle(.white)
+                    Text("m")
+                        .font(smallFont)
+                        .foregroundStyle(smallColor)
+                } else {
+                    Text("\(m)")
+                        .font(bigFont)
+                        .monospacedDigit()
+                        .foregroundStyle(.white)
+                    Text("m")
+                        .font(smallFont)
+                        .foregroundStyle(smallColor)
+                    Text("\(secs)")
+                        .font(bigFont)
+                        .monospacedDigit()
+                        .foregroundStyle(.white)
+                    Text("s")
+                        .font(smallFont)
+                        .foregroundStyle(smallColor)
+                }
+            }
         }
-        let m = s / 60
-        let secs = s % 60
-        if secs == 0 {
-            return "\(m) m"
-        }
-        return "\(m) m \(secs) s"
     }
 
     private var readyHeartRateText: String {
@@ -69,10 +103,7 @@ struct PreStartView: View {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(readyTimerText)
-                            .font(.system(size: 26, weight: .bold, design: .rounded))
-                            .monospacedDigit()
-                            .foregroundStyle(.white)
+                        readyTimerView
 
                         ReadyHeartIndicator(heartRateText: readyHeartRateText)
                     }

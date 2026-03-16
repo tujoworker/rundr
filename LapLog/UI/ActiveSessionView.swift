@@ -56,7 +56,7 @@ struct ActiveSessionView: View {
             .lineLimit(1)
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
-            .padding(.horizontal, 22)
+            .padding(.horizontal, 14)
             .padding(.vertical, 20)
             .background(Capsule().fill(primaryColor))
             .overlay(pauseBorderOverlay)

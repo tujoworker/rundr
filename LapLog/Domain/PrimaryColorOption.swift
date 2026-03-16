@@ -49,7 +49,7 @@ enum PrimaryColorOption: String, CaseIterable, Identifiable {
         case .white:
             return Color.white
         case .dark:
-            return Color(red: 0.22, green: 0.22, blue: 0.25)
+            return Color(red: 0.12, green: 0.12, blue: 0.14)
         }
     }
 }

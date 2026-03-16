@@ -117,6 +117,7 @@ struct ActiveSessionView: View {
                             .foregroundStyle(.white)
                     }
                     .padding(.top, 2)
+                    .offset(y: -10)
                     .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .padding(.horizontal, 14)

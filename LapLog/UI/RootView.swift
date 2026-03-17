@@ -178,7 +178,7 @@ private struct HealthAccessPromptView: View {
                             .frame(maxWidth: .infinity, minHeight: 50)
                     }
                 }
-                .accentRoundedButtonChrome(accentColor: accentColor, cornerRadius: 18)
+                .accentRoundedButtonChrome(accentColor: accentColor, cornerRadius: 999, lineWidth: 3)
                 .buttonStyle(.plain)
                 .disabled(isRequestingAccess)
 

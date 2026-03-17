@@ -51,6 +51,14 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         Array(Set(distanceSegments.map(\.distanceMeters))).sorted()
     }
 
+    /// Total number of planned active intervals when all segments have explicit repeat counts.
+    var totalPlannedIntervals: Int? {
+        guard trackingMode == .distanceDistance else { return nil }
+        let counts = distanceSegments.compactMap(\.repeatCount)
+        guard counts.count == distanceSegments.count else { return nil }
+        return counts.reduce(0, +)
+    }
+
     private var currentSegment: DistanceSegment {
         guard currentSegmentIndex < distanceSegments.count else {
             return distanceSegments.last ?? .default

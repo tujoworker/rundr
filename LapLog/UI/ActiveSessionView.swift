@@ -31,22 +31,33 @@ struct ActiveSessionView: View {
         workoutController.runState == .rest
     }
 
+    private func timerTopLabel(_ base: String) -> String {
+        guard !base.isEmpty else { return base }
+        guard let totalIntervals = workoutController.totalPlannedIntervals else { return base }
+        return "\(base) · ×\(totalIntervals)"
+    }
+
     private var timerTopLabel: String {
         if isPaused {
             if let duration = workoutController.restDurationSeconds {
-                return "Rest \(duration)s"
+                return timerTopLabel("Rest \(duration)s")
             }
-            return "Pause Mode"
+            return timerTopLabel("Pause Mode")
         }
         if workoutController.trackingMode == .distanceDistance {
-            return Formatters.distanceString(meters: workoutController.currentTargetDistanceMeters, unit: settings.distanceUnit)
+            return timerTopLabel(
+                Formatters.distanceString(
+                    meters: workoutController.currentTargetDistanceMeters,
+                    unit: settings.distanceUnit
+                )
+            )
         }
         return ""
     }
 
     private var pauseBorderOverlay: some View {
         Capsule()
-            .stroke(Color.black.opacity(0.42), lineWidth: 8)
+            .stroke(primaryColor.opacity(0.4), lineWidth: 8)
             .padding(1.5)
     }
 
@@ -67,7 +78,7 @@ struct ActiveSessionView: View {
             .frame(maxWidth: .infinity)
             .padding(.horizontal, 22)
             .padding(.vertical, 16)
-            .background(Capsule().fill(primaryColor))
+            .background(Capsule().fill(primaryColor.opacity(0.2)))
             .overlay(pauseBorderOverlay)
             .overlay(lapGlowOverlay)
             .overlay(alignment: .top) {

@@ -24,6 +24,34 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private(set) var distanceLapDistanceMeters: Double = 400
     private(set) var pauseMode: PauseMode = .manual
 
+    // MARK: - Distance Segments
+
+    /// Ordered list of distance segments for the workout plan.
+    private(set) var distanceSegments: [DistanceSegment] = [.default]
+    /// Index into `distanceSegments` for the current segment.
+    private(set) var currentSegmentIndex: Int = 0
+    /// How many laps have been completed in the current segment.
+    private(set) var currentSegmentRepeatsDone: Int = 0
+
+    /// The target distance for the next/current lap based on the segment plan.
+    var currentTargetDistanceMeters: Double {
+        guard trackingMode == .distanceDistance else { return 0 }
+        let segment = currentSegment
+        return segment.distanceMeters
+    }
+
+    /// All unique distances defined in the segments, for quick-pick UI.
+    var availableDistances: [Double] {
+        Array(Set(distanceSegments.map(\.distanceMeters))).sorted()
+    }
+
+    private var currentSegment: DistanceSegment {
+        guard currentSegmentIndex < distanceSegments.count else {
+            return distanceSegments.last ?? .default
+        }
+        return distanceSegments[currentSegmentIndex]
+    }
+
     // MARK: - Internal
 
     private var sessionStartDate: Date?
@@ -46,13 +74,15 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     func configure(
         trackingMode: TrackingMode,
         distanceLapDistanceMeters: Double,
-        pauseMode: PauseMode,
+        distanceSegments: [DistanceSegment] = [.default],
         healthKitManager: HealthKitManager
     ) {
         self.trackingMode = trackingMode
         self.distanceLapDistanceMeters = distanceLapDistanceMeters
-        self.pauseMode = pauseMode
+        self.distanceSegments = distanceSegments.isEmpty ? [.default] : distanceSegments
         self.healthKitManager = healthKitManager
+        self.currentSegmentIndex = 0
+        self.currentSegmentRepeatsDone = 0
     }
 
     // MARK: - Lifecycle
@@ -81,6 +111,21 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         }
 
         playHaptic(.notification)
+    }
+
+    /// Lightweight start for unit tests — skips HealthKit and location.
+    func startWithoutHealthKit() {
+        let start = Date(timeIntervalSinceNow: -1)
+        sessionStartDate = start
+        currentLapStartDate = start
+        currentLapDistanceMeters = 0
+        currentLapHeartRateSamples = []
+        completedLaps = []
+        cumulativeDistanceMeters = 0
+        elapsedSeconds = 0
+        lapElapsedSeconds = 0
+        currentHeartRate = nil
+        runState = .active
     }
 
     func deleteLap(id: UUID) {
@@ -190,6 +235,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         currentLapStartDate = nil
         currentLapDistanceMeters = 0
         currentLapHeartRateSamples = []
+        currentSegmentIndex = 0
+        currentSegmentRepeatsDone = 0
         stopTimer()
         stopLocationUpdates()
     }
@@ -216,18 +263,21 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     // MARK: - Lap Commit
 
+    /// Minimum lap duration to prevent accidental double-taps. Can be reduced for tests.
+    var minimumLapDuration: TimeInterval = 0.5
+
     private func commitCurrentLap(source: LapSource) {
         guard let lapStart = currentLapStartDate else { return }
         let lapEnd = Date()
         let duration = lapEnd.timeIntervalSince(lapStart)
-        guard duration > 0.1 else { return }
+        guard duration > minimumLapDuration else { return }
 
         let isRest = (runState == .rest || runState == .ending)
         var distance: Double
         if isRest {
             distance = 0
         } else if trackingMode == .distanceDistance {
-            distance = distanceLapDistanceMeters
+            distance = currentTargetDistanceMeters
         } else {
             distance = currentLapDistanceMeters
         }
@@ -250,10 +300,44 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         )
         completedLaps.append(lap)
 
+        // Advance segment if this was an active lap in distance mode
+        if !isRest && trackingMode == .distanceDistance {
+            advanceSegment()
+        }
+
         // Reset for next lap
         currentLapStartDate = lapEnd
         currentLapDistanceMeters = 0
         currentLapHeartRateSamples = []
+    }
+
+    /// Advances to the next repeat or next segment after completing a lap.
+    private func advanceSegment() {
+        currentSegmentRepeatsDone += 1
+        let segment = currentSegment
+        if let count = segment.repeatCount, currentSegmentRepeatsDone >= count {
+            // Move to next segment
+            if currentSegmentIndex + 1 < distanceSegments.count {
+                currentSegmentIndex += 1
+                currentSegmentRepeatsDone = 0
+            }
+            // If we're already at the last segment, stay there (it's effectively done,
+            // but if user keeps lapping we keep using the last segment's distance)
+        }
+        // Update legacy field for session snapshot
+        distanceLapDistanceMeters = currentTargetDistanceMeters
+    }
+
+    /// Change the distance of an already-completed lap.
+    func changeLapDistance(id: UUID, newDistanceMeters: Double) {
+        guard let index = completedLaps.firstIndex(where: { $0.id == id }) else { return }
+        let oldDistance = completedLaps[index].distanceMeters
+        completedLaps[index].distanceMeters = newDistanceMeters
+
+        let duration = completedLaps[index].durationSeconds
+        completedLaps[index].averageSpeedMetersPerSecond = duration > 0 && newDistanceMeters > 0 ? newDistanceMeters / duration : 0
+
+        cumulativeDistanceMeters = max(0, cumulativeDistanceMeters - oldDistance + newDistanceMeters)
     }
 
     // MARK: - HealthKit Workout Session
@@ -330,9 +414,9 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
         // Auto-split in distance mode
         if trackingMode == .distanceDistance && runState == .active {
-            while currentLapDistanceMeters >= distanceLapDistanceMeters {
-                let overflow = currentLapDistanceMeters - distanceLapDistanceMeters
-                currentLapDistanceMeters = distanceLapDistanceMeters
+            while currentLapDistanceMeters >= currentTargetDistanceMeters {
+                let overflow = currentLapDistanceMeters - currentTargetDistanceMeters
+                currentLapDistanceMeters = currentTargetDistanceMeters
                 commitCurrentLap(source: .autoDistance)
                 currentLapDistanceMeters = overflow
             }

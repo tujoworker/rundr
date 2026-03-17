@@ -98,9 +98,20 @@ Each session must store the exact settings used when it began:
 
 - `trackingMode: gps | distanceDistance`
 - `distanceDistanceMeters: Double?`
+- `distanceSegments: [DistanceSegment]?` (the full interval plan)
 - any future settings added later
 
 This prevents history from changing if defaults change later.
+
+### DistanceSegment
+
+Represents one step in an interval plan:
+
+- `id: UUID`
+- `distanceMeters: Double` — the target distance for laps in this segment (e.g. 400)
+- `repeatCount: Int?` — how many laps at this distance before advancing to the next segment. `nil` means unlimited (open-ended).
+
+Default plan: a single segment of 400 m with unlimited repeats.
 
 ---
 
@@ -109,7 +120,8 @@ This prevents history from changing if defaults change later.
 Persist the following across app restarts:
 
 - last selected tracking mode (`gps` or `distanceDistance`)
-- last entered manual distance in meters
+- last entered manual distance in meters (legacy, for backward compatibility)
+- distance segments array (JSON-encoded interval plan)
 - any future session options
 
 Use lightweight persistent storage so the settings screen restores instantly on app launch.
@@ -213,10 +225,15 @@ Persist the selected value.
 
 If `Distance` is selected:
 
-- show an input field for lap distance in meters
-- support decimal input such as `546.5` (use `400` as the default value)
-- validate input as a positive number greater than 0
-- store and restore the last valid value
+- show a list of **distance segments** forming the interval plan
+- each segment has a distance value and an optional repeat count
+- default: one segment of `400` meters with unlimited (∞) repeats
+- user can add new segments below the existing ones
+- user can tap a segment to edit its distance and repeat count
+- user can delete segments (at least one must remain)
+- validate each distance as a positive number greater than 0
+- store the full segment plan and restore it on next launch
+- repeat count of `nil` or empty means unlimited
 
 #### GPS mode behavior
 
@@ -258,6 +275,8 @@ Purpose: live workout UI while running.
 - Must be highly visible
 - Use monospaced digits for stability
 - Example: `08:43`
+- In distance mode, show the **current target distance** above the timer (from the active segment in the interval plan)
+- During rest/pause, show "Pause Mode" above the timer instead
 
 #### Lap cards
 
@@ -265,7 +284,8 @@ Show recent completed laps in horizontally scrollable boxes/cards.
 Each card shows:
 
 - lap time (large)
-- average speed (smaller)
+- distance (for both GPS and distance mode when distance > 0)
+- average speed / pace (smaller)
 - optionally (maybe with a setting) lap label and rest/activity state (maybe just in color)
 
 Behavior:
@@ -273,6 +293,10 @@ Behavior:
 - newest completed lap is appended to the right
 - user can scroll horizontally through previous laps
 - cards must remain readable during motion
+- tapping a card opens a dialog to change the lap's distance:
+  - quick-pick from all unique distances defined in the interval plan
+  - option to enter a custom distance manually
+  - option to delete the lap
 
 #### Top-left button state machine
 
@@ -392,12 +416,17 @@ For each lap:
 
 For each lap:
 
-- lap distance = fixed manual distance entered in settings
+- lap distance = the target distance from the **current segment** in the interval plan
+- after each active lap, the segment counter advances:
+  - increment the repeat counter for the current segment
+  - if the repeat count is reached, advance to the next segment
+  - if already at the last segment and its repeats are exhausted or unlimited, remain on the last segment
+- rest laps do not advance the segment counter
 - this applies to both active and rest laps only if explicitly desired by product rules
 
 Recommended product rule:
 
-- for **active** laps in distance mode, use the fixed manual distance
+- for **active** laps in distance mode, use the current segment's target distance
 - for **rest** laps in distance mode, default distance to `0` unless user explicitly marks rest as moving distance in a future version
 
 ### Average speed calculation

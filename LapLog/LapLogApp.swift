@@ -94,7 +94,7 @@ struct LapLogApp: App {
             workoutController.configure(
                 trackingMode: settings.trackingMode,
                 distanceLapDistanceMeters: settings.distanceDistanceMeters,
-                pauseMode: settings.pauseMode,
+                distanceSegments: settings.distanceSegments,
                 healthKitManager: healthKitManager
             )
             Task {

@@ -42,6 +42,7 @@
 		EEF02F2BA438237E59FFD96E /* NavigationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B56B88EBFA89F92A11A0E1 /* NavigationCoordinator.swift */; };
 		F6DEE2BE2F65FC180005ABAA /* DistanceUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DEE2BD2F65FC180005ABAA /* DistanceUnit.swift */; };
 		FCBEE6361F5E5147C8E53373 /* WorkoutRunState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7B588DE96AFFC30AE7ABBA /* WorkoutRunState.swift */; };
+		A1B2C3D4E5F607080910ABCD /* DistanceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F607080910ABCE /* DistanceSegment.swift */; };
 		FD7F3FB0395174CBAF09E673 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC650870DDC91DB05A48BBA /* HomeView.swift */; };
 /* End PBXBuildFile section */
 
@@ -95,6 +96,7 @@
 		F2ABF59CD03172874BEADEA0 /* LapLogApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapLogApp.swift; sourceTree = "<group>"; };
 		F6DEE2BD2F65FC180005ABAA /* DistanceUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceUnit.swift; sourceTree = "<group>"; };
 		F6DEE2BF2F66038A0005ABAA /* LapLog.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LapLog.entitlements; sourceTree = "<group>"; };
+		A1B2C3D4E5F607080910ABCE /* DistanceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceSegment.swift; sourceTree = "<group>"; };
 		F6DEE2C22F6612F00005ABAA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		DistanceInputViewFile /* DistanceInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceInputView.swift; sourceTree = "<group>"; };
 		F80845E9FC8FEA57AA0E6D7F /* PreStartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreStartView.swift; sourceTree = "<group>"; };
@@ -161,6 +163,7 @@
 			isa = PBXGroup;
 			children = (
 				F6DEE2BD2F65FC180005ABAA /* DistanceUnit.swift */,
+				A1B2C3D4E5F607080910ABCE /* DistanceSegment.swift */,
 				3522748D3D40B521A48CBEA2 /* PrimaryColorOption.swift */,
 				PauseModeFileRef /* PauseMode.swift */,
 				AE97F98043246AF98F971416 /* TrackingMode.swift */,
@@ -406,6 +409,7 @@
 				4631A319E31F7DD1259C594B /* MarkLapIntent.swift in Sources */,
 				472DD6F47869F929F51C29B0 /* StartRunningWorkoutIntent.swift in Sources */,
 				F6DEE2BE2F65FC180005ABAA /* DistanceUnit.swift in Sources */,
+				A1B2C3D4E5F607080910ABCD /* DistanceSegment.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

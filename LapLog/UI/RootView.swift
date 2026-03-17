@@ -57,7 +57,7 @@ struct RootView: View {
                                 workoutController.configure(
                                     trackingMode: settings.trackingMode,
                                     distanceLapDistanceMeters: settings.distanceDistanceMeters,
-                                    pauseMode: settings.pauseMode,
+                                    distanceSegments: settings.distanceSegments,
                                     healthKitManager: healthKitManager
                                 )
                                 Task {
@@ -69,7 +69,7 @@ struct RootView: View {
                             if let session = persistence.fetchSession(id: sessionID) {
                                 SessionDetailView(session: session)
                             } else {
-                                Text(L10n.sessionNotFound)
+                                Text("Session not found")
                             }
                         case .home:
                             EmptyView()
@@ -136,7 +136,7 @@ private struct HealthAccessPromptView: View {
                         ProgressView()
                             .frame(maxWidth: .infinity, minHeight: 50)
                     } else {
-                        Text(L10n.healthAccess)
+                        Text("Health Access")
                             .font(.title3.bold())
                             .frame(maxWidth: .infinity, minHeight: 50)
                     }
@@ -145,7 +145,7 @@ private struct HealthAccessPromptView: View {
                 .tint(accentColor)
                 .disabled(isRequestingAccess)
 
-                Button(L10n.notNow, action: onContinueWithoutHealth)
+                Button("Not now", action: onContinueWithoutHealth)
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(.white.opacity(0.72))
 

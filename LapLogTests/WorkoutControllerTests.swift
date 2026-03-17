@@ -9,6 +9,32 @@ final class WorkoutControllerTests: XCTestCase {
         return controller
     }
 
+    private func makeConfiguredController(
+        trackingMode: TrackingMode = .distanceDistance,
+        distance: Double = 400,
+        segments: [DistanceSegment] = [.default]
+    ) -> WorkoutSessionController {
+        let controller = makeController()
+        controller.configure(
+            trackingMode: trackingMode,
+            distanceLapDistanceMeters: distance,
+            distanceSegments: segments,
+            healthKitManager: HealthKitManager()
+        )
+        return controller
+    }
+
+    private func makeStartedController(
+        trackingMode: TrackingMode = .distanceDistance,
+        distance: Double = 400,
+        segments: [DistanceSegment] = [.default]
+    ) -> WorkoutSessionController {
+        let controller = makeConfiguredController(trackingMode: trackingMode, distance: distance, segments: segments)
+        controller.minimumLapDuration = 0
+        controller.startWithoutHealthKit()
+        return controller
+    }
+
     // MARK: - Initial State
 
     func testInitialState() {
@@ -50,9 +76,8 @@ final class WorkoutControllerTests: XCTestCase {
 
     // MARK: - Commit Final Lap
 
-    func testCommitFinalLapFromRestStopsTimer() async {
-        let controller = makeController()
-        await controller.start()
+    func testCommitFinalLapFromRestStopsTimer() {
+        let controller = makeStartedController()
         XCTAssertEqual(controller.runState, .active)
 
         controller.markLap()
@@ -70,5 +95,156 @@ final class WorkoutControllerTests: XCTestCase {
         controller.commitFinalLap()
         XCTAssertEqual(controller.runState, .idle)
         XCTAssertTrue(controller.completedLaps.isEmpty)
+    }
+
+    // MARK: - Distance Segments
+
+    func testDefaultSegment() {
+        let controller = makeConfiguredController()
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 400)
+        XCTAssertEqual(controller.availableDistances, [400])
+    }
+
+    func testMultipleSegments() {
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: 2),
+            DistanceSegment(distanceMeters: 800, repeatCount: 1)
+        ]
+        let controller = makeConfiguredController(segments: segments)
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 400)
+        XCTAssertEqual(controller.availableDistances, [400, 800])
+    }
+
+    func testSegmentAdvancesAfterRepeats() {
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: 2),
+            DistanceSegment(distanceMeters: 800, repeatCount: nil)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        // First two laps should be 400m (segment 0)
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 400)
+        controller.markLap()
+        XCTAssertEqual(controller.completedLaps.count, 1)
+        XCTAssertEqual(controller.completedLaps[0].distanceMeters, 400)
+
+        controller.markLap()
+        // After second lap, should advance to segment 1 (800m)
+        XCTAssertEqual(controller.completedLaps.count, 2)
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 800)
+
+        controller.markLap()
+        // Third lap should be 800m (unlimited)
+        XCTAssertEqual(controller.completedLaps.count, 3)
+        XCTAssertEqual(controller.completedLaps[2].distanceMeters, 800)
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 800)
+    }
+
+    func testUnlimitedSegmentStays() {
+        let controller = makeStartedController()
+
+        controller.markLap()
+        controller.markLap()
+        controller.markLap()
+
+        XCTAssertEqual(controller.completedLaps.count, 3)
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 400)
+        for lap in controller.completedLaps {
+            XCTAssertEqual(lap.distanceMeters, 400)
+        }
+    }
+
+    func testChangeLapDistance() {
+        let controller = makeStartedController()
+        controller.markLap()
+
+        let lapID = controller.completedLaps[0].id
+        XCTAssertEqual(controller.completedLaps[0].distanceMeters, 400)
+
+        controller.changeLapDistance(id: lapID, newDistanceMeters: 200)
+        XCTAssertEqual(controller.completedLaps[0].distanceMeters, 200)
+        XCTAssertTrue(controller.completedLaps[0].averageSpeedMetersPerSecond > 0)
+    }
+
+    func testChangeLapDistanceUpdatesCumulativeDistance() {
+        let controller = makeStartedController(trackingMode: .gps)
+        controller.handleDistanceUpdate(additionalMeters: 500)
+        controller.markLap()
+        controller.handleDistanceUpdate(additionalMeters: 500)
+        controller.markLap()
+
+        let cumBefore = controller.cumulativeDistanceMeters
+        let lapID = controller.completedLaps[0].id
+        let oldDist = controller.completedLaps[0].distanceMeters
+        controller.changeLapDistance(id: lapID, newDistanceMeters: 200)
+
+        XCTAssertEqual(controller.cumulativeDistanceMeters, cumBefore - oldDist + 200)
+    }
+
+    func testRestLapDoesNotAdvanceSegment() {
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: 2),
+            DistanceSegment(distanceMeters: 800, repeatCount: nil)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        controller.markLap()
+        controller.startRest()
+        controller.markLap()
+
+        // Rest lap shouldn't count toward segment advancement
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 400)
+
+        controller.markLap()
+        // Now 2 active laps done, should advance to segment 1
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 800)
+    }
+
+    func testEmptySegmentsDefaultsToDefault() {
+        let controller = makeConfiguredController(segments: [])
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 400)
+    }
+
+    func testGPSModeTargetDistanceIsZero() {
+        let controller = makeConfiguredController(trackingMode: .gps)
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 0)
+    }
+
+    func testThreeSegmentProgression() {
+        let segments = [
+            DistanceSegment(distanceMeters: 200, repeatCount: 1),
+            DistanceSegment(distanceMeters: 400, repeatCount: 2),
+            DistanceSegment(distanceMeters: 800, repeatCount: nil)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        // Segment 0: 200m × 1
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 200)
+        controller.markLap()
+        XCTAssertEqual(controller.completedLaps.last?.distanceMeters, 200)
+
+        // Segment 1: 400m × 2
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 400)
+        controller.markLap()
+        controller.markLap()
+        XCTAssertEqual(controller.completedLaps.last?.distanceMeters, 400)
+
+        // Segment 2: 800m × ∞
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 800)
+        controller.markLap()
+        controller.markLap()
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 800)
+    }
+
+    func testDeleteLapDoesNotAffectSegmentIndex() {
+        let controller = makeStartedController()
+        controller.markLap()
+        controller.markLap()
+
+        let lapID = controller.completedLaps[0].id
+        controller.deleteLap(id: lapID)
+        XCTAssertEqual(controller.completedLaps.count, 1)
+        // Segment index should be unchanged
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 400)
     }
 }

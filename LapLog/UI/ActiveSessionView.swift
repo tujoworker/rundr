@@ -21,6 +21,7 @@ struct ActiveSessionView: View {
     @State private var isManualDistanceEntryPresented = false
     @State private var manualDistanceText: String = ""
     @State private var isRestPulseOn = false
+    @State private var isPausePulseOn = false
 
     private var primaryColor: Color {
         settings.primaryAccentColor
@@ -218,15 +219,39 @@ struct ActiveSessionView: View {
                     .opacity(isTapFlashVisible ? 0.22 : 0)
                     .ignoresSafeArea()
 
-                Color.white
-                    .opacity(isRestPulseOn ? 0.55 : 0)
-                    .ignoresSafeArea()
-                    .animation(.easeInOut(duration: 0.3).repeatForever(autoreverses: true), value: isRestPulseOn)
+                // Gentle pulse during any pause/rest
+                if isPaused {
+                    Color.white
+                        .opacity(isPausePulseOn ? 0.2 : 0)
+                        .ignoresSafeArea()
+                }
+
+                // Urgent pulse for 5s rest warning
+                if isPaused {
+                    Color.white
+                        .opacity(isRestPulseOn ? 0.85 : 0)
+                        .ignoresSafeArea()
+                }
             }
             .allowsHitTesting(false)
         }
+        .onChange(of: isPaused) { _, paused in
+            if paused {
+                withAnimation(.easeInOut(duration: 0.75).repeatForever(autoreverses: true)) {
+                    isPausePulseOn = true
+                }
+            } else {
+                withAnimation(nil) { isPausePulseOn = false }
+            }
+        }
         .onChange(of: workoutController.isRestWarningActive) { _, active in
-            isRestPulseOn = active
+            if active {
+                withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
+                    isRestPulseOn = true
+                }
+            } else {
+                withAnimation(nil) { isRestPulseOn = false }
+            }
         }
         .confirmationDialog("", isPresented: $isSessionMenuPresented, titleVisibility: .hidden) {
             if isPaused {

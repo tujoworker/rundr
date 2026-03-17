@@ -76,9 +76,6 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private var locationManager: CLLocationManager?
     private var lastLocation: CLLocation?
 
-    /// Pending auto-rest seconds set by advanceSegment, consumed by markLap.
-    private var pendingAutoRestSeconds: Int?
-
     // MARK: - Configuration
 
     func configure(
@@ -158,6 +155,11 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     func markLap(source: LapSource = .distanceTap) {
         guard runState == .active || runState == .rest || runState == .ending else { return }
+        let wasResting = (runState == .rest)
+        // Capture rest config before commit (which may advance the segment)
+        let restSecondsBeforeCommit = (!wasResting && trackingMode == .distanceDistance)
+            ? currentSegment.restSeconds : nil
+
         if runState != .ending {
             commitCurrentLap(source: source)
         } else {
@@ -167,9 +169,9 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             lapElapsedSeconds = 0
         }
 
-        // Check if the completed segment has per-lap rest
-        if let seconds = pendingAutoRestSeconds {
-            pendingAutoRestSeconds = nil
+        // Auto-enter rest if the segment had restSeconds and we just finished an active lap
+        if let seconds = restSecondsBeforeCommit, seconds > 0 {
+            cancelRestTimer()
             startAutoRest(seconds: seconds)
         } else {
             runState = .active
@@ -257,7 +259,6 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         currentLapHeartRateSamples = []
         currentSegmentIndex = 0
         currentSegmentRepeatsDone = 0
-        pendingAutoRestSeconds = nil
         cancelRestTimer()
         stopTimer()
         stopLocationUpdates()
@@ -337,20 +338,13 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private func advanceSegment() {
         let completedFromSegment = currentSegment
         currentSegmentRepeatsDone += 1
-        var didAdvanceToNextSegment = false
         if let count = completedFromSegment.repeatCount, currentSegmentRepeatsDone >= count {
             if currentSegmentIndex + 1 < distanceSegments.count {
                 currentSegmentIndex += 1
                 currentSegmentRepeatsDone = 0
-                didAdvanceToNextSegment = true
             }
         }
         distanceLapDistanceMeters = currentTargetDistanceMeters
-
-        // Per-lap rest: trigger if the segment we just lapped in has restSeconds
-        if let seconds = completedFromSegment.restSeconds, seconds > 0 {
-            pendingAutoRestSeconds = seconds
-        }
     }
 
     private func startAutoRest(seconds: Int) {
@@ -373,9 +367,10 @@ final class WorkoutSessionController: NSObject, ObservableObject {
                     self.isRestWarningActive = true
                     self.playHaptic(.notification)
                 }
-                if remaining <= 0 {
-                    self.cancelRestTimer()
-                    self.markLap(source: .autoDistance)
+                if remaining <= 0 && !self.isRestWarningActive {
+                    // Timer reached target — vibrate once more, but stay in rest
+                    self.isRestWarningActive = true
+                    self.playHaptic(.notification)
                 }
             }
     }
@@ -474,16 +469,11 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
         // Auto-split in distance mode
         if trackingMode == .distanceDistance && runState == .active {
-            while currentLapDistanceMeters >= currentTargetDistanceMeters && pendingAutoRestSeconds == nil {
+            while currentLapDistanceMeters >= currentTargetDistanceMeters {
                 let overflow = currentLapDistanceMeters - currentTargetDistanceMeters
                 currentLapDistanceMeters = currentTargetDistanceMeters
                 commitCurrentLap(source: .autoDistance)
                 currentLapDistanceMeters = overflow
-            }
-            // If advanceSegment requested auto-rest, trigger it now
-            if let seconds = pendingAutoRestSeconds {
-                pendingAutoRestSeconds = nil
-                startAutoRest(seconds: seconds)
             }
         }
     }

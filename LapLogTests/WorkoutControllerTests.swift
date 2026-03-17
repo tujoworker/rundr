@@ -332,11 +332,29 @@ final class WorkoutControllerTests: XCTestCase {
         controller.markLap()
         XCTAssertEqual(controller.runState, .rest)
 
-        // Manually resume from rest → should commit a rest lap
+        // User taps to resume → commits rest lap, goes active
         controller.markLap()
         XCTAssertEqual(controller.runState, .active)
         let restLaps = controller.completedLaps.filter { $0.lapType == .rest }
         XCTAssertGreaterThanOrEqual(restLaps.count, 1)
+
+        // Next active markLap → auto-enters rest again
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .rest)
+    }
+
+    func testAutoRestDoesNotAutoResume() {
+        // Verify that timed rest stays in rest — user must manually start next lap
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: nil, restSeconds: 30)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .rest)
+        XCTAssertEqual(controller.restDurationSeconds, 30)
+        // State stays .rest — no auto-resume
+        XCTAssertEqual(controller.runState, .rest)
     }
 
     func testNoAutoRestWithoutRestSeconds() {

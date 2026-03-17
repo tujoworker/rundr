@@ -32,8 +32,8 @@ struct ActiveSessionView: View {
 
     private var timerTopLabel: String {
         if isPaused {
-            if let elapsed = workoutController.restElapsedSeconds {
-                return "Rest \(elapsed)s"
+            if let duration = workoutController.restDurationSeconds {
+                return "Rest \(duration)s"
             }
             return "Pause Mode"
         }
@@ -58,14 +58,14 @@ struct ActiveSessionView: View {
     @ViewBuilder
     private var sessionTimerView: some View {
         Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
-            .font(.system(size: 90, weight: .medium, design: .rounded))
+            .font(.system(size: 100, weight: .medium, design: .rounded))
             .monospacedDigit()
             .minimumScaleFactor(0.45)
             .lineLimit(1)
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .padding(.horizontal, 22)
-            .padding(.vertical, 20)
+            .padding(.vertical, 16)
             .background(Capsule().fill(primaryColor))
             .overlay(pauseBorderOverlay)
             .overlay(lapGlowOverlay)
@@ -219,9 +219,9 @@ struct ActiveSessionView: View {
                     .ignoresSafeArea()
 
                 Color.white
-                    .opacity(isRestPulseOn ? 0.18 : 0)
+                    .opacity(isRestPulseOn ? 0.55 : 0)
                     .ignoresSafeArea()
-                    .animation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true), value: isRestPulseOn)
+                    .animation(.easeInOut(duration: 0.3).repeatForever(autoreverses: true), value: isRestPulseOn)
             }
             .allowsHitTesting(false)
         }

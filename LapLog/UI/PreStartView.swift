@@ -108,16 +108,12 @@ struct PreStartView: View {
                 .foregroundStyle(.white.opacity(0.72))
                 .padding(.horizontal, 8)
 
-            ForEach(Array(segments.enumerated()), id: \.element.id) { index, segment in
+            ForEach(segments) { segment in
                 SegmentRow(
                     segment: segment,
                     distanceUnit: settings.distanceUnit,
-                    canMoveUp: index > 0,
-                    canMoveDown: index < segments.count - 1,
                     onTap: { beginEditingSegment(segment) },
-                    onDelete: { deleteSegment(segment) },
-                    onMoveUp: { moveSegment(at: index, direction: -1) },
-                    onMoveDown: { moveSegment(at: index, direction: 1) }
+                    onDelete: { deleteSegment(segment) }
                 )
             }
 
@@ -315,15 +311,6 @@ struct PreStartView: View {
         persistSegments()
     }
 
-    private func moveSegment(at index: Int, direction: Int) {
-        let newIndex = index + direction
-        guard newIndex >= 0, newIndex < segments.count else { return }
-        withAnimation {
-            segments.swapAt(index, newIndex)
-        }
-        persistSegments()
-    }
-
     private func beginEditingSegment(_ segment: DistanceSegment) {
         editingSegmentID = segment.id
         let displayDist: Double
@@ -366,12 +353,8 @@ struct PreStartView: View {
 private struct SegmentRow: View {
     let segment: DistanceSegment
     let distanceUnit: DistanceUnit
-    let canMoveUp: Bool
-    let canMoveDown: Bool
     let onTap: () -> Void
     let onDelete: () -> Void
-    let onMoveUp: () -> Void
-    let onMoveDown: () -> Void
 
     private var distanceDisplay: String {
         Formatters.distanceString(meters: segment.distanceMeters, unit: distanceUnit)
@@ -379,28 +362,7 @@ private struct SegmentRow: View {
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 8) {
-                VStack(spacing: 0) {
-                    Button { onMoveUp() } label: {
-                        Image(systemName: "chevron.up")
-                            .font(.system(size: 10, weight: .bold))
-                            .frame(width: 24, height: 18)
-                    }
-                    .buttonStyle(.plain)
-                    .opacity(canMoveUp ? 0.5 : 0.15)
-                    .disabled(!canMoveUp)
-
-                    Button { onMoveDown() } label: {
-                        Image(systemName: "chevron.down")
-                            .font(.system(size: 10, weight: .bold))
-                            .frame(width: 24, height: 18)
-                    }
-                    .buttonStyle(.plain)
-                    .opacity(canMoveDown ? 0.5 : 0.15)
-                    .disabled(!canMoveDown)
-                }
-                .foregroundStyle(.white)
-
+            HStack(spacing: 10) {
                 HStack(spacing: 6) {
                     Text(distanceDisplay)
                         .font(.system(size: 18, weight: .semibold, design: .rounded))

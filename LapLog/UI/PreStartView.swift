@@ -20,6 +20,9 @@ struct PreStartView: View {
     @State private var editingSegmentDistanceText: String = ""
     @State private var editingSegmentRepeatCount: Int = 0
     @State private var editingSegmentRestSeconds: Int = 0
+    @State private var lastAddedDistanceMeters: Double = 400
+    @State private var lastAddedRepeatCount: Int = 0
+    @State private var lastAddedRestSeconds: Int = 0
     @StateObject private var locationPermissionRequester = LocationPermissionRequester()
 
     private let readyTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -138,6 +141,7 @@ struct PreStartView: View {
 
                         ReadyHeartIndicator(heartRateText: readyHeartRateText)
                     }
+                    .offset(x: 6, y: 8)
 
                     Spacer(minLength: 12)
 
@@ -147,6 +151,7 @@ struct PreStartView: View {
                     .buttonStyle(BounceButtonStyle())
                     .disabled(isStartDisabled)
                     .opacity(isStartDisabled ? 0.5 : 1)
+                    .offset(x: -4)
                 }
 
                 Color.clear
@@ -215,6 +220,9 @@ struct PreStartView: View {
             readyStartDate = Date()
             readyElapsedSeconds = 0
             segments = settings.distanceSegments
+            lastAddedDistanceMeters = settings.distanceSegments.last?.distanceMeters ?? 400
+            lastAddedRepeatCount = settings.distanceSegments.last?.repeatCount ?? 0
+            lastAddedRestSeconds = settings.distanceSegments.last?.restSeconds ?? 0
             refreshHeartRate()
         }
         .onReceive(readyTimer) { currentDate in
@@ -300,8 +308,13 @@ struct PreStartView: View {
     }
 
     private func addSegment() {
-        let lastDistance = segments.last?.distanceMeters ?? 400
-        segments.append(DistanceSegment(distanceMeters: lastDistance, repeatCount: nil))
+        segments.append(
+            DistanceSegment(
+                distanceMeters: lastAddedDistanceMeters,
+                repeatCount: lastAddedRepeatCount > 0 ? lastAddedRepeatCount : nil,
+                restSeconds: lastAddedRestSeconds > 0 ? lastAddedRestSeconds : nil
+            )
+        )
         persistSegments()
     }
 
@@ -338,6 +351,9 @@ struct PreStartView: View {
         case .miles: meters = value / 3.28084
         }
         segments[idx].distanceMeters = meters
+        lastAddedDistanceMeters = meters
+        lastAddedRepeatCount = editingSegmentRepeatCount
+        lastAddedRestSeconds = editingSegmentRestSeconds
         segments[idx].repeatCount = editingSegmentRepeatCount > 0 ? editingSegmentRepeatCount : nil
         segments[idx].restSeconds = editingSegmentRestSeconds > 0 ? editingSegmentRestSeconds : nil
         editingSegmentID = nil
@@ -542,12 +558,6 @@ private struct SegmentEditSheet: View {
                 .font(.system(size: 16, weight: .bold, design: .rounded))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(accentColor)
-                )
-                .foregroundStyle(.white)
-                .buttonStyle(.plain)
                 .padding(.top, 4)
             }
             .padding(.horizontal, 12)

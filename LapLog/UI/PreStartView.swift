@@ -31,10 +31,6 @@ struct PreStartView: View {
         }
     }
 
-    private var distancePlaceholder: String {
-        ""
-    }
-
     @ViewBuilder
     private var readyTimerView: some View {
         let s = readyElapsedSeconds
@@ -148,7 +144,7 @@ struct PreStartView: View {
                     Button(action: startSession) {
                         ReadyStartIcon(baseColor: settings.primaryAccentColor)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(BounceButtonStyle())
                     .disabled(isStartDisabled)
                     .opacity(isStartDisabled ? 0.5 : 1)
                 }
@@ -277,7 +273,6 @@ struct PreStartView: View {
                 repeatCount: $editingSegmentRepeatCount,
                 restSeconds: $editingSegmentRestSeconds,
                 distanceLabel: distanceLabel,
-                distancePlaceholder: distancePlaceholder,
                 accentColor: settings.primaryAccentColor,
                 onDone: { commitSegmentEdit() }
             )
@@ -431,17 +426,8 @@ private struct SegmentEditSheet: View {
     @Binding var repeatCount: Int
     @Binding var restSeconds: Int
     let distanceLabel: String
-    let distancePlaceholder: String
     let accentColor: Color
     let onDone: () -> Void
-
-    private var distanceValue: Double {
-        Double(distanceText) ?? 0
-    }
-
-    private var stepSize: Double {
-        distanceValue >= 1000 ? 100 : 50
-    }
 
     private let defaultDistanceText = "400"
 
@@ -456,53 +442,10 @@ private struct SegmentEditSheet: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 10) {
-                Text(distanceLabel)
-                    .font(.caption.bold())
-                    .foregroundStyle(.white.opacity(0.72))
-                    .padding(.horizontal, 4)
-
-                HStack(spacing: 8) {
-                    Button {
-                        let current = distanceValue
-                        let newVal = max(stepSize, current - stepSize)
-                        distanceText = formatDistanceValue(newVal)
-                    } label: {
-                        Image(systemName: "minus")
-                            .font(.system(size: 16, weight: .bold))
-                            .frame(width: 36, height: 36)
-                            .background(Circle().fill(Color.white.opacity(0.15)))
-                            .foregroundStyle(.white)
-                    }
-                    .buttonStyle(.plain)
-
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .fill(Color.white.opacity(0.12))
-                        TextField(distancePlaceholder, text: $distanceText)
-                            .textFieldStyle(.plain)
-                            .multilineTextAlignment(.center)
-                            .font(.system(size: 20, weight: .bold, design: .rounded))
-                            .monospacedDigit()
-                            .minimumScaleFactor(0.7)
-                            .lineLimit(1)
-                            .foregroundStyle(.white)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-
-                    Button {
-                        let current = distanceValue
-                        let newVal = current + stepSize
-                        distanceText = formatDistanceValue(newVal)
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 16, weight: .bold))
-                            .frame(width: 36, height: 36)
-                            .background(Circle().fill(Color.white.opacity(0.15)))
-                            .foregroundStyle(.white)
-                    }
-                    .buttonStyle(.plain)
-                }
+                DistanceInputView(
+                    label: distanceLabel,
+                    text: $distanceText
+                )
 
                 Text("Repeats")
                     .font(.caption.bold())
@@ -616,10 +559,6 @@ private struct SegmentEditSheet: View {
         }
         .scrollContentBackground(.hidden)
     }
-
-    private func formatDistanceValue(_ value: Double) -> String {
-        value == floor(value) ? String(format: "%.0f", value) : String(format: "%g", value)
-    }
 }
 
 private struct ReadyHeartIndicator: View {
@@ -658,6 +597,14 @@ private struct ReadyStartIcon: View {
         }
         .frame(width: 78, height: 78)
         .shadow(color: baseColor.opacity(0.28), radius: 6, y: 2)
+    }
+}
+
+private struct BounceButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.92 : 1)
+            .animation(.spring(response: 0.25, dampingFraction: 0.6), value: configuration.isPressed)
     }
 }
 

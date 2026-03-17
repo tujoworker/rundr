@@ -200,7 +200,24 @@ struct ActiveSessionView: View {
             }
             .offset(y: contentVerticalOffset)
         }
-        .background(AppScreenBackground(accentColor: primaryColor))
+        .background {
+            ZStack {
+                AppScreenBackground(accentColor: primaryColor)
+
+                // Keep pause/rest pulses behind content so labels remain readable.
+                if isPaused {
+                    Color.white
+                        .opacity(isPausePulseOn ? 0.2 : 0)
+                        .ignoresSafeArea()
+                }
+
+                if isPaused {
+                    Color.white
+                        .opacity(isRestPulseOn ? 0.6 : 0)
+                        .ignoresSafeArea()
+                }
+            }
+        }
         .overlay {
             ZStack {
                 RadialGradient(
@@ -218,20 +235,6 @@ struct ActiveSessionView: View {
                 Color.white
                     .opacity(isTapFlashVisible ? 0.22 : 0)
                     .ignoresSafeArea()
-
-                // Gentle pulse during any pause/rest
-                if isPaused {
-                    Color.white
-                        .opacity(isPausePulseOn ? 0.2 : 0)
-                        .ignoresSafeArea()
-                }
-
-                // Urgent pulse for 5s rest warning
-                if isPaused {
-                    Color.white
-                        .opacity(isRestPulseOn ? 0.85 : 0)
-                        .ignoresSafeArea()
-                }
             }
             .allowsHitTesting(false)
         }
@@ -246,7 +249,7 @@ struct ActiveSessionView: View {
         }
         .onChange(of: workoutController.isRestWarningActive) { _, active in
             if active {
-                withAnimation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true)) {
+                withAnimation(.easeInOut(duration: 0.45).repeatForever(autoreverses: true)) {
                     isRestPulseOn = true
                 }
             } else {

@@ -364,6 +364,18 @@ private struct SegmentRow: View {
         Formatters.distanceString(meters: segment.distanceMeters, unit: distanceUnit)
     }
 
+    private var hasRepeatCount: Bool {
+        segment.repeatCount != nil
+    }
+
+    private var hasRestDuration: Bool {
+        segment.restSeconds != nil
+    }
+
+    private var hasSecondaryDetails: Bool {
+        hasRepeatCount || hasRestDuration
+    }
+
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 10) {
@@ -371,15 +383,19 @@ private struct SegmentRow: View {
                     Text(distanceDisplay)
                         .font(.system(size: 18, weight: .semibold, design: .rounded))
                         .foregroundStyle(.white)
-                    if let count = segment.repeatCount {
-                        Text("×\(count)")
-                            .font(.system(size: 14, weight: .medium, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.6))
-                    }
-                    if let rest = segment.restSeconds {
-                        Text("\(rest)s rest")
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.45))
+                    if hasSecondaryDetails {
+                        VStack(alignment: .leading, spacing: 1) {
+                            if let count = segment.repeatCount {
+                                Text("×\(count)")
+                                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                                    .foregroundStyle(.white.opacity(0.6))
+                            }
+                            if let rest = segment.restSeconds {
+                                Text("\(rest)s rest")
+                                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                                    .foregroundStyle(.white.opacity(0.45))
+                            }
+                        }
                     }
                 }
 

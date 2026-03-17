@@ -95,6 +95,7 @@ struct LapLogApp: App {
                 trackingMode: settings.trackingMode,
                 distanceLapDistanceMeters: settings.distanceDistanceMeters,
                 distanceSegments: settings.distanceSegments,
+                pauseMode: settings.pauseMode,
                 healthKitManager: healthKitManager
             )
             Task {

@@ -19,6 +19,7 @@ struct PreStartView: View {
     @State private var editingSegmentID: UUID?
     @State private var editingSegmentDistanceText: String = ""
     @State private var editingSegmentRepeatCount: Int = 0
+    @State private var editingSegmentRestSeconds: Int = 0
     @StateObject private var locationPermissionRequester = LocationPermissionRequester()
 
     private let readyTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -280,6 +281,7 @@ struct PreStartView: View {
             SegmentEditSheet(
                 distanceText: $editingSegmentDistanceText,
                 repeatCount: $editingSegmentRepeatCount,
+                restSeconds: $editingSegmentRestSeconds,
                 distanceLabel: distanceLabel,
                 distancePlaceholder: distancePlaceholder,
                 accentColor: settings.primaryAccentColor,
@@ -320,6 +322,7 @@ struct PreStartView: View {
         }
         editingSegmentDistanceText = displayDist == floor(displayDist) ? String(format: "%.0f", displayDist) : String(format: "%g", displayDist)
         editingSegmentRepeatCount = segment.repeatCount ?? 0
+        editingSegmentRestSeconds = segment.restSeconds ?? 0
     }
 
     private func commitSegmentEdit() {
@@ -336,6 +339,7 @@ struct PreStartView: View {
         }
         segments[idx].distanceMeters = meters
         segments[idx].repeatCount = editingSegmentRepeatCount > 0 ? editingSegmentRepeatCount : nil
+        segments[idx].restSeconds = editingSegmentRestSeconds > 0 ? editingSegmentRestSeconds : nil
         editingSegmentID = nil
         persistSegments()
     }
@@ -372,6 +376,11 @@ private struct SegmentRow: View {
                             .font(.system(size: 14, weight: .medium, design: .rounded))
                             .foregroundStyle(.white.opacity(0.6))
                     }
+                    if let rest = segment.restSeconds {
+                        Text("\(rest)s rest")
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.45))
+                    }
                 }
 
                 Spacer(minLength: 8)
@@ -399,6 +408,7 @@ private struct SegmentRow: View {
 private struct SegmentEditSheet: View {
     @Binding var distanceText: String
     @Binding var repeatCount: Int
+    @Binding var restSeconds: Int
     let distanceLabel: String
     let distancePlaceholder: String
     let accentColor: Color
@@ -414,6 +424,10 @@ private struct SegmentEditSheet: View {
 
     private var repeatLabel: String {
         repeatCount > 0 ? "\(repeatCount)" : "∞"
+    }
+
+    private var restLabel: String {
+        restSeconds > 0 ? "\(restSeconds)s" : "Manual"
     }
 
     var body: some View {
@@ -438,17 +452,18 @@ private struct SegmentEditSheet: View {
                     }
                     .buttonStyle(.plain)
 
-                    TextField(distancePlaceholder, text: $distanceText)
-                        .multilineTextAlignment(.center)
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
-                        .monospacedDigit()
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(Color.white.opacity(0.12))
-                        )
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(Color.white.opacity(0.12))
+                        TextField(distancePlaceholder, text: $distanceText)
+                            .textFieldStyle(.plain)
+                            .multilineTextAlignment(.center)
+                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .monospacedDigit()
+                            .foregroundStyle(.white)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
 
                     Button {
                         let current = distanceValue
@@ -507,6 +522,51 @@ private struct SegmentEditSheet: View {
                     .buttonStyle(.plain)
                 }
 
+                Text("Rest")
+                    .font(.caption.bold())
+                    .foregroundStyle(.white.opacity(0.72))
+                    .padding(.horizontal, 4)
+                    .padding(.top, 4)
+
+                HStack(spacing: 8) {
+                    Button {
+                        if restSeconds >= 15 {
+                            restSeconds -= 15
+                        } else {
+                            restSeconds = 0
+                        }
+                    } label: {
+                        Image(systemName: "minus")
+                            .font(.system(size: 16, weight: .bold))
+                            .frame(width: 36, height: 36)
+                            .background(Circle().fill(Color.white.opacity(0.15)))
+                            .foregroundStyle(.white)
+                    }
+                    .buttonStyle(.plain)
+
+                    Text(restLabel)
+                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .fill(Color.white.opacity(0.12))
+                        )
+
+                    Button {
+                        restSeconds += 15
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 16, weight: .bold))
+                            .frame(width: 36, height: 36)
+                            .background(Circle().fill(Color.white.opacity(0.15)))
+                            .foregroundStyle(.white)
+                    }
+                    .buttonStyle(.plain)
+                }
+
                 Button("Done") {
                     onDone()
                 }
@@ -524,6 +584,7 @@ private struct SegmentEditSheet: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 12)
         }
+        .scrollContentBackground(.hidden)
     }
 
     private func formatDistanceValue(_ value: Double) -> String {

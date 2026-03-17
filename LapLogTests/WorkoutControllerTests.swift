@@ -210,6 +210,25 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.currentTargetDistanceMeters, 0)
     }
 
+    // MARK: - Pause Mode
+
+    func testPauseModeDefaultsToManual() {
+        let controller = makeConfiguredController()
+        XCTAssertEqual(controller.pauseMode, .manual)
+    }
+
+    func testPauseModeCanBeConfigured() {
+        let controller = makeController()
+        controller.configure(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [.default],
+            pauseMode: .autoDetect,
+            healthKitManager: HealthKitManager()
+        )
+        XCTAssertEqual(controller.pauseMode, .autoDetect)
+    }
+
     func testThreeSegmentProgression() {
         let segments = [
             DistanceSegment(distanceMeters: 200, repeatCount: 1),
@@ -246,5 +265,111 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.completedLaps.count, 1)
         // Segment index should be unchanged
         XCTAssertEqual(controller.currentTargetDistanceMeters, 400)
+    }
+
+    // MARK: - Auto-Rest
+
+    func testAutoRestTriggersAfterEachLap() {
+        // Single segment with restSeconds → rest after every lap
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: nil, restSeconds: 30)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .rest)
+        XCTAssertEqual(controller.restElapsedSeconds, 0)
+        XCTAssertEqual(controller.restDurationSeconds, 30)
+    }
+
+    func testAutoRestTriggersOnSegmentAdvanceToo() {
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: 1, restSeconds: 30),
+            DistanceSegment(distanceMeters: 800, repeatCount: nil)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .rest)
+        XCTAssertEqual(controller.restDurationSeconds, 30)
+    }
+
+    func testManualRestHasNoCountdown() {
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: 1, restSeconds: nil),
+            DistanceSegment(distanceMeters: 800, repeatCount: nil)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .active)
+        XCTAssertNil(controller.restElapsedSeconds)
+    }
+
+    func testCancelRestClearsTimer() {
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: nil, restSeconds: 60)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .rest)
+        XCTAssertNotNil(controller.restDurationSeconds)
+
+        controller.cancelRest()
+        XCTAssertEqual(controller.runState, .active)
+        XCTAssertNil(controller.restElapsedSeconds)
+        XCTAssertNil(controller.restDurationSeconds)
+        XCTAssertFalse(controller.isRestWarningActive)
+    }
+
+    func testAutoRestCreatesRestLapOnResume() {
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: nil, restSeconds: 30)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .rest)
+
+        // Manually resume from rest → should commit a rest lap
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .active)
+        let restLaps = controller.completedLaps.filter { $0.lapType == .rest }
+        XCTAssertGreaterThanOrEqual(restLaps.count, 1)
+    }
+
+    func testNoAutoRestWithoutRestSeconds() {
+        // No restSeconds configured → no auto-rest
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: nil, restSeconds: nil)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .active)
+        XCTAssertNil(controller.restElapsedSeconds)
+    }
+
+    func testAutoRestAdvancesToCorrectSegment() {
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: 1, restSeconds: 15),
+            DistanceSegment(distanceMeters: 800, repeatCount: nil)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        controller.markLap()
+        // Now in rest → segment already advanced to 800m
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 800)
+    }
+
+    func testRestWarningInitiallyFalse() {
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: nil, restSeconds: 30)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        controller.markLap()
+        XCTAssertFalse(controller.isRestWarningActive)
     }
 }

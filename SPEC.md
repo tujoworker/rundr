@@ -122,6 +122,8 @@ Persist the following across app restarts:
 - last selected tracking mode (`gps` or `distanceDistance`)
 - last entered manual distance in meters (legacy, for backward compatibility)
 - distance segments array (JSON-encoded interval plan)
+- pause mode (`manual` or `autoDetect`) — manual: user taps to pause/resume; auto: HealthKit motion events pause/resume
+- primary accent color (blue, green, yellow, orange, pink, dark) — white was removed; migration maps legacy "white" to blue
 - any future session options
 
 Use lightweight persistent storage so the settings screen restores instantly on app launch.
@@ -211,35 +213,35 @@ Reached after tapping **Get Ready**.
 
 - Top: large **Start** button.
 - Below: vertically scrollable settings.
+- Settings section order: **Settings** label (with top padding), then **Intervals** (distance segments), then **Mode** (tracking mode, pause mode, unit, color).
 
-#### Setting 1 — Tracking mode
+#### Setting 1 — Intervals (distance segments)
 
-Show a segmented control with two options:
+When `Distance` mode is selected, show an **Intervals** section first:
 
-- `GPS`
-- `Distance`
-
-Persist the selected value.
-
-#### Distance mode behavior
-
-If `Distance` is selected:
-
-- show a list of **distance segments** forming the interval plan
+- list of **distance segments** forming the interval plan
 - each segment has a distance value and an optional repeat count
 - default: one segment of `400` meters with unlimited (∞) repeats
 - user can add new segments below the existing ones
-- user can tap a segment to edit its distance and repeat count
+- user can tap a segment to open **SegmentEditSheet** to edit distance and repeat count
+- SegmentEditSheet: distance via TextField (manual entry) and repeat count via +/- stepper; use `.textFieldStyle(.plain)` and `.scrollContentBackground(.hidden)` to avoid double backgrounds
 - user can delete segments (at least one must remain)
 - validate each distance as a positive number greater than 0
 - store the full segment plan and restore it on next launch
 - repeat count of `nil` or empty means unlimited
 
+#### Setting 2 — Mode (tracking mode, pause, unit, color)
+
+- **Tracking mode**: segmented control with `GPS` and `Distance`. Persist the selected value.
+- **Pause mode**: `Manual` (user taps to pause/resume) or `Auto` (HealthKit motion events pause/resume). Persist the selected value.
+- **Distance unit**: km or miles.
+- **Primary color**: blue, green, yellow, orange, pink, dark. Persist the selected value.
+
 #### GPS mode behavior
 
 If `GPS` is selected:
 
-- manual distance input is hidden or disabled
+- Intervals section is hidden or disabled
 - lap distance is derived live from distance traveled between lap boundaries
 
 #### Start button behavior

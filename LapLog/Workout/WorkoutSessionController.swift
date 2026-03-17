@@ -17,6 +17,12 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     @Published var currentLapDistanceMeters: Double = 0
     @Published var completedLaps: [Lap] = []
     @Published var isGPSActive: Bool = false
+    /// Elapsed seconds in current timed rest. `nil` when not in a timed rest.
+    @Published var restElapsedSeconds: Int? = nil
+    /// Total rest duration in seconds for the current timed rest.
+    @Published var restDurationSeconds: Int? = nil
+    /// True when ≤5 seconds remain in a timed rest (for UI warning pulse).
+    @Published var isRestWarningActive: Bool = false
 
     // MARK: - Settings Snapshot
 
@@ -59,6 +65,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private var currentLapHeartRateSamples: [Double] = []
 
     private var timerCancellable: AnyCancellable?
+    private var restTimerCancellable: AnyCancellable?
     private var healthKitManager: HealthKitManager?
 
     // HealthKit workout session
@@ -69,17 +76,22 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private var locationManager: CLLocationManager?
     private var lastLocation: CLLocation?
 
+    /// Pending auto-rest seconds set by advanceSegment, consumed by markLap.
+    private var pendingAutoRestSeconds: Int?
+
     // MARK: - Configuration
 
     func configure(
         trackingMode: TrackingMode,
         distanceLapDistanceMeters: Double,
         distanceSegments: [DistanceSegment] = [.default],
+        pauseMode: PauseMode = .manual,
         healthKitManager: HealthKitManager
     ) {
         self.trackingMode = trackingMode
         self.distanceLapDistanceMeters = distanceLapDistanceMeters
         self.distanceSegments = distanceSegments.isEmpty ? [.default] : distanceSegments
+        self.pauseMode = pauseMode
         self.healthKitManager = healthKitManager
         self.currentSegmentIndex = 0
         self.currentSegmentRepeatsDone = 0
@@ -154,8 +166,15 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             currentLapHeartRateSamples = []
             lapElapsedSeconds = 0
         }
-        runState = .active
-        startTimer()
+
+        // Check if the completed segment has per-lap rest
+        if let seconds = pendingAutoRestSeconds {
+            pendingAutoRestSeconds = nil
+            startAutoRest(seconds: seconds)
+        } else {
+            runState = .active
+            startTimer()
+        }
         playHaptic(.notification)
     }
 
@@ -175,6 +194,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     func cancelRest() {
         guard runState == .rest else { return }
+        cancelRestTimer()
         playHaptic(.click)
         runState = .active
         startTimer()
@@ -237,6 +257,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         currentLapHeartRateSamples = []
         currentSegmentIndex = 0
         currentSegmentRepeatsDone = 0
+        pendingAutoRestSeconds = nil
+        cancelRestTimer()
         stopTimer()
         stopLocationUpdates()
     }
@@ -313,19 +335,57 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     /// Advances to the next repeat or next segment after completing a lap.
     private func advanceSegment() {
+        let completedFromSegment = currentSegment
         currentSegmentRepeatsDone += 1
-        let segment = currentSegment
-        if let count = segment.repeatCount, currentSegmentRepeatsDone >= count {
-            // Move to next segment
+        var didAdvanceToNextSegment = false
+        if let count = completedFromSegment.repeatCount, currentSegmentRepeatsDone >= count {
             if currentSegmentIndex + 1 < distanceSegments.count {
                 currentSegmentIndex += 1
                 currentSegmentRepeatsDone = 0
+                didAdvanceToNextSegment = true
             }
-            // If we're already at the last segment, stay there (it's effectively done,
-            // but if user keeps lapping we keep using the last segment's distance)
         }
-        // Update legacy field for session snapshot
         distanceLapDistanceMeters = currentTargetDistanceMeters
+
+        // Per-lap rest: trigger if the segment we just lapped in has restSeconds
+        if let seconds = completedFromSegment.restSeconds, seconds > 0 {
+            pendingAutoRestSeconds = seconds
+        }
+    }
+
+    private func startAutoRest(seconds: Int) {
+        runState = .rest
+        restElapsedSeconds = 0
+        restDurationSeconds = seconds
+        isRestWarningActive = false
+
+        restTimerCancellable = Timer.publish(every: 1, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                guard let self,
+                      let elapsed = self.restElapsedSeconds,
+                      let duration = self.restDurationSeconds else { return }
+                let newElapsed = elapsed + 1
+                self.restElapsedSeconds = newElapsed
+
+                let remaining = duration - newElapsed
+                if remaining <= 5 && remaining > 0 && !self.isRestWarningActive {
+                    self.isRestWarningActive = true
+                    self.playHaptic(.notification)
+                }
+                if remaining <= 0 {
+                    self.cancelRestTimer()
+                    self.markLap(source: .autoDistance)
+                }
+            }
+    }
+
+    private func cancelRestTimer() {
+        restTimerCancellable?.cancel()
+        restTimerCancellable = nil
+        restElapsedSeconds = nil
+        restDurationSeconds = nil
+        isRestWarningActive = false
     }
 
     /// Change the distance of an already-completed lap.
@@ -414,11 +474,16 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
         // Auto-split in distance mode
         if trackingMode == .distanceDistance && runState == .active {
-            while currentLapDistanceMeters >= currentTargetDistanceMeters {
+            while currentLapDistanceMeters >= currentTargetDistanceMeters && pendingAutoRestSeconds == nil {
                 let overflow = currentLapDistanceMeters - currentTargetDistanceMeters
                 currentLapDistanceMeters = currentTargetDistanceMeters
                 commitCurrentLap(source: .autoDistance)
                 currentLapDistanceMeters = overflow
+            }
+            // If advanceSegment requested auto-rest, trigger it now
+            if let seconds = pendingAutoRestSeconds {
+                pendingAutoRestSeconds = nil
+                startAutoRest(seconds: seconds)
             }
         }
     }

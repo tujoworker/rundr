@@ -1,6 +1,6 @@
 import Foundation
 
-enum PauseMode: String, CaseIterable, Identifiable {
+enum PauseMode: String, CaseIterable, Identifiable, Codable {
     case manual
     case autoDetect
 

@@ -51,6 +51,29 @@ final class ModelTests: XCTestCase {
         XCTAssertNotNil(LapSource(rawValue: "sessionEndSplit"))
     }
 
+    // MARK: - PauseMode
+
+    func testPauseModeDisplayNames() {
+        XCTAssertEqual(PauseMode.manual.displayName, L10n.pauseManual)
+        XCTAssertEqual(PauseMode.autoDetect.displayName, L10n.pauseAutoDetect)
+    }
+
+    func testPauseModeAllCases() {
+        XCTAssertEqual(PauseMode.allCases.count, 2)
+        XCTAssertTrue(PauseMode.allCases.contains(.manual))
+        XCTAssertTrue(PauseMode.allCases.contains(.autoDetect))
+    }
+
+    func testPauseModeCodable() throws {
+        let encoder = JSONEncoder()
+        let decoder = JSONDecoder()
+        for mode in PauseMode.allCases {
+            let data = try encoder.encode(mode)
+            let decoded = try decoder.decode(PauseMode.self, from: data)
+            XCTAssertEqual(decoded, mode)
+        }
+    }
+
     // MARK: - WorkoutRunState
 
     func testWorkoutRunStateCases() {
@@ -180,6 +203,7 @@ final class ModelTests: XCTestCase {
         let segment = DistanceSegment()
         XCTAssertEqual(segment.distanceMeters, 400)
         XCTAssertNil(segment.repeatCount)
+        XCTAssertNil(segment.restSeconds)
     }
 
     func testDistanceSegmentWithRepeatCount() {
@@ -215,6 +239,27 @@ final class ModelTests: XCTestCase {
         let a = DistanceSegment(id: id, distanceMeters: 400, repeatCount: 3)
         let b = DistanceSegment(id: id, distanceMeters: 400, repeatCount: 3)
         XCTAssertEqual(a, b)
+    }
+
+    func testDistanceSegmentWithRestSeconds() {
+        let segment = DistanceSegment(distanceMeters: 400, repeatCount: 5, restSeconds: 30)
+        XCTAssertEqual(segment.restSeconds, 30)
+    }
+
+    func testDistanceSegmentManualRest() {
+        let segment = DistanceSegment(distanceMeters: 400, repeatCount: 3, restSeconds: nil)
+        XCTAssertNil(segment.restSeconds)
+    }
+
+    func testDistanceSegmentCodableWithRest() throws {
+        let segments: [DistanceSegment] = [
+            DistanceSegment(distanceMeters: 400, repeatCount: 5, restSeconds: 30),
+            DistanceSegment(distanceMeters: 800, repeatCount: nil, restSeconds: nil),
+        ]
+        let data = try JSONEncoder().encode(segments)
+        let decoded = try JSONDecoder().decode([DistanceSegment].self, from: data)
+        XCTAssertEqual(decoded[0].restSeconds, 30)
+        XCTAssertNil(decoded[1].restSeconds)
     }
 
     func testDistanceSegmentDefault() {

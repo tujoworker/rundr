@@ -20,6 +20,7 @@ struct ActiveSessionView: View {
     @State private var isLapEditDialogPresented = false
     @State private var isManualDistanceEntryPresented = false
     @State private var manualDistanceText: String = ""
+    @State private var isRestPulseOn = false
 
     private var primaryColor: Color {
         settings.primaryAccentColor
@@ -31,6 +32,9 @@ struct ActiveSessionView: View {
 
     private var timerTopLabel: String {
         if isPaused {
+            if let elapsed = workoutController.restElapsedSeconds {
+                return "Rest \(elapsed)s"
+            }
             return "Pause Mode"
         }
         if workoutController.trackingMode == .distanceDistance {
@@ -54,7 +58,7 @@ struct ActiveSessionView: View {
     @ViewBuilder
     private var sessionTimerView: some View {
         Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
-            .font(.system(size: 72, weight: .bold, design: .rounded))
+            .font(.system(size: 90, weight: .medium, design: .rounded))
             .monospacedDigit()
             .minimumScaleFactor(0.45)
             .lineLimit(1)
@@ -213,8 +217,16 @@ struct ActiveSessionView: View {
                 Color.white
                     .opacity(isTapFlashVisible ? 0.22 : 0)
                     .ignoresSafeArea()
+
+                Color.white
+                    .opacity(isRestPulseOn ? 0.18 : 0)
+                    .ignoresSafeArea()
+                    .animation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true), value: isRestPulseOn)
             }
             .allowsHitTesting(false)
+        }
+        .onChange(of: workoutController.isRestWarningActive) { _, active in
+            isRestPulseOn = active
         }
         .confirmationDialog("", isPresented: $isSessionMenuPresented, titleVisibility: .hidden) {
             if isPaused {

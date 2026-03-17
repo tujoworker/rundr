@@ -17,7 +17,11 @@ struct HomeView: View {
                         .font(.title3.bold())
                         .frame(maxWidth: .infinity, minHeight: 50)
                 }
-                .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: 18)
+                .accentRoundedButtonChrome(
+                    accentColor: settings.primaryAccentColor,
+                    cornerRadius: 999,
+                    lineWidth: 3
+                )
                 .buttonStyle(.plain)
                 .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 18, trailing: 12))
                 .listRowBackground(Color.clear)

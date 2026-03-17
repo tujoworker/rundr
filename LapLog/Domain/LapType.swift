@@ -8,8 +8,10 @@ enum LapType: String, Codable, CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
-        case .active: return L10n.activity
-        case .rest: return L10n.restLap
+        case .active:
+            return String(localized: "Activity", comment: "Lap type")
+        case .rest:
+            return String(localized: "Rest", comment: "Lap type")
         }
     }
 }

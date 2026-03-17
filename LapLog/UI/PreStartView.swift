@@ -32,10 +32,7 @@ struct PreStartView: View {
     }
 
     private var distancePlaceholder: String {
-        switch settings.distanceUnit {
-        case .km: return "e.g. 400"
-        case .miles: return "e.g. 1320"
-        }
+        ""
     }
 
     @ViewBuilder
@@ -446,6 +443,8 @@ private struct SegmentEditSheet: View {
         distanceValue >= 1000 ? 100 : 50
     }
 
+    private let defaultDistanceText = "400"
+
     private var repeatLabel: String {
         repeatCount > 0 ? "\(repeatCount)" : "∞"
     }
@@ -456,7 +455,7 @@ private struct SegmentEditSheet: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
+            VStack(alignment: .leading, spacing: 10) {
                 Text(distanceLabel)
                     .font(.caption.bold())
                     .foregroundStyle(.white.opacity(0.72))
@@ -482,8 +481,10 @@ private struct SegmentEditSheet: View {
                         TextField(distancePlaceholder, text: $distanceText)
                             .textFieldStyle(.plain)
                             .multilineTextAlignment(.center)
-                            .font(.system(size: 22, weight: .bold, design: .rounded))
+                            .font(.system(size: 20, weight: .bold, design: .rounded))
                             .monospacedDigit()
+                            .minimumScaleFactor(0.7)
+                            .lineLimit(1)
                             .foregroundStyle(.white)
                     }
                     .frame(maxWidth: .infinity)
@@ -607,6 +608,11 @@ private struct SegmentEditSheet: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 12)
+        }
+        .onDisappear {
+            if distanceText.isEmpty {
+                distanceText = defaultDistanceText
+            }
         }
         .scrollContentBackground(.hidden)
     }

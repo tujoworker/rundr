@@ -18,6 +18,8 @@ struct ActiveSessionView: View {
     @State private var isRestPulseOn = false
     @State private var isPausePulseOn = false
 
+    private let defaultLapDistanceText = "400"
+
     private var primaryColor: Color {
         settings.primaryAccentColor
     }
@@ -275,7 +277,9 @@ struct ActiveSessionView: View {
         .fullScreenCover(isPresented: Binding(
             get: { lapEditorState != nil },
             set: { presented in
-                if !presented {
+                if !presented, let lapEditorState {
+                    saveLapEditor(lapEditorState)
+                } else if !presented {
                     lapEditorState = nil
                 }
             }
@@ -288,16 +292,8 @@ struct ActiveSessionView: View {
                     ),
                     distanceUnit: settings.distanceUnit,
                     accentColor: primaryColor,
-                    onCancel: {
-                        self.lapEditorState = nil
-                    },
-                    onSave: { editor in
-                        workoutController.updateLap(
-                            id: editor.id,
-                            newType: editor.lapType,
-                            newDistanceMeters: meters(from: editor.distanceText)
-                        )
-                        self.lapEditorState = nil
+                    onClose: { editor in
+                        saveLapEditor(editor)
                     },
                     onDelete: { editor in
                         workoutController.deleteLap(id: editor.id)
@@ -339,11 +335,25 @@ struct ActiveSessionView: View {
     }
 
     private func presentLapEditor(for lap: Lap) {
+        let initialDistanceText = distanceText(from: lap.distanceMeters)
         lapEditorState = LapEditorState(
             id: lap.id,
             lapType: lap.lapType,
-            distanceText: distanceText(from: lap.distanceMeters)
+            distanceText: lap.lapType == .active ? defaultDistanceTextIfNeeded(initialDistanceText) : initialDistanceText
         )
+    }
+
+    private func defaultDistanceTextIfNeeded(_ text: String) -> String {
+        text.isEmpty ? defaultLapDistanceText : text
+    }
+
+    private func saveLapEditor(_ editor: LapEditorState) {
+        workoutController.updateLap(
+            id: editor.id,
+            newType: editor.lapType,
+            newDistanceMeters: meters(from: defaultDistanceTextIfNeeded(editor.distanceText))
+        )
+        lapEditorState = nil
     }
 
     private func distanceText(from meters: Double) -> String {
@@ -562,8 +572,7 @@ private struct LapEditorScreen: View {
     @Binding var editor: LapEditorState
     let distanceUnit: DistanceUnit
     let accentColor: Color
-    let onCancel: () -> Void
-    let onSave: (LapEditorState) -> Void
+    let onClose: (LapEditorState) -> Void
     let onDelete: (LapEditorState) -> Void
 
     private var label: String {
@@ -574,10 +583,7 @@ private struct LapEditorScreen: View {
     }
 
     private var placeholder: String {
-        switch distanceUnit {
-        case .km: return "e.g. 400"
-        case .miles: return "e.g. 1320"
-        }
+        ""
     }
 
     var body: some View {
@@ -586,9 +592,21 @@ private struct LapEditorScreen: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Edit Lap")
-                        .font(.headline.weight(.semibold))
-                        .foregroundStyle(.white)
+                    HStack(spacing: 8) {
+                        Text("Edit Lap")
+                            .font(.headline.weight(.semibold))
+                            .foregroundStyle(.white)
+
+                        Spacer(minLength: 8)
+
+                        Button {
+                            onClose(editor)
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 15, weight: .bold))
+                        }
+                        .buttonStyle(.plain)
+                    }
 
                     HStack(spacing: 8) {
                         lapTypeButton(title: L10n.activity, type: .active)
@@ -598,12 +616,11 @@ private struct LapEditorScreen: View {
                     if editor.lapType == .active {
                         DistanceInputView(
                             label: label,
-                            placeholder: placeholder,
                             text: $editor.distanceText
                         )
                         .frame(maxWidth: .infinity)
                     } else {
-                        Text("This lap will be treated as rest/pause.")
+                        Text("This lap will be treated as rest.")
                             .font(.system(size: 16, weight: .medium, design: .rounded))
                             .foregroundStyle(.white.opacity(0.8))
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -611,39 +628,12 @@ private struct LapEditorScreen: View {
                             .padding(.vertical, 12)
                     }
 
-                    Button("Done") {
-                        onSave(editor)
-                    }
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .accentRoundedButtonChrome(accentColor: accentColor, cornerRadius: 18)
-                    .buttonStyle(.plain)
-
                     Button(L10n.deleteLap, role: .destructive) {
                         onDelete(editor)
                     }
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .fill(Color.red.opacity(0.2))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .stroke(Color.red.opacity(0.45), lineWidth: 1.5)
-                    )
-                    .foregroundStyle(.white)
-                    .buttonStyle(.plain)
-
-                    Button(L10n.cancel) {
-                        onCancel()
-                    }
-                    .font(.system(size: 15, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.75))
-                    .frame(maxWidth: .infinity)
-                    .padding(.top, 2)
+                    .foregroundStyle(.red)
+                    .padding(.top, 10)
                 }
                 .padding(.horizontal, 12)
                 .padding(.vertical, 12)
@@ -655,6 +645,9 @@ private struct LapEditorScreen: View {
     private func lapTypeButton(title: String, type: LapType) -> some View {
         Button {
             editor.lapType = type
+            if type == .active && editor.distanceText.isEmpty {
+                editor.distanceText = placeholder
+            }
         } label: {
             Text(title)
                 .font(.system(size: 15, weight: .semibold, design: .rounded))

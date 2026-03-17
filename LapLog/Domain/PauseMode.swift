@@ -8,8 +8,10 @@ enum PauseMode: String, CaseIterable, Identifiable, Codable {
 
     var displayName: String {
         switch self {
-        case .manual: return L10n.pauseManual
-        case .autoDetect: return L10n.pauseAutoDetect
+        case .manual:
+            return String(localized: "Manual", comment: "Pause mode: manual")
+        case .autoDetect:
+            return String(localized: "Auto", comment: "Pause mode: auto detect")
         }
     }
 }

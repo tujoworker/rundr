@@ -19,6 +19,7 @@ struct AppScreenBackground: View {
 struct AccentRoundedButtonChrome: ViewModifier {
     let accentColor: Color
     var cornerRadius: CGFloat = 18
+    var lineWidth: CGFloat = 1.5
 
     func body(content: Content) -> some View {
         content
@@ -29,14 +30,24 @@ struct AccentRoundedButtonChrome: ViewModifier {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .stroke(accentColor.opacity(0.4), lineWidth: 1.5)
+                    .stroke(accentColor.opacity(0.4), lineWidth: lineWidth)
             )
     }
 }
 
 extension View {
-    func accentRoundedButtonChrome(accentColor: Color, cornerRadius: CGFloat = 18) -> some View {
-        modifier(AccentRoundedButtonChrome(accentColor: accentColor, cornerRadius: cornerRadius))
+    func accentRoundedButtonChrome(
+        accentColor: Color,
+        cornerRadius: CGFloat = 18,
+        lineWidth: CGFloat = 1.5
+    ) -> some View {
+        modifier(
+            AccentRoundedButtonChrome(
+                accentColor: accentColor,
+                cornerRadius: cornerRadius,
+                lineWidth: lineWidth
+            )
+        )
     }
 }
 

@@ -292,8 +292,10 @@ struct ActiveSessionView: View {
                     ),
                     distanceUnit: settings.distanceUnit,
                     accentColor: primaryColor,
-                    onClose: { editor in
-                        saveLapEditor(editor)
+                    onClose: {
+                        if let state = lapEditorState {
+                            saveLapEditor(state)
+                        }
                     },
                     onDelete: { editor in
                         workoutController.deleteLap(id: editor.id)
@@ -571,7 +573,7 @@ private struct LapEditorScreen: View {
     @Binding var editor: LapEditorState
     let distanceUnit: DistanceUnit
     let accentColor: Color
-    let onClose: (LapEditorState) -> Void
+    let onClose: () -> Void
     let onDelete: (LapEditorState) -> Void
 
     private var label: String {
@@ -581,9 +583,7 @@ private struct LapEditorScreen: View {
         }
     }
 
-    private var placeholder: String {
-        ""
-    }
+    private let defaultDistanceText = "400"
 
     var body: some View {
         ZStack {
@@ -599,7 +599,7 @@ private struct LapEditorScreen: View {
                         Spacer(minLength: 8)
 
                         Button {
-                            onClose(editor)
+                            onClose()
                         } label: {
                             Image(systemName: "xmark")
                                 .font(.system(size: 15, weight: .bold))
@@ -645,7 +645,7 @@ private struct LapEditorScreen: View {
         Button {
             editor.lapType = type
             if type == .active && editor.distanceText.isEmpty {
-                editor.distanceText = placeholder
+                editor.distanceText = defaultDistanceText
             }
         } label: {
             Text(title)

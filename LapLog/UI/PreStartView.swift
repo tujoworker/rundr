@@ -444,6 +444,7 @@ private struct SegmentEditSheet: View {
             VStack(alignment: .leading, spacing: 10) {
                 DistanceInputView(
                     label: distanceLabel,
+                    accentColor: accentColor,
                     text: $distanceText
                 )
 

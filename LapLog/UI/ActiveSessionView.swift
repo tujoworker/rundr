@@ -611,6 +611,7 @@ private struct LapEditorScreen: View {
                     if lapType == .active {
                         DistanceInputView(
                             label: label,
+                            accentColor: accentColor,
                             text: $distanceText
                         )
                         .frame(maxWidth: .infinity)

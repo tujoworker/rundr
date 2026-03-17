@@ -2,10 +2,21 @@ import SwiftUI
 
 struct DistanceInputView: View {
     let label: String
+    let accentColor: Color
     @Binding var text: String
     var onValueChange: (() -> Void)?
 
     private let defaultDistanceText = "400"
+    private let controlHeight: CGFloat = 46
+    private let keypadRows: [[String]] = [
+        ["1", "2", "3"],
+        ["4", "5", "6"],
+        ["7", "8", "9"],
+        [".", "0", "⌫"]
+    ]
+
+    @State private var isEditorPresented = false
+    @State private var editorText = ""
 
     private var distanceValue: Double {
         Double(text) ?? 0
@@ -13,6 +24,10 @@ struct DistanceInputView: View {
 
     private var stepSize: Double {
         distanceValue >= 1000 ? 100 : 50
+    }
+
+    private var displayText: String {
+        text.isEmpty ? defaultDistanceText : text
     }
 
     var body: some View {
@@ -37,21 +52,25 @@ struct DistanceInputView: View {
                 }
                 .buttonStyle(.plain)
 
-                ZStack {
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(Color.white.opacity(0.12))
+                Button {
+                    editorText = displayText
+                    isEditorPresented = true
+                } label: {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(Color.white.opacity(0.12))
 
-                    TextField("", text: $text)
-                        .textFieldStyle(.plain)
-                        .multilineTextAlignment(.center)
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .monospacedDigit()
-                        .minimumScaleFactor(0.7)
-                        .lineLimit(1)
-                        .foregroundStyle(.white)
+                        Text(displayText)
+                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .monospacedDigit()
+                            .minimumScaleFactor(0.7)
+                            .lineLimit(1)
+                            .foregroundStyle(.white)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: controlHeight)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
+                .buttonStyle(.plain)
 
                 Button {
                     text = formatDistanceValue(distanceValue + stepSize)
@@ -72,9 +91,147 @@ struct DistanceInputView: View {
             }
             onValueChange?()
         }
+        .sheet(isPresented: Binding(
+            get: { isEditorPresented },
+            set: { presented in
+                if !presented {
+                    commitEditorText()
+                } else {
+                    isEditorPresented = true
+                }
+            }
+        )) {
+            DistanceInputEditorScreen(
+                title: label,
+                accentColor: accentColor,
+                keypadRows: keypadRows,
+                text: $editorText,
+                onDone: {
+                    commitEditorText()
+                }
+            )
+        }
+    }
+
+    private func commitEditorText() {
+        let normalizedText = normalizedInput(editorText)
+        text = normalizedText.isEmpty ? defaultDistanceText : normalizedText
+        isEditorPresented = false
+        onValueChange?()
+    }
+
+    private func normalizedInput(_ value: String) -> String {
+        let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedValue.isEmpty else { return "" }
+
+        let normalizedDecimal = trimmedValue.hasSuffix(".") ? String(trimmedValue.dropLast()) : trimmedValue
+        guard let numericValue = Double(normalizedDecimal) else {
+            return displayText
+        }
+
+        return formatDistanceValue(numericValue)
     }
 
     private func formatDistanceValue(_ value: Double) -> String {
         value == floor(value) ? String(format: "%.0f", value) : String(format: "%g", value)
+    }
+}
+
+private struct DistanceInputEditorScreen: View {
+    let title: String
+    let accentColor: Color
+    let keypadRows: [[String]]
+    @Binding var text: String
+    let onDone: () -> Void
+
+    var body: some View {
+        ZStack {
+            AppScreenBackground(accentColor: accentColor)
+
+            ScrollView {
+                VStack(spacing: 10) {
+                    Text(title)
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    Text(text)
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .monospacedDigit()
+                        .minimumScaleFactor(0.55)
+                        .lineLimit(1)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                .fill(Color.white.opacity(0.12))
+                        )
+
+                    VStack(spacing: 6) {
+                        ForEach(0..<keypadRows.count, id: \.self) { rowIndex in
+                            HStack(spacing: 6) {
+                                ForEach(keypadRows[rowIndex], id: \.self) { key in
+                                    KeypadButton(key: key) {
+                                        tapKey(key)
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Button("Done") {
+                        onDone()
+                    }
+                    .padding(.top, 4)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 12)
+            }
+        }
+    }
+
+    private func tapKey(_ key: String) {
+        if key == "⌫" {
+            if !text.isEmpty {
+                text.removeLast()
+            }
+            return
+        }
+
+        if key == "." {
+            if text.isEmpty {
+                text = "0."
+            } else if !text.contains(".") {
+                text += key
+            }
+            return
+        }
+
+        if text == "0" {
+            text = key
+        } else {
+            text += key
+        }
+    }
+}
+
+private struct KeypadButton: View {
+    let key: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(key)
+                .font(.system(size: 20, weight: .semibold, design: .rounded))
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 38)
+                .background(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill(Color.white.opacity(0.15))
+                )
+        }
+        .buttonStyle(.plain)
     }
 }

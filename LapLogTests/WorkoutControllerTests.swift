@@ -115,6 +115,44 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.availableDistances, [400, 800])
     }
 
+    func testTotalPlannedIntervalsForFinitePlan() {
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: 2),
+            DistanceSegment(distanceMeters: 800, repeatCount: 3)
+        ]
+        let controller = makeConfiguredController(segments: segments)
+
+        XCTAssertEqual(controller.totalPlannedIntervals, 5)
+        XCTAssertEqual(controller.remainingPlannedIntervals, 5)
+    }
+
+    func testRemainingPlannedIntervalsIsNilForOpenEndedPlan() {
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: 2),
+            DistanceSegment(distanceMeters: 800, repeatCount: nil)
+        ]
+        let controller = makeConfiguredController(segments: segments)
+
+        XCTAssertNil(controller.totalPlannedIntervals)
+        XCTAssertNil(controller.remainingPlannedIntervals)
+    }
+
+    func testRemainingPlannedIntervalsDecrementsWithActiveLaps() {
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: 2),
+            DistanceSegment(distanceMeters: 800, repeatCount: 1)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        XCTAssertEqual(controller.remainingPlannedIntervals, 3)
+
+        controller.markLap()
+        XCTAssertEqual(controller.remainingPlannedIntervals, 2)
+
+        controller.markLap()
+        XCTAssertEqual(controller.remainingPlannedIntervals, 1)
+    }
+
     func testSegmentAdvancesAfterRepeats() {
         let segments = [
             DistanceSegment(distanceMeters: 400, repeatCount: 2),
@@ -306,6 +344,35 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertNil(controller.restElapsedSeconds)
     }
 
+    func testCompletingFinitePlanEntersRestMode() {
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: 1)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        controller.markLap()
+
+        XCTAssertEqual(controller.remainingPlannedIntervals, 0)
+        XCTAssertEqual(controller.runState, .rest)
+        XCTAssertNil(controller.restDurationSeconds)
+    }
+
+    func testCanContinueAddingLapsAfterFinitePlanEntersRestMode() {
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: 1)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .rest)
+
+        controller.markLap()
+
+        XCTAssertEqual(controller.runState, .active)
+        XCTAssertEqual(controller.completedLaps.count, 2)
+        XCTAssertEqual(controller.completedLaps.last?.lapType, .rest)
+    }
+
     func testCancelRestClearsTimer() {
         let segments = [
             DistanceSegment(distanceMeters: 400, repeatCount: nil, restSeconds: 60)
@@ -389,5 +456,42 @@ final class WorkoutControllerTests: XCTestCase {
 
         controller.markLap()
         XCTAssertFalse(controller.isRestWarningActive)
+    }
+
+    func testUpdateLapToRestRecalculatesDerivedState() {
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: 1),
+            DistanceSegment(distanceMeters: 800, repeatCount: 1)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        controller.markLap()
+        controller.markLap()
+
+        let secondLapID = controller.completedLaps[1].id
+        controller.updateLap(id: secondLapID, newType: .rest, newDistanceMeters: 800)
+
+        XCTAssertEqual(controller.completedLaps[1].lapType, .rest)
+        XCTAssertEqual(controller.completedLaps[1].distanceMeters, 0)
+        XCTAssertEqual(controller.completedLaps[1].index, 0)
+        XCTAssertEqual(controller.cumulativeDistanceMeters, 400)
+        XCTAssertEqual(controller.remainingPlannedIntervals, 1)
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 800)
+    }
+
+    func testUpdateRestLapToActiveRecalculatesDerivedState() {
+        let controller = makeStartedController(trackingMode: .gps)
+
+        controller.startRest()
+        controller.markLap()
+
+        let restLapID = controller.completedLaps[0].id
+        controller.updateLap(id: restLapID, newType: .active, newDistanceMeters: 250)
+
+        XCTAssertEqual(controller.completedLaps[0].lapType, .active)
+        XCTAssertEqual(controller.completedLaps[0].distanceMeters, 250)
+        XCTAssertEqual(controller.completedLaps[0].index, 1)
+        XCTAssertEqual(controller.cumulativeDistanceMeters, 250)
+        XCTAssertGreaterThan(controller.completedLaps[0].averageSpeedMetersPerSecond, 0)
     }
 }

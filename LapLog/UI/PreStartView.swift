@@ -127,13 +127,10 @@ struct PreStartView: View {
                     Text("Add Distance")
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                 }
-                .foregroundStyle(settings.primaryAccentColor)
+                .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
-                .background(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(settings.primaryAccentColor.opacity(0.5), lineWidth: 1.5)
-                )
+                .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: 16)
             }
             .buttonStyle(.plain)
         }
@@ -642,19 +639,10 @@ private struct ReadyStartIcon: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [baseColor.opacity(0.98), baseColor.opacity(0.78)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .fill(baseColor.opacity(0.2))
 
             Circle()
-                .stroke(Color.white.opacity(0.18), lineWidth: 1)
-
-            Circle()
-                .stroke(Color.black.opacity(0.35), lineWidth: 3)
+                .stroke(baseColor.opacity(0.4), lineWidth: 3)
                 .padding(1.5)
         }
         .overlay {

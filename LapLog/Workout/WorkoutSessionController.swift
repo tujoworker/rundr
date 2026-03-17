@@ -59,6 +59,13 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         return counts.reduce(0, +)
     }
 
+    /// Remaining number of planned active intervals, including the current one.
+    var remainingPlannedIntervals: Int? {
+        guard let totalPlannedIntervals else { return nil }
+        let completedActiveIntervals = completedLaps.filter { $0.lapType == .active }.count
+        return max(0, totalPlannedIntervals - completedActiveIntervals)
+    }
+
     private var currentSegment: DistanceSegment {
         guard currentSegmentIndex < distanceSegments.count else {
             return distanceSegments.last ?? .default
@@ -148,16 +155,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     func deleteLap(id: UUID) {
         guard runState == .active || runState == .rest || runState == .ending else { return }
         guard let index = completedLaps.firstIndex(where: { $0.id == id }) else { return }
-        let lap = completedLaps[index]
         completedLaps.remove(at: index)
-        cumulativeDistanceMeters = max(0, cumulativeDistanceMeters - lap.distanceMeters)
-        var activeIndex = 1
-        for i in completedLaps.indices {
-            if completedLaps[i].lapType != .rest {
-                completedLaps[i].index = activeIndex
-                activeIndex += 1
-            }
-        }
+        recalculateCompletedLapDerivedState()
         playHaptic(.click)
     }
 
@@ -181,6 +180,11 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         if let seconds = restSecondsBeforeCommit, seconds > 0 {
             cancelRestTimer()
             startAutoRest(seconds: seconds)
+        } else if !wasResting
+                    && trackingMode == .distanceDistance
+                    && remainingPlannedIntervals == 0 {
+            cancelRestTimer()
+            runState = .rest
         } else {
             cancelRestTimer()
             runState = .active
@@ -392,13 +396,65 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     /// Change the distance of an already-completed lap.
     func changeLapDistance(id: UUID, newDistanceMeters: Double) {
         guard let index = completedLaps.firstIndex(where: { $0.id == id }) else { return }
-        let oldDistance = completedLaps[index].distanceMeters
-        completedLaps[index].distanceMeters = newDistanceMeters
+        updateLap(id: id, newType: completedLaps[index].lapType, newDistanceMeters: newDistanceMeters)
+    }
+
+    /// Change the type and distance of an already-completed lap.
+    func updateLap(id: UUID, newType: LapType, newDistanceMeters: Double) {
+        guard let index = completedLaps.firstIndex(where: { $0.id == id }) else { return }
+
+        completedLaps[index].lapType = newType
+        completedLaps[index].distanceMeters = newType == .rest ? 0 : max(0, newDistanceMeters)
 
         let duration = completedLaps[index].durationSeconds
-        completedLaps[index].averageSpeedMetersPerSecond = duration > 0 && newDistanceMeters > 0 ? newDistanceMeters / duration : 0
+        let distance = completedLaps[index].distanceMeters
+        completedLaps[index].averageSpeedMetersPerSecond = duration > 0 && distance > 0 ? distance / duration : 0
 
-        cumulativeDistanceMeters = max(0, cumulativeDistanceMeters - oldDistance + newDistanceMeters)
+        recalculateCompletedLapDerivedState()
+    }
+
+    private func recalculateCompletedLapDerivedState() {
+        var activeIndex = 1
+        cumulativeDistanceMeters = 0
+
+        for index in completedLaps.indices {
+            if completedLaps[index].lapType == .rest {
+                completedLaps[index].index = 0
+                completedLaps[index].distanceMeters = 0
+                completedLaps[index].averageSpeedMetersPerSecond = 0
+                continue
+            }
+
+            completedLaps[index].index = activeIndex
+            activeIndex += 1
+            cumulativeDistanceMeters += completedLaps[index].distanceMeters
+        }
+
+        recalculateSegmentProgress()
+    }
+
+    private func recalculateSegmentProgress() {
+        guard trackingMode == .distanceDistance else { return }
+
+        var segmentIndex = 0
+        var repeatsDone = 0
+        let completedActiveIntervals = completedLaps.filter { $0.lapType == .active }.count
+
+        for _ in 0..<completedActiveIntervals {
+            guard segmentIndex < distanceSegments.count else { break }
+
+            repeatsDone += 1
+            if let count = distanceSegments[segmentIndex].repeatCount,
+               repeatsDone >= count,
+               segmentIndex + 1 < distanceSegments.count {
+                segmentIndex += 1
+                repeatsDone = 0
+            }
+        }
+
+        currentSegmentIndex = min(segmentIndex, max(distanceSegments.count - 1, 0))
+        currentSegmentRepeatsDone = repeatsDone
+        distanceLapDistanceMeters = currentTargetDistanceMeters
     }
 
     // MARK: - HealthKit Workout Session

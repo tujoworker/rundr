@@ -174,6 +174,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             cancelRestTimer()
             startAutoRest(seconds: seconds)
         } else {
+            cancelRestTimer()
             runState = .active
             startTimer()
         }
@@ -363,13 +364,10 @@ final class WorkoutSessionController: NSObject, ObservableObject {
                 self.restElapsedSeconds = newElapsed
 
                 let remaining = duration - newElapsed
-                if remaining <= 5 && remaining > 0 && !self.isRestWarningActive {
-                    self.isRestWarningActive = true
-                    self.playHaptic(.notification)
-                }
-                if remaining <= 0 && !self.isRestWarningActive {
-                    // Timer reached target — vibrate once more, but stay in rest
-                    self.isRestWarningActive = true
+                if remaining <= 5 && remaining >= 0 {
+                    if !self.isRestWarningActive {
+                        self.isRestWarningActive = true
+                    }
                     self.playHaptic(.notification)
                 }
             }

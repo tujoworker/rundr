@@ -97,12 +97,27 @@ struct ActiveSessionView: View {
     private let topControlOffset: CGFloat = -8
     private let topHeaderHeight: CGFloat = 66
     private let contentVerticalOffset: CGFloat = -4
-    private let menuButtonExtraOffset: CGFloat = -4
-    private let pauseButtonExtraOffset: CGFloat = -4
+    private let menuButtonExtraOffset: CGFloat = 0
+    private let pauseButtonExtraOffset: CGFloat = 0
     private let lapHistoryContainerTrailingPadding: CGFloat = 12
 
     var body: some View {
         ZStack {
+            AppScreenBackground(accentColor: primaryColor)
+
+            // Keep pause/rest pulses behind content so labels remain readable.
+            if isPaused {
+                Color.white
+                    .opacity(isPausePulseOn ? 0.2 : 0)
+                    .ignoresSafeArea()
+            }
+
+            if isPaused {
+                Color.white
+                    .opacity(isRestPulseOn ? 0.6 : 0)
+                    .ignoresSafeArea()
+            }
+
             VStack(spacing: 0) {
                 ZStack(alignment: .top) {
                     HStack(alignment: .top) {
@@ -206,24 +221,6 @@ struct ActiveSessionView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .offset(y: contentVerticalOffset)
-        }
-        .background {
-            ZStack {
-                AppScreenBackground(accentColor: primaryColor)
-
-                // Keep pause/rest pulses behind content so labels remain readable.
-                if isPaused {
-                    Color.white
-                        .opacity(isPausePulseOn ? 0.2 : 0)
-                        .ignoresSafeArea()
-                }
-
-                if isPaused {
-                    Color.white
-                        .opacity(isRestPulseOn ? 0.6 : 0)
-                        .ignoresSafeArea()
-                }
-            }
         }
         .overlay {
             ZStack {

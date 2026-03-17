@@ -100,6 +100,48 @@ struct PreStartView: View {
         return screenBounds.width >= 205 && screenBounds.height >= 251
     }
 
+    @ViewBuilder
+    private var intervalsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Intervals")
+                .font(.caption.bold())
+                .foregroundStyle(.white.opacity(0.72))
+                .padding(.horizontal, 8)
+
+            ForEach(Array(segments.enumerated()), id: \.element.id) { index, segment in
+                SegmentRow(
+                    segment: segment,
+                    distanceUnit: settings.distanceUnit,
+                    canMoveUp: index > 0,
+                    canMoveDown: index < segments.count - 1,
+                    onTap: { beginEditingSegment(segment) },
+                    onDelete: { deleteSegment(segment) },
+                    onMoveUp: { moveSegment(at: index, direction: -1) },
+                    onMoveDown: { moveSegment(at: index, direction: 1) }
+                )
+            }
+
+            Button {
+                addSegment()
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                    Text("Add Distance")
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                }
+                .foregroundStyle(settings.primaryAccentColor)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(settings.primaryAccentColor.opacity(0.5), lineWidth: 1.5)
+                )
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
@@ -133,40 +175,7 @@ struct PreStartView: View {
                 }
 
                 if settings.trackingMode == .distanceDistance {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Intervals")
-                            .font(.caption.bold())
-                            .foregroundStyle(.white.opacity(0.72))
-                            .padding(.horizontal, 8)
-
-                        ForEach(segments) { segment in
-                            SegmentRow(
-                                segment: segment,
-                                distanceUnit: settings.distanceUnit,
-                                onTap: { beginEditingSegment(segment) },
-                                onDelete: { deleteSegment(segment) }
-                            )
-                        }
-
-                        Button {
-                            addSegment()
-                        } label: {
-                            HStack(spacing: 6) {
-                                Image(systemName: "plus.circle.fill")
-                                    .font(.system(size: 16, weight: .semibold))
-                                Text("Add Distance")
-                                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                            }
-                            .foregroundStyle(settings.primaryAccentColor)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 10)
-                            .background(
-                                RoundedRectangle(cornerRadius: 16, style: .continuous)
-                                    .stroke(settings.primaryAccentColor.opacity(0.5), lineWidth: 1.5)
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
+                    intervalsSection
                 }
 
                 Text(L10n.settings)
@@ -306,6 +315,15 @@ struct PreStartView: View {
         persistSegments()
     }
 
+    private func moveSegment(at index: Int, direction: Int) {
+        let newIndex = index + direction
+        guard newIndex >= 0, newIndex < segments.count else { return }
+        withAnimation {
+            segments.swapAt(index, newIndex)
+        }
+        persistSegments()
+    }
+
     private func beginEditingSegment(_ segment: DistanceSegment) {
         editingSegmentID = segment.id
         let displayDist: Double
@@ -348,30 +366,50 @@ struct PreStartView: View {
 private struct SegmentRow: View {
     let segment: DistanceSegment
     let distanceUnit: DistanceUnit
+    let canMoveUp: Bool
+    let canMoveDown: Bool
     let onTap: () -> Void
     let onDelete: () -> Void
+    let onMoveUp: () -> Void
+    let onMoveDown: () -> Void
 
     private var distanceDisplay: String {
         Formatters.distanceString(meters: segment.distanceMeters, unit: distanceUnit)
     }
 
-    private var repeatDisplay: String {
-        if let count = segment.repeatCount {
-            return "×\(count)"
-        }
-        return "×∞"
-    }
-
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 10) {
-                VStack(alignment: .leading, spacing: 2) {
+            HStack(spacing: 8) {
+                VStack(spacing: 0) {
+                    Button { onMoveUp() } label: {
+                        Image(systemName: "chevron.up")
+                            .font(.system(size: 10, weight: .bold))
+                            .frame(width: 24, height: 18)
+                    }
+                    .buttonStyle(.plain)
+                    .opacity(canMoveUp ? 0.5 : 0.15)
+                    .disabled(!canMoveUp)
+
+                    Button { onMoveDown() } label: {
+                        Image(systemName: "chevron.down")
+                            .font(.system(size: 10, weight: .bold))
+                            .frame(width: 24, height: 18)
+                    }
+                    .buttonStyle(.plain)
+                    .opacity(canMoveDown ? 0.5 : 0.15)
+                    .disabled(!canMoveDown)
+                }
+                .foregroundStyle(.white)
+
+                HStack(spacing: 6) {
                     Text(distanceDisplay)
                         .font(.system(size: 18, weight: .semibold, design: .rounded))
                         .foregroundStyle(.white)
-                    Text(repeatDisplay)
-                        .font(.system(size: 14, weight: .medium, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.6))
+                    if let count = segment.repeatCount {
+                        Text("×\(count)")
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.6))
+                    }
                 }
 
                 Spacer(minLength: 8)

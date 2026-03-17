@@ -277,25 +277,19 @@ struct ActiveSessionView: View {
         .fullScreenCover(isPresented: Binding(
             get: { lapEditorState != nil },
             set: { presented in
-                if !presented, let lapEditorState {
-                    saveLapEditor(lapEditorState)
-                } else if !presented {
+                if !presented {
                     lapEditorState = nil
                 }
             }
         )) {
             if let lapEditorState {
                 LapEditorScreen(
-                    editor: Binding(
-                        get: { lapEditorState },
-                        set: { self.lapEditorState = $0 }
-                    ),
+                    editor: lapEditorState,
                     distanceUnit: settings.distanceUnit,
                     accentColor: primaryColor,
-                    onClose: {
-                        if let state = lapEditorState {
-                            saveLapEditor(state)
-                        }
+                    onDismiss: { finalState in
+                        saveLapEditor(finalState)
+                        self.lapEditorState = nil
                     },
                     onDelete: { editor in
                         workoutController.deleteLap(id: editor.id)
@@ -570,11 +564,25 @@ struct LapCardView: View {
 }
 
 private struct LapEditorScreen: View {
-    @Binding var editor: LapEditorState
+    let editor: LapEditorState
     let distanceUnit: DistanceUnit
     let accentColor: Color
-    let onClose: () -> Void
+    let onDismiss: (LapEditorState) -> Void
     let onDelete: (LapEditorState) -> Void
+
+    @State private var lapType: LapType
+    @State private var distanceText: String
+    @State private var didDelete = false
+
+    init(editor: LapEditorState, distanceUnit: DistanceUnit, accentColor: Color, onDismiss: @escaping (LapEditorState) -> Void, onDelete: @escaping (LapEditorState) -> Void) {
+        self.editor = editor
+        self.distanceUnit = distanceUnit
+        self.accentColor = accentColor
+        self.onDismiss = onDismiss
+        self.onDelete = onDelete
+        _lapType = State(initialValue: editor.lapType)
+        _distanceText = State(initialValue: editor.distanceText)
+    }
 
     private var label: String {
         switch distanceUnit {
@@ -591,31 +599,19 @@ private struct LapEditorScreen: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
-                    HStack(spacing: 8) {
-                        Text("Edit Lap")
-                            .font(.headline.weight(.semibold))
-                            .foregroundStyle(.white)
-
-                        Spacer(minLength: 8)
-
-                        Button {
-                            onClose()
-                        } label: {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 15, weight: .bold))
-                        }
-                        .buttonStyle(.plain)
-                    }
+                    Text("Edit Lap")
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(.white)
 
                     HStack(spacing: 8) {
                         lapTypeButton(title: L10n.activity, type: .active)
                         lapTypeButton(title: L10n.restLap, type: .rest)
                     }
 
-                    if editor.lapType == .active {
+                    if lapType == .active {
                         DistanceInputView(
                             label: label,
-                            text: $editor.distanceText
+                            text: $distanceText
                         )
                         .frame(maxWidth: .infinity)
                     } else {
@@ -628,7 +624,8 @@ private struct LapEditorScreen: View {
                     }
 
                     Button(L10n.deleteLap, role: .destructive) {
-                        onDelete(editor)
+                        didDelete = true
+                        onDelete(currentState)
                     }
                     .frame(maxWidth: .infinity)
                     .foregroundStyle(.red)
@@ -638,14 +635,23 @@ private struct LapEditorScreen: View {
                 .padding(.vertical, 12)
             }
         }
+        .onDisappear {
+            if !didDelete {
+                onDismiss(currentState)
+            }
+        }
+    }
+
+    private var currentState: LapEditorState {
+        LapEditorState(id: editor.id, lapType: lapType, distanceText: distanceText)
     }
 
     @ViewBuilder
     private func lapTypeButton(title: String, type: LapType) -> some View {
         Button {
-            editor.lapType = type
-            if type == .active && editor.distanceText.isEmpty {
-                editor.distanceText = defaultDistanceText
+            lapType = type
+            if type == .active && distanceText.isEmpty {
+                distanceText = defaultDistanceText
             }
         } label: {
             Text(title)
@@ -655,12 +661,12 @@ private struct LapEditorScreen: View {
                 .padding(.vertical, 10)
                 .background(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(editor.lapType == type ? accentColor.opacity(0.2) : Color.white.opacity(0.08))
+                        .fill(lapType == type ? accentColor.opacity(0.2) : Color.white.opacity(0.08))
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: 16, style: .continuous)
                         .stroke(
-                            editor.lapType == type ? accentColor.opacity(0.4) : Color.white.opacity(0.12),
+                            lapType == type ? accentColor.opacity(0.4) : Color.white.opacity(0.12),
                             lineWidth: 1.5
                         )
                 )

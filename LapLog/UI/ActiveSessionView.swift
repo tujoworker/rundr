@@ -302,7 +302,6 @@ struct ActiveSessionView: View {
                 )
             }
         }
-        .tint(primaryColor)
         .onAppear {
             lastAnimatedLapCount = workoutController.completedLaps.count
         }

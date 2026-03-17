@@ -291,7 +291,18 @@ struct PreStartView: View {
     }
 
     private func persistSegments() {
+        segments = normalizedSegments(segments)
         settings.distanceSegments = segments
+    }
+
+    private func normalizedSegments(_ input: [DistanceSegment]) -> [DistanceSegment] {
+        guard input.count > 1 else { return input }
+
+        var normalized = input
+        for index in normalized.indices.dropLast() where normalized[index].repeatCount == nil {
+            normalized[index].repeatCount = 1
+        }
+        return normalized
     }
 
     private func startSession() {

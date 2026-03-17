@@ -13,17 +13,17 @@ struct HomeView: View {
         List {
             Section {
                 Button(action: onGetReady) {
-                    Text(L10n.getReady)
+                    Text("Get Ready")
                         .font(.title3.bold())
                         .frame(maxWidth: .infinity, minHeight: 50)
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(settings.primaryAccentColor)
+                .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: 18)
+                .buttonStyle(.plain)
                 .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 18, trailing: 12))
                 .listRowBackground(Color.clear)
 
                 if viewModel.recentSessions.isEmpty {
-                    Text(L10n.noSessionsYet)
+                    Text("No sessions yet")
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 24)
@@ -41,7 +41,7 @@ struct HomeView: View {
                                 persistence.deleteSession(session)
                                 viewModel.loadRecent(persistence: persistence)
                             } label: {
-                                Label(L10n.delete, systemImage: "trash")
+                                Label("Delete", systemImage: "trash")
                             }
                         }
                         .listRowInsets(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4))
@@ -49,7 +49,7 @@ struct HomeView: View {
                     }
 
                     if viewModel.hasMoreSessions {
-                        Button(L10n.loadMore) {
+                        Button("Load More") {
                             viewModel.loadMore(persistence: persistence)
                         }
                         .font(.footnote)
@@ -80,9 +80,9 @@ struct SessionRowView: View {
             Text(session.startedAt, style: .date)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
-            Text(L10n.lapsSummary(session.totalLaps, Formatters.paceString(distanceMeters: session.totalDistanceMeters, durationSeconds: session.durationSeconds, unit: settings.distanceUnit)))
+            Text("Laps: \(session.totalLaps) • \(Formatters.paceString(distanceMeters: session.totalDistanceMeters, durationSeconds: session.durationSeconds, unit: settings.distanceUnit))")
                 .font(.caption)
-            Text(L10n.timeSummary(Formatters.timeString(from: session.durationSeconds), Formatters.distanceString(meters: session.totalDistanceMeters, unit: settings.distanceUnit)))
+            Text("Time: \(Formatters.timeString(from: session.durationSeconds)) • \(Formatters.distanceString(meters: session.totalDistanceMeters, unit: settings.distanceUnit))")
                 .font(.caption)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

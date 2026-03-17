@@ -14,12 +14,7 @@ struct ActiveSessionView: View {
     @State private var isTimerGlowActive = false
     @State private var isLapHistoryDragging = false
     @State private var lastAnimatedLapCount = 0
-    @State private var lapToDelete: UUID?
-    @State private var isDeleteLapDialogPresented = false
-    @State private var lapToEdit: UUID?
-    @State private var isLapEditDialogPresented = false
-    @State private var isManualDistanceEntryPresented = false
-    @State private var manualDistanceText: String = ""
+    @State private var lapEditorState: LapEditorState?
     @State private var isRestPulseOn = false
     @State private var isPausePulseOn = false
 
@@ -33,8 +28,8 @@ struct ActiveSessionView: View {
 
     private func timerTopLabel(_ base: String) -> String {
         guard !base.isEmpty else { return base }
-        guard let totalIntervals = workoutController.totalPlannedIntervals else { return base }
-        return "\(base) · ×\(totalIntervals)"
+        guard let remainingIntervals = workoutController.remainingPlannedIntervals else { return base }
+        return "\(base) · \(remainingIntervals) left"
     }
 
     private var timerTopLabel: String {
@@ -86,7 +81,7 @@ struct ActiveSessionView: View {
                     .font(.system(size: 15, weight: .semibold, design: .rounded))
                     .foregroundStyle(.white.opacity(0.82))
                     .opacity(timerTopLabel.isEmpty ? 0 : 1)
-                    .offset(y: -19)
+                    .offset(y: -21)
             }
             .scaleEffect(isTimerBounceActive ? 1.11 : 1)
             .brightness(isTimerGlowActive ? 0.3 : 0)
@@ -162,8 +157,7 @@ struct ActiveSessionView: View {
                                     LapCardView(lap: lap, trackingMode: workoutController.trackingMode, distanceUnit: settings.distanceUnit, isLatest: lap.id == workoutController.completedLaps.last?.id)
                                         .contentShape(Rectangle())
                                         .onTapGesture {
-                                            lapToEdit = lap.id
-                                            isLapEditDialogPresented = true
+                                            presentLapEditor(for: lap)
                                         }
                                         .id(lap.id)
                                 }
@@ -278,62 +272,39 @@ struct ActiveSessionView: View {
             }
             Button("Cancel", role: .cancel) {}
         }
-        .confirmationDialog("Delete Lap", isPresented: $isDeleteLapDialogPresented, titleVisibility: .visible) {
-            Button("Delete", role: .destructive) {
-                if let id = lapToDelete {
-                    workoutController.deleteLap(id: id)
+        .fullScreenCover(isPresented: Binding(
+            get: { lapEditorState != nil },
+            set: { presented in
+                if !presented {
+                    lapEditorState = nil
                 }
-                lapToDelete = nil
             }
-            Button("Cancel", role: .cancel) {
-                lapToDelete = nil
-            }
-        } message: {
-            Text("Remove this lap from the session?")
-        }
-        .confirmationDialog("Lap Distance", isPresented: $isLapEditDialogPresented, titleVisibility: .visible) {
-            ForEach(workoutController.availableDistances, id: \.self) { dist in
-                Button(Formatters.distanceString(meters: dist, unit: settings.distanceUnit)) {
-                    if let id = lapToEdit {
-                        workoutController.changeLapDistance(id: id, newDistanceMeters: dist)
+        )) {
+            if let lapEditorState {
+                LapEditorScreen(
+                    editor: Binding(
+                        get: { lapEditorState },
+                        set: { self.lapEditorState = $0 }
+                    ),
+                    distanceUnit: settings.distanceUnit,
+                    accentColor: primaryColor,
+                    onCancel: {
+                        self.lapEditorState = nil
+                    },
+                    onSave: { editor in
+                        workoutController.updateLap(
+                            id: editor.id,
+                            newType: editor.lapType,
+                            newDistanceMeters: meters(from: editor.distanceText)
+                        )
+                        self.lapEditorState = nil
+                    },
+                    onDelete: { editor in
+                        workoutController.deleteLap(id: editor.id)
+                        self.lapEditorState = nil
                     }
-                    lapToEdit = nil
-                }
+                )
             }
-            Button("Enter Distance…") {
-                manualDistanceText = ""
-                isManualDistanceEntryPresented = true
-            }
-            Button("Delete Lap", role: .destructive) {
-                if let id = lapToEdit {
-                    workoutController.deleteLap(id: id)
-                }
-                lapToEdit = nil
-            }
-            Button("Cancel", role: .cancel) {
-                lapToEdit = nil
-            }
-        }
-        .sheet(isPresented: $isManualDistanceEntryPresented) {
-            ManualDistanceEntrySheet(
-                distanceText: $manualDistanceText,
-                distanceUnit: settings.distanceUnit,
-                onDone: {
-                    if let id = lapToEdit {
-                        let value = Double(manualDistanceText) ?? 0
-                        if value > 0 {
-                            let meters: Double
-                            switch settings.distanceUnit {
-                            case .km: meters = value
-                            case .miles: meters = value / 3.28084
-                            }
-                            workoutController.changeLapDistance(id: id, newDistanceMeters: meters)
-                        }
-                    }
-                    lapToEdit = nil
-                    isManualDistanceEntryPresented = false
-                }
-            )
         }
         .tint(primaryColor)
         .onAppear {
@@ -365,6 +336,39 @@ struct ActiveSessionView: View {
     private func handleLapTap() {
         flashTapBorder()
         workoutController.markLap()
+    }
+
+    private func presentLapEditor(for lap: Lap) {
+        lapEditorState = LapEditorState(
+            id: lap.id,
+            lapType: lap.lapType,
+            distanceText: distanceText(from: lap.distanceMeters)
+        )
+    }
+
+    private func distanceText(from meters: Double) -> String {
+        let displayValue: Double
+        switch settings.distanceUnit {
+        case .km:
+            displayValue = meters
+        case .miles:
+            displayValue = meters * 3.28084
+        }
+
+        guard displayValue > 0 else { return "" }
+        return displayValue == floor(displayValue)
+            ? String(format: "%.0f", displayValue)
+            : String(format: "%g", displayValue)
+    }
+
+    private func meters(from distanceText: String) -> Double {
+        let value = Double(distanceText) ?? 0
+        switch settings.distanceUnit {
+        case .km:
+            return value
+        case .miles:
+            return value / 3.28084
+        }
     }
 
     private func flashTapBorder() {
@@ -435,6 +439,12 @@ struct ActiveSessionView: View {
         .buttonStyle(.plain)
         .opacity(isPaused ? 0.72 : 1)
     }
+}
+
+private struct LapEditorState: Identifiable {
+    let id: UUID
+    var lapType: LapType
+    var distanceText: String
 }
 
 private let latestCardHeight: CGFloat = 54
@@ -548,10 +558,13 @@ struct LapCardView: View {
     }
 }
 
-private struct ManualDistanceEntrySheet: View {
-    @Binding var distanceText: String
+private struct LapEditorScreen: View {
+    @Binding var editor: LapEditorState
     let distanceUnit: DistanceUnit
-    let onDone: () -> Void
+    let accentColor: Color
+    let onCancel: () -> Void
+    let onSave: (LapEditorState) -> Void
+    let onDelete: (LapEditorState) -> Void
 
     private var label: String {
         switch distanceUnit {
@@ -568,40 +581,99 @@ private struct ManualDistanceEntrySheet: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                Text(label)
-                    .font(.caption.bold())
-                    .foregroundStyle(.white.opacity(0.72))
-                    .padding(.horizontal, 4)
+        ZStack {
+            AppScreenBackground(accentColor: accentColor)
 
-                TextField(placeholder, text: $distanceText)
-                    .multilineTextAlignment(.leading)
-                    .font(.system(size: 20, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 14)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Edit Lap")
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(.white)
+
+                    HStack(spacing: 8) {
+                        lapTypeButton(title: L10n.activity, type: .active)
+                        lapTypeButton(title: L10n.restLap, type: .rest)
+                    }
+
+                    if editor.lapType == .active {
+                        DistanceInputView(
+                            label: label,
+                            placeholder: placeholder,
+                            text: $editor.distanceText
+                        )
+                        .frame(maxWidth: .infinity)
+                    } else {
+                        Text("This lap will be treated as rest/pause.")
+                            .font(.system(size: 16, weight: .medium, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.8))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 12)
+                    }
+
+                    Button("Done") {
+                        onSave(editor)
+                    }
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .accentRoundedButtonChrome(accentColor: accentColor, cornerRadius: 18)
+                    .buttonStyle(.plain)
+
+                    Button(L10n.deleteLap, role: .destructive) {
+                        onDelete(editor)
+                    }
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(
                         RoundedRectangle(cornerRadius: 18, style: .continuous)
-                            .fill(Color.white.opacity(0.12))
+                            .fill(Color.red.opacity(0.2))
                     )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .stroke(Color.red.opacity(0.45), lineWidth: 1.5)
+                    )
+                    .foregroundStyle(.white)
+                    .buttonStyle(.plain)
 
-                Button("Done") {
-                    onDone()
+                    Button(L10n.cancel) {
+                        onCancel()
+                    }
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.75))
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 2)
                 }
-                .font(.system(size: 16, weight: .bold, design: .rounded))
-                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 12)
                 .padding(.vertical, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(Color.white.opacity(0.2))
-                )
-                .foregroundStyle(.white)
-                .buttonStyle(.plain)
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 12)
         }
+    }
+
+    @ViewBuilder
+    private func lapTypeButton(title: String, type: LapType) -> some View {
+        Button {
+            editor.lapType = type
+        } label: {
+            Text(title)
+                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(editor.lapType == type ? accentColor.opacity(0.2) : Color.white.opacity(0.08))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(
+                            editor.lapType == type ? accentColor.opacity(0.4) : Color.white.opacity(0.12),
+                            lineWidth: 1.5
+                        )
+                )
+        }
+        .buttonStyle(.plain)
     }
 }
 
@@ -612,19 +684,10 @@ private struct WorkoutControlIcon: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(
-                    LinearGradient(
-                        colors: [baseColor.opacity(0.98), baseColor.opacity(0.78)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .fill(baseColor.opacity(0.2))
 
             Circle()
-                .stroke(Color.white.opacity(0.18), lineWidth: 1)
-
-            Circle()
-                .stroke(Color.black.opacity(0.35), lineWidth: 3)
+                .stroke(baseColor.opacity(0.4), lineWidth: 3)
                 .padding(1.5)
         }
         .overlay {

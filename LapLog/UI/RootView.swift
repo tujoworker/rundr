@@ -16,6 +16,30 @@ struct AppScreenBackground: View {
     }
 }
 
+struct AccentRoundedButtonChrome: ViewModifier {
+    let accentColor: Color
+    var cornerRadius: CGFloat = 18
+
+    func body(content: Content) -> some View {
+        content
+            .foregroundStyle(.white)
+            .background(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(accentColor.opacity(0.2))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .stroke(accentColor.opacity(0.4), lineWidth: 1.5)
+            )
+    }
+}
+
+extension View {
+    func accentRoundedButtonChrome(accentColor: Color, cornerRadius: CGFloat = 18) -> some View {
+        modifier(AccentRoundedButtonChrome(accentColor: accentColor, cornerRadius: cornerRadius))
+    }
+}
+
 struct RootView: View {
     @EnvironmentObject var coordinator: NavigationCoordinator
     @EnvironmentObject var persistence: PersistenceManager
@@ -135,6 +159,7 @@ private struct HealthAccessPromptView: View {
                 Button(action: onRequestAccess) {
                     if isRequestingAccess {
                         ProgressView()
+                            .tint(.white)
                             .frame(maxWidth: .infinity, minHeight: 50)
                     } else {
                         Text("Health Access")
@@ -142,8 +167,8 @@ private struct HealthAccessPromptView: View {
                             .frame(maxWidth: .infinity, minHeight: 50)
                     }
                 }
-                .buttonStyle(.borderedProminent)
-                .tint(accentColor)
+                .accentRoundedButtonChrome(accentColor: accentColor, cornerRadius: 18)
+                .buttonStyle(.plain)
                 .disabled(isRequestingAccess)
 
                 Button("Not now", action: onContinueWithoutHealth)

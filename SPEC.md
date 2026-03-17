@@ -224,6 +224,7 @@ When `Distance` mode is selected, show an **Intervals** section first:
 - default: one segment of `400` meters with unlimited (∞) repeats
 - user can add new segments below the existing ones
 - user can tap a segment to open **SegmentEditSheet** to edit distance and repeat count
+- when a new segment is added, any earlier segment that was still unlimited must automatically become `×1` so later segments are reachable
 - SegmentEditSheet: distance via TextField (manual entry) and repeat count via +/- stepper; use `.textFieldStyle(.plain)` and `.scrollContentBackground(.hidden)` to avoid double backgrounds
 - user can delete segments (at least one must remain)
 - validate each distance as a positive number greater than 0
@@ -278,6 +279,7 @@ Purpose: live workout UI while running.
 - Use monospaced digits for stability
 - Example: `08:43`
 - In distance mode, show the **current target distance** above the timer (from the active segment in the interval plan)
+- when the interval plan has a finite total, show the **remaining planned laps** beside that label, e.g. `400 m · 5 left`
 - During rest/pause, show "Pause Mode" above the timer instead
 
 #### Lap cards
@@ -295,10 +297,12 @@ Behavior:
 - newest completed lap is appended to the right
 - user can scroll horizontally through previous laps
 - cards must remain readable during motion
-- tapping a card opens a dialog to change the lap's distance:
-  - quick-pick from all unique distances defined in the interval plan
-  - option to enter a custom distance manually
-  - option to delete the lap
+- tapping a card opens a dedicated lap editor screen
+- the lap editor must support:
+  - changing the lap type between `Activity` and `Rest`
+  - changing the lap distance with the same +/- stepper style used in the interval editor
+  - deleting the lap
+- editing or deleting a lap must recalculate lap numbering, cumulative distance, and interval-plan progress so the session state stays consistent
 
 #### Top-left button state machine
 
@@ -468,6 +472,7 @@ Additional rules:
 - While in rest state, pressing the **Resume/Lap** button resumes active tracking and creates a new lap.
 - New laps created while in rest state are stored with `lapType = rest`.
 - The heart rate display remains visible throughout all end-flow states.
+- when a finite interval plan reaches `0 left` and there is no configured timed rest, the workout should automatically enter rest/pause mode while still allowing the user to continue creating additional laps manually
 
 ---
 

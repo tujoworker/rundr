@@ -110,6 +110,7 @@ struct DistanceInputView: View {
                     commitEditorText()
                 }
             )
+            .toolbar(.hidden, for: .navigationBar)
         }
     }
 
@@ -144,50 +145,72 @@ private struct DistanceInputEditorScreen: View {
     @Binding var text: String
     let onDone: () -> Void
 
+    private let headerContentHeight: CGFloat = 8
+
     var body: some View {
-        ZStack {
-            AppScreenBackground(accentColor: accentColor)
+        GeometryReader { geometry in
+            let topInset = geometry.safeAreaInsets.top
 
-            ScrollView {
-                VStack(spacing: 10) {
-                    Text(title)
-                        .font(.headline.weight(.semibold))
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+            ZStack(alignment: .top) {
+                AppScreenBackground(accentColor: accentColor)
 
-                    Text(text)
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
-                        .monospacedDigit()
-                        .minimumScaleFactor(0.55)
-                        .lineLimit(1)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                .fill(Color.white.opacity(0.12))
-                        )
+                VStack(spacing: 0) {
+                    ZStack(alignment: .bottomLeading) {
+                        Rectangle()
+                            .fill(.ultraThinMaterial)
 
-                    VStack(spacing: 6) {
-                        ForEach(0..<keypadRows.count, id: \.self) { rowIndex in
-                            HStack(spacing: 6) {
-                                ForEach(keypadRows[rowIndex], id: \.self) { key in
-                                    KeypadButton(key: key) {
-                                        tapKey(key)
+                        Color.black.opacity(0.18)
+
+                        accentColor.opacity(0.12)
+
+                        Text(text.isEmpty ? " " : text)
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .foregroundStyle(.white)
+                            .monospacedDigit()
+                            .minimumScaleFactor(0.7)
+                            .lineLimit(1)
+                            .padding(.horizontal, 12)
+                            .padding(.bottom, 6)
+                            .offset(y: -8)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .frame(height: topInset + headerContentHeight)
+                    .overlay(alignment: .bottom) {
+                        Rectangle()
+                            .fill(accentColor.opacity(0.6))
+                            .frame(height: 2)
+                    }
+
+                    ScrollView {
+                        VStack(spacing: 10) {
+                            Text(title)
+                                .font(.headline.weight(.semibold))
+                                .foregroundStyle(.white)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                            VStack(spacing: 6) {
+                                ForEach(0..<keypadRows.count, id: \.self) { rowIndex in
+                                    HStack(spacing: 6) {
+                                        ForEach(keypadRows[rowIndex], id: \.self) { key in
+                                            KeypadButton(key: key) {
+                                                tapKey(key)
+                                            }
+                                        }
                                     }
                                 }
                             }
-                        }
-                    }
 
-                    Button("Done") {
-                        onDone()
+                            Button("Done") {
+                                onDone()
+                            }
+                            .padding(.top, 4)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 12)
                     }
-                    .padding(.top, 4)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 12)
             }
+            .ignoresSafeArea(edges: .top)
         }
     }
 

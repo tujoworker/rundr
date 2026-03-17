@@ -3,21 +3,42 @@ import SwiftUI
 struct SessionDetailView: View {
     let session: Session
     @EnvironmentObject var settings: SettingsStore
+    @EnvironmentObject var persistence: PersistenceManager
+    @Environment(\.dismiss) private var dismiss
 
     private var sortedLaps: [Lap] {
         session.laps.sorted { $0.startedAt < $1.startedAt }
     }
 
+    private var headerTitle: String {
+        session.startedAt.formatted(date: .abbreviated, time: .shortened)
+    }
+
     var body: some View {
         ScrollView {
-            VStack(spacing: 4) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(headerTitle)
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 4)
+                    .padding(.bottom, 4)
+
                 ForEach(sortedLaps, id: \.id) { lap in
                     LapRowView(lap: lap, distanceUnit: settings.distanceUnit)
                 }
+
+                Button(String(localized: "Delete Session", comment: "Button to delete a saved session"), role: .destructive) {
+                    persistence.deleteSession(session)
+                    dismiss()
+                }
+                .font(.system(size: 16, weight: .semibold, design: .rounded))
+                .frame(maxWidth: .infinity)
+                .padding(.top, 10)
+                .padding(.horizontal, 4)
             }
             .padding(.vertical, 4)
         }
-        .navigationTitle(L10n.session)
         .background(Color.clear)
     }
 }

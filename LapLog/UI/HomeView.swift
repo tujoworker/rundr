@@ -53,10 +53,16 @@ struct HomeView: View {
                     }
 
                     if viewModel.hasMoreSessions {
-                        Button("Load More") {
+                        Button {
                             viewModel.loadMore(persistence: persistence)
+                        } label: {
+                            Text("Load More")
+                                .font(.footnote.weight(.semibold))
+                                .frame(maxWidth: .infinity, minHeight: 34)
                         }
-                        .font(.footnote)
+                        .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: 999)
+                        .buttonStyle(.plain)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
                         .listRowBackground(Color.clear)
                     }
                 }
@@ -79,11 +85,15 @@ struct SessionRowView: View {
     let session: Session
     @EnvironmentObject var settings: SettingsStore
 
+    private var sessionTitle: String {
+        session.startedAt.formatted(date: .abbreviated, time: .shortened)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(session.startedAt, style: .date)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+            Text(sessionTitle)
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(.white)
             Text("Laps: \(session.totalLaps) • \(Formatters.paceString(distanceMeters: session.totalDistanceMeters, durationSeconds: session.durationSeconds, unit: settings.distanceUnit))")
                 .font(.caption)
             Text("Time: \(Formatters.timeString(from: session.durationSeconds)) • \(Formatters.distanceString(meters: session.totalDistanceMeters, unit: settings.distanceUnit))")

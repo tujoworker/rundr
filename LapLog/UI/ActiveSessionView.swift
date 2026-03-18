@@ -9,8 +9,6 @@ struct ActiveSessionView: View {
 
     var onSessionEnded: () -> Void
     @State private var isTapFlashVisible = false
-    @State private var isSessionMenuPresented = false
-    @State private var sessionMenuButtonLockedUntil = Date.distantPast
     @State private var isTimerBounceActive = false
     @State private var isTimerGlowActive = false
     @State private var isLapHistoryDragging = false
@@ -128,7 +126,6 @@ struct ActiveSessionView: View {
     private let menuButtonExtraOffset: CGFloat = 0
     private let pauseButtonExtraOffset: CGFloat = 0
     private let lapHistoryContainerTrailingPadding: CGFloat = 12
-    private let sessionMenuReopenDelay: TimeInterval = 0.35
 
     var body: some View {
         ZStack {
@@ -151,8 +148,19 @@ struct ActiveSessionView: View {
                 ZStack(alignment: .top) {
                     HStack(alignment: .top) {
                         if showsSessionMenu {
-                            sessionMenuButton
-                                .offset(y: topControlOffset + menuButtonExtraOffset)
+                            SessionMenuButton(
+                                isResting: isResting,
+                                isWorkoutPaused: isWorkoutPaused,
+                                primaryColor: primaryColor,
+                                onCancelRest: { workoutController.cancelRest() },
+                                onResume: { workoutController.resumeSession() },
+                                onPause: { workoutController.pauseSession() },
+                                onEnd: {
+                                    workoutController.prepareForSessionEnd()
+                                    Task { await endSession() }
+                                }
+                            )
+                            .offset(y: topControlOffset + menuButtonExtraOffset)
                         } else {
                             pauseButton
                                 .offset(y: topControlOffset + pauseButtonExtraOffset)
@@ -288,40 +296,6 @@ struct ActiveSessionView: View {
             } else {
                 withAnimation(nil) { isRestPulseOn = false }
             }
-        }
-        .onChange(of: isSessionMenuPresented) { wasPresented, isPresented in
-            if wasPresented != isPresented {
-                sessionMenuButtonLockedUntil = Date().addingTimeInterval(sessionMenuReopenDelay)
-            }
-        }
-        .confirmationDialog("", isPresented: $isSessionMenuPresented, titleVisibility: .hidden) {
-            if isResting {
-                Button {
-                    workoutController.cancelRest()
-                } label: {
-                    Label(L10n.endRest, systemImage: "play.circle")
-                }
-            }
-            if isWorkoutPaused {
-                Button {
-                    workoutController.resumeSession()
-                } label: {
-                    Label(L10n.resume, systemImage: "play.circle")
-                }
-            } else if isResting {
-                Button {
-                    workoutController.pauseSession()
-                } label: {
-                    Label(L10n.pause, systemImage: "pause.circle")
-                }
-            }
-            Button(role: .destructive) {
-                workoutController.prepareForSessionEnd()
-                Task { await endSession() }
-            } label: {
-                Label(L10n.endSession, systemImage: "stop.circle")
-            }
-            Button("Cancel", role: .cancel) {}
         }
         .fullScreenCover(isPresented: Binding(
             get: { lapEditorState != nil },
@@ -470,21 +444,6 @@ struct ActiveSessionView: View {
                 }
             }
         }
-    }
-
-    private var sessionMenuButton: some View {
-        Button {
-            let now = Date()
-            guard now >= sessionMenuButtonLockedUntil else { return }
-            sessionMenuButtonLockedUntil = now.addingTimeInterval(sessionMenuReopenDelay)
-            isSessionMenuPresented = true
-        } label: {
-            WorkoutControlIcon(
-                systemName: "ellipsis",
-                baseColor: primaryColor
-            )
-        }
-        .buttonStyle(.plain)
     }
 
     private var pauseButton: some View {
@@ -752,5 +711,59 @@ private struct WorkoutControlIcon: View {
         }
         .frame(width: 46, height: 46)
         .shadow(color: baseColor.opacity(0.28), radius: 6, y: 2)
+    }
+}
+
+/// Isolated view so the confirmationDialog is not re-evaluated
+/// when the parent redraws due to timer or animation updates.
+private struct SessionMenuButton: View {
+    let isResting: Bool
+    let isWorkoutPaused: Bool
+    let primaryColor: Color
+    let onCancelRest: () -> Void
+    let onResume: () -> Void
+    let onPause: () -> Void
+    let onEnd: () -> Void
+
+    @State private var isPresented = false
+
+    var body: some View {
+        Button {
+            isPresented = true
+        } label: {
+            WorkoutControlIcon(
+                systemName: "ellipsis",
+                baseColor: primaryColor
+            )
+        }
+        .buttonStyle(.plain)
+        .confirmationDialog("", isPresented: $isPresented, titleVisibility: .hidden) {
+            if isResting {
+                Button {
+                    onCancelRest()
+                } label: {
+                    Label(L10n.endRest, systemImage: "play.circle")
+                }
+            }
+            if isWorkoutPaused {
+                Button {
+                    onResume()
+                } label: {
+                    Label(L10n.resume, systemImage: "play.circle")
+                }
+            } else if isResting {
+                Button {
+                    onPause()
+                } label: {
+                    Label(L10n.pause, systemImage: "pause.circle")
+                }
+            }
+            Button(role: .destructive) {
+                onEnd()
+            } label: {
+                Label(L10n.endSession, systemImage: "stop.circle")
+            }
+            Button("Cancel", role: .cancel) {}
+        }
     }
 }

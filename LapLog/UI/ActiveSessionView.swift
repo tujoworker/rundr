@@ -258,11 +258,11 @@ struct ActiveSessionView: View {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             if workoutController.completedLaps.isEmpty {
-                                PlaceholderLapCardView()
+                                PlaceholderLapCardView(accentColor: primaryColor)
                                     .offset(x: -8)
                             } else {
                                 ForEach(workoutController.completedLaps, id: \.id) { lap in
-                                    LapCardView(lap: lap, trackingMode: workoutController.trackingMode, distanceUnit: settings.distanceUnit, isLatest: lap.id == workoutController.completedLaps.last?.id)
+                                    LapCardView(lap: lap, trackingMode: workoutController.trackingMode, distanceUnit: settings.distanceUnit, accentColor: primaryColor, isLatest: lap.id == workoutController.completedLaps.last?.id)
                                         .contentShape(Rectangle())
                                         .onTapGesture {
                                             presentLapEditor(for: lap)
@@ -536,13 +536,20 @@ private let lapCardTrailingPadding: CGFloat = 14
 private let standardLapCardBackground = Color.white.opacity(0.15)
 
 struct PlaceholderLapCardView: View {
+    var accentColor: Color = .blue
 
     var body: some View {
         HStack(spacing: 6) {
             Text("1")
-                .font(.system(size: 19, weight: .bold, design: .rounded))
+                .font(.system(size: 20, weight: .bold, design: .rounded))
                 .monospacedDigit()
-                .foregroundColor(.white)
+                .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(
+                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+                        .fill(.white)
+                )
             Text("—:——")
                 .font(.system(size: 19, design: .rounded))
                 .monospacedDigit()
@@ -554,12 +561,12 @@ struct PlaceholderLapCardView: View {
         .padding(.bottom, lapCardBottomPadding)
         .padding(.trailing, lapCardTrailingPadding)
         .frame(height: latestCardHeight)
-        .background(standardLapCardBackground)
+        .background(accentColor.opacity(0.1))
         .cornerRadius(14)
         .overlay(
             RoundedRectangle(cornerRadius: 14)
                 .inset(by: 1.5)
-                .stroke(Color.white.opacity(0.78), lineWidth: 3)
+                .stroke(Color.white.opacity(0.1), lineWidth: 2)
         )
     }
 }
@@ -568,6 +575,7 @@ struct LapCardView: View {
     let lap: Lap
     let trackingMode: TrackingMode
     var distanceUnit: DistanceUnit = .km
+    var accentColor: Color = .blue
     var isLatest: Bool = false
 
     private var showsDistance: Bool {
@@ -581,7 +589,7 @@ struct LapCardView: View {
             return Color.white.opacity(0.9)
         }
 
-        return standardLapCardBackground
+        return accentColor.opacity(0.1)
     }
 
     var body: some View {
@@ -593,8 +601,15 @@ struct LapCardView: View {
             } else {
                 HStack(spacing: 6) {
                     Text("\(lap.index)")
-                        .font(.system(size: 19, weight: .bold, design: .rounded))
+                        .font(.system(size: 20, weight: .bold, design: .rounded))
                         .monospacedDigit()
+                        .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(
+                            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                                .fill(.white)
+                        )
                     VStack(alignment: .leading, spacing: 2) {
                         Text(Formatters.compactTimeString(from: lap.durationSeconds))
                             .font(.system(size: 19, design: .rounded))
@@ -634,8 +649,8 @@ struct LapCardView: View {
         .cornerRadius(14)
         .overlay(
             RoundedRectangle(cornerRadius: 14)
-                .inset(by: isLatest && !isRest ? 1.5 : 0)
-                .stroke(Color.white.opacity(0.78), lineWidth: isLatest && !isRest ? 3 : 0)
+                .inset(by: !isRest ? 1 : 0)
+                .stroke(Color.white.opacity(0.1), lineWidth: !isRest ? 2 : 0)
         )
     }
 }

@@ -96,16 +96,94 @@ struct ActiveSessionView: View {
             .blur(radius: isTimerGlowActive ? 3 : 0)
     }
 
+    private var timerHeaderMetricFont: Font {
+        let size: CGFloat = WKInterfaceDevice.current().screenBounds.width >= 205 ? 34 : 28
+        return .system(size: size, weight: .regular, design: .rounded)
+    }
+
+    private var timerHeaderLabelFont: Font {
+        let size: CGFloat = WKInterfaceDevice.current().screenBounds.width >= 205 ? 20 : 16
+        return .system(size: size, weight: .regular, design: .rounded)
+    }
+
+    private var displayedLapCounter: Int {
+        isResting ? max(currentLapNumber - 1, 1) : currentLapNumber
+    }
+
+    private func splitDistanceLabel(_ distance: String) -> (value: String, unit: String?) {
+        let parts = distance.split(separator: " ")
+        guard parts.count > 1 else { return (distance, nil) }
+        return (parts.dropLast().joined(separator: " "), String(parts.last!))
+    }
+
+    @ViewBuilder
+    private var timerStatusLabel: some View {
+        if isWorkoutPaused {
+            Text(L10n.workoutPaused)
+                .font(timerHeaderLabelFont)
+                .foregroundStyle(.white)
+        } else if isResting, let duration = workoutController.restDurationSeconds {
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(L10n.rest)
+                    .font(timerHeaderLabelFont)
+                Text("\(duration)")
+                    .font(timerHeaderMetricFont)
+                    .monospacedDigit()
+                Text(L10n.secondsAbbrev)
+                    .font(timerHeaderLabelFont)
+            }
+            .foregroundStyle(.white)
+        } else if isResting {
+            Text(L10n.restModeStatus)
+                .font(timerHeaderLabelFont)
+                .foregroundStyle(.white)
+        } else if let target = workoutController.currentTargetTimeSeconds {
+            let distance = splitDistanceLabel(
+                Formatters.distanceString(
+                    meters: workoutController.currentTargetDistanceMeters,
+                    unit: settings.distanceUnit
+                )
+            )
+
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(distance.value)
+                    .font(timerHeaderMetricFont)
+                    .monospacedDigit()
+
+                if let unit = distance.unit {
+                    Text(unit)
+                        .font(timerHeaderLabelFont)
+                }
+
+                Text(L10n.targetJoiner)
+                    .font(timerHeaderLabelFont)
+
+                Text(Formatters.compactTimeString(from: target))
+                    .font(timerHeaderMetricFont)
+                    .monospacedDigit()
+
+                Text(L10n.secondsAbbrev)
+                    .font(timerHeaderLabelFont)
+            }
+            .foregroundStyle(.white)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+        } else {
+            Text(timerTopLabel)
+                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                .foregroundStyle(.white.opacity(0.82))
+                .opacity(timerTopLabel.isEmpty ? 0 : 1)
+        }
+    }
+
     @ViewBuilder
     private var timerTopOverlay: some View {
         if hasLapCounterBadge {
             let total = workoutController.totalPlannedIntervals ?? 0
-            let labelFont = Font.system(size: 15, weight: .regular, design: .rounded)
-            let labelColor = Color.white
 
             HStack(spacing: 5) {
                 HStack(alignment: .firstTextBaseline, spacing: 0) {
-                    Text("\(currentLapNumber)")
+                    Text("\(displayedLapCounter)")
                         .font(.system(size: 20, weight: .bold, design: .rounded))
                         .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
                     Text("/\(total)")
@@ -119,26 +197,10 @@ struct ActiveSessionView: View {
                         .fill(.white)
                 )
 
-                if !timerTopLabel.isEmpty {
-                    Text(timerTopLabel)
-                        .font(labelFont)
-                        .foregroundStyle(labelColor)
-                } else if let target = workoutController.currentTargetTimeSeconds {
-                    Text(L10n.targetDisplay(
-                        Formatters.distanceString(meters: workoutController.currentTargetDistanceMeters, unit: settings.distanceUnit),
-                        Formatters.compactTimeString(from: target)
-                    ))
-                    .font(labelFont)
-                    .foregroundStyle(labelColor)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-                }
+                timerStatusLabel
             }
         } else {
-            Text(timerTopLabel)
-                .font(.system(size: 15, weight: .semibold, design: .rounded))
-                .foregroundStyle(.white.opacity(0.82))
-                .opacity(timerTopLabel.isEmpty ? 0 : 1)
+            timerStatusLabel
         }
     }
 

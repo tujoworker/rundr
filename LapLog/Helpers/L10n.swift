@@ -100,6 +100,7 @@ enum L10n {
     static let pace = String(localized: "Pace", comment: "Pace target label")
     static let time = String(localized: "Time", comment: "Time target label")
     static let off = String(localized: "Off", comment: "Target off")
+    static let targetJoiner = String(localized: "in", comment: "Target label join word")
     static func targetDisplay(_ distance: String, _ time: String) -> String {
         String(format: String(localized: "%@ in %@", comment: "Target display: distance in time"), distance, time)
     }

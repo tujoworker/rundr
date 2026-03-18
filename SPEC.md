@@ -122,7 +122,7 @@ Persist the following across app restarts:
 - last selected tracking mode (`gps` or `distanceDistance`)
 - last entered manual distance in meters (legacy, for backward compatibility)
 - distance segments array (JSON-encoded interval plan)
-- pause mode (`manual` or `autoDetect`) — manual: user taps to pause/resume; auto: HealthKit motion events pause/resume
+- rest mode (`manual` or `autoDetect`) — manual: user taps to enter/exit rest; auto: HealthKit motion events enter/exit rest
 - primary accent color (blue, green, yellow, orange, pink, dark) — white was removed; migration maps legacy "white" to blue
 - any future session options
 
@@ -213,7 +213,7 @@ Reached after tapping **Get Ready**.
 
 - Top: large **Start** button.
 - Below: vertically scrollable settings.
-- Settings section order: **Settings** label (with top padding), then **Intervals** (distance segments), then **Mode** (tracking mode, pause mode, unit, color).
+- Settings section order: **Settings** label (with top padding), then **Intervals** (distance segments), then **Mode** (tracking mode, rest mode, unit, color).
 
 #### Setting 1 — Intervals (distance segments)
 
@@ -231,10 +231,10 @@ When `Distance` mode is selected, show an **Intervals** section first:
 - store the full segment plan and restore it on next launch
 - repeat count of `nil` or empty means unlimited
 
-#### Setting 2 — Mode (tracking mode, pause, unit, color)
+#### Setting 2 — Mode (tracking mode, rest mode, unit, color)
 
 - **Tracking mode**: segmented control with `GPS` and `Distance`. Persist the selected value.
-- **Pause mode**: `Manual` (user taps to pause/resume) or `Auto` (HealthKit motion events pause/resume). Persist the selected value.
+- **Rest mode**: `Manual` (user taps to enter/exit rest) or `Auto` (HealthKit motion events enter/exit rest). Persist the selected value.
 - **Distance unit**: km or miles.
 - **Primary color**: blue, green, yellow, orange, pink, dark. Persist the selected value.
 
@@ -280,7 +280,7 @@ Purpose: live workout UI while running.
 - Example: `08:43`
 - In distance mode, show the **current target distance** above the timer (from the active segment in the interval plan)
 - when the interval plan has a finite total, show the **remaining planned laps** beside that label, e.g. `400 m · 5 left`
-- During rest/pause, show "Pause Mode" above the timer instead
+- During rest, show "Rest Mode" above the timer instead
 
 #### Lap cards
 
@@ -460,7 +460,7 @@ When entering rest mode:
 
 The end-session flow is a three-step confirmation sequence:
 
-1. **Pause** (blue circle) – enters rest state; button changes to a red ✕.
+1. **Rest** (blue circle) – enters rest state; button changes to a red ✕.
 2. **✕** (red circle) – commits the current lap as a card, stops the timer; button changes to a red "Confirm End" capsule.
 3. **Confirm End** (red capsule) – ends the session in a single tap, saves to local storage, writes to HealthKit, and navigates home.
 
@@ -468,11 +468,11 @@ At any point before step 3, pressing the **Resume** button (the main Lap button)
 
 Additional rules:
 
-- Pressing **Pause** marks the workout as entering rest state.
+- Pressing **Rest** marks the workout as entering rest state.
 - While in rest state, pressing the **Resume/Lap** button resumes active tracking and creates a new lap.
 - New laps created while in rest state are stored with `lapType = rest`.
 - The heart rate display remains visible throughout all end-flow states.
-- when a finite interval plan reaches `0 left` and there is no configured timed rest, the workout should automatically enter rest/pause mode while still allowing the user to continue creating additional laps manually
+- when a finite interval plan reaches `0 left` and there is no configured timed rest, the workout should automatically enter rest mode while still allowing the user to continue creating additional laps manually
 
 ---
 

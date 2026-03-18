@@ -9,7 +9,7 @@
 "Distance (feet)" = "Distanse (fot)";
 "Unit" = "Enhet";
 "Color" = "Farge";
-"Pause" = "Pause";
+"Rest Mode" = "Hvilemodus";
 "Manual" = "Manuell";
 "Auto" = "Auto";
 "e.g. 400" = "f.eks. 400";
@@ -26,9 +26,11 @@
 /* Active Session */
 "Delete Lap" = "Slett runde";
 "Lap %d" = "Runde %d";
-"Pause Mode" = "Pausemodus";
-"Cancel Pause" = "Avbryt pause";
-"End Session" = "Avslutt økt";
+"End Rest" = "Avslutt hvile";
+"Pause" = "Pause";
+"Resume" = "Fortsett";
+"Workout Paused" = "Okt pauset";
+"End" = "Avslutt";
 "Delete" = "Slett";
 "Active" = "Aktiv";
 

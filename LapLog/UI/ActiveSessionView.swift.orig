@@ -96,7 +96,7 @@ struct ActiveSessionView: View {
                             .padding(1.5)
                     )
                     .overlay(alignment: .top) {
-                        Text("Pause Mode")
+                        Text("Rest Mode")
                             .font(.system(size: 11, weight: .semibold, design: .rounded))
                             .foregroundStyle(.white.opacity(0.82))
                             .opacity(workoutController.runState == .rest ? 1 : 0)
@@ -175,7 +175,7 @@ struct ActiveSessionView: View {
         }
         .confirmationDialog("", isPresented: $isSessionMenuPresented, titleVisibility: .hidden) {
             if isPaused {
-                Button("Cancel Pause") {
+                Button("Cancel Rest") {
                     workoutController.cancelRest()
                 }
             }

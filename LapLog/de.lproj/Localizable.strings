@@ -9,8 +9,8 @@
 "Distance (feet)" = "Distanz (Fuß)";
 "Unit" = "Einheit";
 "Color" = "Farbe";
-"Pause" = "Pause";
-"Manual" = "Manuell";
+"Rest Mode" = "Erholungsmodus";
+"Manual" = "Manuell";
 "Auto" = "Auto";
 "e.g. 400" = "z.B. 400";
 "e.g. 1320" = "z.B. 1320";
@@ -26,9 +26,11 @@
 /* Active Session */
 "Delete Lap" = "Runde löschen";
 "Lap %d" = "Runde %d";
-"Pause Mode" = "Pausenmodus";
-"Cancel Pause" = "Pause abbrechen";
-"End Session" = "Training beenden";
+"End Rest" = "Pause beenden";
+"Pause" = "Pausieren";
+"Resume" = "Fortsetzen";
+"Workout Paused" = "Training pausiert";
+"End" = "Beenden";
 "Delete" = "Löschen";
 "Active" = "Aktiv";
 

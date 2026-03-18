@@ -40,28 +40,19 @@ struct ActiveSessionView: View {
         workoutController.completedLaps.filter { $0.lapType == .active }.count + 1
     }
 
+    private var hasLapCounterBadge: Bool {
+        if let total = workoutController.totalPlannedIntervals, total > 0 { return true }
+        return false
+    }
+
     private func timerTopLabel(_ detail: String? = nil, includeLap: Bool = true, includeRemaining: Bool? = nil) -> String {
         var components: [String] = []
-        if includeLap {
+        if includeLap && !hasLapCounterBadge {
             components.append(L10n.lapIndex(currentLapNumber))
         }
 
         if let detail, !detail.isEmpty {
             components.append(detail)
-        }
-
-        let showRemaining = includeRemaining ?? includeLap
-        if showRemaining, let remainingIntervals = workoutController.remainingPlannedIntervals {
-            let distance = workoutController.currentTargetDistanceMeters
-            if distance > 0 {
-                let distStr = Formatters.distanceString(meters: distance, unit: settings.distanceUnit)
-                if let targetTime = workoutController.currentTargetTimeSeconds {
-                    components.append(L10n.targetDisplay(distStr, Formatters.compactTimeString(from: targetTime)))
-                } else {
-                    components.append(distStr)
-                }
-            }
-            components.append("\(remainingIntervals) left")
         }
 
         return components.joined(separator: " · ")
@@ -73,14 +64,13 @@ struct ActiveSessionView: View {
         }
         if isResting {
             if let duration = workoutController.restDurationSeconds {
-                return timerTopLabel("Rest \(duration)s", includeLap: false, includeRemaining: true)
+                return timerTopLabel("Rest \(duration)s", includeLap: false)
             }
-            return timerTopLabel(L10n.restModeStatus, includeLap: false, includeRemaining: true)
+            return timerTopLabel(L10n.restModeStatus, includeLap: false)
         }
         if workoutController.trackingMode == .distanceDistance {
-            let hasRemaining = workoutController.remainingPlannedIntervals != nil
-            if hasRemaining {
-                return timerTopLabel()
+            if hasLapCounterBadge {
+                return ""
             }
             let distanceStr = Formatters.distanceString(
                 meters: workoutController.currentTargetDistanceMeters,
@@ -107,6 +97,52 @@ struct ActiveSessionView: View {
     }
 
     @ViewBuilder
+    private var timerTopOverlay: some View {
+        if hasLapCounterBadge {
+            let total = workoutController.totalPlannedIntervals ?? 0
+            let labelFont = Font.system(size: 15, weight: .regular, design: .rounded)
+            let labelColor = Color.white
+
+            HStack(spacing: 5) {
+                HStack(alignment: .firstTextBaseline, spacing: 0) {
+                    Text("\(currentLapNumber)")
+                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
+                    Text("/\(total)")
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15).opacity(0.5))
+                }
+                .padding(.horizontal, 6)
+                .padding(.vertical, 2)
+                .background(
+                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+                        .fill(.white)
+                )
+
+                if !timerTopLabel.isEmpty {
+                    Text(timerTopLabel)
+                        .font(labelFont)
+                        .foregroundStyle(labelColor)
+                } else if let target = workoutController.currentTargetTimeSeconds {
+                    Text(L10n.targetDisplay(
+                        Formatters.distanceString(meters: workoutController.currentTargetDistanceMeters, unit: settings.distanceUnit),
+                        Formatters.compactTimeString(from: target)
+                    ))
+                    .font(labelFont)
+                    .foregroundStyle(labelColor)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                }
+            }
+        } else {
+            Text(timerTopLabel)
+                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                .foregroundStyle(.white.opacity(0.82))
+                .opacity(timerTopLabel.isEmpty ? 0 : 1)
+        }
+    }
+
+    @ViewBuilder
     private var sessionTimerView: some View {
         Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
             .font(.system(size: 100, weight: .medium, design: .rounded))
@@ -116,15 +152,12 @@ struct ActiveSessionView: View {
             .foregroundStyle(.white)
             .frame(maxWidth: .infinity)
             .padding(.horizontal, 22)
-            .padding(.vertical, 16)
-            .background(Capsule().fill(primaryColor.opacity(0.2)))
+            .padding(.vertical, 6)
+            .background(Capsule().fill(primaryColor.opacity(0.1)))
             .overlay(pauseBorderOverlay)
             .overlay(lapGlowOverlay)
             .overlay(alignment: .top) {
-                Text(timerTopLabel)
-                    .font(.system(size: 15, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.82))
-                    .opacity(timerTopLabel.isEmpty ? 0 : 1)
+                timerTopOverlay
                     .offset(y: -21)
             }
             .scaleEffect(isTimerBounceActive ? 1.11 : 1)
@@ -229,7 +262,7 @@ struct ActiveSessionView: View {
                                     .offset(x: -8)
                             } else {
                                 ForEach(workoutController.completedLaps, id: \.id) { lap in
-                                    LapCardView(lap: lap, trackingMode: workoutController.trackingMode, distanceUnit: settings.distanceUnit, isLatest: !showsSessionMenu && lap.id == workoutController.completedLaps.last?.id)
+                                    LapCardView(lap: lap, trackingMode: workoutController.trackingMode, distanceUnit: settings.distanceUnit, isLatest: lap.id == workoutController.completedLaps.last?.id)
                                         .contentShape(Rectangle())
                                         .onTapGesture {
                                             presentLapEditor(for: lap)
@@ -503,6 +536,7 @@ private let lapCardTrailingPadding: CGFloat = 14
 private let standardLapCardBackground = Color.white.opacity(0.15)
 
 struct PlaceholderLapCardView: View {
+
     var body: some View {
         HStack(spacing: 6) {
             Text("1")

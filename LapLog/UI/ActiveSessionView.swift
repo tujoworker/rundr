@@ -16,6 +16,7 @@ struct ActiveSessionView: View {
     @State private var lapEditorState: LapEditorState?
     @State private var isRestPulseOn = false
     @State private var isPausePulseOn = false
+    @State private var isShowingSessionComplete = false
 
     private let defaultLapDistanceText = "400"
 
@@ -157,7 +158,11 @@ struct ActiveSessionView: View {
                                 onPause: { workoutController.pauseSession() },
                                 onEnd: {
                                     workoutController.prepareForSessionEnd()
-                                    Task { await endSession() }
+                                    isShowingSessionComplete = true
+                                    Task {
+                                        try? await Task.sleep(for: .seconds(3))
+                                        await endSession()
+                                    }
                                 }
                             )
                             .offset(y: topControlOffset + menuButtonExtraOffset)
@@ -296,6 +301,9 @@ struct ActiveSessionView: View {
             } else {
                 withAnimation(nil) { isRestPulseOn = false }
             }
+        }
+        .fullScreenCover(isPresented: $isShowingSessionComplete) {
+            SessionCompleteView(accentColor: primaryColor)
         }
         .fullScreenCover(isPresented: Binding(
             get: { lapEditorState != nil },
@@ -711,6 +719,22 @@ private struct WorkoutControlIcon: View {
         }
         .frame(width: 46, height: 46)
         .shadow(color: baseColor.opacity(0.28), radius: 6, y: 2)
+    }
+}
+
+private struct SessionCompleteView: View {
+    let accentColor: Color
+
+    var body: some View {
+        ZStack {
+            AppScreenBackground(accentColor: accentColor)
+
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 96, weight: .medium))
+                .foregroundStyle(.white)
+                .symbolRenderingMode(.hierarchical)
+        }
+        .ignoresSafeArea()
     }
 }
 

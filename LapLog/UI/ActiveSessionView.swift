@@ -37,15 +37,27 @@ struct ActiveSessionView: View {
         isResting || isWorkoutPaused
     }
 
-    private func timerTopLabel(_ base: String) -> String {
-        guard !base.isEmpty else { return base }
-        guard let remainingIntervals = workoutController.remainingPlannedIntervals else { return base }
-        return "\(base) · \(remainingIntervals) left"
+    private var currentLapNumber: Int {
+        workoutController.completedLaps.filter { $0.lapType == .active }.count + 1
+    }
+
+    private func timerTopLabel(_ detail: String? = nil) -> String {
+        var components = [L10n.lapIndex(currentLapNumber)]
+
+        if let detail, !detail.isEmpty {
+            components.append(detail)
+        }
+
+        if let remainingIntervals = workoutController.remainingPlannedIntervals {
+            components.append("\(remainingIntervals) left")
+        }
+
+        return components.joined(separator: " · ")
     }
 
     private var timerTopLabel: String {
         if isWorkoutPaused {
-            return L10n.workoutPaused
+            return timerTopLabel(L10n.workoutPaused)
         }
         if isResting {
             if let duration = workoutController.restDurationSeconds {
@@ -61,7 +73,7 @@ struct ActiveSessionView: View {
                 )
             )
         }
-        return ""
+        return timerTopLabel()
     }
 
     private var pauseBorderOverlay: some View {

@@ -51,25 +51,25 @@ final class ModelTests: XCTestCase {
         XCTAssertNotNil(LapSource(rawValue: "sessionEndSplit"))
     }
 
-    // MARK: - PauseMode
+    // MARK: - RestMode
 
-    func testPauseModeDisplayNames() {
-        XCTAssertEqual(PauseMode.manual.displayName, L10n.pauseManual)
-        XCTAssertEqual(PauseMode.autoDetect.displayName, L10n.pauseAutoDetect)
+    func testRestModeDisplayNames() {
+        XCTAssertEqual(RestMode.manual.displayName, L10n.restManual)
+        XCTAssertEqual(RestMode.autoDetect.displayName, L10n.restAutoDetect)
     }
 
-    func testPauseModeAllCases() {
-        XCTAssertEqual(PauseMode.allCases.count, 2)
-        XCTAssertTrue(PauseMode.allCases.contains(.manual))
-        XCTAssertTrue(PauseMode.allCases.contains(.autoDetect))
+    func testRestModeAllCases() {
+        XCTAssertEqual(RestMode.allCases.count, 2)
+        XCTAssertTrue(RestMode.allCases.contains(.manual))
+        XCTAssertTrue(RestMode.allCases.contains(.autoDetect))
     }
 
-    func testPauseModeCodable() throws {
+    func testRestModeCodable() throws {
         let encoder = JSONEncoder()
         let decoder = JSONDecoder()
-        for mode in PauseMode.allCases {
+        for mode in RestMode.allCases {
             let data = try encoder.encode(mode)
-            let decoded = try decoder.decode(PauseMode.self, from: data)
+            let decoded = try decoder.decode(RestMode.self, from: data)
             XCTAssertEqual(decoded, mode)
         }
     }
@@ -77,8 +77,8 @@ final class ModelTests: XCTestCase {
     // MARK: - WorkoutRunState
 
     func testWorkoutRunStateCases() {
-        let states: [WorkoutRunState] = [.idle, .ready, .active, .rest, .ending, .ended]
-        XCTAssertEqual(states.count, 6)
+        let states: [WorkoutRunState] = [.idle, .ready, .active, .rest, .paused, .ending, .ended]
+        XCTAssertEqual(states.count, 7)
         XCTAssertEqual(WorkoutRunState.idle, WorkoutRunState.idle)
         XCTAssertNotEqual(WorkoutRunState.idle, WorkoutRunState.active)
         XCTAssertNotEqual(WorkoutRunState.ending, WorkoutRunState.ended)

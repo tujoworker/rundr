@@ -72,6 +72,8 @@ struct LapLogApp: App {
             switch workoutController.runState {
             case .active, .rest:
                 workoutController.markLap(source: .actionButton)
+            case .paused:
+                workoutController.resumeSession()
             default:
                 break
             }
@@ -95,7 +97,7 @@ struct LapLogApp: App {
                 trackingMode: settings.trackingMode,
                 distanceLapDistanceMeters: settings.distanceDistanceMeters,
                 distanceSegments: settings.distanceSegments,
-                pauseMode: settings.pauseMode,
+                restMode: settings.restMode,
                 healthKitManager: healthKitManager
             )
             Task {

@@ -93,7 +93,7 @@ struct RootView: View {
                                     trackingMode: settings.trackingMode,
                                     distanceLapDistanceMeters: settings.distanceDistanceMeters,
                                     distanceSegments: settings.distanceSegments,
-                                    pauseMode: settings.pauseMode,
+                                    restMode: settings.restMode,
                                     healthKitManager: healthKitManager
                                 )
                                 Task {

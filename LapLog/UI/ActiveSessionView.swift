@@ -10,6 +10,7 @@ struct ActiveSessionView: View {
     var onSessionEnded: () -> Void
     @State private var isTapFlashVisible = false
     @State private var isSessionMenuPresented = false
+    @State private var sessionMenuButtonLockedUntil = Date.distantPast
     @State private var isTimerBounceActive = false
     @State private var isTimerGlowActive = false
     @State private var isLapHistoryDragging = false
@@ -24,8 +25,16 @@ struct ActiveSessionView: View {
         settings.primaryAccentColor
     }
 
-    private var isPaused: Bool {
+    private var isResting: Bool {
         workoutController.runState == .rest
+    }
+
+    private var isWorkoutPaused: Bool {
+        workoutController.runState == .paused
+    }
+
+    private var showsSessionMenu: Bool {
+        isResting || isWorkoutPaused
     }
 
     private func timerTopLabel(_ base: String) -> String {
@@ -35,11 +44,14 @@ struct ActiveSessionView: View {
     }
 
     private var timerTopLabel: String {
-        if isPaused {
+        if isWorkoutPaused {
+            return L10n.workoutPaused
+        }
+        if isResting {
             if let duration = workoutController.restDurationSeconds {
                 return timerTopLabel("Rest \(duration)s")
             }
-            return timerTopLabel("Pause Mode")
+            return timerTopLabel(L10n.restModeStatus)
         }
         if workoutController.trackingMode == .distanceDistance {
             return timerTopLabel(
@@ -100,19 +112,20 @@ struct ActiveSessionView: View {
     private let menuButtonExtraOffset: CGFloat = 0
     private let pauseButtonExtraOffset: CGFloat = 0
     private let lapHistoryContainerTrailingPadding: CGFloat = 12
+    private let sessionMenuReopenDelay: TimeInterval = 0.35
 
     var body: some View {
         ZStack {
             AppScreenBackground(accentColor: primaryColor)
 
             // Keep pause/rest pulses behind content so labels remain readable.
-            if isPaused {
+            if isResting {
                 Color.white
                     .opacity(isPausePulseOn ? 0.2 : 0)
                     .ignoresSafeArea()
             }
 
-            if isPaused {
+            if isResting {
                 Color.white
                     .opacity(isRestPulseOn ? 0.6 : 0)
                     .ignoresSafeArea()
@@ -121,7 +134,7 @@ struct ActiveSessionView: View {
             VStack(spacing: 0) {
                 ZStack(alignment: .top) {
                     HStack(alignment: .top) {
-                        if isPaused {
+                        if showsSessionMenu {
                             sessionMenuButton
                                 .offset(y: topControlOffset + menuButtonExtraOffset)
                         } else {
@@ -242,7 +255,7 @@ struct ActiveSessionView: View {
             }
             .allowsHitTesting(false)
         }
-        .onChange(of: isPaused) { _, paused in
+        .onChange(of: isResting) { _, paused in
             if paused {
                 withAnimation(.easeInOut(duration: 0.75).repeatForever(autoreverses: true)) {
                     isPausePulseOn = true
@@ -260,14 +273,37 @@ struct ActiveSessionView: View {
                 withAnimation(nil) { isRestPulseOn = false }
             }
         }
+        .onChange(of: isSessionMenuPresented) { wasPresented, isPresented in
+            if wasPresented != isPresented {
+                sessionMenuButtonLockedUntil = Date().addingTimeInterval(sessionMenuReopenDelay)
+            }
+        }
         .confirmationDialog("", isPresented: $isSessionMenuPresented, titleVisibility: .hidden) {
-            if isPaused {
-                Button("Cancel Pause") {
+            if isResting {
+                Button {
                     workoutController.cancelRest()
+                } label: {
+                    Label(L10n.endRest, systemImage: "play.circle")
                 }
             }
-            Button("End Session", role: .destructive) {
+            if isWorkoutPaused {
+                Button {
+                    workoutController.resumeSession()
+                } label: {
+                    Label(L10n.resume, systemImage: "play.circle")
+                }
+            } else if isResting {
+                Button {
+                    workoutController.pauseSession()
+                } label: {
+                    Label(L10n.pause, systemImage: "pause.circle")
+                }
+            }
+            Button(role: .destructive) {
+                workoutController.prepareForSessionEnd()
                 Task { await endSession() }
+            } label: {
+                Label(L10n.endSession, systemImage: "stop.circle")
             }
             Button("Cancel", role: .cancel) {}
         }
@@ -322,6 +358,10 @@ struct ActiveSessionView: View {
     }
 
     private func handleLapTap() {
+        if isWorkoutPaused {
+            workoutController.resumeSession()
+            return
+        }
         flashTapBorder()
         workoutController.markLap()
     }
@@ -418,6 +458,9 @@ struct ActiveSessionView: View {
 
     private var sessionMenuButton: some View {
         Button {
+            let now = Date()
+            guard now >= sessionMenuButtonLockedUntil else { return }
+            sessionMenuButtonLockedUntil = now.addingTimeInterval(sessionMenuReopenDelay)
             isSessionMenuPresented = true
         } label: {
             WorkoutControlIcon(
@@ -430,7 +473,7 @@ struct ActiveSessionView: View {
 
     private var pauseButton: some View {
         Button {
-            guard !isPaused else { return }
+            guard !showsSessionMenu else { return }
             workoutController.startRest()
         } label: {
             WorkoutControlIcon(
@@ -439,7 +482,7 @@ struct ActiveSessionView: View {
             )
         }
         .buttonStyle(.plain)
-        .opacity(isPaused ? 0.72 : 1)
+        .opacity(showsSessionMenu ? 0.72 : 1)
     }
 }
 

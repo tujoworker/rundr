@@ -28,7 +28,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     private(set) var trackingMode: TrackingMode = .gps
     private(set) var distanceLapDistanceMeters: Double = 400
-    private(set) var pauseMode: PauseMode = .manual
+    private(set) var restMode: RestMode = .manual
 
     // MARK: - Distance Segments
 
@@ -78,6 +78,10 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private var sessionStartDate: Date?
     private var currentLapStartDate: Date?
     private var currentLapHeartRateSamples: [Double] = []
+    private var pauseStartedAt: Date?
+    private var pausedRunState: WorkoutRunState?
+    private var pausedRestElapsedSeconds: Int?
+    private var pausedRestDurationSeconds: Int?
 
     private var timerCancellable: AnyCancellable?
     private var restTimerCancellable: AnyCancellable?
@@ -97,13 +101,13 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         trackingMode: TrackingMode,
         distanceLapDistanceMeters: Double,
         distanceSegments: [DistanceSegment] = [.default],
-        pauseMode: PauseMode = .manual,
+        restMode: RestMode = .manual,
         healthKitManager: HealthKitManager
     ) {
         self.trackingMode = trackingMode
         self.distanceLapDistanceMeters = distanceLapDistanceMeters
         self.distanceSegments = distanceSegments.isEmpty ? [.default] : distanceSegments
-        self.pauseMode = pauseMode
+        self.restMode = restMode
         self.healthKitManager = healthKitManager
         self.currentSegmentIndex = 0
         self.currentSegmentRepeatsDone = 0
@@ -126,6 +130,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         elapsedSeconds = 0
         lapElapsedSeconds = 0
         currentHeartRate = nil
+        clearPauseState()
         runState = .active
 
         startTimer()
@@ -149,6 +154,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         elapsedSeconds = 0
         lapElapsedSeconds = 0
         currentHeartRate = nil
+        clearPauseState()
         runState = .active
     }
 
@@ -215,7 +221,60 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         startTimer()
     }
 
+    func pauseSession() {
+        guard runState == .active || runState == .rest else { return }
+
+        pauseStartedAt = Date()
+        pausedRunState = runState
+        pausedRestElapsedSeconds = restElapsedSeconds
+        pausedRestDurationSeconds = restDurationSeconds
+
+        cancelRestTimer()
+        stopTimer()
+        stopLocationUpdates()
+        pauseHealthKitWorkout()
+
+        runState = .paused
+        playHaptic(.click)
+    }
+
+    func resumeSession() {
+        guard runState == .paused, let previousRunState = pausedRunState else { return }
+
+        applyPausedDuration(until: Date())
+        let restElapsed = pausedRestElapsedSeconds ?? 0
+        let restDuration = pausedRestDurationSeconds
+        clearPauseState()
+
+        runState = previousRunState
+        startTimer()
+        if trackingMode == .gps {
+            startLocationUpdates()
+        }
+
+        if previousRunState == .rest, let restDuration {
+            startAutoRest(seconds: restDuration, initialElapsed: restElapsed)
+        }
+
+        resumeHealthKitWorkout()
+        playHaptic(.click)
+    }
+
+    func prepareForSessionEnd() {
+        cancelRestTimer()
+    }
+
     func endSession() async -> Session? {
+        let endDate = Date()
+
+        if runState == .paused {
+            applyPausedDuration(until: endDate)
+            if let pausedRunState {
+                runState = pausedRunState
+            }
+            clearPauseState()
+        }
+
         guard runState == .active || runState == .rest || runState == .ending else { return nil }
 
         // Commit any remaining open segment (skipped if already committed by commitFinalLap)
@@ -223,11 +282,11 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             commitCurrentLap(source: .sessionEndSplit)
         }
 
+        cancelRestTimer()
         runState = .ended
         stopTimer()
         stopLocationUpdates()
 
-        let endDate = Date()
         Task { await stopHealthKitWorkout(endDate: endDate) }
 
         guard let startDate = sessionStartDate else { return nil }
@@ -272,6 +331,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         currentLapHeartRateSamples = []
         currentSegmentIndex = 0
         currentSegmentRepeatsDone = 0
+        clearPauseState()
         cancelRestTimer()
         stopTimer()
         stopLocationUpdates()
@@ -360,11 +420,12 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         distanceLapDistanceMeters = currentTargetDistanceMeters
     }
 
-    private func startAutoRest(seconds: Int) {
+    private func startAutoRest(seconds: Int, initialElapsed: Int = 0) {
         runState = .rest
-        restElapsedSeconds = 0
+        restElapsedSeconds = initialElapsed
         restDurationSeconds = seconds
-        isRestWarningActive = false
+        let remaining = seconds - initialElapsed
+        isRestWarningActive = remaining <= 5 && remaining >= 0
 
         restTimerCancellable = Timer.publish(every: 1, on: .main, in: .common)
             .autoconnect()
@@ -391,6 +452,26 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         restElapsedSeconds = nil
         restDurationSeconds = nil
         isRestWarningActive = false
+    }
+
+    private func applyPausedDuration(until resumeDate: Date) {
+        guard let pauseStartedAt else { return }
+        let pausedDuration = resumeDate.timeIntervalSince(pauseStartedAt)
+        guard pausedDuration > 0 else { return }
+
+        if let startDate = sessionStartDate {
+            sessionStartDate = startDate.addingTimeInterval(pausedDuration)
+        }
+        if let lapStartDate = currentLapStartDate {
+            currentLapStartDate = lapStartDate.addingTimeInterval(pausedDuration)
+        }
+    }
+
+    private func clearPauseState() {
+        pauseStartedAt = nil
+        pausedRunState = nil
+        pausedRestElapsedSeconds = nil
+        pausedRestDurationSeconds = nil
     }
 
     /// Change the distance of an already-completed lap.
@@ -496,6 +577,14 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         hkLiveBuilder = nil
     }
 
+    private func pauseHealthKitWorkout() {
+        hkWorkoutSession?.pause()
+    }
+
+    private func resumeHealthKitWorkout() {
+        hkWorkoutSession?.resume()
+    }
+
     // MARK: - Location
 
     private func startLocationUpdates() {
@@ -526,6 +615,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     /// Called externally when distance/HR updates arrive
     func handleDistanceUpdate(additionalMeters: Double) {
+        guard runState != .paused else { return }
+
         cumulativeDistanceMeters += additionalMeters
         currentLapDistanceMeters += additionalMeters
 
@@ -541,6 +632,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     }
 
     func handleHeartRateUpdate(bpm: Double) {
+        guard runState != .paused else { return }
+
         currentHeartRate = bpm
         currentLapHeartRateSamples.append(bpm)
     }
@@ -564,7 +657,7 @@ extension WorkoutSessionController: HKWorkoutSessionDelegate {
     ) {
         let eventType = event.type
         Task { @MainActor in
-            guard self.pauseMode == .autoDetect else { return }
+            guard self.restMode == .autoDetect else { return }
             switch eventType {
             case .motionPaused:
                 self.startRest()

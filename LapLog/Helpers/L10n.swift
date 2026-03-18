@@ -13,9 +13,9 @@ enum L10n {
     static let distanceFeet = String(localized: "Distance (feet)", comment: "Distance input label")
     static let unit = String(localized: "Unit", comment: "Distance unit setting")
     static let color = String(localized: "Color", comment: "Primary color setting")
-    static let pause = String(localized: "Pause", comment: "Pause mode setting")
-    static let pauseManual = String(localized: "Manual", comment: "Pause mode: manual")
-    static let pauseAutoDetect = String(localized: "Auto", comment: "Pause mode: auto detect")
+    static let restMode = String(localized: "Rest Mode", comment: "Rest mode setting")
+    static let restManual = String(localized: "Manual", comment: "Rest mode: manual")
+    static let restAutoDetect = String(localized: "Auto", comment: "Rest mode: auto detect")
     static let distancePlaceholderKm = String(localized: "e.g. 400", comment: "Distance placeholder")
     static let distancePlaceholderMiles = String(localized: "e.g. 1320", comment: "Distance placeholder")
     static let locationRequired = String(localized: "Location Required", comment: "Alert title")
@@ -32,9 +32,12 @@ enum L10n {
     static func lapIndex(_ index: Int) -> String {
         String(format: String(localized: "Lap %d", comment: "Lap label"), index)
     }
-    static let pauseMode = String(localized: "Pause Mode", comment: "Timer label when paused")
-    static let cancelPause = String(localized: "Cancel Pause", comment: "Button")
-    static let endSession = String(localized: "End Session", comment: "Button")
+    static let restModeStatus = String(localized: "Rest Mode", comment: "Timer label when resting")
+    static let endRest = String(localized: "End Rest", comment: "Button")
+    static let pause = String(localized: "Pause", comment: "Button")
+    static let resume = String(localized: "Resume", comment: "Button")
+    static let workoutPaused = String(localized: "Workout Paused", comment: "Timer label when workout is fully paused")
+    static let endSession = String(localized: "End", comment: "Button")
     static let delete = String(localized: "Delete", comment: "Button")
     static let active = String(localized: "Active", comment: "Current lap label")
 

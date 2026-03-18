@@ -26,7 +26,7 @@
 		5B42CCC5F71E7FFD525E342C /* PersistenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6018669638742E3118B29041 /* PersistenceManager.swift */; };
 		5D1F2DA465451D371A979B32 /* Lap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A88263B0A43413879ABF4DB7 /* Lap.swift */; };
 		6CB934415EF3BDC0D65EF3E1 /* TrackingMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE97F98043246AF98F971416 /* TrackingMode.swift */; };
-		PauseModeBuildRef /* PauseMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = PauseModeFileRef /* PauseMode.swift */; };
+		RestModeBuildRef /* RestMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = RestModeFileRef /* RestMode.swift */; };
 		6E02E5DF235633F34728DC8C /* LapType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586AE861C21CF4145AD81D08 /* LapType.swift */; };
 		7BB47A6891185829ADD4094F /* PreStartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80845E9FC8FEA57AA0E6D7F /* PreStartView.swift */; };
 		DistanceInputViewRef /* DistanceInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DistanceInputViewFile /* DistanceInputView.swift */; };
@@ -83,7 +83,7 @@
 		A52D079F75CFBF9BB2BA7C41 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
 		A88263B0A43413879ABF4DB7 /* Lap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lap.swift; sourceTree = "<group>"; };
 		AE97F98043246AF98F971416 /* TrackingMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackingMode.swift; sourceTree = "<group>"; };
-		PauseModeFileRef /* PauseMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PauseMode.swift; sourceTree = "<group>"; };
+		RestModeFileRef /* RestMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestMode.swift; sourceTree = "<group>"; };
 		AF7B588DE96AFFC30AE7ABBA /* WorkoutRunState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutRunState.swift; sourceTree = "<group>"; };
 		B3C468A8CAAB5486BF89EDC4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C461B28E60C157EE2885A142 /* WorkoutSessionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutSessionController.swift; sourceTree = "<group>"; };
@@ -165,7 +165,7 @@
 				F6DEE2BD2F65FC180005ABAA /* DistanceUnit.swift */,
 				A1B2C3D4E5F607080910ABCE /* DistanceSegment.swift */,
 				3522748D3D40B521A48CBEA2 /* PrimaryColorOption.swift */,
-				PauseModeFileRef /* PauseMode.swift */,
+				RestModeFileRef /* RestMode.swift */,
 				AE97F98043246AF98F971416 /* TrackingMode.swift */,
 				586AE861C21CF4145AD81D08 /* LapType.swift */,
 				4087CA1ACDF79F69B6F2FBEC /* LapSource.swift */,
@@ -381,7 +381,7 @@
 			files = (
 				ADF3C560149CC9D36C370A06 /* LapLogApp.swift in Sources */,
 				6CB934415EF3BDC0D65EF3E1 /* TrackingMode.swift in Sources */,
-				PauseModeBuildRef /* PauseMode.swift in Sources */,
+				RestModeBuildRef /* RestMode.swift in Sources */,
 				6E02E5DF235633F34728DC8C /* LapType.swift in Sources */,
 				A6AC58E35DDE8D4C3006B265 /* LapSource.swift in Sources */,
 				5D1F2DA465451D371A979B32 /* Lap.swift in Sources */,

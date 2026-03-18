@@ -248,23 +248,23 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.currentTargetDistanceMeters, 0)
     }
 
-    // MARK: - Pause Mode
+    // MARK: - Rest Mode
 
-    func testPauseModeDefaultsToManual() {
+    func testRestModeDefaultsToManual() {
         let controller = makeConfiguredController()
-        XCTAssertEqual(controller.pauseMode, .manual)
+        XCTAssertEqual(controller.restMode, .manual)
     }
 
-    func testPauseModeCanBeConfigured() {
+    func testRestModeCanBeConfigured() {
         let controller = makeController()
         controller.configure(
             trackingMode: .distanceDistance,
             distanceLapDistanceMeters: 400,
             distanceSegments: [.default],
-            pauseMode: .autoDetect,
+            restMode: .autoDetect,
             healthKitManager: HealthKitManager()
         )
-        XCTAssertEqual(controller.pauseMode, .autoDetect)
+        XCTAssertEqual(controller.restMode, .autoDetect)
     }
 
     func testThreeSegmentProgression() {
@@ -385,6 +385,88 @@ final class WorkoutControllerTests: XCTestCase {
 
         controller.cancelRest()
         XCTAssertEqual(controller.runState, .active)
+        XCTAssertNil(controller.restElapsedSeconds)
+        XCTAssertNil(controller.restDurationSeconds)
+        XCTAssertFalse(controller.isRestWarningActive)
+    }
+
+    func testPauseSessionFreezesElapsedTimeAtEnd() async {
+        let controller = makeStartedController(trackingMode: .gps)
+
+        controller.pauseSession()
+        XCTAssertEqual(controller.runState, .paused)
+
+        try? await Task.sleep(for: .milliseconds(200))
+
+        let session = await controller.endSession()
+
+        XCTAssertNotNil(session)
+        XCTAssertEqual(controller.runState, .ended)
+        XCTAssertLessThan(session?.durationSeconds ?? 99, 1.1)
+    }
+
+    func testPausedSessionIgnoresDistanceUpdates() {
+        let controller = makeStartedController(trackingMode: .gps)
+
+        controller.pauseSession()
+        controller.handleDistanceUpdate(additionalMeters: 125)
+
+        XCTAssertEqual(controller.cumulativeDistanceMeters, 0)
+        XCTAssertEqual(controller.currentLapDistanceMeters, 0)
+    }
+
+    func testResumeSessionFromRestRestoresTimedRest() {
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: nil, restSeconds: 60)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .rest)
+
+        controller.pauseSession()
+        XCTAssertEqual(controller.runState, .paused)
+
+        controller.resumeSession()
+
+        XCTAssertEqual(controller.runState, .rest)
+        XCTAssertEqual(controller.restDurationSeconds, 60)
+        XCTAssertNotNil(controller.restElapsedSeconds)
+    }
+
+    func testPrepareForSessionEndClearsRestWarningImmediately() {
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: nil, restSeconds: 60)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .rest)
+        controller.isRestWarningActive = true
+        XCTAssertNotNil(controller.restDurationSeconds)
+
+        controller.prepareForSessionEnd()
+
+        XCTAssertNil(controller.restElapsedSeconds)
+        XCTAssertNil(controller.restDurationSeconds)
+        XCTAssertFalse(controller.isRestWarningActive)
+    }
+
+    func testEndSessionFromRestClearsRestTimerState() async {
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: nil, restSeconds: 60)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .rest)
+        XCTAssertNotNil(controller.restElapsedSeconds)
+        XCTAssertNotNil(controller.restDurationSeconds)
+
+        let session = await controller.endSession()
+
+        XCTAssertNotNil(session)
+        XCTAssertEqual(controller.runState, .ended)
         XCTAssertNil(controller.restElapsedSeconds)
         XCTAssertNil(controller.restDurationSeconds)
         XCTAssertFalse(controller.isRestWarningActive)

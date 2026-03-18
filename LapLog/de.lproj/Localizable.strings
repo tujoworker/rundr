@@ -88,7 +88,6 @@
 "Pace" = "Tempo";
 "Time" = "Zeit";
 "Off" = "Aus";
-"in" = "in";
 "%@ in %@" = "%@ in %@";
 
 /* Distance/Unit suffixes - "m" is used for both minutes and meters */

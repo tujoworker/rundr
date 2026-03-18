@@ -88,7 +88,6 @@
 "Pace" = "Tempo";
 "Time" = "Tid";
 "Off" = "Av";
-"in" = "på";
 "%@ in %@" = "%@ på %@";
 
 /* Distance/Unit suffixes - "m" is used for both minutes and meters */

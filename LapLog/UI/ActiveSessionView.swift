@@ -84,10 +84,9 @@ struct ActiveSessionView: View {
         return timerTopLabel()
     }
 
-    private var pauseBorderOverlay: some View {
+    private var timerBorderOverlay: some View {
         Capsule()
-            .stroke(primaryColor.opacity(0.4), lineWidth: 8)
-            .padding(1.5)
+            .strokeBorder(primaryColor.opacity(0.1), lineWidth: 3)
     }
 
     private var lapGlowOverlay: some View {
@@ -96,90 +95,16 @@ struct ActiveSessionView: View {
             .blur(radius: isTimerGlowActive ? 3 : 0)
     }
 
-    private var timerHeaderMetricFont: Font {
-        let size: CGFloat = WKInterfaceDevice.current().screenBounds.width >= 205 ? 34 : 28
-        return .system(size: size, weight: .regular, design: .rounded)
-    }
-
-    private var timerHeaderLabelFont: Font {
-        let size: CGFloat = WKInterfaceDevice.current().screenBounds.width >= 205 ? 20 : 16
-        return .system(size: size, weight: .regular, design: .rounded)
-    }
-
     private var displayedLapCounter: Int {
         isResting ? max(currentLapNumber - 1, 1) : currentLapNumber
-    }
-
-    private func splitDistanceLabel(_ distance: String) -> (value: String, unit: String?) {
-        let parts = distance.split(separator: " ")
-        guard parts.count > 1 else { return (distance, nil) }
-        return (parts.dropLast().joined(separator: " "), String(parts.last!))
-    }
-
-    @ViewBuilder
-    private var timerStatusLabel: some View {
-        if isWorkoutPaused {
-            Text(L10n.workoutPaused)
-                .font(timerHeaderLabelFont)
-                .foregroundStyle(.white)
-        } else if isResting, let duration = workoutController.restDurationSeconds {
-            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text(L10n.rest)
-                    .font(timerHeaderLabelFont)
-                Text("\(duration)")
-                    .font(timerHeaderMetricFont)
-                    .monospacedDigit()
-                Text(L10n.secondsAbbrev)
-                    .font(timerHeaderLabelFont)
-            }
-            .foregroundStyle(.white)
-        } else if isResting {
-            Text(L10n.restModeStatus)
-                .font(timerHeaderLabelFont)
-                .foregroundStyle(.white)
-        } else if let target = workoutController.currentTargetTimeSeconds {
-            let distance = splitDistanceLabel(
-                Formatters.distanceString(
-                    meters: workoutController.currentTargetDistanceMeters,
-                    unit: settings.distanceUnit
-                )
-            )
-
-            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                Text(distance.value)
-                    .font(timerHeaderMetricFont)
-                    .monospacedDigit()
-
-                if let unit = distance.unit {
-                    Text(unit)
-                        .font(timerHeaderLabelFont)
-                }
-
-                Text(L10n.targetJoiner)
-                    .font(timerHeaderLabelFont)
-
-                Text(Formatters.compactTimeString(from: target))
-                    .font(timerHeaderMetricFont)
-                    .monospacedDigit()
-
-                Text(L10n.secondsAbbrev)
-                    .font(timerHeaderLabelFont)
-            }
-            .foregroundStyle(.white)
-            .lineLimit(1)
-            .minimumScaleFactor(0.7)
-        } else {
-            Text(timerTopLabel)
-                .font(.system(size: 15, weight: .semibold, design: .rounded))
-                .foregroundStyle(.white.opacity(0.82))
-                .opacity(timerTopLabel.isEmpty ? 0 : 1)
-        }
     }
 
     @ViewBuilder
     private var timerTopOverlay: some View {
         if hasLapCounterBadge {
             let total = workoutController.totalPlannedIntervals ?? 0
+            let labelFont = Font.system(size: 15, weight: .regular, design: .rounded)
+            let labelColor = Color.white
 
             HStack(spacing: 5) {
                 HStack(alignment: .firstTextBaseline, spacing: 0) {
@@ -197,10 +122,26 @@ struct ActiveSessionView: View {
                         .fill(.white)
                 )
 
-                timerStatusLabel
+                if !timerTopLabel.isEmpty {
+                    Text(timerTopLabel)
+                        .font(labelFont)
+                        .foregroundStyle(labelColor)
+                } else if let target = workoutController.currentTargetTimeSeconds {
+                    Text(L10n.targetDisplay(
+                        Formatters.distanceString(meters: workoutController.currentTargetDistanceMeters, unit: settings.distanceUnit),
+                        Formatters.compactTimeString(from: target)
+                    ))
+                    .font(labelFont)
+                    .foregroundStyle(labelColor)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
+                }
             }
         } else {
-            timerStatusLabel
+            Text(timerTopLabel)
+                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                .foregroundStyle(.white.opacity(0.82))
+                .opacity(timerTopLabel.isEmpty ? 0 : 1)
         }
     }
 
@@ -215,12 +156,13 @@ struct ActiveSessionView: View {
             .frame(maxWidth: .infinity)
             .padding(.horizontal, 22)
             .padding(.vertical, 6)
+            .frame(maxHeight: 120)
             .background(Capsule().fill(primaryColor.opacity(0.1)))
-            .overlay(pauseBorderOverlay)
+            .overlay(timerBorderOverlay)
             .overlay(lapGlowOverlay)
             .overlay(alignment: .top) {
                 timerTopOverlay
-                    .offset(y: -21)
+                    .offset(y: -33)
             }
             .scaleEffect(isTimerBounceActive ? 1.11 : 1)
             .brightness(isTimerGlowActive ? 0.3 : 0)
@@ -237,6 +179,61 @@ struct ActiveSessionView: View {
     private let menuButtonExtraOffset: CGFloat = 0
     private let pauseButtonExtraOffset: CGFloat = 0
     private let lapHistoryContainerTrailingPadding: CGFloat = 12
+    private let timerCardsSpacing: CGFloat = 6
+
+    @ViewBuilder
+    private var topHeaderView: some View {
+        ZStack(alignment: .top) {
+            HStack(alignment: .top) {
+                if showsSessionMenu {
+                    SessionMenuButton(
+                        isResting: isResting,
+                        isWorkoutPaused: isWorkoutPaused,
+                        primaryColor: primaryColor,
+                        onCancelRest: { workoutController.cancelRest() },
+                        onResume: { workoutController.resumeSession() },
+                        onPause: { workoutController.pauseSession() },
+                        onEnd: {
+                            workoutController.prepareForSessionEnd()
+                            workoutController.commitFinalLap()
+                            isShowingSessionComplete = true
+                            Task {
+                                try? await Task.sleep(for: .seconds(3))
+                                await endSession()
+                            }
+                        }
+                    )
+                    .offset(y: topControlOffset + menuButtonExtraOffset)
+                } else {
+                    pauseButton
+                        .offset(y: topControlOffset + pauseButtonExtraOffset)
+                }
+
+                Spacer()
+
+                Color.clear
+                    .frame(width: 48, height: 48)
+            }
+            .padding(.top, -10)
+
+            HStack(spacing: 6) {
+                Text(Formatters.heartRateString(bpm: workoutController.currentHeartRate))
+                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .monospacedDigit()
+
+                Image(systemName: "heart.fill")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.white)
+            }
+            .padding(.top, 2)
+            .offset(y: -16)
+            .frame(maxWidth: .infinity, alignment: .center)
+        }
+        .padding(.horizontal, 14)
+        .padding(.top, 2)
+        .frame(height: topHeaderHeight, alignment: .top)
+    }
 
     var body: some View {
         ZStack {
@@ -256,124 +253,74 @@ struct ActiveSessionView: View {
             }
 
             VStack(spacing: 0) {
-                ZStack(alignment: .top) {
-                    HStack(alignment: .top) {
-                        if showsSessionMenu {
-                            SessionMenuButton(
-                                isResting: isResting,
-                                isWorkoutPaused: isWorkoutPaused,
-                                primaryColor: primaryColor,
-                                onCancelRest: { workoutController.cancelRest() },
-                                onResume: { workoutController.resumeSession() },
-                                onPause: { workoutController.pauseSession() },
-                                onEnd: {
-                                    workoutController.prepareForSessionEnd()
-                                    workoutController.commitFinalLap()
-                                    isShowingSessionComplete = true
-                                    Task {
-                                        try? await Task.sleep(for: .seconds(3))
-                                        await endSession()
+                Color.clear
+                    .frame(height: topHeaderHeight + 16)
+
+                Spacer(minLength: 0)
+
+                VStack(spacing: timerCardsSpacing) {
+                    sessionTimerView
+
+                    ScrollViewReader { proxy in
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                if workoutController.completedLaps.isEmpty {
+                                    PlaceholderLapCardView(accentColor: primaryColor)
+                                        .offset(x: -8)
+                                } else {
+                                    ForEach(workoutController.completedLaps, id: \.id) { lap in
+                                        LapCardView(lap: lap, trackingMode: workoutController.trackingMode, distanceUnit: settings.distanceUnit, accentColor: primaryColor, isLatest: lap.id == workoutController.completedLaps.last?.id)
+                                            .contentShape(Rectangle())
+                                            .onTapGesture {
+                                                presentLapEditor(for: lap)
+                                            }
+                                            .id(lap.id)
                                     }
                                 }
-                            )
-                            .offset(y: topControlOffset + menuButtonExtraOffset)
-                        } else {
-                            pauseButton
-                                .offset(y: topControlOffset + pauseButtonExtraOffset)
+                            }
+                            .padding(.leading, 8)
+                            .padding(.trailing, 8)
+                            .frame(minWidth: WKInterfaceDevice.current().screenBounds.width, alignment: .trailing)
                         }
-
-                        Spacer()
-
-                        Color.clear
-                            .frame(width: 48, height: 48)
-                    }
-                    .padding(.top, -10)
-
-                    HStack(spacing: 6) {
-                        Text(Formatters.heartRateString(bpm: workoutController.currentHeartRate))
-                            .font(.system(size: 16, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white)
-                            .monospacedDigit()
-
-                        Image(systemName: "heart.fill")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(.white)
-                    }
-                    .padding(.top, 2)
-                    .offset(y: -16)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                }
-                .padding(.horizontal, 14)
-                .padding(.top, 2)
-                .frame(height: topHeaderHeight)
-                .padding(.bottom, 16)
-
-                sessionTimerView
-                    .offset(y: -15)
-
-                Color.clear
-                    .frame(height: 6)
-                    .contentShape(Rectangle())
-                    .onTapGesture { handleLapTap() }
-
-                ScrollViewReader { proxy in
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 8) {
-                            if workoutController.completedLaps.isEmpty {
-                                PlaceholderLapCardView(accentColor: primaryColor)
-                                    .offset(x: -8)
-                            } else {
-                                ForEach(workoutController.completedLaps, id: \.id) { lap in
-                                    LapCardView(lap: lap, trackingMode: workoutController.trackingMode, distanceUnit: settings.distanceUnit, accentColor: primaryColor, isLatest: lap.id == workoutController.completedLaps.last?.id)
-                                        .contentShape(Rectangle())
-                                        .onTapGesture {
-                                            presentLapEditor(for: lap)
-                                        }
-                                        .id(lap.id)
+                        .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+                        .contentShape(Rectangle())
+                        .simultaneousGesture(
+                            DragGesture(minimumDistance: 4)
+                                .onChanged { _ in
+                                    isLapHistoryDragging = true
+                                }
+                                .onEnded { _ in
+                                    Task { @MainActor in
+                                        try? await Task.sleep(for: .milliseconds(120))
+                                        isLapHistoryDragging = false
+                                    }
+                                }
+                        )
+                        .onChange(of: workoutController.completedLaps.count) {
+                            if let lastLap = workoutController.completedLaps.last {
+                                withAnimation {
+                                    proxy.scrollTo(lastLap.id, anchor: .trailing)
                                 }
                             }
-                        }
-                        .padding(.leading, 8)
-                        .padding(.trailing, 8)
-                        .frame(minWidth: WKInterfaceDevice.current().screenBounds.width, alignment: .trailing)
-                    }
-                    .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
-                    .contentShape(Rectangle())
-                    .simultaneousGesture(
-                        DragGesture(minimumDistance: 4)
-                            .onChanged { _ in
-                                isLapHistoryDragging = true
-                            }
-                            .onEnded { _ in
-                                Task { @MainActor in
-                                    try? await Task.sleep(for: .milliseconds(120))
-                                    isLapHistoryDragging = false
-                                }
-                            }
-                    )
-                    .onChange(of: workoutController.completedLaps.count) {
-                        if let lastLap = workoutController.completedLaps.last {
-                            withAnimation {
-                                proxy.scrollTo(lastLap.id, anchor: .trailing)
-                            }
-                        }
 
-                        let lapCount = workoutController.completedLaps.count
-                        if lapCount > lastAnimatedLapCount && lapCount > 0 {
-                            animateTimerForNewLap()
+                            let lapCount = workoutController.completedLaps.count
+                            if lapCount > lastAnimatedLapCount && lapCount > 0 {
+                                animateTimerForNewLap()
+                            }
+                            lastAnimatedLapCount = lapCount
                         }
-                        lastAnimatedLapCount = lapCount
                     }
+                    .frame(height: 64)
+                    .padding(.trailing, lapHistoryContainerTrailingPadding)
                 }
-                .frame(height: 64)
-                .padding(.trailing, lapHistoryContainerTrailingPadding)
                 .padding(.bottom, 4)
-                .offset(y: -10)
-
-                Color.clear
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             .offset(y: contentVerticalOffset)
+
+            VStack(spacing: 0) {
+                topHeaderView
+                Spacer(minLength: 0)
+            }
         }
         .overlay {
             ZStack {

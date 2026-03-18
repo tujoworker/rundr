@@ -734,10 +734,9 @@ private struct SessionCompleteView: View {
         ZStack {
             AppScreenBackground(accentColor: accentColor)
 
-            Image(systemName: "checkmark.circle.fill")
+            Image(systemName: "checkmark")
                 .font(.system(size: 96, weight: .medium))
                 .foregroundStyle(.white)
-                .symbolRenderingMode(.hierarchical)
         }
         .ignoresSafeArea()
     }

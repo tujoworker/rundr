@@ -41,7 +41,7 @@ struct ActiveSessionView: View {
         workoutController.completedLaps.filter { $0.lapType == .active }.count + 1
     }
 
-    private func timerTopLabel(_ detail: String? = nil, includeLap: Bool = true) -> String {
+    private func timerTopLabel(_ detail: String? = nil, includeLap: Bool = true, includeRemaining: Bool? = nil) -> String {
         var components: [String] = []
         if includeLap {
             components.append(L10n.lapIndex(currentLapNumber))
@@ -51,7 +51,8 @@ struct ActiveSessionView: View {
             components.append(detail)
         }
 
-        if includeLap, let remainingIntervals = workoutController.remainingPlannedIntervals {
+        let showRemaining = includeRemaining ?? includeLap
+        if showRemaining, let remainingIntervals = workoutController.remainingPlannedIntervals {
             components.append("\(remainingIntervals) left")
         }
 
@@ -64,9 +65,9 @@ struct ActiveSessionView: View {
         }
         if isResting {
             if let duration = workoutController.restDurationSeconds {
-                return timerTopLabel("Rest \(duration)s", includeLap: false)
+                return timerTopLabel("Rest \(duration)s", includeLap: false, includeRemaining: true)
             }
-            return timerTopLabel(L10n.restModeStatus, includeLap: false)
+            return timerTopLabel(L10n.restModeStatus, includeLap: false, includeRemaining: true)
         }
         if workoutController.trackingMode == .distanceDistance {
             return timerTopLabel(

@@ -46,6 +46,12 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         return segment.distanceMeters
     }
 
+    /// Effective target time for the current segment, derived from pace or direct time.
+    var currentTargetTimeSeconds: Double? {
+        guard trackingMode == .distanceDistance else { return nil }
+        return currentSegment.effectiveTargetTimeSeconds
+    }
+
     /// All unique distances defined in the segments, for quick-pick UI.
     var availableDistances: [Double] {
         Array(Set(distanceSegments.map(\.distanceMeters))).sorted()

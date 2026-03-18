@@ -20,9 +20,13 @@ struct PreStartView: View {
     @State private var editingSegmentDistanceText: String = ""
     @State private var editingSegmentRepeatCount: Int = 0
     @State private var editingSegmentRestSeconds: Int = 0
+    @State private var editingSegmentTargetPace: Int = 0
+    @State private var editingSegmentTargetTime: Int = 0
     @State private var lastAddedDistanceMeters: Double = 400
     @State private var lastAddedRepeatCount: Int = 0
     @State private var lastAddedRestSeconds: Int = 0
+    @State private var lastAddedTargetPace: Int = 0
+    @State private var lastAddedTargetTime: Int = 0
     @StateObject private var locationPermissionRequester = LocationPermissionRequester()
 
     private let readyTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -223,6 +227,8 @@ struct PreStartView: View {
             lastAddedDistanceMeters = settings.distanceSegments.last?.distanceMeters ?? 400
             lastAddedRepeatCount = settings.distanceSegments.last?.repeatCount ?? 0
             lastAddedRestSeconds = settings.distanceSegments.last?.restSeconds ?? 0
+            lastAddedTargetPace = Int(settings.distanceSegments.last?.targetPaceSecondsPerKm ?? 0)
+            lastAddedTargetTime = Int(settings.distanceSegments.last?.targetTimeSeconds ?? 0)
             refreshHeartRate()
         }
         .onReceive(readyTimer) { currentDate in
@@ -280,7 +286,10 @@ struct PreStartView: View {
                 distanceText: $editingSegmentDistanceText,
                 repeatCount: $editingSegmentRepeatCount,
                 restSeconds: $editingSegmentRestSeconds,
+                targetPace: $editingSegmentTargetPace,
+                targetTime: $editingSegmentTargetTime,
                 distanceLabel: distanceLabel,
+                distanceUnit: settings.distanceUnit,
                 accentColor: settings.primaryAccentColor,
                 onDone: { commitSegmentEdit() }
             )
@@ -312,7 +321,9 @@ struct PreStartView: View {
             DistanceSegment(
                 distanceMeters: lastAddedDistanceMeters,
                 repeatCount: lastAddedRepeatCount > 0 ? lastAddedRepeatCount : nil,
-                restSeconds: lastAddedRestSeconds > 0 ? lastAddedRestSeconds : nil
+                restSeconds: lastAddedRestSeconds > 0 ? lastAddedRestSeconds : nil,
+                targetPaceSecondsPerKm: lastAddedTargetPace > 0 ? Double(lastAddedTargetPace) : nil,
+                targetTimeSeconds: lastAddedTargetTime > 0 ? Double(lastAddedTargetTime) : nil
             )
         )
         persistSegments()
@@ -336,6 +347,8 @@ struct PreStartView: View {
         editingSegmentDistanceText = displayDist == floor(displayDist) ? String(format: "%.0f", displayDist) : String(format: "%g", displayDist)
         editingSegmentRepeatCount = segment.repeatCount ?? 0
         editingSegmentRestSeconds = segment.restSeconds ?? 0
+        editingSegmentTargetPace = Int(segment.targetPaceSecondsPerKm ?? 0)
+        editingSegmentTargetTime = Int(segment.targetTimeSeconds ?? 0)
     }
 
     private func commitSegmentEdit() {
@@ -354,8 +367,12 @@ struct PreStartView: View {
         lastAddedDistanceMeters = meters
         lastAddedRepeatCount = editingSegmentRepeatCount
         lastAddedRestSeconds = editingSegmentRestSeconds
+        lastAddedTargetPace = editingSegmentTargetPace
+        lastAddedTargetTime = editingSegmentTargetTime
         segments[idx].repeatCount = editingSegmentRepeatCount > 0 ? editingSegmentRepeatCount : nil
         segments[idx].restSeconds = editingSegmentRestSeconds > 0 ? editingSegmentRestSeconds : nil
+        segments[idx].targetPaceSecondsPerKm = editingSegmentTargetPace > 0 ? Double(editingSegmentTargetPace) : nil
+        segments[idx].targetTimeSeconds = editingSegmentTargetTime > 0 ? Double(editingSegmentTargetTime) : nil
         editingSegmentID = nil
         persistSegments()
     }
@@ -388,8 +405,12 @@ private struct SegmentRow: View {
         segment.restSeconds != nil
     }
 
+    private var hasTarget: Bool {
+        segment.effectiveTargetTimeSeconds != nil
+    }
+
     private var hasSecondaryDetails: Bool {
-        hasRepeatCount || hasRestDuration
+        hasRepeatCount || hasRestDuration || hasTarget
     }
 
     var body: some View {
@@ -408,6 +429,11 @@ private struct SegmentRow: View {
                             }
                             if let rest = segment.restSeconds {
                                 Text("\(rest)s rest")
+                                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                                    .foregroundStyle(.white.opacity(0.45))
+                            }
+                            if let targetTime = segment.effectiveTargetTimeSeconds {
+                                Text(Formatters.compactTimeString(from: targetTime))
                                     .font(.system(size: 12, weight: .medium, design: .rounded))
                                     .foregroundStyle(.white.opacity(0.45))
                             }
@@ -441,7 +467,10 @@ private struct SegmentEditSheet: View {
     @Binding var distanceText: String
     @Binding var repeatCount: Int
     @Binding var restSeconds: Int
+    @Binding var targetPace: Int
+    @Binding var targetTime: Int
     let distanceLabel: String
+    let distanceUnit: DistanceUnit
     let accentColor: Color
     let onDone: () -> Void
 
@@ -452,7 +481,15 @@ private struct SegmentEditSheet: View {
     }
 
     private var restLabel: String {
-        restSeconds > 0 ? "\(restSeconds)s" : "Manual"
+        restSeconds > 0 ? "\(restSeconds)s" : L10n.restManual
+    }
+
+    private var paceLabel: String {
+        targetPace > 0 ? Formatters.compactPaceString(secondsPerKm: Double(targetPace), unit: distanceUnit) : L10n.off
+    }
+
+    private var timeLabel: String {
+        targetTime > 0 ? Formatters.compactTimeString(from: Double(targetTime)) : L10n.off
     }
 
     var body: some View {
@@ -542,6 +579,102 @@ private struct SegmentEditSheet: View {
 
                     Button {
                         restSeconds += 15
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 16, weight: .bold))
+                            .frame(width: 36, height: 36)
+                            .background(Circle().fill(Color.white.opacity(0.15)))
+                            .foregroundStyle(.white)
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                Text(L10n.pace)
+                    .font(.caption.bold())
+                    .foregroundStyle(.white.opacity(0.72))
+                    .padding(.horizontal, 4)
+                    .padding(.top, 4)
+
+                HStack(spacing: 8) {
+                    Button {
+                        if targetPace >= 15 {
+                            targetPace -= 5
+                        } else {
+                            targetPace = 0
+                        }
+                        if targetPace > 0 { targetTime = 0 }
+                    } label: {
+                        Image(systemName: "minus")
+                            .font(.system(size: 16, weight: .bold))
+                            .frame(width: 36, height: 36)
+                            .background(Circle().fill(Color.white.opacity(0.15)))
+                            .foregroundStyle(.white)
+                    }
+                    .buttonStyle(.plain)
+
+                    Text(paceLabel)
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .fill(Color.white.opacity(0.12))
+                        )
+
+                    Button {
+                        if targetPace == 0 { targetPace = 300 }
+                        else { targetPace += 5 }
+                        targetTime = 0
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 16, weight: .bold))
+                            .frame(width: 36, height: 36)
+                            .background(Circle().fill(Color.white.opacity(0.15)))
+                            .foregroundStyle(.white)
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                Text(L10n.time)
+                    .font(.caption.bold())
+                    .foregroundStyle(.white.opacity(0.72))
+                    .padding(.horizontal, 4)
+                    .padding(.top, 4)
+
+                HStack(spacing: 8) {
+                    Button {
+                        if targetTime >= 10 {
+                            targetTime -= 5
+                        } else {
+                            targetTime = 0
+                        }
+                        if targetTime > 0 { targetPace = 0 }
+                    } label: {
+                        Image(systemName: "minus")
+                            .font(.system(size: 16, weight: .bold))
+                            .frame(width: 36, height: 36)
+                            .background(Circle().fill(Color.white.opacity(0.15)))
+                            .foregroundStyle(.white)
+                    }
+                    .buttonStyle(.plain)
+
+                    Text(timeLabel)
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .fill(Color.white.opacity(0.12))
+                        )
+
+                    Button {
+                        if targetTime == 0 { targetTime = 90 }
+                        else { targetTime += 5 }
+                        targetPace = 0
                     } label: {
                         Image(systemName: "plus")
                             .font(.system(size: 16, weight: .bold))

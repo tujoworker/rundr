@@ -85,6 +85,23 @@ enum Formatters {
         return String(format: "%d:%02d\u{2009}%@", minutes, secs, label)
     }
 
+    /// Compact pace format: "4:30" from seconds-per-km, converting to seconds-per-mile when needed.
+    static func compactPaceString(secondsPerKm: Double, unit: DistanceUnit) -> String {
+        let secondsPerUnit = unit == .km ? secondsPerKm : secondsPerKm * 1.60934
+        let minutes = Int(secondsPerUnit) / 60
+        let secs = Int(secondsPerUnit) % 60
+        let label = unit == .km ? L10n.pacePerKm : L10n.pacePerMi
+        return String(format: "%d:%02d\u{2009}%@", minutes, secs, label)
+    }
+
+    /// Target display string: "450 m in 1:20".
+    static func targetString(segment: DistanceSegment, unit: DistanceUnit) -> String? {
+        guard let targetTime = segment.effectiveTargetTimeSeconds else { return nil }
+        let dist = distanceString(meters: segment.distanceMeters, unit: unit)
+        let time = compactTimeString(from: targetTime)
+        return L10n.targetDisplay(dist, time)
+    }
+
     /// One-line summary for a lap: time, distance (if GPS), pace. No lap index.
     static func lapSummaryString(lap: Lap, trackingMode: TrackingMode, unit: DistanceUnit) -> String {
         let time = compactTimeString(from: lap.durationSeconds)

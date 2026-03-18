@@ -96,6 +96,14 @@ enum L10n {
     static let intervals = String(localized: "Intervals", comment: "Workout style")
     static let lap = String(localized: "Lap", comment: "Intent")
 
+    // MARK: - Target
+    static let pace = String(localized: "Pace", comment: "Pace target label")
+    static let time = String(localized: "Time", comment: "Time target label")
+    static let off = String(localized: "Off", comment: "Target off")
+    static func targetDisplay(_ distance: String, _ time: String) -> String {
+        String(format: String(localized: "%@ in %@", comment: "Target display: distance in time"), distance, time)
+    }
+
     // MARK: - Distance/Unit suffixes for Formatters
     static let kmSuffix = String(localized: "km", comment: "Kilometer unit")
     static let mSuffix = String(localized: "m", comment: "Meter unit")

@@ -52,6 +52,10 @@ struct ActiveSessionView: View {
 
         let showRemaining = includeRemaining ?? includeLap
         if showRemaining, let remainingIntervals = workoutController.remainingPlannedIntervals {
+            let distance = workoutController.currentTargetDistanceMeters
+            if distance > 0 {
+                components.append(Formatters.distanceString(meters: distance, unit: settings.distanceUnit))
+            }
             components.append("\(remainingIntervals) left")
         }
 
@@ -69,12 +73,12 @@ struct ActiveSessionView: View {
             return timerTopLabel(L10n.restModeStatus, includeLap: false, includeRemaining: true)
         }
         if workoutController.trackingMode == .distanceDistance {
-            return timerTopLabel(
-                Formatters.distanceString(
-                    meters: workoutController.currentTargetDistanceMeters,
-                    unit: settings.distanceUnit
-                )
+            let hasRemaining = workoutController.remainingPlannedIntervals != nil
+            let distanceStr = Formatters.distanceString(
+                meters: workoutController.currentTargetDistanceMeters,
+                unit: settings.distanceUnit
             )
+            return timerTopLabel(hasRemaining ? nil : distanceStr)
         }
         return timerTopLabel()
     }

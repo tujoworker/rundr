@@ -41,14 +41,17 @@ struct ActiveSessionView: View {
         workoutController.completedLaps.filter { $0.lapType == .active }.count + 1
     }
 
-    private func timerTopLabel(_ detail: String? = nil) -> String {
-        var components = [L10n.lapIndex(currentLapNumber)]
+    private func timerTopLabel(_ detail: String? = nil, includeLap: Bool = true) -> String {
+        var components: [String] = []
+        if includeLap {
+            components.append(L10n.lapIndex(currentLapNumber))
+        }
 
         if let detail, !detail.isEmpty {
             components.append(detail)
         }
 
-        if let remainingIntervals = workoutController.remainingPlannedIntervals {
+        if includeLap, let remainingIntervals = workoutController.remainingPlannedIntervals {
             components.append("\(remainingIntervals) left")
         }
 
@@ -57,13 +60,13 @@ struct ActiveSessionView: View {
 
     private var timerTopLabel: String {
         if isWorkoutPaused {
-            return timerTopLabel(L10n.workoutPaused)
+            return timerTopLabel(L10n.workoutPaused, includeLap: false)
         }
         if isResting {
             if let duration = workoutController.restDurationSeconds {
-                return timerTopLabel("Rest \(duration)s")
+                return timerTopLabel("Rest \(duration)s", includeLap: false)
             }
-            return timerTopLabel(L10n.restModeStatus)
+            return timerTopLabel(L10n.restModeStatus, includeLap: false)
         }
         if workoutController.trackingMode == .distanceDistance {
             return timerTopLabel(
@@ -196,7 +199,7 @@ struct ActiveSessionView: View {
                                     .offset(x: -8)
                             } else {
                                 ForEach(workoutController.completedLaps, id: \.id) { lap in
-                                    LapCardView(lap: lap, trackingMode: workoutController.trackingMode, distanceUnit: settings.distanceUnit, isLatest: lap.id == workoutController.completedLaps.last?.id)
+                                    LapCardView(lap: lap, trackingMode: workoutController.trackingMode, distanceUnit: settings.distanceUnit, isLatest: !showsSessionMenu && lap.id == workoutController.completedLaps.last?.id)
                                         .contentShape(Rectangle())
                                         .onTapGesture {
                                             presentLapEditor(for: lap)

@@ -158,6 +158,7 @@ struct ActiveSessionView: View {
                                 onPause: { workoutController.pauseSession() },
                                 onEnd: {
                                     workoutController.prepareForSessionEnd()
+                                    workoutController.commitFinalLap()
                                     isShowingSessionComplete = true
                                     Task {
                                         try? await Task.sleep(for: .seconds(3))
@@ -302,9 +303,13 @@ struct ActiveSessionView: View {
                 withAnimation(nil) { isRestPulseOn = false }
             }
         }
-        .fullScreenCover(isPresented: $isShowingSessionComplete) {
-            SessionCompleteView(accentColor: primaryColor)
+        .overlay {
+            if isShowingSessionComplete {
+                SessionCompleteView(accentColor: primaryColor)
+                    .transition(.opacity)
+            }
         }
+        .animation(.easeInOut(duration: 0.25), value: isShowingSessionComplete)
         .fullScreenCover(isPresented: Binding(
             get: { lapEditorState != nil },
             set: { presented in

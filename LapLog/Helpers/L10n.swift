@@ -36,7 +36,7 @@ enum L10n {
     static let endRest = String(localized: "End Rest", comment: "Button")
     static let pause = String(localized: "Pause", comment: "Button")
     static let resume = String(localized: "Resume", comment: "Button")
-    static let workoutPaused = String(localized: "Workout Paused", comment: "Timer label when workout is fully paused")
+    static let workoutPaused = String(localized: "Paused", comment: "Timer label when workout is fully paused")
     static let endSession = String(localized: "End", comment: "Button")
     static let delete = String(localized: "Delete", comment: "Button")
     static let active = String(localized: "Active", comment: "Current lap label")

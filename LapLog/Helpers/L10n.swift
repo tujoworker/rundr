@@ -16,7 +16,7 @@ enum L10n {
     static let color = String(localized: "Color", comment: "Primary color setting")
     static let restMode = String(localized: "Rest Mode", comment: "Rest mode setting")
     static let restManual = String(localized: "Manual", comment: "Rest mode: manual")
-    static let restAutoDetect = String(localized: "Auto", comment: "Rest mode: auto detect")
+    static let restAutoDetect = String(localized: "Auto-detect", comment: "Rest mode: auto detect")
     static let distancePlaceholderKm = String(localized: "e.g. 400", comment: "Distance placeholder")
     static let distancePlaceholderMiles = String(localized: "e.g. 1320", comment: "Distance placeholder")
     static let locationRequired = String(localized: "Location Required", comment: "Alert title")

@@ -91,7 +91,10 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     private var timerCancellable: AnyCancellable?
     private var restTimerCancellable: AnyCancellable?
+    private var pendingAutoRestTask: Task<Void, Never>?
     private var healthKitManager: HealthKitManager?
+
+    var autoRestDetectionDelay: Duration = .seconds(10)
 
     // HealthKit workout session
     private var hkWorkoutSession: HKWorkoutSession?
@@ -110,6 +113,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         restMode: RestMode = .manual,
         healthKitManager: HealthKitManager
     ) {
+        cancelPendingAutoRestDetection()
         self.trackingMode = trackingMode
         self.distanceLapDistanceMeters = distanceLapDistanceMeters
         self.distanceSegments = distanceSegments.isEmpty ? [.default] : distanceSegments
@@ -137,6 +141,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         lapElapsedSeconds = 0
         currentHeartRate = nil
         clearPauseState()
+        cancelPendingAutoRestDetection()
         runState = .active
 
         startTimer()
@@ -161,6 +166,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         lapElapsedSeconds = 0
         currentHeartRate = nil
         clearPauseState()
+        cancelPendingAutoRestDetection()
         runState = .active
     }
 
@@ -215,12 +221,14 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     func startRest() {
         guard runState == .active else { return }
+        cancelPendingAutoRestDetection()
         playHaptic(.notification)
         runState = .rest
     }
 
     func cancelRest() {
         guard runState == .rest else { return }
+        cancelPendingAutoRestDetection()
         cancelRestTimer()
         playHaptic(.click)
         runState = .active
@@ -235,6 +243,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         pausedRestElapsedSeconds = restElapsedSeconds
         pausedRestDurationSeconds = restDurationSeconds
 
+        cancelPendingAutoRestDetection()
         cancelRestTimer()
         stopTimer()
         stopLocationUpdates()
@@ -267,6 +276,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     }
 
     func prepareForSessionEnd() {
+        cancelPendingAutoRestDetection()
         cancelRestTimer()
     }
 
@@ -289,6 +299,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         }
 
         cancelRestTimer()
+        cancelPendingAutoRestDetection()
         runState = .ended
         stopTimer()
         stopLocationUpdates()
@@ -344,9 +355,35 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         currentSegmentIndex = 0
         currentSegmentRepeatsDone = 0
         clearPauseState()
+        cancelPendingAutoRestDetection()
         cancelRestTimer()
         stopTimer()
         stopLocationUpdates()
+    }
+
+    func handleAutoRestMotionPause() {
+        guard restMode == .autoDetect, runState == .active else { return }
+
+        cancelPendingAutoRestDetection()
+        let delay = autoRestDetectionDelay
+        pendingAutoRestTask = Task { [weak self] in
+            do {
+                try await Task.sleep(for: delay)
+            } catch {
+                return
+            }
+
+            await MainActor.run {
+                self?.completePendingAutoRestDetection()
+            }
+        }
+    }
+
+    func handleAutoRestMotionResume() {
+        cancelPendingAutoRestDetection()
+
+        guard restMode == .autoDetect, runState == .rest else { return }
+        cancelRest()
     }
 
     // MARK: - Timer
@@ -367,6 +404,18 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private func stopTimer() {
         timerCancellable?.cancel()
         timerCancellable = nil
+    }
+
+    private func completePendingAutoRestDetection() {
+        pendingAutoRestTask = nil
+
+        guard restMode == .autoDetect, runState == .active else { return }
+        startRest()
+    }
+
+    private func cancelPendingAutoRestDetection() {
+        pendingAutoRestTask?.cancel()
+        pendingAutoRestTask = nil
     }
 
     // MARK: - Lap Commit
@@ -672,9 +721,9 @@ extension WorkoutSessionController: HKWorkoutSessionDelegate {
             guard self.restMode == .autoDetect else { return }
             switch eventType {
             case .motionPaused:
-                self.startRest()
+                self.handleAutoRestMotionPause()
             case .motionResumed:
-                self.cancelRest()
+                self.handleAutoRestMotionResume()
             default:
                 break
             }

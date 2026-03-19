@@ -11,7 +11,7 @@ enum RestMode: String, CaseIterable, Identifiable, Codable {
         case .manual:
             return String(localized: "Manual", comment: "Rest mode: manual")
         case .autoDetect:
-            return String(localized: "Auto", comment: "Rest mode: auto detect")
+            return String(localized: "Auto-detect", comment: "Rest mode: auto detect")
         }
     }
 }

@@ -12,7 +12,7 @@
 "Color" = "Farge";
 "Rest Mode" = "Hvilemodus";
 "Manual" = "Manuell";
-"Auto" = "Auto";
+"Auto-detect" = "Automatisk";
 "e.g. 400" = "f.eks. 400";
 "e.g. 1320" = "f.eks. 1320";
 "Location Required" = "Plassering kreves";

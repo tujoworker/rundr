@@ -15,6 +15,7 @@ struct PreStartView: View {
     @State private var isGPSPermissionAlertPresented = false
     @State private var isTrackingModeDialogPresented = false
     @State private var isDistanceUnitDialogPresented = false
+    @State private var isRestModeDialogPresented = false
     @State private var isPrimaryColorDialogPresented = false
     @State private var editingSegmentID: UUID?
     @State private var editingSegmentDistanceText: String = ""
@@ -204,6 +205,18 @@ struct PreStartView: View {
                 .buttonStyle(.plain)
 
                 Button {
+                    isRestModeDialogPresented = true
+                } label: {
+                    SettingsCardRow(
+                        icon: "figure.cooldown",
+                        iconColor: .mint,
+                        title: L10n.restMode,
+                        value: settings.restMode.displayName
+                    )
+                }
+                .buttonStyle(.plain)
+
+                Button {
                     isPrimaryColorDialogPresented = true
                 } label: {
                     SettingsCardRow(
@@ -266,6 +279,14 @@ struct PreStartView: View {
             ForEach(DistanceUnit.allCases) { unit in
                 Button(unit.displayName) {
                     settings.distanceUnit = unit
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        }
+        .confirmationDialog(L10n.restMode, isPresented: $isRestModeDialogPresented) {
+            ForEach(RestMode.allCases) { mode in
+                Button(mode.displayName) {
+                    settings.restMode = mode
                 }
             }
             Button("Cancel", role: .cancel) {}
@@ -482,6 +503,7 @@ struct HistorySessionSetupView: View {
     @State private var lastAddedRestSeconds: Int = 0
     @State private var lastAddedTargetPace: Int = 0
     @State private var lastAddedTargetTime: Int = 0
+    @State private var isRestModeDialogPresented = false
     @StateObject private var locationPermissionRequester = LocationPermissionRequester()
 
     private var distanceLabel: String {
@@ -555,6 +577,18 @@ struct HistorySessionSetupView: View {
                     intervalsSection
                 }
 
+                Button {
+                    isRestModeDialogPresented = true
+                } label: {
+                    SettingsCardRow(
+                        icon: "figure.cooldown",
+                        iconColor: .mint,
+                        title: L10n.restMode,
+                        value: restMode.displayName
+                    )
+                }
+                .buttonStyle(.plain)
+
                 Button(action: continueToGetReady) {
                     Text(L10n.continueToGetReady)
                         .font(.system(size: 16, weight: .semibold, design: .rounded))
@@ -586,6 +620,14 @@ struct HistorySessionSetupView: View {
                 accentColor: settings.primaryAccentColor,
                 onDone: { commitSegmentEdit() }
             )
+        }
+        .confirmationDialog(L10n.restMode, isPresented: $isRestModeDialogPresented) {
+            ForEach(RestMode.allCases) { mode in
+                Button(mode.displayName) {
+                    restMode = mode
+                }
+            }
+            Button("Cancel", role: .cancel) {}
         }
     }
 

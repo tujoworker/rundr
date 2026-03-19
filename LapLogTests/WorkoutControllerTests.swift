@@ -267,6 +267,63 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.restMode, .autoDetect)
     }
 
+    func testAutoDetectRestEntersRestAfterDelay() async {
+        let controller = makeController()
+        controller.configure(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [.default],
+            restMode: .autoDetect,
+            healthKitManager: HealthKitManager()
+        )
+        controller.autoRestDetectionDelay = .milliseconds(20)
+        controller.startWithoutHealthKit()
+
+        controller.handleAutoRestMotionPause()
+        XCTAssertEqual(controller.runState, .active)
+
+        try? await Task.sleep(for: .milliseconds(40))
+
+        XCTAssertEqual(controller.runState, .rest)
+    }
+
+    func testAutoDetectRestResumeCancelsPendingTransition() async {
+        let controller = makeController()
+        controller.configure(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [.default],
+            restMode: .autoDetect,
+            healthKitManager: HealthKitManager()
+        )
+        controller.autoRestDetectionDelay = .milliseconds(40)
+        controller.startWithoutHealthKit()
+
+        controller.handleAutoRestMotionPause()
+        controller.handleAutoRestMotionResume()
+
+        try? await Task.sleep(for: .milliseconds(70))
+
+        XCTAssertEqual(controller.runState, .active)
+    }
+
+    func testAutoDetectRestResumeExitsRestImmediately() {
+        let controller = makeController()
+        controller.configure(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [.default],
+            restMode: .autoDetect,
+            healthKitManager: HealthKitManager()
+        )
+        controller.startWithoutHealthKit()
+        controller.startRest()
+
+        controller.handleAutoRestMotionResume()
+
+        XCTAssertEqual(controller.runState, .active)
+    }
+
     func testThreeSegmentProgression() {
         let segments = [
             DistanceSegment(distanceMeters: 200, repeatCount: 1),

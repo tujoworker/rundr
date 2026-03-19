@@ -40,14 +40,23 @@ struct ActiveSessionView: View {
         workoutController.completedLaps.filter { $0.lapType == .active }.count + 1
     }
 
-    private var hasLapCounterBadge: Bool {
-        if let total = workoutController.totalPlannedIntervals, total > 0 { return true }
-        return false
+    private var lapCounterTotal: Int? {
+        guard let total = workoutController.totalPlannedIntervals, total > 0 else { return nil }
+        return total
+    }
+
+    private var showsLapCounterBadge: Bool {
+        switch workoutController.runState {
+        case .active, .rest, .paused, .ending:
+            return true
+        case .idle, .ready, .ended:
+            return false
+        }
     }
 
     private func timerTopLabel(_ detail: String? = nil, includeLap: Bool = true, includeRemaining: Bool? = nil) -> String {
         var components: [String] = []
-        if includeLap && !hasLapCounterBadge {
+        if includeLap && !showsLapCounterBadge {
             components.append(L10n.lapIndex(currentLapNumber))
         }
 
@@ -69,9 +78,6 @@ struct ActiveSessionView: View {
             return timerTopLabel(L10n.restModeStatus, includeLap: false)
         }
         if workoutController.trackingMode == .distanceDistance {
-            if hasLapCounterBadge {
-                return ""
-            }
             let distanceStr = Formatters.distanceString(
                 meters: workoutController.currentTargetDistanceMeters,
                 unit: settings.distanceUnit
@@ -101,40 +107,45 @@ struct ActiveSessionView: View {
 
     @ViewBuilder
     private var timerTopOverlay: some View {
-        if hasLapCounterBadge {
-            let total = workoutController.totalPlannedIntervals ?? 0
+        if showsLapCounterBadge {
             let labelFont = Font.system(size: 15, weight: .regular, design: .rounded)
             let labelColor = Color.white
 
             HStack(spacing: 5) {
-                HStack(alignment: .firstTextBaseline, spacing: 0) {
-                    Text("\(displayedLapCounter)")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
-                        .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
-                    Text("/\(total)")
-                        .font(.system(size: 12, weight: .semibold, design: .rounded))
-                        .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
+                Group {
+                    if let total = lapCounterTotal {
+                        HStack(alignment: .firstTextBaseline, spacing: 0) {
+                            Text("\(displayedLapCounter)")
+                                .font(.system(size: 20, weight: .bold, design: .rounded))
+                                .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
+                        Text("/\(total)")
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
+                        }
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 0)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(.white)
+                        )
+                    } else {
+                        Text("\(displayedLapCounter)")
+                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .monospacedDigit()
+                            .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 0)
+                            .background(
+                                RoundedRectangle(cornerRadius: 6, style: .continuous)
+                                    .fill(.white)
+                            )
+                    }
                 }
-                .padding(.horizontal, 4)
-                .padding(.vertical, 0)
-                .background(
-                    RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .fill(.white)
-                )
 
                 if !timerTopLabel.isEmpty {
                     Text(timerTopLabel)
                         .font(labelFont)
                         .foregroundStyle(labelColor)
-                } else if let target = workoutController.currentTargetTimeSeconds {
-                    Text(L10n.targetDisplay(
-                        Formatters.distanceString(meters: workoutController.currentTargetDistanceMeters, unit: settings.distanceUnit),
-                        Formatters.compactTimeString(from: target)
-                    ))
-                    .font(labelFont)
-                    .foregroundStyle(labelColor)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
                 }
             }
         } else {

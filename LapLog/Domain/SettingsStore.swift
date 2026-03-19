@@ -261,7 +261,7 @@ final class SettingsStore: ObservableObject {
 
     func storeSessionIntervalPresetIfUnique(_ workoutPlan: WorkoutPlanSnapshot) {
         let normalizedPlan = IntervalPreset.normalizedWorkoutPlan(workoutPlan)
-        guard normalizedPlan.trackingMode == .distanceDistance else { return }
+        guard normalizedPlan.trackingMode.usesManualIntervals else { return }
 
         let signature = IntervalPresetSignature(workoutPlan: normalizedPlan)
         let containsSavedPreset = intervalPresets.contains { $0.signature == signature }
@@ -280,7 +280,7 @@ final class SettingsStore: ObservableObject {
         existingPresetID: UUID? = nil
     ) -> IntervalPreset? {
         let normalizedPlan = IntervalPreset.normalizedWorkoutPlan(workoutPlan)
-        guard normalizedPlan.trackingMode == .distanceDistance else { return nil }
+        guard normalizedPlan.trackingMode.usesManualIntervals else { return nil }
 
         let title = IntervalPreset.storedTitle(for: normalizedPlan, preferredTitle: customTitle)
         let now = Date()

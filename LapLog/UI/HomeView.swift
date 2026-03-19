@@ -98,6 +98,13 @@ struct SessionRowView: View {
                 .font(.caption)
             Text("Time: \(Formatters.timeString(from: session.durationSeconds)) • \(Formatters.distanceString(meters: session.totalDistanceMeters, unit: settings.distanceUnit))")
                 .font(.caption)
+            if session.mode == .dual,
+               let gpsDistanceMeters = session.totalGPSDistanceMeters,
+               gpsDistanceMeters > 0 {
+                Text(L10n.gpsDistance(Formatters.distanceString(meters: gpsDistanceMeters, unit: settings.distanceUnit)))
+                    .font(.caption2)
+                    .foregroundStyle(.white.opacity(0.68))
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(8)

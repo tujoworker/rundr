@@ -92,7 +92,7 @@ struct PreStartView: View {
     }
 
     private var isStartDisabled: Bool {
-        if settings.trackingMode == .distanceDistance {
+        if settings.trackingMode.usesManualIntervals {
             return segments.isEmpty || segments.contains { $0.distanceMeters <= 0 }
         }
         return false
@@ -172,7 +172,7 @@ struct PreStartView: View {
                         .padding(.bottom, 2)
                 }
 
-                if settings.trackingMode == .distanceDistance {
+                if settings.trackingMode.usesManualIntervals {
                     intervalsSection
 
                     Button {
@@ -264,7 +264,7 @@ struct PreStartView: View {
             refreshHeartRate()
         }
         .onChange(of: settings.trackingMode) { _, newValue in
-            guard newValue == .gps else { return }
+            guard newValue.usesGPSDistance else { return }
             Task { @MainActor in
                 let isGranted = await locationPermissionRequester.requestIfNeeded()
                 guard !isGranted else { return }
@@ -278,7 +278,7 @@ struct PreStartView: View {
         .alert("Location Required", isPresented: $isGPSPermissionAlertPresented) {
             Button("OK", role: .cancel) {}
         } message: {
-            Text("GPS mode needs location access. The mode was switched back to Distance.")
+            Text(L10n.gpsModeNeedsLocation)
         }
         .confirmationDialog(L10n.mode, isPresented: $isTrackingModeDialogPresented) {
             ForEach(TrackingMode.allCases) { mode in
@@ -677,7 +677,7 @@ private struct IntervalSetupView: View {
     }
 
     private var isContinueDisabled: Bool {
-        if trackingMode == .distanceDistance {
+        if trackingMode.usesManualIntervals {
             return segments.isEmpty || segments.contains { $0.distanceMeters <= 0 }
         }
         return false
@@ -738,7 +738,7 @@ private struct IntervalSetupView: View {
                     IntervalTitleField(text: $customTitle)
                 }
 
-                if trackingMode == .distanceDistance {
+                if trackingMode.usesManualIntervals {
                     intervalsSection
                 }
 

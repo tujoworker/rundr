@@ -15,7 +15,7 @@ struct WorkoutPlanSnapshot: Codable, Equatable {
     ) {
         let normalizedSegments = distanceSegments.isEmpty ? [.default] : distanceSegments
         self.trackingMode = trackingMode
-        self.distanceLapDistanceMeters = trackingMode == .distanceDistance
+        self.distanceLapDistanceMeters = trackingMode.usesManualIntervals
             ? (distanceLapDistanceMeters ?? normalizedSegments.first?.distanceMeters ?? DistanceSegment.default.distanceMeters)
             : nil
         self.distanceSegments = normalizedSegments
@@ -32,6 +32,7 @@ final class Session {
     var modeRaw: String
     var distanceLapDistanceMeters: Double?
     var totalDistanceMeters: Double
+    var totalGPSDistanceMeters: Double?
     var averageSpeedMetersPerSecond: Double
     var totalLaps: Int
     @Relationship(deleteRule: .cascade)
@@ -65,7 +66,7 @@ final class Session {
                     ?? distanceLapDistanceMeters
                     ?? DistanceSegment.default.distanceMeters
                 let fallbackSegments: [DistanceSegment]
-                if snapshotTrackingMode == .distanceDistance {
+                if snapshotTrackingMode.usesManualIntervals {
                     fallbackSegments = [DistanceSegment(distanceMeters: fallbackDistance)]
                 } else {
                     fallbackSegments = [.default]
@@ -98,6 +99,7 @@ final class Session {
         mode: TrackingMode,
         distanceLapDistanceMeters: Double? = nil,
         totalDistanceMeters: Double,
+        totalGPSDistanceMeters: Double? = nil,
         averageSpeedMetersPerSecond: Double,
         totalLaps: Int,
         laps: [Lap] = [],
@@ -116,6 +118,7 @@ final class Session {
         self.modeRaw = mode.rawValue
         self.distanceLapDistanceMeters = distanceLapDistanceMeters
         self.totalDistanceMeters = totalDistanceMeters
+        self.totalGPSDistanceMeters = totalGPSDistanceMeters
         self.averageSpeedMetersPerSecond = averageSpeedMetersPerSecond
         self.totalLaps = totalLaps
         self.laps = laps
@@ -128,7 +131,7 @@ final class Session {
         self.snapshotWorkoutPlan = snapshotWorkoutPlan ?? WorkoutPlanSnapshot(
             trackingMode: snapshotTrackingMode,
             distanceLapDistanceMeters: snapshotDistanceDistanceMeters,
-            distanceSegments: snapshotTrackingMode == .distanceDistance
+            distanceSegments: snapshotTrackingMode.usesManualIntervals
                 ? [DistanceSegment(distanceMeters: snapshotDistanceDistanceMeters ?? distanceLapDistanceMeters ?? DistanceSegment.default.distanceMeters)]
                 : [.default],
             restMode: .manual

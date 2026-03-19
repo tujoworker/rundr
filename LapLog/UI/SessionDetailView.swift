@@ -32,7 +32,7 @@ struct SessionDetailView: View {
                     .padding(.bottom, 4)
 
                 ForEach(sortedLaps, id: \.id) { lap in
-                    LapRowView(lap: lap, distanceUnit: settings.distanceUnit)
+                    LapRowView(lap: lap, trackingMode: session.mode, distanceUnit: settings.distanceUnit)
                 }
 
                 Button(action: onUseSessionSettings) {
@@ -62,6 +62,7 @@ struct SessionDetailView: View {
 
 struct LapRowView: View {
     let lap: Lap
+    let trackingMode: TrackingMode
     var distanceUnit: DistanceUnit = .km
 
     var body: some View {
@@ -88,6 +89,14 @@ struct LapRowView: View {
                     Text(Formatters.heartRateString(bpm: bpm))
                         .font(.system(.caption2, design: .monospaced))
                 }
+            }
+            if trackingMode == .dual,
+               lap.lapType != .rest,
+               let gpsDistanceMeters = lap.gpsDistanceMeters,
+               gpsDistanceMeters > 0 {
+                Text(L10n.gpsDistance(Formatters.distanceString(meters: gpsDistanceMeters, unit: distanceUnit)))
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

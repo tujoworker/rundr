@@ -22,7 +22,7 @@
 "e.g. 1320" = "z.B. 1320";
 "Location Required" = "Standort erforderlich";
 "OK" = "OK";
-"GPS mode needs location access. The mode was switched back to Distance." = "GPS-Modus benötigt Standortzugriff. Der Modus wurde auf Distanz zurückgestellt.";
+"GPS-based modes need location access. The mode was switched back to Distance." = "GPS-basierte Modi benötigen Standortzugriff. Der Modus wurde auf Distanz zurückgestellt.";
 "Cancel" = "Abbrechen";
 "Distance Unit" = "Distanzeinheit";
 "Primary Color" = "Hauptfarbe";
@@ -69,7 +69,9 @@
 
 /* Tracking Mode */
 "GPS" = "GPS";
+"Dual" = "Dual";
 "Distance" = "Distanz";
+"GPS: %@" = "GPS: %@";
 
 /* Distance Unit */
 "Kilometers" = "Kilometer";

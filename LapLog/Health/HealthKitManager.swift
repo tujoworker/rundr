@@ -126,7 +126,7 @@ final class HealthKitManager: ObservableObject {
     func saveWorkout(session: Session) async throws -> UUID? {
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = .running
-        configuration.locationType = session.mode == .gps ? .outdoor : .indoor
+        configuration.locationType = session.mode.usesGPSDistance ? .outdoor : .indoor
 
         let builder = HKWorkoutBuilder(healthStore: healthStore, configuration: configuration, device: .local())
         try await builder.beginCollection(at: session.startedAt)
@@ -201,7 +201,7 @@ final class HealthKitManager: ObservableObject {
         for lap in session.laps.sorted(by: { $0.startedAt < $1.startedAt }) {
             let intervalConfig = HKWorkoutConfiguration()
             intervalConfig.activityType = .running
-            intervalConfig.locationType = session.mode == .gps ? .outdoor : .indoor
+            intervalConfig.locationType = session.mode.usesGPSDistance ? .outdoor : .indoor
 
             var meta: [String: Any] = [
                 "lapIndex": lap.index,
@@ -212,6 +212,9 @@ final class HealthKitManager: ObservableObject {
             }
             if lap.distanceMeters > 0 {
                 meta["distanceMeters"] = lap.distanceMeters
+            }
+            if let gpsDistanceMeters = lap.gpsDistanceMeters, gpsDistanceMeters > 0 {
+                meta["gpsDistanceMeters"] = gpsDistanceMeters
             }
             let activity = HKWorkoutActivity(
                 workoutConfiguration: intervalConfig,

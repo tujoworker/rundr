@@ -7,11 +7,12 @@ final class ModelTests: XCTestCase {
 
     func testTrackingModeDisplayNames() {
         XCTAssertEqual(TrackingMode.gps.displayName, "GPS")
+        XCTAssertEqual(TrackingMode.dual.displayName, "Dual")
         XCTAssertEqual(TrackingMode.distanceDistance.displayName, "Distance")
     }
 
     func testTrackingModeAllCases() {
-        XCTAssertEqual(TrackingMode.allCases.count, 2)
+        XCTAssertEqual(TrackingMode.allCases.count, 3)
     }
 
     func testTrackingModeCodable() throws {
@@ -181,6 +182,28 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(session.snapshotDistanceDistanceMeters, 400)
     }
 
+    func testSessionDualModeStoresSeparateGPSDistance() {
+        let session = Session(
+            startedAt: Date(),
+            endedAt: Date(),
+            durationSeconds: 600,
+            mode: .dual,
+            distanceLapDistanceMeters: 400,
+            totalDistanceMeters: 2000,
+            totalGPSDistanceMeters: 2180,
+            averageSpeedMetersPerSecond: 3.33,
+            totalLaps: 5,
+            snapshotTrackingMode: .dual,
+            snapshotDistanceDistanceMeters: 400
+        )
+
+        XCTAssertEqual(session.mode, .dual)
+        XCTAssertEqual(session.distanceLapDistanceMeters, 400)
+        XCTAssertEqual(session.totalDistanceMeters, 2000)
+        XCTAssertEqual(session.totalGPSDistanceMeters, 2180)
+        XCTAssertEqual(session.snapshotTrackingMode, .dual)
+    }
+
     func testSessionStoresWorkoutPlanSnapshot() {
         let snapshot = WorkoutPlanSnapshot(
             trackingMode: .distanceDistance,
@@ -244,6 +267,8 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(session.modeRaw, "gps")
         session.mode = .distanceDistance
         XCTAssertEqual(session.modeRaw, "distanceDistance")
+        session.mode = .dual
+        XCTAssertEqual(session.modeRaw, "dual")
     }
 
     // MARK: - DistanceSegment

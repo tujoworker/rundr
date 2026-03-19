@@ -77,7 +77,7 @@ struct ActiveSessionView: View {
             }
             return timerTopLabel(L10n.restModeStatus, includeLap: false)
         }
-        if workoutController.trackingMode == .distanceDistance {
+        if workoutController.trackingMode.usesManualIntervals {
             let distanceStr = Formatters.distanceString(
                 meters: workoutController.currentTargetDistanceMeters,
                 unit: settings.distanceUnit
@@ -634,6 +634,13 @@ struct LapCardView: View {
                             .font(.system(size: 18, design: .rounded))
                             .monospacedDigit()
                             .foregroundStyle(.secondary)
+                        if trackingMode == .dual,
+                           let gpsDistanceMeters = lap.gpsDistanceMeters,
+                           gpsDistanceMeters > 0 {
+                            Text(L10n.gpsDistance(Formatters.distanceString(meters: gpsDistanceMeters, unit: distanceUnit)))
+                                .font(.system(size: 12, weight: .medium, design: .rounded))
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
             }

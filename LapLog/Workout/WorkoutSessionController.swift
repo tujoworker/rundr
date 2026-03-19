@@ -15,6 +15,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     @Published var currentHeartRate: Double? = nil
     @Published var cumulativeDistanceMeters: Double = 0
     @Published var currentLapDistanceMeters: Double = 0
+    @Published var cumulativeGPSDistanceMeters: Double = 0
+    @Published var currentLapGPSDistanceMeters: Double = 0
     @Published var completedLaps: [Lap] = []
     @Published var isGPSActive: Bool = false
     /// Elapsed seconds in current timed rest. `nil` when not in a timed rest.
@@ -30,6 +32,14 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private(set) var distanceLapDistanceMeters: Double = 400
     private(set) var restMode: RestMode = .manual
 
+    private var usesGPSDistance: Bool {
+        trackingMode.usesGPSDistance
+    }
+
+    private var usesManualIntervals: Bool {
+        trackingMode.usesManualIntervals
+    }
+
     // MARK: - Distance Segments
 
     /// Ordered list of distance segments for the workout plan.
@@ -41,14 +51,14 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     /// The target distance for the next/current lap based on the segment plan.
     var currentTargetDistanceMeters: Double {
-        guard trackingMode == .distanceDistance else { return 0 }
+        guard usesManualIntervals else { return 0 }
         let segment = currentSegment
         return segment.distanceMeters
     }
 
     /// Effective target time for the current segment, derived from pace or direct time.
     var currentTargetTimeSeconds: Double? {
-        guard trackingMode == .distanceDistance else { return nil }
+        guard usesManualIntervals else { return nil }
         return currentSegment.effectiveTargetTimeSeconds
     }
 
@@ -59,7 +69,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     /// Total number of planned active intervals when all segments have explicit repeat counts.
     var totalPlannedIntervals: Int? {
-        guard trackingMode == .distanceDistance else { return nil }
+        guard usesManualIntervals else { return nil }
         let counts = distanceSegments.compactMap(\.repeatCount)
         guard counts.count == distanceSegments.count else { return nil }
         return counts.reduce(0, +)
@@ -93,6 +103,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private var restTimerCancellable: AnyCancellable?
     private var pendingAutoRestTask: Task<Void, Never>?
     private var healthKitManager: HealthKitManager?
+    private var lastHealthKitCumulativeDistanceMeters: Double = 0
 
     var autoRestDetectionDelay: Duration = .seconds(10)
 
@@ -134,19 +145,23 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         sessionStartDate = Date()
         currentLapStartDate = Date()
         currentLapDistanceMeters = 0
+        currentLapGPSDistanceMeters = 0
         currentLapHeartRateSamples = []
         completedLaps = []
         cumulativeDistanceMeters = 0
+        cumulativeGPSDistanceMeters = 0
         elapsedSeconds = 0
         lapElapsedSeconds = 0
         currentHeartRate = nil
+        lastHealthKitCumulativeDistanceMeters = 0
+        lastLocation = nil
         clearPauseState()
         cancelPendingAutoRestDetection()
         runState = .active
 
         startTimer()
         await startHealthKitWorkout()
-        if trackingMode == .gps {
+        if usesGPSDistance {
             startLocationUpdates()
         }
 
@@ -159,12 +174,16 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         sessionStartDate = start
         currentLapStartDate = start
         currentLapDistanceMeters = 0
+        currentLapGPSDistanceMeters = 0
         currentLapHeartRateSamples = []
         completedLaps = []
         cumulativeDistanceMeters = 0
+        cumulativeGPSDistanceMeters = 0
         elapsedSeconds = 0
         lapElapsedSeconds = 0
         currentHeartRate = nil
+        lastHealthKitCumulativeDistanceMeters = 0
+        lastLocation = nil
         clearPauseState()
         cancelPendingAutoRestDetection()
         runState = .active
@@ -182,7 +201,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         guard runState == .active || runState == .rest || runState == .ending else { return }
         let wasResting = (runState == .rest)
         // Capture rest config before commit (which may advance the segment)
-        let restSecondsBeforeCommit = (!wasResting && trackingMode == .distanceDistance)
+        let restSecondsBeforeCommit = (!wasResting && usesManualIntervals)
             ? currentSegment.restSeconds : nil
 
         if runState != .ending {
@@ -199,7 +218,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             cancelRestTimer()
             startAutoRest(seconds: seconds)
         } else if !wasResting
-                    && trackingMode == .distanceDistance
+                    && usesManualIntervals
                     && remainingPlannedIntervals == 0 {
             cancelRestTimer()
             runState = .rest
@@ -263,7 +282,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
         runState = previousRunState
         startTimer()
-        if trackingMode == .gps {
+        if usesGPSDistance {
             startLocationUpdates()
         }
 
@@ -310,6 +329,9 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
         let duration = endDate.timeIntervalSince(startDate)
         let totalDist = completedLaps.reduce(0) { $0 + $1.distanceMeters }
+        let totalGPSDist = completedLaps.reduce(0.0) { partial, lap in
+            partial + (lap.gpsDistanceMeters ?? 0)
+        }
         let activeDuration = completedLaps
             .filter { $0.lapType != .rest }
             .reduce(0.0) { $0 + $1.durationSeconds }
@@ -320,17 +342,18 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             endedAt: endDate,
             durationSeconds: duration,
             mode: trackingMode,
-            distanceLapDistanceMeters: trackingMode == .distanceDistance ? distanceLapDistanceMeters : nil,
+            distanceLapDistanceMeters: usesManualIntervals ? distanceLapDistanceMeters : nil,
             totalDistanceMeters: totalDist,
+            totalGPSDistanceMeters: usesGPSDistance ? totalGPSDist : nil,
             averageSpeedMetersPerSecond: avgSpeed,
             totalLaps: completedLaps.count,
             laps: completedLaps,
             deviceSource: deviceString(),
             snapshotTrackingMode: trackingMode,
-            snapshotDistanceDistanceMeters: trackingMode == .distanceDistance ? distanceLapDistanceMeters : nil,
+            snapshotDistanceDistanceMeters: usesManualIntervals ? distanceLapDistanceMeters : nil,
             snapshotWorkoutPlan: WorkoutPlanSnapshot(
                 trackingMode: trackingMode,
-                distanceLapDistanceMeters: trackingMode == .distanceDistance ? distanceLapDistanceMeters : nil,
+                distanceLapDistanceMeters: usesManualIntervals ? distanceLapDistanceMeters : nil,
                 distanceSegments: distanceSegments,
                 restMode: restMode
             )
@@ -346,14 +369,18 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         lapElapsedSeconds = 0
         currentHeartRate = nil
         cumulativeDistanceMeters = 0
+        cumulativeGPSDistanceMeters = 0
         completedLaps = []
         isGPSActive = false
         sessionStartDate = nil
         currentLapStartDate = nil
         currentLapDistanceMeters = 0
+        currentLapGPSDistanceMeters = 0
         currentLapHeartRateSamples = []
         currentSegmentIndex = 0
         currentSegmentRepeatsDone = 0
+        lastHealthKitCumulativeDistanceMeters = 0
+        lastLocation = nil
         clearPauseState()
         cancelPendingAutoRestDetection()
         cancelRestTimer()
@@ -431,12 +458,16 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
         let isRest = (runState == .rest || runState == .ending)
         var distance: Double
+        var gpsDistance: Double?
         if isRest {
             distance = 0
-        } else if trackingMode == .distanceDistance {
+            gpsDistance = nil
+        } else if usesManualIntervals {
             distance = currentTargetDistanceMeters
+            gpsDistance = usesGPSDistance ? currentLapGPSDistanceMeters : nil
         } else {
-            distance = currentLapDistanceMeters
+            distance = currentLapGPSDistanceMeters
+            gpsDistance = currentLapGPSDistanceMeters
         }
         let avgSpeed = duration > 0 && distance > 0 ? distance / duration : 0
         let avgHR: Double? = currentLapHeartRateSamples.isEmpty ? nil : currentLapHeartRateSamples.reduce(0, +) / Double(currentLapHeartRateSamples.count)
@@ -450,6 +481,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             endedAt: lapEnd,
             durationSeconds: duration,
             distanceMeters: distance,
+            gpsDistanceMeters: gpsDistance,
             averageSpeedMetersPerSecond: avgSpeed,
             averageHeartRateBPM: avgHR,
             lapType: isRest ? .rest : .active,
@@ -458,13 +490,14 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         completedLaps.append(lap)
 
         // Advance segment if this was an active lap in distance mode
-        if !isRest && trackingMode == .distanceDistance {
+        if !isRest && usesManualIntervals {
             advanceSegment()
         }
 
         // Reset for next lap
         currentLapStartDate = lapEnd
         currentLapDistanceMeters = 0
+        currentLapGPSDistanceMeters = 0
         currentLapHeartRateSamples = []
     }
 
@@ -547,6 +580,11 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
         completedLaps[index].lapType = newType
         completedLaps[index].distanceMeters = newType == .rest ? 0 : max(0, newDistanceMeters)
+        if newType == .rest {
+            completedLaps[index].gpsDistanceMeters = nil
+        } else if trackingMode == .gps {
+            completedLaps[index].gpsDistanceMeters = max(0, newDistanceMeters)
+        }
 
         let duration = completedLaps[index].durationSeconds
         let distance = completedLaps[index].distanceMeters
@@ -558,11 +596,13 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private func recalculateCompletedLapDerivedState() {
         var activeIndex = 1
         cumulativeDistanceMeters = 0
+        cumulativeGPSDistanceMeters = 0
 
         for index in completedLaps.indices {
             if completedLaps[index].lapType == .rest {
                 completedLaps[index].index = 0
                 completedLaps[index].distanceMeters = 0
+                completedLaps[index].gpsDistanceMeters = nil
                 completedLaps[index].averageSpeedMetersPerSecond = 0
                 continue
             }
@@ -570,13 +610,14 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             completedLaps[index].index = activeIndex
             activeIndex += 1
             cumulativeDistanceMeters += completedLaps[index].distanceMeters
+            cumulativeGPSDistanceMeters += completedLaps[index].gpsDistanceMeters ?? 0
         }
 
         recalculateSegmentProgress()
     }
 
     private func recalculateSegmentProgress() {
-        guard trackingMode == .distanceDistance else { return }
+        guard usesManualIntervals else { return }
 
         var segmentIndex = 0
         var repeatsDone = 0
@@ -605,7 +646,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         guard let hkManager = healthKitManager else { return }
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = .running
-        configuration.locationType = trackingMode == .gps ? .outdoor : .indoor
+        configuration.locationType = usesGPSDistance ? .outdoor : .indoor
 
         do {
             let session = try HKWorkoutSession(healthStore: hkManager.healthStore, configuration: configuration)
@@ -649,6 +690,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     // MARK: - Location
 
     private func startLocationUpdates() {
+        lastLocation = nil
         locationManager = CLLocationManager()
         locationManager?.delegate = self
         locationManager?.desiredAccuracy = kCLLocationAccuracyBest
@@ -661,6 +703,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private func stopLocationUpdates() {
         locationManager?.stopUpdatingLocation()
         locationManager = nil
+        lastLocation = nil
         isGPSActive = false
     }
 
@@ -678,17 +721,34 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     func handleDistanceUpdate(additionalMeters: Double) {
         guard runState != .paused else { return }
 
+        if trackingMode == .gps {
+            handleGPSDistanceUpdate(additionalMeters: additionalMeters)
+            return
+        }
+
         cumulativeDistanceMeters += additionalMeters
         currentLapDistanceMeters += additionalMeters
 
         // Auto-split in distance mode
-        if trackingMode == .distanceDistance && runState == .active {
+        if usesManualIntervals && runState == .active {
             while currentLapDistanceMeters >= currentTargetDistanceMeters {
                 let overflow = currentLapDistanceMeters - currentTargetDistanceMeters
                 currentLapDistanceMeters = currentTargetDistanceMeters
                 commitCurrentLap(source: .autoDistance)
                 currentLapDistanceMeters = overflow
             }
+        }
+    }
+
+    func handleGPSDistanceUpdate(additionalMeters: Double) {
+        guard runState != .paused else { return }
+
+        cumulativeGPSDistanceMeters += additionalMeters
+        currentLapGPSDistanceMeters += additionalMeters
+
+        if trackingMode == .gps {
+            cumulativeDistanceMeters += additionalMeters
+            currentLapDistanceMeters += additionalMeters
         }
     }
 
@@ -761,8 +821,10 @@ extension WorkoutSessionController: HKLiveWorkoutBuilderDelegate {
                 }
 
                 if quantityType == HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning) {
+                    guard !self.usesGPSDistance else { continue }
                     if let newCumulative = statistics?.sumQuantity()?.doubleValue(for: .meter()) {
-                        let delta = newCumulative - self.cumulativeDistanceMeters
+                        let delta = newCumulative - self.lastHealthKitCumulativeDistanceMeters
+                        self.lastHealthKitCumulativeDistanceMeters = newCumulative
                         if delta > 0 {
                             self.handleDistanceUpdate(additionalMeters: delta)
                         }
@@ -782,7 +844,7 @@ extension WorkoutSessionController: CLLocationManagerDelegate {
                 if let last = self.lastLocation {
                     let delta = location.distance(from: last)
                     if delta > 0 && delta < 100 {
-                        self.handleDistanceUpdate(additionalMeters: delta)
+                        self.handleGPSDistanceUpdate(additionalMeters: delta)
                     }
                 }
                 self.lastLocation = location

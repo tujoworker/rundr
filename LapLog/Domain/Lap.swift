@@ -9,6 +9,7 @@ final class Lap {
     var endedAt: Date
     var durationSeconds: Double
     var distanceMeters: Double
+    var gpsDistanceMeters: Double?
     var averageSpeedMetersPerSecond: Double
     var averageHeartRateBPM: Double?
     var lapTypeRaw: String
@@ -34,6 +35,7 @@ final class Lap {
         endedAt: Date,
         durationSeconds: Double,
         distanceMeters: Double,
+        gpsDistanceMeters: Double? = nil,
         averageSpeedMetersPerSecond: Double,
         averageHeartRateBPM: Double? = nil,
         lapType: LapType = .active,
@@ -45,6 +47,7 @@ final class Lap {
         self.endedAt = endedAt
         self.durationSeconds = durationSeconds
         self.distanceMeters = distanceMeters
+        self.gpsDistanceMeters = gpsDistanceMeters
         self.averageSpeedMetersPerSecond = averageSpeedMetersPerSecond
         self.averageHeartRateBPM = averageHeartRateBPM
         self.lapTypeRaw = lapType.rawValue

@@ -113,6 +113,10 @@ enum Formatters {
             let dist = distanceString(meters: lap.distanceMeters, unit: unit)
             return "\(time) • \(dist) • \(pace)"
         }
+        if trackingMode == .dual, let gpsDistanceMeters = lap.gpsDistanceMeters, gpsDistanceMeters > 0 {
+            let gpsDistance = L10n.gpsDistance(distanceString(meters: gpsDistanceMeters, unit: unit))
+            return "\(time) • \(pace) • \(gpsDistance)"
+        }
         return "\(time) • \(pace)"
     }
 

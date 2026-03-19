@@ -248,6 +248,34 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.currentTargetDistanceMeters, 0)
     }
 
+    func testDualModeTargetDistanceMatchesCurrentSegment() {
+        let controller = makeConfiguredController(trackingMode: .dual)
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 400)
+    }
+
+    func testDualModeStoresGPSDistanceSeparately() {
+        let controller = makeStartedController(trackingMode: .dual)
+
+        controller.handleGPSDistanceUpdate(additionalMeters: 418)
+        controller.markLap()
+
+        XCTAssertEqual(controller.completedLaps.count, 1)
+        XCTAssertEqual(controller.completedLaps[0].distanceMeters, 400)
+        XCTAssertEqual(controller.completedLaps[0].gpsDistanceMeters, 418)
+        XCTAssertEqual(controller.cumulativeGPSDistanceMeters, 418)
+    }
+
+    func testGPSModeUsesGPSDistanceForLapDistance() {
+        let controller = makeStartedController(trackingMode: .gps)
+
+        controller.handleGPSDistanceUpdate(additionalMeters: 512)
+        controller.markLap()
+
+        XCTAssertEqual(controller.completedLaps.count, 1)
+        XCTAssertEqual(controller.completedLaps[0].distanceMeters, 512)
+        XCTAssertEqual(controller.completedLaps[0].gpsDistanceMeters, 512)
+    }
+
     // MARK: - Rest Mode
 
     func testRestModeDefaultsToManual() {

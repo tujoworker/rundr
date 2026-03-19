@@ -26,7 +26,7 @@ enum L10n {
     static let distancePlaceholderMiles = String(localized: "e.g. 1320", comment: "Distance placeholder")
     static let locationRequired = String(localized: "Location Required", comment: "Alert title")
     static let ok = String(localized: "OK", comment: "Alert button")
-    static let gpsModeNeedsLocation = String(localized: "GPS mode needs location access. The mode was switched back to Distance.", comment: "Alert message")
+    static let gpsModeNeedsLocation = String(localized: "GPS-based modes need location access. The mode was switched back to Distance.", comment: "Alert message")
     static let cancel = String(localized: "Cancel", comment: "Button")
     static let distanceUnit = String(localized: "Distance Unit", comment: "Dialog title")
     static let primaryColor = String(localized: "Primary Color", comment: "Dialog title")
@@ -84,7 +84,11 @@ enum L10n {
 
     // MARK: - Tracking Mode
     static let gps = String(localized: "GPS", comment: "Tracking mode")
+    static let dual = String(localized: "Dual", comment: "Tracking mode")
     static let distanceMode = String(localized: "Distance", comment: "Tracking mode")
+    static func gpsDistance(_ distance: String) -> String {
+        String(format: String(localized: "GPS: %@", comment: "GPS distance summary"), distance)
+    }
 
     // MARK: - Distance Unit
     static let kilometers = String(localized: "Kilometers", comment: "Unit")

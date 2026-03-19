@@ -161,6 +161,7 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(session.totalDistanceMeters, 5000)
         XCTAssertEqual(session.totalLaps, 12)
         XCTAssertEqual(session.snapshotTrackingMode, .gps)
+        XCTAssertNil(session.sportVariantRaw)
         XCTAssertNil(session.distanceLapDistanceMeters)
         XCTAssertNil(session.healthKitWorkoutUUID)
     }

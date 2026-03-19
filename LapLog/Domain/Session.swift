@@ -30,6 +30,7 @@ final class Session {
     var endedAt: Date
     var durationSeconds: Double
     var modeRaw: String
+    var sportVariantRaw: String?
     var distanceLapDistanceMeters: Double?
     var totalDistanceMeters: Double
     var totalGPSDistanceMeters: Double?
@@ -97,6 +98,7 @@ final class Session {
         endedAt: Date,
         durationSeconds: Double,
         mode: TrackingMode,
+        sportVariantRaw: String? = nil,
         distanceLapDistanceMeters: Double? = nil,
         totalDistanceMeters: Double,
         totalGPSDistanceMeters: Double? = nil,
@@ -116,6 +118,7 @@ final class Session {
         self.endedAt = endedAt
         self.durationSeconds = durationSeconds
         self.modeRaw = mode.rawValue
+        self.sportVariantRaw = sportVariantRaw
         self.distanceLapDistanceMeters = distanceLapDistanceMeters
         self.totalDistanceMeters = totalDistanceMeters
         self.totalGPSDistanceMeters = totalGPSDistanceMeters

@@ -244,7 +244,7 @@ final class SettingsStore: ObservableObject {
     }
 
     func apply(workoutPlan: WorkoutPlanSnapshot) {
-        trackingMode = workoutPlan.trackingMode
+        trackingMode = resolvedTrackingMode(for: workoutPlan)
         restMode = workoutPlan.restMode
 
         let segments = workoutPlan.distanceSegments.isEmpty ? [.default] : workoutPlan.distanceSegments
@@ -253,6 +253,14 @@ final class SettingsStore: ObservableObject {
         if let distance = workoutPlan.distanceLapDistanceMeters ?? segments.first?.distanceMeters {
             distanceDistanceMeters = distance
         }
+    }
+
+    private func resolvedTrackingMode(for workoutPlan: WorkoutPlanSnapshot) -> TrackingMode {
+        guard trackingMode == .gps, workoutPlan.trackingMode.usesManualIntervals else {
+            return workoutPlan.trackingMode
+        }
+
+        return .dual
     }
 
     func intervalPreset(id: UUID) -> IntervalPreset? {

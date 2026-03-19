@@ -413,6 +413,7 @@ struct ActiveSessionView: View {
         let session = await workoutController.endSession()
         if let session {
             persistence.saveSession(session)
+            settings.storeSessionIntervalPresetIfUnique(session.snapshotWorkoutPlan)
             Task.detached {
                 do {
                     let uuid = try await self.healthKitManager.saveWorkout(session: session)

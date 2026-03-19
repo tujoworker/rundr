@@ -60,7 +60,7 @@ struct LapLogApp: App {
 
     private func handleStartWorkoutCommand() {
         switch coordinator.currentScreen {
-        case .home, .sessionDetail, .historySetup:
+        case .home, .intervalLibrary, .sessionDetail, .historySetup:
             break
         case .preStart:
             startWorkoutFromPreStart()
@@ -81,7 +81,7 @@ struct LapLogApp: App {
         }
 
         switch coordinator.currentScreen {
-        case .home, .sessionDetail, .historySetup:
+        case .home, .intervalLibrary, .sessionDetail, .historySetup:
             break
         case .preStart:
             startWorkoutFromPreStart()

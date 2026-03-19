@@ -6,6 +6,7 @@ struct PreStartView: View {
     @EnvironmentObject var workoutController: WorkoutSessionController
     @EnvironmentObject var healthKitManager: HealthKitManager
     @EnvironmentObject var settings: SettingsStore
+    @EnvironmentObject var coordinator: NavigationCoordinator
     var onStart: () -> Void
 
     @State private var segments: [DistanceSegment] = []
@@ -173,6 +174,18 @@ struct PreStartView: View {
 
                 if settings.trackingMode == .distanceDistance {
                     intervalsSection
+
+                    Button {
+                        coordinator.goToIntervalLibrary()
+                    } label: {
+                        SettingsCardRow(
+                            icon: "square.grid.2x2",
+                            iconColor: settings.primaryAccentColor,
+                            title: L10n.browse,
+                            showsChevron: true
+                        )
+                    }
+                    .buttonStyle(.plain)
                 }
 
                 Text(L10n.settings)
@@ -488,10 +501,162 @@ struct HistorySessionSetupView: View {
     let session: Session
     let onContinue: (WorkoutPlanSnapshot) -> Void
 
+    private var sourceTitle: String {
+        session.startedAt.formatted(date: .abbreviated, time: .shortened)
+    }
+
+    var body: some View {
+        IntervalSetupView(
+            headerTitle: L10n.adjustSettings,
+            subtitle: L10n.loadedFromSession(sourceTitle),
+            initialWorkoutPlan: session.snapshotWorkoutPlan,
+            initialCustomTitle: nil,
+            initialStoredPresetID: nil,
+            showsCustomTitle: false,
+            autoSaveOnSegmentDone: false,
+            onContinue: { workoutPlan, _, _ in
+                onContinue(workoutPlan)
+            }
+        )
+    }
+}
+
+struct IntervalLibraryView: View {
     @EnvironmentObject var settings: SettingsStore
+    @EnvironmentObject var coordinator: NavigationCoordinator
+    @State private var displayedPresetCount = 10
+
+    private var visiblePresets: [IntervalPreset] {
+        Array(settings.intervalPresets.prefix(displayedPresetCount))
+    }
+
+    private var hasMorePresets: Bool {
+        settings.intervalPresets.count > displayedPresetCount
+    }
+
+    var body: some View {
+        List {
+            Section(L10n.myIntervals) {
+                if settings.intervalPresets.isEmpty {
+                    Text(L10n.noSavedIntervalsYet)
+                        .foregroundStyle(.secondary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 24)
+                        .listRowBackground(Color.clear)
+                } else {
+                    ForEach(visiblePresets) { preset in
+                        NavigationLink {
+                            IntervalSetupView(
+                                headerTitle: L10n.adjustSettings,
+                                subtitle: preset.trimmedCustomTitle ?? L10n.presetCountSummary(preset.workoutPlan.distanceSegments.count),
+                                initialWorkoutPlan: preset.workoutPlan,
+                                initialCustomTitle: preset.customTitle,
+                                initialStoredPresetID: preset.id,
+                                showsCustomTitle: true,
+                                autoSaveOnSegmentDone: true,
+                                onContinue: { workoutPlan, customTitle, storedPresetID in
+                                    _ = settings.saveIntervalPreset(
+                                        workoutPlan,
+                                        customTitle: customTitle,
+                                        existingPresetID: storedPresetID ?? preset.id
+                                    )
+                                    settings.apply(workoutPlan: workoutPlan)
+                                    coordinator.goToPreStart(replacingPath: true)
+                                }
+                            )
+                        } label: {
+                            IntervalLibraryRowView(
+                                title: preset.displayTitle(unit: settings.distanceUnit),
+                                subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit)
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                settings.deleteIntervalPreset(id: preset.id)
+                            } label: {
+                                Label(L10n.delete, systemImage: "trash")
+                            }
+                        }
+                        .listRowInsets(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4))
+                        .listRowBackground(Color.clear)
+                    }
+
+                    if hasMorePresets {
+                        Button {
+                            displayedPresetCount += 10
+                        } label: {
+                            Text(L10n.loadMore)
+                                .font(.footnote.weight(.semibold))
+                                .frame(maxWidth: .infinity, minHeight: 34)
+                        }
+                        .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: 999)
+                        .buttonStyle(.plain)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
+                        .listRowBackground(Color.clear)
+                    }
+                }
+            }
+
+            Section(L10n.predefined) {
+                ForEach(SettingsStore.predefinedIntervalPresets) { preset in
+                    NavigationLink {
+                        IntervalSetupView(
+                            headerTitle: L10n.adjustSettings,
+                            subtitle: preset.title,
+                            initialWorkoutPlan: preset.workoutPlan,
+                            initialCustomTitle: preset.title,
+                            initialStoredPresetID: nil,
+                            showsCustomTitle: true,
+                            autoSaveOnSegmentDone: true,
+                            onContinue: { workoutPlan, customTitle, storedPresetID in
+                                let normalizedTitle = IntervalPreset.sanitizeTitle(customTitle)
+                                if IntervalPresetSignature(workoutPlan: workoutPlan) != preset.signature || normalizedTitle != nil {
+                                    _ = settings.saveIntervalPreset(
+                                        workoutPlan,
+                                        customTitle: normalizedTitle,
+                                        existingPresetID: storedPresetID
+                                    )
+                                }
+                                settings.apply(workoutPlan: workoutPlan)
+                                coordinator.goToPreStart(replacingPath: true)
+                            }
+                        )
+                    } label: {
+                        IntervalLibraryRowView(
+                            title: preset.title,
+                            subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .listRowInsets(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4))
+                    .listRowBackground(Color.clear)
+                }
+            }
+        }
+        .tint(settings.primaryAccentColor)
+        .listStyle(.carousel)
+        .scrollContentBackground(.hidden)
+        .background(Color.clear)
+    }
+}
+
+private struct IntervalSetupView: View {
+    @EnvironmentObject var settings: SettingsStore
+
+    let headerTitle: String
+    let subtitle: String?
+    let initialWorkoutPlan: WorkoutPlanSnapshot
+    let initialCustomTitle: String?
+    let initialStoredPresetID: UUID?
+    let showsCustomTitle: Bool
+    let autoSaveOnSegmentDone: Bool
+    let onContinue: (WorkoutPlanSnapshot, String?, UUID?) -> Void
+
     @State private var trackingMode: TrackingMode = .distanceDistance
     @State private var segments: [DistanceSegment] = []
-    @State private var restMode: RestMode = .manual
+    @State private var customTitle: String = ""
+    @State private var storedPresetID: UUID?
     @State private var editingSegmentID: UUID?
     @State private var editingSegmentDistanceText: String = ""
     @State private var editingSegmentRepeatCount: Int = 0
@@ -503,18 +668,12 @@ struct HistorySessionSetupView: View {
     @State private var lastAddedRestSeconds: Int = 0
     @State private var lastAddedTargetPace: Int = 0
     @State private var lastAddedTargetTime: Int = 0
-    @State private var isRestModeDialogPresented = false
-    @StateObject private var locationPermissionRequester = LocationPermissionRequester()
 
     private var distanceLabel: String {
         switch settings.distanceUnit {
         case .km: return "Distance (m)"
         case .miles: return "Distance (ft)"
         }
-    }
-
-    private var sourceTitle: String {
-        session.startedAt.formatted(date: .abbreviated, time: .shortened)
     }
 
     private var isContinueDisabled: Bool {
@@ -563,31 +722,25 @@ struct HistorySessionSetupView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(L10n.adjustSettings)
+                    Text(headerTitle)
                         .font(.headline.weight(.semibold))
                         .foregroundStyle(.white)
 
-                    Text(L10n.loadedFromSession(sourceTitle))
-                        .font(.footnote.weight(.medium))
-                        .foregroundStyle(.white.opacity(0.72))
+                    if let subtitle, !subtitle.isEmpty {
+                        Text(subtitle)
+                            .font(.footnote.weight(.medium))
+                            .foregroundStyle(.white.opacity(0.72))
+                    }
                 }
                 .padding(.horizontal, 6)
+
+                if showsCustomTitle {
+                    IntervalTitleField(text: $customTitle)
+                }
 
                 if trackingMode == .distanceDistance {
                     intervalsSection
                 }
-
-                Button {
-                    isRestModeDialogPresented = true
-                } label: {
-                    SettingsCardRow(
-                        icon: "figure.cooldown",
-                        iconColor: .mint,
-                        title: L10n.restMode,
-                        value: restMode.displayName
-                    )
-                }
-                .buttonStyle(.plain)
 
                 Button(action: continueToGetReady) {
                     Text(L10n.continueToGetReady)
@@ -621,21 +774,14 @@ struct HistorySessionSetupView: View {
                 onDone: { commitSegmentEdit() }
             )
         }
-        .confirmationDialog(L10n.restMode, isPresented: $isRestModeDialogPresented) {
-            ForEach(RestMode.allCases) { mode in
-                Button(mode.displayName) {
-                    restMode = mode
-                }
-            }
-            Button("Cancel", role: .cancel) {}
-        }
     }
 
     private func loadSnapshot() {
-        let snapshot = session.snapshotWorkoutPlan
+        let snapshot = initialWorkoutPlan
         trackingMode = snapshot.trackingMode
-        restMode = snapshot.restMode
         segments = snapshot.distanceSegments.isEmpty ? [.default] : snapshot.distanceSegments
+        customTitle = initialCustomTitle ?? ""
+        storedPresetID = initialStoredPresetID
         lastAddedDistanceMeters = segments.last?.distanceMeters ?? DistanceSegment.default.distanceMeters
         lastAddedRepeatCount = segments.last?.repeatCount ?? 0
         lastAddedRestSeconds = segments.last?.restSeconds ?? 0
@@ -655,15 +801,42 @@ struct HistorySessionSetupView: View {
 
     private func continueToGetReady() {
         let normalized = normalizedSegments(segments)
-        let distance = normalized.first?.distanceMeters ?? session.snapshotWorkoutPlan.distanceLapDistanceMeters
+        let distance = normalized.first?.distanceMeters ?? initialWorkoutPlan.distanceLapDistanceMeters
         onContinue(
             WorkoutPlanSnapshot(
                 trackingMode: trackingMode,
                 distanceLapDistanceMeters: distance,
                 distanceSegments: normalized,
-                restMode: restMode
-            )
+                restMode: settings.restMode
+            ),
+            IntervalPreset.sanitizeTitle(customTitle),
+            storedPresetID
         )
+    }
+
+    private func currentWorkoutPlan() -> WorkoutPlanSnapshot {
+        let normalized = normalizedSegments(segments)
+        let distance = normalized.first?.distanceMeters ?? initialWorkoutPlan.distanceLapDistanceMeters
+        return WorkoutPlanSnapshot(
+            trackingMode: trackingMode,
+            distanceLapDistanceMeters: distance,
+            distanceSegments: normalized,
+            restMode: settings.restMode
+        )
+    }
+
+    private func persistPresetAfterEditIfNeeded() {
+        guard autoSaveOnSegmentDone, showsCustomTitle else { return }
+
+        let savedPreset = settings.saveIntervalPreset(
+            currentWorkoutPlan(),
+            customTitle: customTitle,
+            existingPresetID: storedPresetID
+        )
+        storedPresetID = savedPreset?.id ?? storedPresetID
+        if let savedPreset {
+            customTitle = savedPreset.customTitle ?? customTitle
+        }
     }
 
     private func addSegment() {
@@ -732,6 +905,44 @@ struct HistorySessionSetupView: View {
         segments[index].targetTimeSeconds = editingSegmentTargetTime > 0 ? Double(editingSegmentTargetTime) : nil
         editingSegmentID = nil
         segments = normalizedSegments(segments)
+        persistPresetAfterEditIfNeeded()
+    }
+}
+
+private struct IntervalLibraryRowView: View {
+    let title: String
+    let subtitle: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(.white)
+            Text(subtitle)
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.72))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(8)
+        .background(Color.white.opacity(0.15))
+        .cornerRadius(8)
+    }
+}
+
+private struct IntervalTitleField: View {
+    @Binding var text: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(L10n.title)
+                .font(.caption.bold())
+                .foregroundStyle(.white.opacity(0.72))
+                .padding(.horizontal, 8)
+
+            TextField("Title (optional)", text: $text)
+                .textInputAutocapitalization(.words)
+                .padding(.horizontal, 8)
+        }
     }
 }
 
@@ -1028,7 +1239,8 @@ private struct SettingsCardRow: View {
     let icon: String
     let iconColor: Color
     let title: String
-    let value: String
+    var value: String? = nil
+    var showsChevron: Bool = false
 
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
@@ -1042,12 +1254,20 @@ private struct SettingsCardRow: View {
                     .font(.system(size: 18, weight: .medium, design: .rounded))
                     .foregroundStyle(.white)
 
-                Text(value)
-                    .font(.system(size: 16, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.7))
+                if let value {
+                    Text(value)
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white.opacity(0.7))
+                }
             }
 
             Spacer(minLength: 10)
+
+            if showsChevron {
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.45))
+            }
         }
         .padding(.horizontal, 18)
         .padding(.vertical, 18)
@@ -1055,6 +1275,42 @@ private struct SettingsCardRow: View {
             RoundedRectangle(cornerRadius: 22, style: .continuous)
                 .fill(Color.white.opacity(0.12))
         )
+    }
+}
+
+private extension IntervalPreset {
+    func displayTitle(unit: DistanceUnit) -> String {
+        trimmedCustomTitle ?? workoutPlan.displayTitle(unit: unit)
+    }
+}
+
+private extension WorkoutPlanSnapshot {
+    func displayTitle(unit: DistanceUnit) -> String {
+        let normalizedSegments = distanceSegments.isEmpty ? [DistanceSegment.default] : distanceSegments
+        guard let firstSegment = normalizedSegments.first else { return Formatters.distanceString(meters: 400, unit: unit) }
+
+        let distance = Formatters.distanceString(meters: firstSegment.distanceMeters, unit: unit)
+        if normalizedSegments.count == 1, let repeatCount = firstSegment.repeatCount {
+            return "\(repeatCount) × \(distance)"
+        }
+        if normalizedSegments.count == 1 {
+            return distance
+        }
+        return "\(normalizedSegments.count) segments"
+    }
+
+    func displayDetail(unit: DistanceUnit) -> String {
+        let normalizedSegments = distanceSegments.isEmpty ? [DistanceSegment.default] : distanceSegments
+        let distanceSummary = normalizedSegments.map {
+            let distance = Formatters.distanceString(meters: $0.distanceMeters, unit: unit)
+            if let repeatCount = $0.repeatCount {
+                return "\(repeatCount) × \(distance)"
+            }
+            return distance
+        }
+        .joined(separator: " • ")
+
+        return distanceSummary
     }
 }
 

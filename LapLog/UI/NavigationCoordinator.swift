@@ -24,6 +24,11 @@ final class NavigationCoordinator: ObservableObject {
         path.append(.preStart)
     }
 
+    func goToIntervalLibrary() {
+        guard currentScreen != .intervalLibrary else { return }
+        path.append(.intervalLibrary)
+    }
+
     func goToActiveSession() {
         isShowingActiveSession = true
     }

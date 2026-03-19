@@ -4,6 +4,11 @@
 "Press the Action Button" = "Trykk på handlingsknappen";
 "Settings" = "Innstillinger";
 "Adjust Interval" = "Juster intervall";
+"Browse" = "Bla gjennom";
+"My intervals" = "Mine intervaller";
+"Predefined" = "Forhåndsdefinert";
+"Title" = "Tittel";
+"No saved intervals yet" = "Ingen lagrede intervaller ennå";
 "Mode" = "Modus";
 "Distance" = "Distanse";
 "Distance (meters)" = "Distanse (meter)";
@@ -60,6 +65,7 @@
 "Rest" = "Hvile";
 "Reuse This Interval" = "Bruk dette intervallet igjen";
 "Loaded from %@" = "Lastet fra %@";
+"%d saved" = "%d lagret";
 
 /* Tracking Mode */
 "GPS" = "GPS";

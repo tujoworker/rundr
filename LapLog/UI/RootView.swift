@@ -101,6 +101,8 @@ struct RootView: View {
                                 }
                                 coordinator.goToActiveSession()
                             })
+                        case .intervalLibrary:
+                            IntervalLibraryView()
                         case .sessionDetail(let sessionID):
                             if let session = persistence.fetchSession(id: sessionID) {
                                 SessionDetailView(

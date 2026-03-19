@@ -4,6 +4,11 @@
 "Press the Action Button" = "Drücke die Aktions-Taste";
 "Settings" = "Einstellungen";
 "Adjust Interval" = "Intervall anpassen";
+"Browse" = "Durchsuchen";
+"My intervals" = "Meine Intervalle";
+"Predefined" = "Vordefiniert";
+"Title" = "Titel";
+"No saved intervals yet" = "Noch keine gespeicherten Intervalle";
 "Mode" = "Modus";
 "Distance" = "Distanz";
 "Distance (meters)" = "Distanz (Meter)";
@@ -60,6 +65,7 @@
 "Rest" = "Pause";
 "Reuse This Interval" = "Dieses Intervall wiederverwenden";
 "Loaded from %@" = "Geladen aus %@";
+"%d saved" = "%d gespeichert";
 
 /* Tracking Mode */
 "GPS" = "GPS";

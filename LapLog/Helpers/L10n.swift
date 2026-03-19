@@ -8,6 +8,11 @@ enum L10n {
     static let pressActionButton = String(localized: "Press the Action Button", comment: "PreStart hint")
     static let settings = String(localized: "Settings", comment: "Settings section")
     static let adjustSettings = String(localized: "Adjust Interval", comment: "History setup title")
+    static let browse = String(localized: "Browse", comment: "Browse saved intervals")
+    static let myIntervals = String(localized: "My intervals", comment: "Interval library title")
+    static let predefined = String(localized: "Predefined", comment: "Predefined interval section")
+    static let title = String(localized: "Title", comment: "Preset title label")
+    static let noSavedIntervalsYet = String(localized: "No saved intervals yet", comment: "Empty saved intervals state")
     static let mode = String(localized: "Mode", comment: "Tracking mode setting")
     static let distance = String(localized: "Distance", comment: "Distance setting")
     static let distanceMeters = String(localized: "Distance (meters)", comment: "Distance input label")
@@ -72,6 +77,9 @@ enum L10n {
     static let useSessionSettings = String(localized: "Reuse This Interval", comment: "Button")
     static func loadedFromSession(_ value: String) -> String {
         String(format: String(localized: "Loaded from %@", comment: "History setup subtitle"), value)
+    }
+    static func presetCountSummary(_ count: Int) -> String {
+        String(format: String(localized: "%d saved", comment: "Saved interval count summary"), count)
     }
 
     // MARK: - Tracking Mode

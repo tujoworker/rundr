@@ -54,18 +54,28 @@ extension View {
 struct RootView: View {
     @EnvironmentObject var coordinator: NavigationCoordinator
     @EnvironmentObject var persistence: PersistenceManager
+    @EnvironmentObject var ongoingWorkoutStore: OngoingWorkoutStore
     @EnvironmentObject var settings: SettingsStore
     @EnvironmentObject var healthKitManager: HealthKitManager
     @EnvironmentObject var workoutController: WorkoutSessionController
     @AppStorage("hasCompletedInitialHealthAccessPrompt") private var hasCompletedInitialHealthAccessPrompt = false
     @State private var isRequestingHealthAccess = false
     @State private var hasDismissedHealthAccessPromptThisLaunch = false
+    @State private var hasHandledWorkoutRecoveryPromptThisLaunch = false
 
     var body: some View {
         ZStack {
             AppScreenBackground(accentColor: settings.primaryAccentColor)
 
-            if shouldShowInitialHealthAccess {
+            if let recoverySnapshot = recoverySnapshotToOffer {
+                OngoingWorkoutRecoveryView(
+                    snapshot: recoverySnapshot,
+                    accentColor: settings.primaryAccentColor,
+                    onContinue: continueRecoveredWorkout,
+                    onDiscard: discardRecoveredWorkout
+                )
+                .transition(.asymmetric(insertion: .opacity, removal: .move(edge: .leading).combined(with: .opacity)))
+            } else if shouldShowInitialHealthAccess {
                 HealthAccessPromptView(
                     accentColor: settings.primaryAccentColor,
                     isRequestingAccess: isRequestingHealthAccess,
@@ -148,6 +158,11 @@ struct RootView: View {
         !hasCompletedInitialHealthAccessPrompt && !hasDismissedHealthAccessPromptThisLaunch
     }
 
+    private var recoverySnapshotToOffer: OngoingWorkoutSnapshot? {
+        guard !hasHandledWorkoutRecoveryPromptThisLaunch else { return nil }
+        return ongoingWorkoutStore.startupSnapshot
+    }
+
     private func requestHealthAccess() {
         guard !isRequestingHealthAccess else { return }
 
@@ -166,6 +181,27 @@ struct RootView: View {
     private func dismissHealthAccessPrompt() {
         withAnimation(.easeInOut(duration: 0.28)) {
             hasDismissedHealthAccessPromptThisLaunch = true
+        }
+    }
+
+    private func continueRecoveredWorkout() {
+        guard let snapshot = ongoingWorkoutStore.startupSnapshot else { return }
+
+        ongoingWorkoutStore.consumeStartupSnapshot()
+        workoutController.restore(snapshot: snapshot, healthKitManager: healthKitManager)
+        coordinator.goToActiveSession()
+
+        withAnimation(.easeInOut(duration: 0.28)) {
+            hasHandledWorkoutRecoveryPromptThisLaunch = true
+        }
+    }
+
+    private func discardRecoveredWorkout() {
+        ongoingWorkoutStore.clear()
+        workoutController.resetForNextSession()
+
+        withAnimation(.easeInOut(duration: 0.28)) {
+            hasHandledWorkoutRecoveryPromptThisLaunch = true
         }
     }
 }

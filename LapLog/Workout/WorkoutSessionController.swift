@@ -103,7 +103,9 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private var restTimerCancellable: AnyCancellable?
     private var pendingAutoRestTask: Task<Void, Never>?
     private var healthKitManager: HealthKitManager?
+    private var ongoingWorkoutStore: OngoingWorkoutStore?
     private var lastHealthKitCumulativeDistanceMeters: Double = 0
+    private var lastPersistedElapsedSecond: Int = -1
 
     var autoRestDetectionDelay: Duration = .seconds(10)
 
@@ -116,6 +118,10 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private var lastLocation: CLLocation?
 
     // MARK: - Configuration
+
+    func attachOngoingWorkoutStore(_ store: OngoingWorkoutStore) {
+        ongoingWorkoutStore = store
+    }
 
     func configure(
         trackingMode: TrackingMode,
@@ -134,10 +140,52 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         self.currentSegmentRepeatsDone = 0
     }
 
+    func restore(snapshot: OngoingWorkoutSnapshot, healthKitManager: HealthKitManager) {
+        cancelPendingAutoRestDetection()
+        cancelRestTimer()
+        stopTimer()
+        stopLocationUpdates()
+
+        self.healthKitManager = healthKitManager
+        trackingMode = snapshot.trackingMode
+        distanceLapDistanceMeters = snapshot.distanceLapDistanceMeters
+        distanceSegments = snapshot.distanceSegments.isEmpty ? [.default] : snapshot.distanceSegments
+        restMode = snapshot.restMode
+        sessionStartDate = snapshot.sessionStartDate
+        currentLapStartDate = snapshot.currentLapStartDate
+        currentLapDistanceMeters = snapshot.currentLapDistanceMeters
+        currentLapGPSDistanceMeters = snapshot.currentLapGPSDistanceMeters
+        currentLapHeartRateSamples = []
+        completedLaps = snapshot.completedLaps.map { $0.makeLap() }
+        elapsedSeconds = snapshot.elapsedSeconds
+        lapElapsedSeconds = snapshot.lapElapsedSeconds
+        currentHeartRate = snapshot.currentHeartRate
+        cumulativeDistanceMeters = snapshot.cumulativeDistanceMeters
+        cumulativeGPSDistanceMeters = snapshot.cumulativeGPSDistanceMeters
+        currentSegmentIndex = snapshot.currentSegmentIndex
+        currentSegmentRepeatsDone = snapshot.currentSegmentRepeatsDone
+        pauseStartedAt = snapshot.effectivePauseStartedAt
+        pausedRunState = snapshot.resumeRunState
+        pausedRestElapsedSeconds = snapshot.resumeRunState == .rest ? snapshot.restElapsedSeconds : nil
+        pausedRestDurationSeconds = snapshot.resumeRunState == .rest ? snapshot.restDurationSeconds : nil
+        restElapsedSeconds = snapshot.resumeRunState == .rest ? snapshot.restElapsedSeconds : nil
+        restDurationSeconds = snapshot.resumeRunState == .rest ? snapshot.restDurationSeconds : nil
+        isRestWarningActive = false
+        lastHealthKitCumulativeDistanceMeters = 0
+        lastLocation = nil
+        hkWorkoutSession = nil
+        hkLiveBuilder = nil
+        runState = .paused
+        isGPSActive = false
+        lastPersistedElapsedSecond = Int(snapshot.elapsedSeconds)
+        persistRecoverySnapshotIfNeeded()
+    }
+
     // MARK: - Lifecycle
 
     func getReady() {
         runState = .ready
+        clearRecoverySnapshot()
         playHaptic(.notification)
     }
 
@@ -165,6 +213,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             startLocationUpdates()
         }
 
+        lastPersistedElapsedSecond = 0
+        persistRecoverySnapshotIfNeeded()
         playHaptic(.notification)
     }
 
@@ -187,6 +237,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         clearPauseState()
         cancelPendingAutoRestDetection()
         runState = .active
+        lastPersistedElapsedSecond = 0
+        persistRecoverySnapshotIfNeeded()
     }
 
     func deleteLap(id: UUID) {
@@ -194,6 +246,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         guard let index = completedLaps.firstIndex(where: { $0.id == id }) else { return }
         completedLaps.remove(at: index)
         recalculateCompletedLapDerivedState()
+        persistRecoverySnapshotIfNeeded()
         playHaptic(.click)
     }
 
@@ -227,6 +280,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             runState = .active
             startTimer()
         }
+        persistRecoverySnapshotIfNeeded()
         playHaptic(.notification)
     }
 
@@ -235,6 +289,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         commitCurrentLap(source: .sessionEndSplit)
         runState = .ending
         stopTimer()
+        persistRecoverySnapshotIfNeeded()
         playHaptic(.notification)
     }
 
@@ -243,6 +298,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         cancelPendingAutoRestDetection()
         playHaptic(.notification)
         runState = .rest
+        persistRecoverySnapshotIfNeeded()
     }
 
     func cancelRest() {
@@ -252,6 +308,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         playHaptic(.click)
         runState = .active
         startTimer()
+        persistRecoverySnapshotIfNeeded()
     }
 
     func pauseSession() {
@@ -269,6 +326,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         pauseHealthKitWorkout()
 
         runState = .paused
+        persistRecoverySnapshotIfNeeded()
         playHaptic(.click)
     }
 
@@ -290,13 +348,24 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             startAutoRest(seconds: restDuration, initialElapsed: restElapsed)
         }
 
-        resumeHealthKitWorkout()
+        if hkWorkoutSession == nil {
+            lastHealthKitCumulativeDistanceMeters = 0
+            Task { await startHealthKitWorkout() }
+        } else {
+            resumeHealthKitWorkout()
+        }
+
+        persistRecoverySnapshotIfNeeded()
         playHaptic(.click)
     }
 
     func prepareForSessionEnd() {
         cancelPendingAutoRestDetection()
         cancelRestTimer()
+    }
+
+    func persistRecoverySnapshotIfNeeded() {
+        persistRecoverySnapshot()
     }
 
     func endSession() async -> Session? {
@@ -322,6 +391,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         runState = .ended
         stopTimer()
         stopLocationUpdates()
+        clearRecoverySnapshot()
 
         Task { await stopHealthKitWorkout(endDate: endDate) }
 
@@ -386,6 +456,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         cancelRestTimer()
         stopTimer()
         stopLocationUpdates()
+        clearRecoverySnapshot()
     }
 
     func handleAutoRestMotionPause() {
@@ -424,6 +495,12 @@ final class WorkoutSessionController: NSObject, ObservableObject {
                 self.elapsedSeconds = now.timeIntervalSince(start)
                 if let lapStart = self.currentLapStartDate {
                     self.lapElapsedSeconds = now.timeIntervalSince(lapStart)
+                }
+
+                let elapsedSecond = Int(self.elapsedSeconds)
+                if elapsedSecond != self.lastPersistedElapsedSecond {
+                    self.lastPersistedElapsedSecond = elapsedSecond
+                    self.persistRecoverySnapshot()
                 }
             }
     }
@@ -499,6 +576,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         currentLapDistanceMeters = 0
         currentLapGPSDistanceMeters = 0
         currentLapHeartRateSamples = []
+        persistRecoverySnapshotIfNeeded()
     }
 
     /// Advances to the next repeat or next segment after completing a lap.
@@ -537,6 +615,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
                     }
                     self.playHaptic(.notification)
                 }
+
+                self.persistRecoverySnapshot()
             }
     }
 
@@ -738,6 +818,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
                 currentLapDistanceMeters = overflow
             }
         }
+
+        persistRecoverySnapshotIfNeeded()
     }
 
     func handleGPSDistanceUpdate(additionalMeters: Double) {
@@ -750,6 +832,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             cumulativeDistanceMeters += additionalMeters
             currentLapDistanceMeters += additionalMeters
         }
+
+        persistRecoverySnapshotIfNeeded()
     }
 
     func handleHeartRateUpdate(bpm: Double) {
@@ -757,6 +841,57 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
         currentHeartRate = bpm
         currentLapHeartRateSamples.append(bpm)
+    }
+
+    private var resumableRunState: WorkoutRunState? {
+        switch runState {
+        case .active, .rest:
+            return runState
+        case .paused:
+            return pausedRunState ?? .active
+        default:
+            return nil
+        }
+    }
+
+    private func persistRecoverySnapshot() {
+        guard let ongoingWorkoutStore,
+              let sessionStartDate,
+              let currentLapStartDate,
+              let resumeRunState = resumableRunState else {
+            return
+        }
+
+        let snapshot = OngoingWorkoutSnapshot(
+            savedAt: Date(),
+            sessionStartDate: sessionStartDate,
+            currentLapStartDate: currentLapStartDate,
+            elapsedSeconds: elapsedSeconds,
+            lapElapsedSeconds: lapElapsedSeconds,
+            trackingMode: trackingMode,
+            distanceLapDistanceMeters: distanceLapDistanceMeters,
+            distanceSegments: distanceSegments,
+            restMode: restMode,
+            completedLaps: completedLaps.map(OngoingWorkoutLapSnapshot.init(lap:)),
+            cumulativeDistanceMeters: cumulativeDistanceMeters,
+            currentLapDistanceMeters: currentLapDistanceMeters,
+            cumulativeGPSDistanceMeters: cumulativeGPSDistanceMeters,
+            currentLapGPSDistanceMeters: currentLapGPSDistanceMeters,
+            currentHeartRate: currentHeartRate,
+            currentSegmentIndex: currentSegmentIndex,
+            currentSegmentRepeatsDone: currentSegmentRepeatsDone,
+            resumeRunState: resumeRunState,
+            restElapsedSeconds: resumeRunState == .rest ? (runState == .paused ? pausedRestElapsedSeconds : restElapsedSeconds) : nil,
+            restDurationSeconds: resumeRunState == .rest ? (runState == .paused ? pausedRestDurationSeconds : restDurationSeconds) : nil,
+            pauseStartedAt: runState == .paused ? pauseStartedAt : nil
+        )
+
+        ongoingWorkoutStore.save(snapshot)
+    }
+
+    private func clearRecoverySnapshot() {
+        lastPersistedElapsedSecond = -1
+        ongoingWorkoutStore?.clear()
     }
 }
 

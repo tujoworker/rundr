@@ -255,6 +255,50 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(session.snapshotWorkoutPlan.restMode, .manual)
     }
 
+    func testOngoingWorkoutSnapshotRoundTrip() throws {
+        let lap = Lap(
+            index: 1,
+            startedAt: Date(),
+            endedAt: Date().addingTimeInterval(75),
+            durationSeconds: 75,
+            distanceMeters: 400,
+            gpsDistanceMeters: 412,
+            averageSpeedMetersPerSecond: 5.33,
+            averageHeartRateBPM: 152,
+            lapType: .active,
+            source: .distanceTap
+        )
+        let snapshot = OngoingWorkoutSnapshot(
+            savedAt: Date(),
+            sessionStartDate: Date().addingTimeInterval(-180),
+            currentLapStartDate: Date().addingTimeInterval(-20),
+            elapsedSeconds: 180,
+            lapElapsedSeconds: 20,
+            trackingMode: .dual,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 45)],
+            restMode: .manual,
+            completedLaps: [OngoingWorkoutLapSnapshot(lap: lap)],
+            cumulativeDistanceMeters: 400,
+            currentLapDistanceMeters: 0,
+            cumulativeGPSDistanceMeters: 412,
+            currentLapGPSDistanceMeters: 0,
+            currentHeartRate: 150,
+            currentSegmentIndex: 0,
+            currentSegmentRepeatsDone: 1,
+            resumeRunState: .active,
+            restElapsedSeconds: nil,
+            restDurationSeconds: nil,
+            pauseStartedAt: nil
+        )
+
+        let data = try JSONEncoder().encode(snapshot)
+        let decoded = try JSONDecoder().decode(OngoingWorkoutSnapshot.self, from: data)
+
+        XCTAssertEqual(decoded, snapshot)
+        XCTAssertEqual(decoded.completedLaps.first?.makeLap().gpsDistanceMeters, 412)
+    }
+
     func testSessionModeRawMapping() {
         let session = Session(
             startedAt: Date(),

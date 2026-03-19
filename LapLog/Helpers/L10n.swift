@@ -70,6 +70,12 @@ enum L10n {
     static let healthAccess = String(localized: "Health Access", comment: "Button")
     static let notNow = String(localized: "Not now", comment: "Button")
     static let healthDataNotAvailable = String(localized: "Health data not available on this device.", comment: "Error")
+    static let recoverWorkoutTitle = String(localized: "Resume?", comment: "Recovery prompt title")
+    static let recoverWorkoutMessage = String(localized: "LapLog found an unfinished activity. If you continue, it opens paused so you can choose when to resume.", comment: "Recovery prompt message")
+    static let resumeWorkout = String(localized: "Continue Workout", comment: "Recovery prompt button")
+    static let discardWorkout = String(localized: "Discard Workout", comment: "Recovery prompt button")
+    static let status = String(localized: "Status", comment: "Recovery prompt field")
+    static let started = String(localized: "Started", comment: "Recovery prompt field")
 
     // MARK: - Session Detail
     static let session = String(localized: "Session", comment: "Navigation title")

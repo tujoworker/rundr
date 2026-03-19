@@ -1,6 +1,6 @@
 import Foundation
 
-enum WorkoutRunState: String, Equatable {
+enum WorkoutRunState: String, Equatable, Codable {
     case idle
     case ready
     case active

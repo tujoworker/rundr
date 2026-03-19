@@ -352,6 +352,61 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.runState, .active)
     }
 
+    func testRecoverySnapshotRestoresPausedWorkout() {
+        let store = OngoingWorkoutStore()
+        store.clear()
+
+        let controller = makeStartedController(trackingMode: .dual)
+        controller.attachOngoingWorkoutStore(store)
+        controller.handleGPSDistanceUpdate(additionalMeters: 412)
+        controller.markLap()
+        controller.handleGPSDistanceUpdate(additionalMeters: 188)
+        controller.persistRecoverySnapshotIfNeeded()
+
+        guard let snapshot = store.snapshot else {
+            return XCTFail("Expected recovery snapshot")
+        }
+
+        let restored = WorkoutSessionController()
+        restored.attachOngoingWorkoutStore(store)
+        restored.restore(snapshot: snapshot, healthKitManager: HealthKitManager())
+
+        XCTAssertEqual(restored.runState, .paused)
+        XCTAssertEqual(restored.completedLaps.count, 1)
+        XCTAssertEqual(restored.completedLaps[0].distanceMeters, 400)
+        XCTAssertEqual(restored.completedLaps[0].gpsDistanceMeters, 412)
+        XCTAssertEqual(restored.currentLapGPSDistanceMeters, 188)
+
+        restored.resumeSession()
+
+        XCTAssertEqual(restored.runState, .active)
+    }
+
+    func testRecoverySnapshotPreservesRestState() {
+        let store = OngoingWorkoutStore()
+        store.clear()
+
+        let controller = makeStartedController(
+            trackingMode: .distanceDistance,
+            segments: [DistanceSegment(distanceMeters: 400, repeatCount: 1, restSeconds: 30)]
+        )
+        controller.attachOngoingWorkoutStore(store)
+        controller.markLap()
+        controller.persistRecoverySnapshotIfNeeded()
+
+        guard let snapshot = store.snapshot else {
+            return XCTFail("Expected recovery snapshot")
+        }
+
+        let restored = WorkoutSessionController()
+        restored.restore(snapshot: snapshot, healthKitManager: HealthKitManager())
+
+        XCTAssertEqual(restored.runState, .paused)
+        restored.resumeSession()
+        XCTAssertEqual(restored.runState, .rest)
+        XCTAssertEqual(restored.restDurationSeconds, 30)
+    }
+
     func testThreeSegmentProgression() {
         let segments = [
             DistanceSegment(distanceMeters: 200, repeatCount: 1),

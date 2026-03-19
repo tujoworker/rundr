@@ -12,27 +12,80 @@ struct SessionDetailView: View {
     }
 
     private var headerTitle: String {
-        session.startedAt.formatted(date: .abbreviated, time: .shortened)
+        Formatters.historySessionDateRangeString(start: session.startedAt, end: session.endedAt)
+    }
+
+    private var sessionStats: [SessionStatItem] {
+        let modeValue = session.mode == .distanceDistance ? L10n.manualLabel : session.mode.displayName
+        var items: [SessionStatItem] = [
+            SessionStatItem(label: L10n.mode, value: modeValue),
+            SessionStatItem(label: L10n.time, value: Formatters.timeString(from: session.durationSeconds)),
+            SessionStatItem(label: L10n.laps, value: String(session.totalLaps))
+        ]
+
+        if session.mode.usesManualIntervals {
+            items.append(
+                SessionStatItem(
+                    label: L10n.distance,
+                    value: session.totalDistanceMeters > 0
+                        ? Formatters.distanceString(meters: session.totalDistanceMeters, unit: settings.distanceUnit)
+                        : L10n.dash
+                )
+            )
+        } else if session.mode == .gps {
+            items.append(
+                SessionStatItem(
+                    label: L10n.gpsDistanceLabel,
+                    value: session.totalDistanceMeters > 0
+                        ? Formatters.distanceString(meters: session.totalDistanceMeters, unit: settings.distanceUnit)
+                        : L10n.dash
+                )
+            )
+        }
+
+        if session.mode == .dual {
+            items.append(
+                SessionStatItem(
+                    label: L10n.gpsDistanceLabel,
+                    value: session.totalGPSDistanceMeters.flatMap { gpsDistanceMeters in
+                        gpsDistanceMeters > 0
+                            ? Formatters.distanceString(meters: gpsDistanceMeters, unit: settings.distanceUnit)
+                            : nil
+                    } ?? L10n.dash
+                )
+            )
+        }
+
+        return items
+    }
+
+    private var targetSegmentsByLapID: [UUID: DistanceSegment] {
+        SessionLapTargetResolver.targetSegments(
+            for: sortedLaps,
+            workoutPlan: session.snapshotWorkoutPlan,
+            trackingMode: session.mode
+        )
     }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 6) {
-                Text(L10n.session)
-                    .font(.headline.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 4)
-
                 Text(headerTitle)
-                    .font(.subheadline.weight(.medium))
-                    .foregroundStyle(.white.opacity(0.8))
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 4)
                     .padding(.bottom, 4)
 
+                SessionStatsView(items: sessionStats)
+
                 ForEach(sortedLaps, id: \.id) { lap in
-                    LapRowView(lap: lap, trackingMode: session.mode, distanceUnit: settings.distanceUnit)
+                    LapRowView(
+                        lap: lap,
+                        trackingMode: session.mode,
+                        distanceUnit: settings.distanceUnit,
+                        targetSegment: targetSegmentsByLapID[lap.id]
+                    )
                 }
 
                 Button(action: onUseSessionSettings) {
@@ -60,50 +113,225 @@ struct SessionDetailView: View {
     }
 }
 
+private struct SessionStatsView: View {
+    let items: [SessionStatItem]
+
+    private let columns = [
+        GridItem(.flexible(), spacing: 12, alignment: .topLeading),
+        GridItem(.flexible(), spacing: 12, alignment: .topLeading)
+    ]
+
+    var body: some View {
+        if !items.isEmpty {
+            LazyVGrid(columns: columns, alignment: .leading, spacing: 10) {
+                ForEach(items) { item in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(item.label)
+                            .font(.system(size: 13, weight: .regular, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.68))
+
+                        Text(item.value)
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(.white)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(8)
+            .background(Color.white.opacity(0.12))
+            .cornerRadius(8)
+            .padding(.horizontal, 4)
+            .padding(.bottom, 6)
+        }
+    }
+}
+
 struct LapRowView: View {
     let lap: Lap
     let trackingMode: TrackingMode
     var distanceUnit: DistanceUnit = .km
+    var targetSegment: DistanceSegment? = nil
+
+    private let columns = [
+        GridItem(.flexible(), spacing: 12, alignment: .topLeading),
+        GridItem(.flexible(), spacing: 12, alignment: .topLeading)
+    ]
+
+    private var badgeTitle: String {
+        String(lap.index)
+    }
+
+    private var headerItems: [String] {
+        [Formatters.compactTimeString(from: lap.durationSeconds)]
+    }
+
+    private var detailItems: [SessionStatItem] {
+        var items: [SessionStatItem] = []
+
+        guard lap.lapType != .rest else { return items }
+
+        if trackingMode.usesManualIntervals {
+            items.append(
+                SessionStatItem(
+                    label: L10n.distance,
+                    value: lap.distanceMeters > 0
+                        ? Formatters.distanceString(meters: lap.distanceMeters, unit: distanceUnit)
+                        : L10n.dash
+                )
+            )
+
+            items.append(
+                SessionStatItem(
+                    label: L10n.pace,
+                    value: lap.distanceMeters > 0
+                        ? Formatters.paceString(distanceMeters: lap.distanceMeters, durationSeconds: lap.durationSeconds, unit: distanceUnit)
+                        : L10n.dash
+                )
+            )
+        }
+
+        let gpsDistanceMeters: Double?
+        if trackingMode == .gps {
+            gpsDistanceMeters = lap.distanceMeters > 0 ? lap.distanceMeters : nil
+        } else {
+            gpsDistanceMeters = lap.gpsDistanceMeters
+        }
+
+        if trackingMode.usesGPSDistance {
+            items.append(
+                SessionStatItem(
+                    label: L10n.gpsDistanceLabel,
+                    value: gpsDistanceMeters.flatMap { distance in
+                        distance > 0 ? Formatters.distanceString(meters: distance, unit: distanceUnit) : nil
+                    } ?? L10n.dash
+                )
+            )
+
+            items.append(
+                SessionStatItem(
+                    label: L10n.gpsPaceLabel,
+                    value: gpsDistanceMeters.flatMap { distance in
+                        distance > 0
+                            ? Formatters.paceString(distanceMeters: distance, durationSeconds: lap.durationSeconds, unit: distanceUnit)
+                            : nil
+                    } ?? L10n.dash
+                )
+            )
+        }
+
+        if let targetTime = targetSegment?.targetTimeSeconds {
+            items.append(
+                SessionStatItem(
+                    label: L10n.targetTimeLabel,
+                    value: Formatters.compactTimeString(from: targetTime)
+                )
+            )
+        }
+
+        if let targetPace = targetSegment?.targetPaceSecondsPerKm {
+            items.append(
+                SessionStatItem(
+                    label: L10n.targetPaceLabel,
+                    value: Formatters.compactPaceString(secondsPerKm: targetPace, unit: distanceUnit)
+                )
+            )
+        }
+
+        if let averageHeartRateBPM = lap.averageHeartRateBPM {
+            items.append(
+                SessionStatItem(
+                    label: L10n.heartRate,
+                    value: "\(Int(averageHeartRateBPM)) bpm"
+                )
+            )
+        }
+
+        return items
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            if lap.lapType == .rest {
-                Text(L10n.rest)
-                    .font(.caption.bold())
-            } else {
-                Text(L10n.lapIndex(lap.index))
-                    .font(.caption.bold())
-            }
-            HStack {
-                Text(Formatters.compactTimeString(from: lap.durationSeconds))
-                    .font(.system(.caption2, design: .monospaced))
-                if lap.lapType != .rest && lap.distanceMeters > 0 {
-                    Text("•")
-                        .font(.caption2)
-                    Text(Formatters.paceString(distanceMeters: lap.distanceMeters, durationSeconds: lap.durationSeconds, unit: distanceUnit))
-                        .font(.system(.caption2, design: .monospaced))
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 6) {
+                if lap.lapType == .rest {
+                    Text(L10n.rest)
+                        .font(.caption.bold())
+                } else {
+                    Text(badgeTitle)
+                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 1)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                                .fill(.white)
+                        )
                 }
-                if let bpm = lap.averageHeartRateBPM {
-                    Text("•")
-                        .font(.caption2)
-                    Text(Formatters.heartRateString(bpm: bpm))
-                        .font(.system(.caption2, design: .monospaced))
-                }
+
+                Text(headerItems.joined(separator: " • "))
+                    .font(.caption)
             }
-            if trackingMode == .dual,
-               lap.lapType != .rest,
-               let gpsDistanceMeters = lap.gpsDistanceMeters,
-               gpsDistanceMeters > 0 {
-                Text(L10n.gpsDistance(Formatters.distanceString(meters: gpsDistanceMeters, unit: distanceUnit)))
-                    .font(.caption2)
-                    .foregroundStyle(.secondary)
+
+            if !detailItems.isEmpty {
+                LazyVGrid(columns: columns, alignment: .leading, spacing: 10) {
+                    ForEach(detailItems) { item in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(item.label)
+                                .font(.system(size: 13, weight: .regular, design: .rounded))
+                                .foregroundStyle(.secondary)
+
+                            Text(item.value)
+                                .font(.caption2)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
+                .padding(.top, 4)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(6)
+        .padding(8)
         .background(lap.lapType == .rest ? Color.white.opacity(0.9) : Color.white.opacity(0.15))
         .foregroundColor(lap.lapType == .rest ? .black : .white)
-        .cornerRadius(6)
+        .cornerRadius(8)
         .padding(.horizontal, 4)
+    }
+}
+
+struct SessionStatItem: Identifiable {
+    let id = UUID()
+    let label: String
+    let value: String
+}
+
+enum SessionLapTargetResolver {
+    static func targetSegments(
+        for laps: [Lap],
+        workoutPlan: WorkoutPlanSnapshot,
+        trackingMode: TrackingMode
+    ) -> [UUID: DistanceSegment] {
+        guard trackingMode.usesManualIntervals, !workoutPlan.distanceSegments.isEmpty else {
+            return [:]
+        }
+
+        var targetsByLapID: [UUID: DistanceSegment] = [:]
+        var segmentIndex = 0
+        var repeatsDone = 0
+
+        for lap in laps where lap.lapType == .active {
+            let safeIndex = min(segmentIndex, workoutPlan.distanceSegments.count - 1)
+            let segment = workoutPlan.distanceSegments[safeIndex]
+            targetsByLapID[lap.id] = segment
+
+            repeatsDone += 1
+            if let repeatCount = segment.repeatCount,
+               repeatsDone >= repeatCount,
+               segmentIndex + 1 < workoutPlan.distanceSegments.count {
+                segmentIndex += 1
+                repeatsDone = 0
+            }
+        }
+
+        return targetsByLapID
     }
 }

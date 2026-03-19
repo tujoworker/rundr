@@ -502,7 +502,7 @@ struct HistorySessionSetupView: View {
     let onContinue: (WorkoutPlanSnapshot) -> Void
 
     private var sourceTitle: String {
-        session.startedAt.formatted(date: .abbreviated, time: .shortened)
+        Formatters.historySessionDateTimeString(from: session.startedAt)
     }
 
     var body: some View {

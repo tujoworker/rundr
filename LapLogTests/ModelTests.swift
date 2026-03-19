@@ -273,6 +273,30 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(session.modeRaw, "dual")
     }
 
+    func testSessionLapTargetResolverAssignsSegmentsAcrossRepeatsAndRestLaps() {
+        let segmentA = DistanceSegment(distanceMeters: 400, repeatCount: 2, targetTimeSeconds: 90)
+        let segmentB = DistanceSegment(distanceMeters: 800, repeatCount: 1, targetPaceSecondsPerKm: 240)
+        let workoutPlan = WorkoutPlanSnapshot(
+            trackingMode: .dual,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [segmentA, segmentB],
+            restMode: .manual
+        )
+        let laps = [
+            Lap(index: 1, startedAt: Date(), endedAt: Date(), durationSeconds: 90, distanceMeters: 400, averageSpeedMetersPerSecond: 4, lapType: .active),
+            Lap(index: 0, startedAt: Date(), endedAt: Date(), durationSeconds: 30, distanceMeters: 0, averageSpeedMetersPerSecond: 0, lapType: .rest),
+            Lap(index: 2, startedAt: Date(), endedAt: Date(), durationSeconds: 91, distanceMeters: 400, averageSpeedMetersPerSecond: 4, lapType: .active),
+            Lap(index: 3, startedAt: Date(), endedAt: Date(), durationSeconds: 192, distanceMeters: 800, averageSpeedMetersPerSecond: 4.16, lapType: .active)
+        ]
+
+        let targets = SessionLapTargetResolver.targetSegments(for: laps, workoutPlan: workoutPlan, trackingMode: .dual)
+
+        XCTAssertEqual(targets[laps[0].id]?.targetTimeSeconds, 90)
+        XCTAssertNil(targets[laps[1].id])
+        XCTAssertEqual(targets[laps[2].id]?.targetTimeSeconds, 90)
+        XCTAssertEqual(targets[laps[3].id]?.targetPaceSecondsPerKm, 240)
+    }
+
     // MARK: - DistanceSegment
 
     func testDistanceSegmentDefaults() {

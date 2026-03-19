@@ -2,6 +2,56 @@ import Foundation
 
 enum Formatters {
 
+    private static let relativeDayFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .full
+        formatter.timeStyle = .none
+        formatter.doesRelativeDateFormatting = true
+        return formatter
+    }()
+
+    // MARK: - Date
+
+    static func historySessionDateTimeString(
+        from date: Date,
+        referenceDate: Date = Date(),
+        calendar: Calendar = .current
+    ) -> String {
+        let now = referenceDate
+        let dayText: String
+
+        if calendar.isDateInToday(date) || calendar.isDateInYesterday(date) {
+            dayText = relativeDayFormatter.string(from: date)
+        } else if calendar.isDate(date, equalTo: now, toGranularity: .weekOfYear) {
+            dayText = date.formatted(.dateTime.weekday(.wide))
+        } else if calendar.isDate(date, equalTo: now, toGranularity: .year) {
+            dayText = date.formatted(.dateTime.month(.abbreviated).day())
+        } else {
+            dayText = date.formatted(.dateTime.month(.abbreviated).day().year())
+        }
+
+        let timeText = date.formatted(date: .omitted, time: .shortened)
+        return "\(dayText), \(timeText)"
+    }
+
+    static func historySessionDateRangeString(
+        start: Date,
+        end: Date,
+        referenceDate: Date = Date(),
+        calendar: Calendar = .current
+    ) -> String {
+        let startText = historySessionDateTimeString(from: start, referenceDate: referenceDate, calendar: calendar)
+        let endText: String
+
+        if calendar.isDate(start, inSameDayAs: end) {
+            endText = end.formatted(date: .omitted, time: .shortened)
+        } else {
+            endText = historySessionDateTimeString(from: end, referenceDate: referenceDate, calendar: calendar)
+        }
+
+        return "\(startText) - \(endText)"
+    }
+
     // MARK: - Time
 
     /// Formats seconds into HH:MM:SS or MM:SS depending on duration.

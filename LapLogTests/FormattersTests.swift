@@ -3,6 +3,25 @@ import XCTest
 
 final class FormattersTests: XCTestCase {
 
+    private var testCalendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone.current
+        return calendar
+    }
+
+    private func makeDate(year: Int, month: Int, day: Int, hour: Int, minute: Int = 0) throws -> Date {
+        let components = DateComponents(
+            calendar: testCalendar,
+            timeZone: testCalendar.timeZone,
+            year: year,
+            month: month,
+            day: day,
+            hour: hour,
+            minute: minute
+        )
+        return try XCTUnwrap(components.date)
+    }
+
     // MARK: - Time Formatting
 
     func testTimeStringSeconds() {
@@ -81,5 +100,99 @@ final class FormattersTests: XCTestCase {
     func testHeartRateStringValue() {
         XCTAssertEqual(Formatters.heartRateString(bpm: 163.0), "163")
         XCTAssertEqual(Formatters.heartRateString(bpm: 72.8), "72")
+    }
+
+    // MARK: - History Date Formatting
+
+    func testHistorySessionDateTimeStringUsesTodayLabel() throws {
+        let referenceDate = try makeDate(year: 2026, month: 3, day: 19, hour: 12)
+        let sessionDate = try makeDate(year: 2026, month: 3, day: 19, hour: 10, minute: 15)
+
+        let formatter = DateFormatter()
+        formatter.dateStyle = .full
+        formatter.timeStyle = .none
+        formatter.doesRelativeDateFormatting = true
+        let expectedDay = formatter.string(from: sessionDate)
+        let expected = "\(expectedDay), \(sessionDate.formatted(date: .omitted, time: .shortened))"
+
+        XCTAssertEqual(
+            Formatters.historySessionDateTimeString(from: sessionDate, referenceDate: referenceDate, calendar: testCalendar),
+            expected
+        )
+    }
+
+    func testHistorySessionDateTimeStringUsesYesterdayLabel() throws {
+        let referenceDate = try makeDate(year: 2026, month: 3, day: 19, hour: 12)
+        let sessionDate = try makeDate(year: 2026, month: 3, day: 18, hour: 10, minute: 15)
+
+        let formatter = DateFormatter()
+        formatter.dateStyle = .full
+        formatter.timeStyle = .none
+        formatter.doesRelativeDateFormatting = true
+        let expected = "\(formatter.string(from: sessionDate)), \(sessionDate.formatted(date: .omitted, time: .shortened))"
+
+        XCTAssertEqual(
+            Formatters.historySessionDateTimeString(from: sessionDate, referenceDate: referenceDate, calendar: testCalendar),
+            expected
+        )
+    }
+
+    func testHistorySessionDateTimeStringUsesWeekdayInsideCurrentWeek() throws {
+        let referenceDate = try makeDate(year: 2026, month: 3, day: 19, hour: 12)
+        let sessionDate = try makeDate(year: 2026, month: 3, day: 17, hour: 10, minute: 15)
+        let expected = "\(sessionDate.formatted(.dateTime.weekday(.wide))), \(sessionDate.formatted(date: .omitted, time: .shortened))"
+
+        XCTAssertEqual(
+            Formatters.historySessionDateTimeString(from: sessionDate, referenceDate: referenceDate, calendar: testCalendar),
+            expected
+        )
+    }
+
+    func testHistorySessionDateTimeStringUsesMonthDayEarlierThisYear() throws {
+        let referenceDate = try makeDate(year: 2026, month: 3, day: 19, hour: 12)
+        let sessionDate = try makeDate(year: 2026, month: 2, day: 10, hour: 10, minute: 15)
+        let expected = "\(sessionDate.formatted(.dateTime.month(.abbreviated).day())), \(sessionDate.formatted(date: .omitted, time: .shortened))"
+
+        XCTAssertEqual(
+            Formatters.historySessionDateTimeString(from: sessionDate, referenceDate: referenceDate, calendar: testCalendar),
+            expected
+        )
+    }
+
+    func testHistorySessionDateTimeStringUsesYearForOlderSessions() throws {
+        let referenceDate = try makeDate(year: 2026, month: 3, day: 19, hour: 12)
+        let sessionDate = try makeDate(year: 2025, month: 12, day: 31, hour: 10, minute: 15)
+        let expected = "\(sessionDate.formatted(.dateTime.month(.abbreviated).day().year())), \(sessionDate.formatted(date: .omitted, time: .shortened))"
+
+        XCTAssertEqual(
+            Formatters.historySessionDateTimeString(from: sessionDate, referenceDate: referenceDate, calendar: testCalendar),
+            expected
+        )
+    }
+
+    func testHistorySessionDateRangeStringUsesEndTimeOnlyForSameDay() throws {
+        let referenceDate = try makeDate(year: 2026, month: 3, day: 19, hour: 12)
+        let start = try makeDate(year: 2026, month: 3, day: 19, hour: 10, minute: 0)
+        let end = try makeDate(year: 2026, month: 3, day: 19, hour: 11, minute: 5)
+        let expectedStart = Formatters.historySessionDateTimeString(from: start, referenceDate: referenceDate, calendar: testCalendar)
+        let expected = "\(expectedStart) - \(end.formatted(date: .omitted, time: .shortened))"
+
+        XCTAssertEqual(
+            Formatters.historySessionDateRangeString(start: start, end: end, referenceDate: referenceDate, calendar: testCalendar),
+            expected
+        )
+    }
+
+    func testHistorySessionDateRangeStringUsesFullEndContextAcrossDays() throws {
+        let referenceDate = try makeDate(year: 2026, month: 3, day: 19, hour: 12)
+        let start = try makeDate(year: 2026, month: 3, day: 18, hour: 23, minute: 30)
+        let end = try makeDate(year: 2026, month: 3, day: 19, hour: 0, minute: 15)
+        let expectedStart = Formatters.historySessionDateTimeString(from: start, referenceDate: referenceDate, calendar: testCalendar)
+        let expectedEnd = Formatters.historySessionDateTimeString(from: end, referenceDate: referenceDate, calendar: testCalendar)
+
+        XCTAssertEqual(
+            Formatters.historySessionDateRangeString(start: start, end: end, referenceDate: referenceDate, calendar: testCalendar),
+            "\(expectedStart) - \(expectedEnd)"
+        )
     }
 }

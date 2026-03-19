@@ -85,25 +85,71 @@ struct SessionRowView: View {
     let session: Session
     @EnvironmentObject var settings: SettingsStore
 
+    private let columns = [
+        GridItem(.flexible(), spacing: 12, alignment: .topLeading),
+        GridItem(.flexible(), spacing: 12, alignment: .topLeading)
+    ]
+
     private var sessionTitle: String {
-        session.startedAt.formatted(date: .abbreviated, time: .shortened)
+        Formatters.historySessionDateTimeString(from: session.startedAt)
+    }
+
+    private var sessionStats: [SessionCardStatItem] {
+        var items: [SessionCardStatItem] = [
+            SessionCardStatItem(label: L10n.laps, value: String(session.totalLaps)),
+            SessionCardStatItem(
+                label: L10n.pace,
+                value: Formatters.paceString(
+                    distanceMeters: session.totalDistanceMeters,
+                    durationSeconds: session.durationSeconds,
+                    unit: settings.distanceUnit
+                )
+            ),
+            SessionCardStatItem(label: L10n.time, value: Formatters.timeString(from: session.durationSeconds)),
+            SessionCardStatItem(
+                label: session.mode.usesManualIntervals ? L10n.distance : L10n.gpsDistanceLabel,
+                value: session.totalDistanceMeters > 0
+                    ? Formatters.distanceString(meters: session.totalDistanceMeters, unit: settings.distanceUnit)
+                    : L10n.dash
+            )
+        ]
+
+        if session.mode == .dual {
+            items.append(
+                SessionCardStatItem(
+                    label: L10n.gpsDistanceLabel,
+                    value: session.totalGPSDistanceMeters.flatMap { gpsDistanceMeters in
+                        gpsDistanceMeters > 0
+                            ? Formatters.distanceString(meters: gpsDistanceMeters, unit: settings.distanceUnit)
+                            : nil
+                    } ?? L10n.dash
+                )
+            )
+        }
+
+        return items
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(sessionTitle)
-                .font(.headline.weight(.semibold))
+                .font(.caption2.weight(.semibold))
                 .foregroundStyle(.white)
-            Text("Laps: \(session.totalLaps) • \(Formatters.paceString(distanceMeters: session.totalDistanceMeters, durationSeconds: session.durationSeconds, unit: settings.distanceUnit))")
-                .font(.caption)
-            Text("Time: \(Formatters.timeString(from: session.durationSeconds)) • \(Formatters.distanceString(meters: session.totalDistanceMeters, unit: settings.distanceUnit))")
-                .font(.caption)
-            if session.mode == .dual,
-               let gpsDistanceMeters = session.totalGPSDistanceMeters,
-               gpsDistanceMeters > 0 {
-                Text(L10n.gpsDistance(Formatters.distanceString(meters: gpsDistanceMeters, unit: settings.distanceUnit)))
-                    .font(.caption2)
-                    .foregroundStyle(.white.opacity(0.68))
+                .padding(.bottom, 4)
+
+            LazyVGrid(columns: columns, alignment: .leading, spacing: 10) {
+                ForEach(sessionStats) { item in
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(item.label)
+                            .font(.system(size: 13, weight: .regular, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.68))
+
+                        Text(item.value)
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(.white)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -111,4 +157,10 @@ struct SessionRowView: View {
         .background(Color.white.opacity(0.15))
         .cornerRadius(8)
     }
+}
+
+private struct SessionCardStatItem: Identifiable {
+    let id = UUID()
+    let label: String
+    let value: String
 }

@@ -73,7 +73,17 @@ enum L10n {
 
     // MARK: - Session Detail
     static let session = String(localized: "Session", comment: "Navigation title")
+    static let stats = String(localized: "Stats", comment: "Session stats section title")
     static let rest = String(localized: "Rest", comment: "Rest lap label")
+    static let laps = String(localized: "Laps", comment: "Laps label")
+    static let manualDistance = String(localized: "Manual Distance", comment: "Manual distance label")
+    static let gpsDistanceLabel = String(localized: "GPS Distance", comment: "GPS distance label")
+    static let manualLabel = String(localized: "Manual", comment: "Manual lap metric label")
+    static let gpsLabel = String(localized: "GPS", comment: "GPS lap metric label")
+    static let gpsPaceLabel = String(localized: "GPS Pace", comment: "GPS pace label")
+    static let heartRate = String(localized: "Heart Rate", comment: "Average heart rate label")
+    static let targetTimeLabel = String(localized: "Target Time", comment: "Lap target time label")
+    static let targetPaceLabel = String(localized: "Target Pace", comment: "Lap target pace label")
     static let useSessionSettings = String(localized: "Reuse This Interval", comment: "Button")
     static func loadedFromSession(_ value: String) -> String {
         String(format: String(localized: "Loaded from %@", comment: "History setup subtitle"), value)

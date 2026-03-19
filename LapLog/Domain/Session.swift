@@ -1,6 +1,28 @@
 import Foundation
 import SwiftData
 
+struct WorkoutPlanSnapshot: Codable, Equatable {
+    var trackingMode: TrackingMode
+    var distanceLapDistanceMeters: Double?
+    var distanceSegments: [DistanceSegment]
+    var restMode: RestMode
+
+    init(
+        trackingMode: TrackingMode,
+        distanceLapDistanceMeters: Double? = nil,
+        distanceSegments: [DistanceSegment] = [.default],
+        restMode: RestMode = .manual
+    ) {
+        let normalizedSegments = distanceSegments.isEmpty ? [.default] : distanceSegments
+        self.trackingMode = trackingMode
+        self.distanceLapDistanceMeters = trackingMode == .distanceDistance
+            ? (distanceLapDistanceMeters ?? normalizedSegments.first?.distanceMeters ?? DistanceSegment.default.distanceMeters)
+            : nil
+        self.distanceSegments = normalizedSegments
+        self.restMode = restMode
+    }
+}
+
 @Model
 final class Session {
     @Attribute(.unique) var id: UUID
@@ -22,6 +44,7 @@ final class Session {
     // Settings snapshot
     var snapshotTrackingModeRaw: String
     var snapshotDistanceDistanceMeters: Double?
+    var snapshotWorkoutPlanJSON: String = ""
 
     var mode: TrackingMode {
         get { TrackingMode(rawValue: modeRaw) ?? .gps }
@@ -31,6 +54,40 @@ final class Session {
     var snapshotTrackingMode: TrackingMode {
         get { TrackingMode(rawValue: snapshotTrackingModeRaw) ?? .gps }
         set { snapshotTrackingModeRaw = newValue.rawValue }
+    }
+
+    var snapshotWorkoutPlan: WorkoutPlanSnapshot {
+        get {
+            guard !snapshotWorkoutPlanJSON.isEmpty,
+                  let data = snapshotWorkoutPlanJSON.data(using: .utf8),
+                  let snapshot = try? JSONDecoder().decode(WorkoutPlanSnapshot.self, from: data) else {
+                let fallbackDistance = snapshotDistanceDistanceMeters
+                    ?? distanceLapDistanceMeters
+                    ?? DistanceSegment.default.distanceMeters
+                let fallbackSegments: [DistanceSegment]
+                if snapshotTrackingMode == .distanceDistance {
+                    fallbackSegments = [DistanceSegment(distanceMeters: fallbackDistance)]
+                } else {
+                    fallbackSegments = [.default]
+                }
+
+                return WorkoutPlanSnapshot(
+                    trackingMode: snapshotTrackingMode,
+                    distanceLapDistanceMeters: snapshotDistanceDistanceMeters,
+                    distanceSegments: fallbackSegments,
+                    restMode: .manual
+                )
+            }
+            return snapshot
+        }
+        set {
+            guard let data = try? JSONEncoder().encode(newValue),
+                  let json = String(data: data, encoding: .utf8) else {
+                snapshotWorkoutPlanJSON = ""
+                return
+            }
+            snapshotWorkoutPlanJSON = json
+        }
     }
 
     init(
@@ -49,7 +106,8 @@ final class Session {
         createdAt: Date = Date(),
         updatedAt: Date = Date(),
         snapshotTrackingMode: TrackingMode,
-        snapshotDistanceDistanceMeters: Double? = nil
+        snapshotDistanceDistanceMeters: Double? = nil,
+        snapshotWorkoutPlan: WorkoutPlanSnapshot? = nil
     ) {
         self.id = id
         self.startedAt = startedAt
@@ -67,5 +125,13 @@ final class Session {
         self.updatedAt = updatedAt
         self.snapshotTrackingModeRaw = snapshotTrackingMode.rawValue
         self.snapshotDistanceDistanceMeters = snapshotDistanceDistanceMeters
+        self.snapshotWorkoutPlan = snapshotWorkoutPlan ?? WorkoutPlanSnapshot(
+            trackingMode: snapshotTrackingMode,
+            distanceLapDistanceMeters: snapshotDistanceDistanceMeters,
+            distanceSegments: snapshotTrackingMode == .distanceDistance
+                ? [DistanceSegment(distanceMeters: snapshotDistanceDistanceMeters ?? distanceLapDistanceMeters ?? DistanceSegment.default.distanceMeters)]
+                : [.default],
+            restMode: .manual
+        )
     }
 }

@@ -60,4 +60,25 @@ final class SettingsStore: ObservableObject {
             }
         }
     }
+
+    var currentWorkoutPlan: WorkoutPlanSnapshot {
+        WorkoutPlanSnapshot(
+            trackingMode: trackingMode,
+            distanceLapDistanceMeters: distanceDistanceMeters,
+            distanceSegments: distanceSegments,
+            restMode: restMode
+        )
+    }
+
+    func apply(workoutPlan: WorkoutPlanSnapshot) {
+        trackingMode = workoutPlan.trackingMode
+        restMode = workoutPlan.restMode
+
+        let segments = workoutPlan.distanceSegments.isEmpty ? [.default] : workoutPlan.distanceSegments
+        distanceSegments = segments
+
+        if let distance = workoutPlan.distanceLapDistanceMeters ?? segments.first?.distanceMeters {
+            distanceDistanceMeters = distance
+        }
+    }
 }

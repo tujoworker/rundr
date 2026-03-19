@@ -2,6 +2,7 @@ import SwiftUI
 
 struct SessionDetailView: View {
     let session: Session
+    let onUseSessionSettings: () -> Void
     @EnvironmentObject var settings: SettingsStore
     @EnvironmentObject var persistence: PersistenceManager
     @Environment(\.dismiss) private var dismiss
@@ -33,6 +34,16 @@ struct SessionDetailView: View {
                 ForEach(sortedLaps, id: \.id) { lap in
                     LapRowView(lap: lap, distanceUnit: settings.distanceUnit)
                 }
+
+                Button(action: onUseSessionSettings) {
+                    Text(L10n.useSessionSettings)
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                }
+                .frame(maxWidth: .infinity, alignment: .center)
+                .padding(.top, 10)
+                .padding(.horizontal, 4)
 
                 Button(String(localized: "Delete Session", comment: "Button to delete a saved session"), role: .destructive) {
                     persistence.deleteSession(session)

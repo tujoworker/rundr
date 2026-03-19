@@ -560,9 +560,8 @@ struct PlaceholderLapCardView: View {
                         .fill(.white)
                 )
             Text("—:——")
-                .font(.system(size: 23, design: .rounded))
+                .font(.system(size: 25, weight: .medium, design: .rounded))
                 .monospacedDigit()
-                .fontWeight(.bold)
                 .foregroundColor(.white)
         }
         .padding(.top, lapCardTopPadding)
@@ -601,7 +600,7 @@ struct LapCardView: View {
         Group {
             if isRest {
                 Text(Formatters.compactTimeString(from: lap.durationSeconds))
-                    .font(.system(size: 23, design: .rounded))
+                    .font(.system(size: 25, weight: .medium, design: .rounded))
                     .monospacedDigit()
             } else {
                 HStack(spacing: 6) {
@@ -615,11 +614,10 @@ struct LapCardView: View {
                             RoundedRectangle(cornerRadius: 6, style: .continuous)
                                 .fill(.white)
                         )
-                    VStack(alignment: .leading, spacing: 2) {
+                    VStack(alignment: .leading, spacing: 0) {
                         Text(Formatters.compactTimeString(from: lap.durationSeconds))
-                            .font(.system(size: 23, design: .rounded))
+                            .font(.system(size: 25, weight: .medium, design: .rounded))
                             .monospacedDigit()
-                            .fontWeight(isLatest ? .bold : .regular)
                         Text(Formatters.paceString(distanceMeters: lap.distanceMeters, durationSeconds: lap.durationSeconds, unit: distanceUnit))
                             .font(.system(size: 18, design: .rounded))
                             .monospacedDigit()

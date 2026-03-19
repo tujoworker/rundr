@@ -181,6 +181,55 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(session.snapshotDistanceDistanceMeters, 400)
     }
 
+    func testSessionStoresWorkoutPlanSnapshot() {
+        let snapshot = WorkoutPlanSnapshot(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [
+                DistanceSegment(distanceMeters: 400, repeatCount: 4, restSeconds: 30),
+                DistanceSegment(distanceMeters: 800, repeatCount: 2, restSeconds: 60)
+            ],
+            restMode: .autoDetect
+        )
+        let session = Session(
+            startedAt: Date(),
+            endedAt: Date(),
+            durationSeconds: 600,
+            mode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            totalDistanceMeters: 2000,
+            averageSpeedMetersPerSecond: 3.33,
+            totalLaps: 5,
+            snapshotTrackingMode: .distanceDistance,
+            snapshotDistanceDistanceMeters: 400,
+            snapshotWorkoutPlan: snapshot
+        )
+
+        XCTAssertEqual(session.snapshotWorkoutPlan, snapshot)
+    }
+
+    func testSessionWorkoutPlanFallbackForLegacySnapshot() {
+        let session = Session(
+            startedAt: Date(),
+            endedAt: Date(),
+            durationSeconds: 600,
+            mode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            totalDistanceMeters: 2000,
+            averageSpeedMetersPerSecond: 3.33,
+            totalLaps: 5,
+            snapshotTrackingMode: .distanceDistance,
+            snapshotDistanceDistanceMeters: 400
+        )
+        session.snapshotWorkoutPlanJSON = ""
+
+        XCTAssertEqual(session.snapshotWorkoutPlan.trackingMode, .distanceDistance)
+        XCTAssertEqual(session.snapshotWorkoutPlan.distanceLapDistanceMeters, 400)
+        XCTAssertEqual(session.snapshotWorkoutPlan.distanceSegments.count, 1)
+        XCTAssertEqual(session.snapshotWorkoutPlan.distanceSegments[0].distanceMeters, 400)
+        XCTAssertEqual(session.snapshotWorkoutPlan.restMode, .manual)
+    }
+
     func testSessionModeRawMapping() {
         let session = Session(
             startedAt: Date(),

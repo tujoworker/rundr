@@ -4,4 +4,5 @@ enum AppScreenState: Hashable {
     case home
     case preStart
     case sessionDetail(UUID)
+    case historySetup(UUID)
 }

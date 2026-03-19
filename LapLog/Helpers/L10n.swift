@@ -7,6 +7,7 @@ enum L10n {
     // MARK: - PreStart
     static let pressActionButton = String(localized: "Press the Action Button", comment: "PreStart hint")
     static let settings = String(localized: "Settings", comment: "Settings section")
+    static let adjustSettings = String(localized: "Adjust Interval", comment: "History setup title")
     static let mode = String(localized: "Mode", comment: "Tracking mode setting")
     static let distance = String(localized: "Distance", comment: "Distance setting")
     static let distanceMeters = String(localized: "Distance (meters)", comment: "Distance input label")
@@ -50,6 +51,7 @@ enum L10n {
     static let getReady = String(localized: "Get Ready", comment: "Button")
     static let noSessionsYet = String(localized: "No sessions yet", comment: "Empty state")
     static let loadMore = String(localized: "Load More", comment: "Button")
+    static let continueToGetReady = String(localized: "Continue", comment: "Button")
     static func lapsSummary(_ count: Int, _ pace: String) -> String {
         String(format: String(localized: "Laps: %d • %@", comment: "Session summary"), count, pace)
     }
@@ -67,6 +69,10 @@ enum L10n {
     // MARK: - Session Detail
     static let session = String(localized: "Session", comment: "Navigation title")
     static let rest = String(localized: "Rest", comment: "Rest lap label")
+    static let useSessionSettings = String(localized: "Reuse This Interval", comment: "Button")
+    static func loadedFromSession(_ value: String) -> String {
+        String(format: String(localized: "Loaded from %@", comment: "History setup subtitle"), value)
+    }
 
     // MARK: - Tracking Mode
     static let gps = String(localized: "GPS", comment: "Tracking mode")

@@ -103,7 +103,25 @@ struct RootView: View {
                             })
                         case .sessionDetail(let sessionID):
                             if let session = persistence.fetchSession(id: sessionID) {
-                                SessionDetailView(session: session)
+                                SessionDetailView(
+                                    session: session,
+                                    onUseSessionSettings: {
+                                        coordinator.goToHistorySetup(id: session.id)
+                                    }
+                                )
+                            } else {
+                                Text("Session not found")
+                            }
+                        case .historySetup(let sessionID):
+                            if let session = persistence.fetchSession(id: sessionID) {
+                                HistorySessionSetupView(
+                                    session: session,
+                                    onContinue: { workoutPlan in
+                                        settings.apply(workoutPlan: workoutPlan)
+                                        workoutController.getReady()
+                                        coordinator.goToPreStart(replacingPath: true)
+                                    }
+                                )
                             } else {
                                 Text("Session not found")
                             }

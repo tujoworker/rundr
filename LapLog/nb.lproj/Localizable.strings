@@ -3,6 +3,7 @@
 /* PreStart */
 "Press the Action Button" = "Trykk på handlingsknappen";
 "Settings" = "Innstillinger";
+"Adjust Interval" = "Juster intervall";
 "Mode" = "Modus";
 "Distance" = "Distanse";
 "Distance (meters)" = "Distanse (meter)";
@@ -43,6 +44,7 @@
 "Get Ready" = "Gjør deg klar";
 "No sessions yet" = "Ingen økter ennå";
 "Load More" = "Last mer";
+"Continue" = "Fortsett";
 "Laps: %d • %@" = "Runder: %d • %@";
 "Time: %@ • %@" = "Tid: %@ • %@";
 
@@ -56,6 +58,8 @@
 /* Session Detail */
 "Session" = "Økt";
 "Rest" = "Hvile";
+"Reuse This Interval" = "Bruk dette intervallet igjen";
+"Loaded from %@" = "Lastet fra %@";
 
 /* Tracking Mode */
 "GPS" = "GPS";

@@ -463,6 +463,236 @@ private struct SegmentRow: View {
     }
 }
 
+struct HistorySessionSetupView: View {
+    let session: Session
+    let onContinue: (WorkoutPlanSnapshot) -> Void
+
+    @EnvironmentObject var settings: SettingsStore
+    @State private var trackingMode: TrackingMode = .distanceDistance
+    @State private var segments: [DistanceSegment] = []
+    @State private var restMode: RestMode = .manual
+    @State private var editingSegmentID: UUID?
+    @State private var editingSegmentDistanceText: String = ""
+    @State private var editingSegmentRepeatCount: Int = 0
+    @State private var editingSegmentRestSeconds: Int = 0
+    @State private var editingSegmentTargetPace: Int = 0
+    @State private var editingSegmentTargetTime: Int = 0
+    @State private var lastAddedDistanceMeters: Double = 400
+    @State private var lastAddedRepeatCount: Int = 0
+    @State private var lastAddedRestSeconds: Int = 0
+    @State private var lastAddedTargetPace: Int = 0
+    @State private var lastAddedTargetTime: Int = 0
+    @StateObject private var locationPermissionRequester = LocationPermissionRequester()
+
+    private var distanceLabel: String {
+        switch settings.distanceUnit {
+        case .km: return "Distance (m)"
+        case .miles: return "Distance (ft)"
+        }
+    }
+
+    private var sourceTitle: String {
+        session.startedAt.formatted(date: .abbreviated, time: .shortened)
+    }
+
+    private var isContinueDisabled: Bool {
+        if trackingMode == .distanceDistance {
+            return segments.isEmpty || segments.contains { $0.distanceMeters <= 0 }
+        }
+        return false
+    }
+
+    @ViewBuilder
+    private var intervalsSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Intervals")
+                .font(.caption.bold())
+                .foregroundStyle(.white.opacity(0.72))
+                .padding(.horizontal, 8)
+
+            ForEach(segments) { segment in
+                SegmentRow(
+                    segment: segment,
+                    distanceUnit: settings.distanceUnit,
+                    onTap: { beginEditingSegment(segment) },
+                    onDelete: { deleteSegment(segment) }
+                )
+            }
+
+            Button {
+                addSegment()
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                    Text("Add Distance")
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: 16)
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(L10n.adjustSettings)
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(.white)
+
+                    Text(L10n.loadedFromSession(sourceTitle))
+                        .font(.footnote.weight(.medium))
+                        .foregroundStyle(.white.opacity(0.72))
+                }
+                .padding(.horizontal, 6)
+
+                if trackingMode == .distanceDistance {
+                    intervalsSection
+                }
+
+                Button(action: continueToGetReady) {
+                    Text(L10n.continueToGetReady)
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                }
+                .disabled(isContinueDisabled)
+                .opacity(isContinueDisabled ? 0.5 : 1)
+                .padding(.top, 6)
+            }
+            .padding(.horizontal, 8)
+            .padding(.vertical, 8)
+        }
+        .tint(settings.primaryAccentColor)
+        .background(Color.clear)
+        .onAppear(perform: loadSnapshot)
+        .sheet(isPresented: Binding(
+            get: { editingSegmentID != nil },
+            set: { if !$0 { commitSegmentEdit() } }
+        )) {
+            SegmentEditSheet(
+                distanceText: $editingSegmentDistanceText,
+                repeatCount: $editingSegmentRepeatCount,
+                restSeconds: $editingSegmentRestSeconds,
+                targetPace: $editingSegmentTargetPace,
+                targetTime: $editingSegmentTargetTime,
+                distanceLabel: distanceLabel,
+                distanceUnit: settings.distanceUnit,
+                accentColor: settings.primaryAccentColor,
+                onDone: { commitSegmentEdit() }
+            )
+        }
+    }
+
+    private func loadSnapshot() {
+        let snapshot = session.snapshotWorkoutPlan
+        trackingMode = snapshot.trackingMode
+        restMode = snapshot.restMode
+        segments = snapshot.distanceSegments.isEmpty ? [.default] : snapshot.distanceSegments
+        lastAddedDistanceMeters = segments.last?.distanceMeters ?? DistanceSegment.default.distanceMeters
+        lastAddedRepeatCount = segments.last?.repeatCount ?? 0
+        lastAddedRestSeconds = segments.last?.restSeconds ?? 0
+        lastAddedTargetPace = Int(segments.last?.targetPaceSecondsPerKm ?? 0)
+        lastAddedTargetTime = Int(segments.last?.targetTimeSeconds ?? 0)
+    }
+
+    private func normalizedSegments(_ input: [DistanceSegment]) -> [DistanceSegment] {
+        guard input.count > 1 else { return input }
+
+        var normalized = input
+        for index in normalized.indices.dropLast() where normalized[index].repeatCount == nil {
+            normalized[index].repeatCount = 1
+        }
+        return normalized
+    }
+
+    private func continueToGetReady() {
+        let normalized = normalizedSegments(segments)
+        let distance = normalized.first?.distanceMeters ?? session.snapshotWorkoutPlan.distanceLapDistanceMeters
+        onContinue(
+            WorkoutPlanSnapshot(
+                trackingMode: trackingMode,
+                distanceLapDistanceMeters: distance,
+                distanceSegments: normalized,
+                restMode: restMode
+            )
+        )
+    }
+
+    private func addSegment() {
+        segments.append(
+            DistanceSegment(
+                distanceMeters: lastAddedDistanceMeters,
+                repeatCount: lastAddedRepeatCount > 0 ? lastAddedRepeatCount : nil,
+                restSeconds: lastAddedRestSeconds > 0 ? lastAddedRestSeconds : nil,
+                targetPaceSecondsPerKm: lastAddedTargetPace > 0 ? Double(lastAddedTargetPace) : nil,
+                targetTimeSeconds: lastAddedTargetTime > 0 ? Double(lastAddedTargetTime) : nil
+            )
+        )
+        segments = normalizedSegments(segments)
+    }
+
+    private func deleteSegment(_ segment: DistanceSegment) {
+        segments.removeAll { $0.id == segment.id }
+        if segments.isEmpty {
+            segments = [.default]
+        }
+        segments = normalizedSegments(segments)
+    }
+
+    private func beginEditingSegment(_ segment: DistanceSegment) {
+        editingSegmentID = segment.id
+        let displayDistance: Double
+        switch settings.distanceUnit {
+        case .km:
+            displayDistance = segment.distanceMeters
+        case .miles:
+            displayDistance = segment.distanceMeters * 3.28084
+        }
+        editingSegmentDistanceText = displayDistance == floor(displayDistance)
+            ? String(format: "%.0f", displayDistance)
+            : String(format: "%g", displayDistance)
+        editingSegmentRepeatCount = segment.repeatCount ?? 0
+        editingSegmentRestSeconds = segment.restSeconds ?? 0
+        editingSegmentTargetPace = Int(segment.targetPaceSecondsPerKm ?? 0)
+        editingSegmentTargetTime = Int(segment.targetTimeSeconds ?? 0)
+    }
+
+    private func commitSegmentEdit() {
+        guard let id = editingSegmentID,
+              let index = segments.firstIndex(where: { $0.id == id }),
+              let value = Double(editingSegmentDistanceText), value > 0 else {
+            editingSegmentID = nil
+            return
+        }
+
+        let meters: Double
+        switch settings.distanceUnit {
+        case .km:
+            meters = value
+        case .miles:
+            meters = value / 3.28084
+        }
+        segments[index].distanceMeters = meters
+        lastAddedDistanceMeters = meters
+        lastAddedRepeatCount = editingSegmentRepeatCount
+        lastAddedRestSeconds = editingSegmentRestSeconds
+        lastAddedTargetPace = editingSegmentTargetPace
+        lastAddedTargetTime = editingSegmentTargetTime
+        segments[index].repeatCount = editingSegmentRepeatCount > 0 ? editingSegmentRepeatCount : nil
+        segments[index].restSeconds = editingSegmentRestSeconds > 0 ? editingSegmentRestSeconds : nil
+        segments[index].targetPaceSecondsPerKm = editingSegmentTargetPace > 0 ? Double(editingSegmentTargetPace) : nil
+        segments[index].targetTimeSeconds = editingSegmentTargetTime > 0 ? Double(editingSegmentTargetTime) : nil
+        editingSegmentID = nil
+        segments = normalizedSegments(segments)
+    }
+}
+
 private struct SegmentEditSheet: View {
     @Binding var distanceText: String
     @Binding var repeatCount: Int

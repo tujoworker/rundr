@@ -15,7 +15,11 @@ final class NavigationCoordinator: ObservableObject {
         path.removeAll()
     }
 
-    func goToPreStart() {
+    func goToPreStart(replacingPath: Bool = false) {
+        if replacingPath {
+            path = [.preStart]
+            return
+        }
         guard currentScreen != .preStart else { return }
         path.append(.preStart)
     }
@@ -26,6 +30,10 @@ final class NavigationCoordinator: ObservableObject {
 
     func goToSessionDetail(id: UUID) {
         path.append(.sessionDetail(id))
+    }
+
+    func goToHistorySetup(id: UUID) {
+        path.append(.historySetup(id))
     }
 
     func sessionEnded() {

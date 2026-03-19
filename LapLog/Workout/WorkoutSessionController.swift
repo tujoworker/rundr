@@ -316,7 +316,13 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             laps: completedLaps,
             deviceSource: deviceString(),
             snapshotTrackingMode: trackingMode,
-            snapshotDistanceDistanceMeters: trackingMode == .distanceDistance ? distanceLapDistanceMeters : nil
+            snapshotDistanceDistanceMeters: trackingMode == .distanceDistance ? distanceLapDistanceMeters : nil,
+            snapshotWorkoutPlan: WorkoutPlanSnapshot(
+                trackingMode: trackingMode,
+                distanceLapDistanceMeters: trackingMode == .distanceDistance ? distanceLapDistanceMeters : nil,
+                distanceSegments: distanceSegments,
+                restMode: restMode
+            )
         )
 
         playHaptic(.notification)

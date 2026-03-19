@@ -3,6 +3,7 @@
 /* PreStart */
 "Press the Action Button" = "Drücke die Aktions-Taste";
 "Settings" = "Einstellungen";
+"Adjust Interval" = "Intervall anpassen";
 "Mode" = "Modus";
 "Distance" = "Distanz";
 "Distance (meters)" = "Distanz (Meter)";
@@ -43,6 +44,7 @@
 "Get Ready" = "Bereit machen";
 "No sessions yet" = "Noch keine Trainings";
 "Load More" = "Mehr laden";
+"Continue" = "Weiter";
 "Laps: %d • %@" = "Runden: %d • %@";
 "Time: %@ • %@" = "Zeit: %@ • %@";
 
@@ -56,6 +58,8 @@
 /* Session Detail */
 "Session" = "Training";
 "Rest" = "Pause";
+"Reuse This Interval" = "Dieses Intervall wiederverwenden";
+"Loaded from %@" = "Geladen aus %@";
 
 /* Tracking Mode */
 "GPS" = "GPS";

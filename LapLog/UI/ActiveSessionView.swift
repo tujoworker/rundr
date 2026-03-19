@@ -112,13 +112,13 @@ struct ActiveSessionView: View {
                         .font(.system(size: 20, weight: .bold, design: .rounded))
                         .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
                     Text("/\(total)")
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
-                        .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15).opacity(0.5))
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
                 }
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
+                .padding(.horizontal, 4)
+                .padding(.vertical, 0)
                 .background(
-                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
                         .fill(.white)
                 )
 
@@ -162,7 +162,7 @@ struct ActiveSessionView: View {
             .overlay(lapGlowOverlay)
             .overlay(alignment: .top) {
                 timerTopOverlay
-                    .offset(y: -33)
+                    .offset(y: -31)
             }
             .scaleEffect(isTimerBounceActive ? 1.11 : 1)
             .brightness(isTimerGlowActive ? 0.3 : 0)
@@ -537,10 +537,10 @@ private struct LapEditorState: Identifiable {
     var distanceText: String
 }
 
-private let latestCardHeight: CGFloat = 54
-private let lapCardTopPadding: CGFloat = 8
+private let latestCardHeight: CGFloat = 58
+private let lapCardTopPadding: CGFloat = 10
 private let lapCardLeadingPadding: CGFloat = 8
-private let lapCardBottomPadding: CGFloat = 8
+private let lapCardBottomPadding: CGFloat = 10
 private let lapCardTrailingPadding: CGFloat = 14
 private let standardLapCardBackground = Color.white.opacity(0.15)
 
@@ -553,14 +553,14 @@ struct PlaceholderLapCardView: View {
                 .font(.system(size: 20, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
-                .padding(.horizontal, 6)
-                .padding(.vertical, 2)
+                .padding(.horizontal, 4)
+                .padding(.vertical, 0)
                 .background(
-                    RoundedRectangle(cornerRadius: 7, style: .continuous)
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
                         .fill(.white)
                 )
             Text("—:——")
-                .font(.system(size: 19, design: .rounded))
+                .font(.system(size: 23, design: .rounded))
                 .monospacedDigit()
                 .fontWeight(.bold)
                 .foregroundColor(.white)
@@ -601,7 +601,7 @@ struct LapCardView: View {
         Group {
             if isRest {
                 Text(Formatters.compactTimeString(from: lap.durationSeconds))
-                    .font(.system(size: 19, design: .rounded))
+                    .font(.system(size: 23, design: .rounded))
                     .monospacedDigit()
             } else {
                 HStack(spacing: 6) {
@@ -609,15 +609,15 @@ struct LapCardView: View {
                         .font(.system(size: 20, weight: .bold, design: .rounded))
                         .monospacedDigit()
                         .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
-                        .padding(.horizontal, 6)
-                        .padding(.vertical, 2)
+                        .padding(.horizontal, 4)
+                        .padding(.vertical, 0)
                         .background(
-                            RoundedRectangle(cornerRadius: 7, style: .continuous)
+                            RoundedRectangle(cornerRadius: 6, style: .continuous)
                                 .fill(.white)
                         )
                     VStack(alignment: .leading, spacing: 2) {
                         Text(Formatters.compactTimeString(from: lap.durationSeconds))
-                            .font(.system(size: 19, design: .rounded))
+                            .font(.system(size: 23, design: .rounded))
                             .monospacedDigit()
                             .fontWeight(isLatest ? .bold : .regular)
                         Text(Formatters.paceString(distanceMeters: lap.distanceMeters, durationSeconds: lap.durationSeconds, unit: distanceUnit))

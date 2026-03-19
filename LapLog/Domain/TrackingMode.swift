@@ -5,6 +5,10 @@ enum TrackingMode: String, Codable, CaseIterable, Identifiable {
     case dual
     case distanceDistance
 
+    static var allCases: [TrackingMode] {
+        [.distanceDistance, .dual, .gps]
+    }
+
     var id: String { rawValue }
 
     var usesGPSDistance: Bool {

@@ -13,6 +13,7 @@ final class ModelTests: XCTestCase {
 
     func testTrackingModeAllCases() {
         XCTAssertEqual(TrackingMode.allCases.count, 3)
+        XCTAssertEqual(TrackingMode.allCases.last, .gps)
     }
 
     func testTrackingModeCodable() throws {

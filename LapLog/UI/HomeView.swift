@@ -119,19 +119,6 @@ struct SessionRowView: View {
             )
         ]
 
-        if session.mode == .dual {
-            items.append(
-                SessionCardStatItem(
-                    label: L10n.gpsDistanceLabel,
-                    value: session.totalGPSDistanceMeters.flatMap { gpsDistanceMeters in
-                        gpsDistanceMeters > 0
-                            ? Formatters.distanceString(meters: gpsDistanceMeters, unit: settings.distanceUnit)
-                            : nil
-                    } ?? L10n.dash
-                )
-            )
-        }
-
         return items
     }
 

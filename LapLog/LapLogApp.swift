@@ -6,6 +6,7 @@ import AppIntents
 struct LapLogApp: App {
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var persistence = PersistenceManager()
+    @StateObject private var syncManager = WatchConnectivitySyncManager()
     @StateObject private var ongoingWorkoutStore = OngoingWorkoutStore()
     @StateObject private var settings = SettingsStore()
     @StateObject private var healthKitManager = HealthKitManager()
@@ -21,6 +22,7 @@ struct LapLogApp: App {
         WindowGroup {
             RootView()
                 .environmentObject(persistence)
+                .environmentObject(syncManager)
                 .environmentObject(ongoingWorkoutStore)
                 .environmentObject(settings)
                 .environmentObject(healthKitManager)
@@ -28,7 +30,10 @@ struct LapLogApp: App {
                 .environmentObject(coordinator)
                 .modelContainer(persistence.modelContainer)
                 .task {
+                    syncManager.attachPersistence(persistence)
+                    syncManager.activate()
                     workoutController.attachOngoingWorkoutStore(ongoingWorkoutStore)
+                    workoutController.attachSyncManager(syncManager)
                     if actionButtonObserver == nil {
                         let observer = ActionButtonCommandObserver {
                             processPendingActionButtonCommand()

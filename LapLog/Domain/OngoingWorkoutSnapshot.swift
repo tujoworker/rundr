@@ -45,6 +45,7 @@ struct OngoingWorkoutLapSnapshot: Codable, Equatable, Identifiable {
 }
 
 struct OngoingWorkoutSnapshot: Codable, Equatable {
+    var sessionID: UUID
     var savedAt: Date
     var sessionStartDate: Date
     var currentLapStartDate: Date

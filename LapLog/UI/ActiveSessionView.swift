@@ -6,6 +6,7 @@ struct ActiveSessionView: View {
     @EnvironmentObject var persistence: PersistenceManager
     @EnvironmentObject var healthKitManager: HealthKitManager
     @EnvironmentObject var settings: SettingsStore
+    @EnvironmentObject var syncManager: WatchConnectivitySyncManager
 
     var onSessionEnded: () -> Void
     @State private var isTapFlashVisible = false
@@ -413,13 +414,16 @@ struct ActiveSessionView: View {
         let session = await workoutController.endSession()
         if let session {
             persistence.saveSession(session)
+            syncManager.queueCompletedSession(session)
             settings.storeSessionIntervalPresetIfUnique(session.snapshotWorkoutPlan)
             Task.detached {
                 do {
                     let uuid = try await self.healthKitManager.saveWorkout(session: session)
                     await MainActor.run {
                         session.healthKitWorkoutUUID = uuid
+                        session.updatedAt = Date()
                         try? self.persistence.modelContext.save()
+                        self.syncManager.queueCompletedSession(session)
                     }
                 } catch {
                     print("HealthKit export failed: \(error)")

@@ -256,6 +256,7 @@ final class ModelTests: XCTestCase {
     }
 
     func testOngoingWorkoutSnapshotRoundTrip() throws {
+        let sessionID = UUID()
         let lap = Lap(
             index: 1,
             startedAt: Date(),
@@ -269,6 +270,7 @@ final class ModelTests: XCTestCase {
             source: .distanceTap
         )
         let snapshot = OngoingWorkoutSnapshot(
+            sessionID: sessionID,
             savedAt: Date(),
             sessionStartDate: Date().addingTimeInterval(-180),
             currentLapStartDate: Date().addingTimeInterval(-20),
@@ -296,6 +298,7 @@ final class ModelTests: XCTestCase {
         let decoded = try JSONDecoder().decode(OngoingWorkoutSnapshot.self, from: data)
 
         XCTAssertEqual(decoded, snapshot)
+        XCTAssertEqual(decoded.sessionID, sessionID)
         XCTAssertEqual(decoded.completedLaps.first?.makeLap().gpsDistanceMeters, 412)
     }
 
@@ -325,6 +328,7 @@ final class ModelTests: XCTestCase {
             source: .distanceTap
         )
         let snapshot = OngoingWorkoutSnapshot(
+            sessionID: UUID(),
             savedAt: savedAt,
             sessionStartDate: savedAt.addingTimeInterval(-180),
             currentLapStartDate: savedAt.addingTimeInterval(-10),
@@ -354,6 +358,108 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(snapshot.workoutPlan.distanceSegments.count, 1)
         XCTAssertEqual(snapshot.workoutPlan.restMode, .autoDetect)
         XCTAssertEqual(snapshot.effectivePauseStartedAt, pauseStartedAt)
+    }
+
+    func testSessionSyncRecordRoundTripPreservesIdentityAndPlan() {
+        let session = Session(
+            id: UUID(),
+            startedAt: Date().addingTimeInterval(-600),
+            endedAt: Date(),
+            durationSeconds: 600,
+            mode: .dual,
+            distanceLapDistanceMeters: 400,
+            totalDistanceMeters: 2000,
+            totalGPSDistanceMeters: 2080,
+            averageSpeedMetersPerSecond: 3.33,
+            totalLaps: 5,
+            laps: [
+                Lap(index: 1, startedAt: Date().addingTimeInterval(-600), endedAt: Date().addingTimeInterval(-510), durationSeconds: 90, distanceMeters: 400, gpsDistanceMeters: 412, averageSpeedMetersPerSecond: 4.44, averageHeartRateBPM: 155, lapType: .active, source: .distanceTap)
+            ],
+            deviceSource: "Apple Watch – LapLog v1.0",
+            createdAt: Date().addingTimeInterval(-600),
+            updatedAt: Date(),
+            snapshotTrackingMode: .dual,
+            snapshotDistanceDistanceMeters: 400,
+            snapshotWorkoutPlan: WorkoutPlanSnapshot(
+                trackingMode: .dual,
+                distanceLapDistanceMeters: 400,
+                distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 5, restSeconds: 30)],
+                restMode: .manual
+            )
+        )
+
+        let record = SessionSyncRecord(session: session)
+        let rebuilt = record.makeModel()
+
+        XCTAssertEqual(rebuilt.id, session.id)
+        XCTAssertEqual(rebuilt.totalGPSDistanceMeters, session.totalGPSDistanceMeters)
+        XCTAssertEqual(rebuilt.snapshotWorkoutPlan, session.snapshotWorkoutPlan)
+        XCTAssertEqual(rebuilt.laps.count, 1)
+        XCTAssertEqual(rebuilt.laps.first?.id, session.laps.first?.id)
+    }
+
+    @MainActor
+    func testPersistenceManagerUpsertSessionRecordInsertsAndReplacesNewerPayload() {
+        let persistence = PersistenceManager(inMemory: true)
+        let sessionID = UUID()
+        let older = SessionSyncRecord(
+            id: sessionID,
+            startedAt: Date().addingTimeInterval(-600),
+            endedAt: Date().addingTimeInterval(-300),
+            durationSeconds: 300,
+            mode: .gps,
+            sportVariantRaw: nil,
+            distanceLapDistanceMeters: nil,
+            totalDistanceMeters: 1200,
+            totalGPSDistanceMeters: 1200,
+            averageSpeedMetersPerSecond: 4,
+            totalLaps: 3,
+            laps: [
+                LapSyncRecord(lap: Lap(index: 1, startedAt: Date().addingTimeInterval(-600), endedAt: Date().addingTimeInterval(-500), durationSeconds: 100, distanceMeters: 400, gpsDistanceMeters: 400, averageSpeedMetersPerSecond: 4, averageHeartRateBPM: nil, lapType: .active, source: .autoDistance))
+            ],
+            deviceSource: "Apple Watch – LapLog v1.0",
+            healthKitWorkoutUUID: nil,
+            createdAt: Date().addingTimeInterval(-600),
+            updatedAt: Date().addingTimeInterval(-200),
+            snapshotWorkoutPlan: WorkoutPlanSnapshot(trackingMode: .gps)
+        )
+        let newer = SessionSyncRecord(
+            id: sessionID,
+            startedAt: older.startedAt,
+            endedAt: Date(),
+            durationSeconds: 600,
+            mode: .dual,
+            sportVariantRaw: nil,
+            distanceLapDistanceMeters: 400,
+            totalDistanceMeters: 2000,
+            totalGPSDistanceMeters: 2080,
+            averageSpeedMetersPerSecond: 3.5,
+            totalLaps: 5,
+            laps: [
+                LapSyncRecord(lap: Lap(index: 1, startedAt: Date().addingTimeInterval(-600), endedAt: Date().addingTimeInterval(-510), durationSeconds: 90, distanceMeters: 400, gpsDistanceMeters: 412, averageSpeedMetersPerSecond: 4.44, averageHeartRateBPM: 155, lapType: .active, source: .distanceTap)),
+                LapSyncRecord(lap: Lap(index: 2, startedAt: Date().addingTimeInterval(-500), endedAt: Date().addingTimeInterval(-410), durationSeconds: 90, distanceMeters: 400, gpsDistanceMeters: 416, averageSpeedMetersPerSecond: 4.44, averageHeartRateBPM: 156, lapType: .active, source: .distanceTap))
+            ],
+            deviceSource: "Apple Watch – LapLog v1.0",
+            healthKitWorkoutUUID: nil,
+            createdAt: older.createdAt,
+            updatedAt: Date(),
+            snapshotWorkoutPlan: WorkoutPlanSnapshot(
+                trackingMode: .dual,
+                distanceLapDistanceMeters: 400,
+                distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 5, restSeconds: 30)],
+                restMode: .manual
+            )
+        )
+
+        persistence.upsertSessionRecord(older)
+        persistence.upsertSessionRecord(newer)
+
+        let storedSession = persistence.fetchSession(id: sessionID)
+        XCTAssertNotNil(storedSession)
+        XCTAssertEqual(storedSession?.mode, .dual)
+        XCTAssertEqual(storedSession?.totalLaps, 5)
+        XCTAssertEqual(storedSession?.laps.count, 2)
+        XCTAssertEqual(storedSession?.totalGPSDistanceMeters, 2080)
     }
 
     func testSessionModeRawMapping() {
@@ -705,6 +811,7 @@ final class ModelTests: XCTestCase {
         defer { UserDefaults.standard.removeObject(forKey: "ongoingWorkoutSnapshotJSON") }
 
         let snapshot = OngoingWorkoutSnapshot(
+            sessionID: UUID(),
             savedAt: Date(),
             sessionStartDate: Date().addingTimeInterval(-180),
             currentLapStartDate: Date().addingTimeInterval(-20),

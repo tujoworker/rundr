@@ -163,7 +163,7 @@ private struct CompanionSessionDetailView: View {
                 LabeledContent("Ended", value: Formatters.historySessionDateTimeString(from: session.endedAt))
                 LabeledContent(L10n.source, value: session.companionSourceDisplayName)
                 LabeledContent(L10n.importStatus, value: L10n.importComplete)
-                LabeledContent("Mode", value: session.mode.displayName)
+                LabeledContent(L10n.mode, value: session.mode.displayName)
                 LabeledContent("Time", value: Formatters.timeString(from: session.durationSeconds))
                 LabeledContent("Distance", value: Formatters.distanceString(meters: session.totalDistanceMeters, unit: .km))
                 if let gpsDistance = session.totalGPSDistanceMeters {

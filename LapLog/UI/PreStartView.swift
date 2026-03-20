@@ -211,7 +211,7 @@ struct PreStartView: View {
                     SettingsCardRow(
                         icon: "ruler",
                         iconColor: .yellow,
-                        title: "Distance",
+                        title: L10n.unit,
                         value: settings.distanceUnit.displayName
                     )
                 }

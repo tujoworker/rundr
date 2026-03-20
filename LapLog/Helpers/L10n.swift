@@ -13,7 +13,7 @@ enum L10n {
     static let predefined = String(localized: "Predefined", comment: "Predefined interval section")
     static let title = String(localized: "Title", comment: "Preset title label")
     static let noSavedIntervalsYet = String(localized: "No saved intervals yet", comment: "Empty saved intervals state")
-    static let mode = String(localized: "Mode", comment: "Tracking mode setting")
+    static let mode = String(localized: "Tracking Mode", comment: "Tracking mode setting")
     static let distance = String(localized: "Distance", comment: "Distance setting")
     static let distanceMeters = String(localized: "Distance (meters)", comment: "Distance input label")
     static let distanceFeet = String(localized: "Distance (feet)", comment: "Distance input label")

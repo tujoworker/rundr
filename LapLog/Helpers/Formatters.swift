@@ -19,8 +19,11 @@ enum Formatters {
     ) -> String {
         let now = referenceDate
         let dayText: String
+        let referenceStart = calendar.startOfDay(for: now)
+        let dateStart = calendar.startOfDay(for: date)
+        let dayOffset = calendar.dateComponents([.day], from: dateStart, to: referenceStart).day
 
-        if calendar.isDateInToday(date) || calendar.isDateInYesterday(date) {
+        if dayOffset == 0 || dayOffset == 1 {
             dayText = relativeDayFormatter.string(from: date)
         } else if calendar.isDate(date, equalTo: now, toGranularity: .weekOfYear) {
             dayText = date.formatted(.dateTime.weekday(.wide))

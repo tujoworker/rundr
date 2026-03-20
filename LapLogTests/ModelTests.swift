@@ -462,6 +462,34 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(storedSession?.totalGPSDistanceMeters, 2080)
     }
 
+    func testCompletedSessionTransferStoreTracksPendingSessionIDs() {
+        let suiteName = "CompletedSessionTransferStoreTests-\(UUID().uuidString)"
+        guard let userDefaults = UserDefaults(suiteName: suiteName) else {
+            XCTFail("Failed to create isolated UserDefaults suite")
+            return
+        }
+        defer {
+            userDefaults.removePersistentDomain(forName: suiteName)
+        }
+
+        let store = CompletedSessionTransferStore(
+            userDefaults: userDefaults,
+            manifestKey: "pendingTransfers"
+        )
+        let firstID = UUID()
+        let secondID = UUID()
+
+        store.markPending(firstID)
+        store.markPending(secondID)
+        store.markPending(firstID)
+
+        XCTAssertEqual(store.pendingSessionIDs, [firstID, secondID])
+
+        store.clearPending(firstID)
+
+        XCTAssertEqual(store.pendingSessionIDs, [secondID])
+    }
+
     func testSessionModeRawMapping() {
         let session = Session(
             startedAt: Date(),

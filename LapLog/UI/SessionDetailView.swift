@@ -5,6 +5,7 @@ struct SessionDetailView: View {
     let onUseSessionSettings: () -> Void
     @EnvironmentObject var settings: SettingsStore
     @EnvironmentObject var persistence: PersistenceManager
+    @EnvironmentObject var syncManager: WatchConnectivitySyncManager
     @Environment(\.dismiss) private var dismiss
 
     private var sortedLaps: [Lap] {
@@ -13,6 +14,10 @@ struct SessionDetailView: View {
 
     private var headerTitle: String {
         Formatters.historySessionDateRangeString(start: session.startedAt, end: session.endedAt)
+    }
+
+    private var isPendingPhoneSync: Bool {
+        syncManager.hasPendingCompletedSessionTransfer(for: session.id)
     }
 
     private var sessionStats: [SessionStatItem] {
@@ -75,6 +80,9 @@ struct SessionDetailView: View {
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 4)
+
+                SessionDetailSyncStatusView(isPendingPhoneSync: isPendingPhoneSync)
+                    .padding(.horizontal, 4)
                     .padding(.bottom, 4)
 
                 SessionStatsView(items: sessionStats)
@@ -110,6 +118,44 @@ struct SessionDetailView: View {
             .padding(.vertical, 4)
         }
         .background(Color.clear)
+    }
+}
+
+private struct SessionDetailSyncStatusView: View {
+    let isPendingPhoneSync: Bool
+
+    private var title: String {
+        isPendingPhoneSync ? "Pending phone import" : "Phone import confirmed"
+    }
+
+    private var subtitle: String {
+        isPendingPhoneSync
+            ? "This session is saved on the watch and queued for delivery to the companion app."
+            : "This session has been acknowledged by the companion app."
+    }
+
+    private var tint: Color {
+        isPendingPhoneSync ? Color.orange : Color.green
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .foregroundStyle(tint)
+
+            Text(subtitle)
+                .font(.system(size: 11, weight: .regular, design: .rounded))
+                .foregroundStyle(.white.opacity(0.72))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(8)
+        .background(tint.opacity(0.14))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(tint.opacity(0.32), lineWidth: 1)
+        )
+        .cornerRadius(8)
     }
 }
 

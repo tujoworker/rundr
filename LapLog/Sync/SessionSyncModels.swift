@@ -240,23 +240,85 @@ struct LiveWorkoutStateRecord: Codable, Equatable, Identifiable {
     var id: UUID { sessionID }
 }
 
+struct CompletedSessionTransferManifest: Codable, Equatable {
+    var pendingSessionIDs: [UUID] = []
+}
+
+final class CompletedSessionTransferStore {
+    private let userDefaults: UserDefaults
+    private let manifestKey: String
+    private let encoder = JSONEncoder()
+    private let decoder = JSONDecoder()
+
+    init(
+        userDefaults: UserDefaults = .standard,
+        manifestKey: String = "pendingCompletedSessionTransfersJSON"
+    ) {
+        self.userDefaults = userDefaults
+        self.manifestKey = manifestKey
+    }
+
+    var pendingSessionIDs: [UUID] {
+        manifest.pendingSessionIDs
+    }
+
+    func markPending(_ sessionID: UUID) {
+        var ids = manifest.pendingSessionIDs
+        guard !ids.contains(sessionID) else { return }
+        ids.append(sessionID)
+        saveManifest(CompletedSessionTransferManifest(pendingSessionIDs: ids))
+    }
+
+    func clearPending(_ sessionID: UUID) {
+        let ids = manifest.pendingSessionIDs.filter { $0 != sessionID }
+        saveManifest(CompletedSessionTransferManifest(pendingSessionIDs: ids))
+    }
+
+    private var manifest: CompletedSessionTransferManifest {
+        guard let json = userDefaults.string(forKey: manifestKey),
+              let data = json.data(using: .utf8),
+              let manifest = try? decoder.decode(CompletedSessionTransferManifest.self, from: data) else {
+            return CompletedSessionTransferManifest()
+        }
+        return manifest
+    }
+
+    private func saveManifest(_ manifest: CompletedSessionTransferManifest) {
+        guard let data = try? encoder.encode(manifest),
+              let json = String(data: data, encoding: .utf8) else {
+            return
+        }
+
+        userDefaults.set(json, forKey: manifestKey)
+    }
+}
+
 @MainActor
 final class WatchConnectivitySyncManager: NSObject, ObservableObject {
     @Published private(set) var liveWorkoutState: LiveWorkoutStateRecord?
+    @Published private(set) var pendingCompletedSessionIDs: Set<UUID>
 
     private weak var persistence: PersistenceManager?
     private let fileManager: FileManager
+    private let transferStore: CompletedSessionTransferStore
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
     #if canImport(WatchConnectivity)
     private let wcSession: WCSession?
     private static let liveStateContextKey = "liveWorkoutState"
+    private static let completedSessionAcknowledgementKey = "completedSessionAcknowledgement"
     #endif
 
-    init(persistence: PersistenceManager? = nil, fileManager: FileManager = .default) {
+    init(
+        persistence: PersistenceManager? = nil,
+        fileManager: FileManager = .default,
+        transferStore: CompletedSessionTransferStore = CompletedSessionTransferStore()
+    ) {
         self.persistence = persistence
         self.fileManager = fileManager
+        self.transferStore = transferStore
+        self.pendingCompletedSessionIDs = Set(transferStore.pendingSessionIDs)
         #if canImport(WatchConnectivity)
         if WCSession.isSupported() {
             wcSession = WCSession.default
@@ -277,6 +339,7 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
     func activate() {
         #if canImport(WatchConnectivity)
         wcSession?.activate()
+        retryPendingCompletedSessions()
         #endif
     }
 
@@ -291,10 +354,13 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
         #endif
     }
 
+    func hasPendingCompletedSessionTransfer(for sessionID: UUID) -> Bool {
+        pendingCompletedSessionIDs.contains(sessionID)
+    }
+
     func queueCompletedSession(_ session: Session) {
         #if canImport(WatchConnectivity)
-        guard let wcSession,
-              let data = try? encoder.encode(SessionSyncEnvelope(session: SessionSyncRecord(session: session))) else {
+        guard let data = try? encoder.encode(SessionSyncEnvelope(session: SessionSyncRecord(session: session))) else {
             return
         }
 
@@ -303,7 +369,8 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
         do {
             try fileManager.createDirectory(at: outboxDirectoryURL, withIntermediateDirectories: true)
             try data.write(to: fileURL, options: .atomic)
-            wcSession.transferFile(fileURL, metadata: ["sessionID": session.id.uuidString])
+            markPendingTransfer(session.id)
+            transferCompletedSessionIfPossible(sessionID: session.id)
         } catch {
             return
         }
@@ -315,6 +382,48 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
         let baseDirectory = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first
             ?? fileManager.temporaryDirectory
         return baseDirectory.appendingPathComponent("WatchConnectivityOutbox", isDirectory: true)
+    }
+
+    private func transferCompletedSessionIfPossible(sessionID: UUID) {
+        guard let wcSession else { return }
+
+        let fileURL = outboxDirectoryURL.appendingPathComponent("\(sessionID.uuidString).json")
+        guard fileManager.fileExists(atPath: fileURL.path) else {
+            clearPendingTransfer(sessionID)
+            return
+        }
+
+        wcSession.transferFile(fileURL, metadata: ["sessionID": sessionID.uuidString])
+    }
+
+    private func retryPendingCompletedSessions() {
+        for sessionID in transferStore.pendingSessionIDs {
+            transferCompletedSessionIfPossible(sessionID: sessionID)
+        }
+    }
+
+    private func acknowledgeCompletedSession(_ sessionID: UUID) {
+        clearPendingTransfer(sessionID)
+
+        let fileURL = outboxDirectoryURL.appendingPathComponent("\(sessionID.uuidString).json")
+        if fileManager.fileExists(atPath: fileURL.path) {
+            try? fileManager.removeItem(at: fileURL)
+        }
+    }
+
+    private func sendCompletedSessionAcknowledgement(for sessionID: UUID) {
+        guard let wcSession else { return }
+        wcSession.transferUserInfo([Self.completedSessionAcknowledgementKey: sessionID.uuidString])
+    }
+
+    private func markPendingTransfer(_ sessionID: UUID) {
+        transferStore.markPending(sessionID)
+        pendingCompletedSessionIDs.insert(sessionID)
+    }
+
+    private func clearPendingTransfer(_ sessionID: UUID) {
+        transferStore.clearPending(sessionID)
+        pendingCompletedSessionIDs.remove(sessionID)
     }
 
     private func handleLiveWorkoutStateContext(_ applicationContext: [String: Any]) {
@@ -333,6 +442,7 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
         }
 
         persistence?.upsertSessionRecord(envelope.session)
+        sendCompletedSessionAcknowledgement(for: envelope.session.id)
         if liveWorkoutState?.sessionID == envelope.session.id {
             liveWorkoutState = nil
         }
@@ -349,6 +459,9 @@ extension WatchConnectivitySyncManager: WCSessionDelegate {
     ) {
         _ = activationState
         _ = error
+        Task { @MainActor in
+            self.retryPendingCompletedSessions()
+        }
     }
 
 	#if os(iOS)
@@ -373,13 +486,31 @@ extension WatchConnectivitySyncManager: WCSessionDelegate {
         }
     }
 
+    nonisolated func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
+        guard let sessionIDString = userInfo[Self.completedSessionAcknowledgementKey] as? String,
+              let sessionID = UUID(uuidString: sessionIDString) else {
+            return
+        }
+
+        Task { @MainActor in
+            self.acknowledgeCompletedSession(sessionID)
+        }
+    }
+
     nonisolated func session(
         _ session: WCSession,
         didFinish fileTransfer: WCSessionFileTransfer,
         error: Error?
     ) {
-        guard error == nil else { return }
-        try? FileManager.default.removeItem(at: fileTransfer.file.fileURL)
+        guard error != nil,
+              let sessionIDString = fileTransfer.file.metadata?["sessionID"] as? String,
+              let sessionID = UUID(uuidString: sessionIDString) else {
+            return
+        }
+
+        Task { @MainActor in
+            self.markPendingTransfer(sessionID)
+        }
     }
 }
 #endif

@@ -37,6 +37,22 @@ struct CompanionRootView: View {
 private struct CompanionLiveWorkoutCard: View {
     let state: LiveWorkoutStateRecord
 
+    private var hasGPSDistance: Bool {
+        state.cumulativeGPSDistanceMeters != nil
+    }
+
+    private var primaryDistanceLabel: String {
+        if state.trackingMode.usesManualIntervals {
+            return L10n.manualDistance
+        }
+
+        if hasGPSDistance {
+            return L10n.gpsDistanceLabel
+        }
+
+        return "Distance"
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(Formatters.historySessionDateTimeString(from: state.startedAt))
@@ -50,7 +66,7 @@ private struct CompanionLiveWorkoutCard: View {
                     .foregroundStyle(.secondary)
             }
 
-            HStack {
+            HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Laps")
                         .font(.caption)
@@ -61,12 +77,24 @@ private struct CompanionLiveWorkoutCard: View {
 
                 Spacer()
 
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text("Distance")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(Formatters.distanceString(meters: state.cumulativeDistanceMeters, unit: .km))
-                        .font(.title3.weight(.semibold))
+                VStack(alignment: .trailing, spacing: 10) {
+                    VStack(alignment: .trailing, spacing: 4) {
+                        Text(primaryDistanceLabel)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(Formatters.distanceString(meters: state.cumulativeDistanceMeters, unit: .km))
+                            .font(.title3.weight(.semibold))
+                    }
+
+                    if let gpsDistanceMeters = state.cumulativeGPSDistanceMeters {
+                        VStack(alignment: .trailing, spacing: 4) {
+                            Text(L10n.gpsDistanceLabel)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Text(Formatters.distanceString(meters: gpsDistanceMeters, unit: .km))
+                                .font(.title3.weight(.semibold))
+                        }
+                    }
                 }
             }
 

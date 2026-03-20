@@ -265,6 +265,51 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.cumulativeGPSDistanceMeters, 418)
     }
 
+    func testDualModeKeepsManualAndGPSDistanceTotalsSeparate() {
+        let controller = makeStartedController(trackingMode: .dual)
+
+        controller.handleDistanceUpdate(additionalMeters: 125)
+        controller.handleGPSDistanceUpdate(additionalMeters: 418)
+
+        XCTAssertEqual(controller.cumulativeDistanceMeters, 125)
+        XCTAssertEqual(controller.currentLapDistanceMeters, 125)
+        XCTAssertEqual(controller.cumulativeGPSDistanceMeters, 418)
+        XCTAssertEqual(controller.currentLapGPSDistanceMeters, 418)
+    }
+
+    func testManualLiveStateUsesCompletedLapDistance() {
+        let controller = makeStartedController(trackingMode: .distanceDistance)
+        let syncManager = WatchConnectivitySyncManager()
+        controller.attachOngoingWorkoutStore(OngoingWorkoutStore())
+        controller.attachSyncManager(syncManager)
+
+        controller.handleDistanceUpdate(additionalMeters: 125)
+        XCTAssertEqual(syncManager.liveWorkoutState?.cumulativeDistanceMeters, 0)
+
+        controller.markLap()
+        XCTAssertEqual(syncManager.liveWorkoutState?.cumulativeDistanceMeters, 400)
+
+        controller.handleDistanceUpdate(additionalMeters: 80)
+        XCTAssertEqual(syncManager.liveWorkoutState?.cumulativeDistanceMeters, 400)
+    }
+
+    func testDualLiveStateShowsLapBasedManualAndContinuousGPSDistance() {
+        let controller = makeStartedController(trackingMode: .dual)
+        let syncManager = WatchConnectivitySyncManager()
+        controller.attachOngoingWorkoutStore(OngoingWorkoutStore())
+        controller.attachSyncManager(syncManager)
+
+        controller.handleDistanceUpdate(additionalMeters: 150)
+        controller.handleGPSDistanceUpdate(additionalMeters: 173)
+
+        XCTAssertEqual(syncManager.liveWorkoutState?.cumulativeDistanceMeters, 0)
+        XCTAssertEqual(syncManager.liveWorkoutState?.cumulativeGPSDistanceMeters, 173)
+
+        controller.markLap()
+        XCTAssertEqual(syncManager.liveWorkoutState?.cumulativeDistanceMeters, 400)
+        XCTAssertEqual(syncManager.liveWorkoutState?.cumulativeGPSDistanceMeters, 173)
+    }
+
     func testGPSModeUsesGPSDistanceForLapDistance() {
         let controller = makeStartedController(trackingMode: .gps)
 

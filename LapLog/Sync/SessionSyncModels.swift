@@ -244,6 +244,14 @@ struct CompletedSessionTransferManifest: Codable, Equatable {
     var pendingSessionIDs: [UUID] = []
 }
 
+#if canImport(WatchConnectivity)
+private enum WatchConnectivitySyncKeys {
+    static let liveStateContext = "liveWorkoutState"
+    static let completedSessionAcknowledgement = "completedSessionAcknowledgement"
+    static let completedSessionEnvelope = "completedSessionEnvelope"
+}
+#endif
+
 final class CompletedSessionTransferStore {
     private let userDefaults: UserDefaults
     private let manifestKey: String
@@ -306,8 +314,6 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
 
     #if canImport(WatchConnectivity)
     private let wcSession: WCSession?
-    private static let liveStateContextKey = "liveWorkoutState"
-    private static let completedSessionAcknowledgementKey = "completedSessionAcknowledgement"
     #endif
 
     init(
@@ -350,7 +356,7 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
               let data = try? encoder.encode(state) else {
             return
         }
-        try? wcSession.updateApplicationContext([Self.liveStateContextKey: data])
+        try? wcSession.updateApplicationContext([WatchConnectivitySyncKeys.liveStateContext: data])
         #endif
     }
 
@@ -360,7 +366,8 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
 
     func queueCompletedSession(_ session: Session) {
         #if canImport(WatchConnectivity)
-        guard let data = try? encoder.encode(SessionSyncEnvelope(session: SessionSyncRecord(session: session))) else {
+        let envelope = SessionSyncEnvelope(session: SessionSyncRecord(session: session))
+        guard let data = try? encoder.encode(envelope) else {
             return
         }
 
@@ -370,6 +377,11 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
             try fileManager.createDirectory(at: outboxDirectoryURL, withIntermediateDirectories: true)
             try data.write(to: fileURL, options: .atomic)
             markPendingTransfer(session.id)
+
+            if sendCompletedSessionInteractivelyIfPossible(envelope) {
+                return
+            }
+
             transferCompletedSessionIfPossible(sessionID: session.id)
         } catch {
             return
@@ -398,8 +410,50 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
 
     private func retryPendingCompletedSessions() {
         for sessionID in transferStore.pendingSessionIDs {
+            if sendCompletedSessionInteractivelyIfPossible(sessionID: sessionID) {
+                continue
+            }
+
             transferCompletedSessionIfPossible(sessionID: sessionID)
         }
+    }
+
+    @discardableResult
+    private func sendCompletedSessionInteractivelyIfPossible(_ envelope: SessionSyncEnvelope) -> Bool {
+        guard let wcSession,
+              wcSession.isReachable,
+              let data = try? encoder.encode(envelope) else {
+            return false
+        }
+
+        let sessionID = envelope.session.id
+        wcSession.sendMessageData(
+            data,
+            replyHandler: { _ in
+                Task { @MainActor in
+                    self.acknowledgeCompletedSession(sessionID)
+                }
+            },
+            errorHandler: { _ in
+                Task { @MainActor in
+                    self.transferCompletedSessionIfPossible(sessionID: sessionID)
+                }
+            }
+        )
+
+        acknowledgeCompletedSession(sessionID)
+        return true
+    }
+
+    @discardableResult
+    private func sendCompletedSessionInteractivelyIfPossible(sessionID: UUID) -> Bool {
+        let fileURL = outboxDirectoryURL.appendingPathComponent("\(sessionID.uuidString).json")
+        guard let data = try? Data(contentsOf: fileURL),
+              let envelope = try? decoder.decode(SessionSyncEnvelope.self, from: data) else {
+            return false
+        }
+
+        return sendCompletedSessionInteractivelyIfPossible(envelope)
     }
 
     private func acknowledgeCompletedSession(_ sessionID: UUID) {
@@ -413,21 +467,25 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
 
     private func sendCompletedSessionAcknowledgement(for sessionID: UUID) {
         guard let wcSession else { return }
-        wcSession.transferUserInfo([Self.completedSessionAcknowledgementKey: sessionID.uuidString])
+        wcSession.transferUserInfo([WatchConnectivitySyncKeys.completedSessionAcknowledgement: sessionID.uuidString])
     }
 
     private func markPendingTransfer(_ sessionID: UUID) {
         transferStore.markPending(sessionID)
-        pendingCompletedSessionIDs.insert(sessionID)
+        var updatedPendingIDs = pendingCompletedSessionIDs
+        updatedPendingIDs.insert(sessionID)
+        pendingCompletedSessionIDs = updatedPendingIDs
     }
 
     private func clearPendingTransfer(_ sessionID: UUID) {
         transferStore.clearPending(sessionID)
-        pendingCompletedSessionIDs.remove(sessionID)
+        var updatedPendingIDs = pendingCompletedSessionIDs
+        updatedPendingIDs.remove(sessionID)
+        pendingCompletedSessionIDs = updatedPendingIDs
     }
 
     private func handleLiveWorkoutStateContext(_ applicationContext: [String: Any]) {
-        guard let data = applicationContext[Self.liveStateContextKey] as? Data,
+        guard let data = applicationContext[WatchConnectivitySyncKeys.liveStateContext] as? Data,
               let state = try? decoder.decode(LiveWorkoutStateRecord.self, from: data) else {
             return
         }
@@ -435,9 +493,8 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
         liveWorkoutState = state
     }
 
-    private func importCompletedSessionFile(at fileURL: URL) {
-        guard let data = try? Data(contentsOf: fileURL),
-              let envelope = try? decoder.decode(SessionSyncEnvelope.self, from: data) else {
+    private func importCompletedSessionFileData(_ data: Data) {
+        guard let envelope = try? decoder.decode(SessionSyncEnvelope.self, from: data) else {
             return
         }
 
@@ -446,6 +503,14 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
         if liveWorkoutState?.sessionID == envelope.session.id {
             liveWorkoutState = nil
         }
+    }
+
+    private func importCompletedSessionFile(at fileURL: URL) {
+        guard let data = try? Data(contentsOf: fileURL) else {
+            return
+        }
+
+        importCompletedSessionFileData(data)
     }
     #endif
 }
@@ -487,13 +552,24 @@ extension WatchConnectivitySyncManager: WCSessionDelegate {
     }
 
     nonisolated func session(_ session: WCSession, didReceiveUserInfo userInfo: [String : Any] = [:]) {
-        guard let sessionIDString = userInfo[Self.completedSessionAcknowledgementKey] as? String,
+        guard let sessionIDString = userInfo[WatchConnectivitySyncKeys.completedSessionAcknowledgement] as? String,
               let sessionID = UUID(uuidString: sessionIDString) else {
             return
         }
 
         Task { @MainActor in
             self.acknowledgeCompletedSession(sessionID)
+        }
+    }
+
+    nonisolated func session(
+        _ session: WCSession,
+        didReceiveMessageData messageData: Data,
+        replyHandler: @escaping (Data) -> Void
+    ) {
+        Task { @MainActor in
+            self.importCompletedSessionFileData(messageData)
+            replyHandler(Data())
         }
     }
 

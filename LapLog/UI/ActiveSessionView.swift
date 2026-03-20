@@ -423,7 +423,6 @@ struct ActiveSessionView: View {
                         session.healthKitWorkoutUUID = uuid
                         session.updatedAt = Date()
                         try? self.persistence.modelContext.save()
-                        self.syncManager.queueCompletedSession(session)
                     }
                 } catch {
                     print("HealthKit export failed: \(error)")

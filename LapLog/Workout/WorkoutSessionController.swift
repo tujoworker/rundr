@@ -924,6 +924,15 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         syncManager?.publishLiveWorkoutState(liveWorkoutState)
     }
 
+    private var liveManualDistanceMeters: Double {
+        guard usesManualIntervals else { return cumulativeDistanceMeters }
+
+        return completedLaps.reduce(0) { partialResult, lap in
+            guard lap.lapType == .active else { return partialResult }
+            return partialResult + lap.distanceMeters
+        }
+    }
+
     private func makeLiveWorkoutState() -> LiveWorkoutStateRecord? {
         guard let sessionID = currentSessionID,
               let sessionStartDate else {
@@ -939,7 +948,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             elapsedSeconds: elapsedSeconds,
             lapElapsedSeconds: lapElapsedSeconds,
             completedLapCount: completedLaps.count,
-            cumulativeDistanceMeters: cumulativeDistanceMeters,
+            cumulativeDistanceMeters: liveManualDistanceMeters,
             cumulativeGPSDistanceMeters: usesGPSDistance ? cumulativeGPSDistanceMeters : nil,
             currentHeartRate: currentHeartRate,
             currentTargetDistanceMeters: usesManualIntervals ? currentTargetDistanceMeters : nil,
@@ -1011,7 +1020,7 @@ extension WorkoutSessionController: HKLiveWorkoutBuilderDelegate {
                 }
 
                 if quantityType == HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning) {
-                    guard !self.usesGPSDistance else { continue }
+                    guard self.trackingMode != .gps else { continue }
                     if let newCumulative = statistics?.sumQuantity()?.doubleValue(for: .meter()) {
                         let delta = newCumulative - self.lastHealthKitCumulativeDistanceMeters
                         self.lastHealthKitCumulativeDistanceMeters = newCumulative

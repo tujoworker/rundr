@@ -530,6 +530,33 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(store.pendingSessionIDs, [secondID])
     }
 
+    func testCompletedSessionAcknowledgementStoreKeepsRecentUniqueSessionIDs() {
+        let suiteName = "CompletedSessionAcknowledgementStoreTests-\(UUID().uuidString)"
+        guard let userDefaults = UserDefaults(suiteName: suiteName) else {
+            XCTFail("Failed to create isolated UserDefaults suite")
+            return
+        }
+        defer {
+            userDefaults.removePersistentDomain(forName: suiteName)
+        }
+
+        let store = CompletedSessionAcknowledgementStore(
+            userDefaults: userDefaults,
+            manifestKey: "completedAcknowledgements",
+            maxStoredSessionCount: 2
+        )
+        let firstID = UUID()
+        let secondID = UUID()
+        let thirdID = UUID()
+
+        store.markAcknowledged(firstID)
+        store.markAcknowledged(secondID)
+        store.markAcknowledged(firstID)
+        store.markAcknowledged(thirdID)
+
+        XCTAssertEqual(store.acknowledgedSessionIDs, [firstID, thirdID])
+    }
+
     func testSessionModeRawMapping() {
         let session = Session(
             startedAt: Date(),

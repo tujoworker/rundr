@@ -248,10 +248,15 @@ struct CompletedSessionTransferManifest: Codable, Equatable {
     var pendingSessionIDs: [UUID] = []
 }
 
+struct CompletedSessionAcknowledgementManifest: Codable, Equatable {
+    var acknowledgedSessionIDs: [UUID] = []
+}
+
 #if canImport(WatchConnectivity)
 private enum WatchConnectivitySyncKeys {
     static let liveStateContext = "liveWorkoutState"
     static let completedSessionAcknowledgement = "completedSessionAcknowledgement"
+    static let completedSessionAcknowledgementsContext = "completedSessionAcknowledgements"
     static let completedSessionEnvelope = "completedSessionEnvelope"
 }
 #endif
@@ -305,6 +310,58 @@ final class CompletedSessionTransferStore {
     }
 }
 
+final class CompletedSessionAcknowledgementStore {
+    private let userDefaults: UserDefaults
+    private let manifestKey: String
+    private let maxStoredSessionCount: Int
+    private let encoder = JSONEncoder()
+    private let decoder = JSONDecoder()
+
+    init(
+        userDefaults: UserDefaults = .standard,
+        manifestKey: String = "completedSessionAcknowledgementsJSON",
+        maxStoredSessionCount: Int = 20
+    ) {
+        self.userDefaults = userDefaults
+        self.manifestKey = manifestKey
+        self.maxStoredSessionCount = max(1, maxStoredSessionCount)
+    }
+
+    var acknowledgedSessionIDs: [UUID] {
+        manifest.acknowledgedSessionIDs
+    }
+
+    func markAcknowledged(_ sessionID: UUID) {
+        var ids = manifest.acknowledgedSessionIDs.filter { $0 != sessionID }
+        ids.append(sessionID)
+
+        if ids.count > maxStoredSessionCount {
+            ids = Array(ids.suffix(maxStoredSessionCount))
+        }
+
+        saveManifest(CompletedSessionAcknowledgementManifest(acknowledgedSessionIDs: ids))
+    }
+
+    private var manifest: CompletedSessionAcknowledgementManifest {
+        guard let json = userDefaults.string(forKey: manifestKey),
+              let data = json.data(using: .utf8),
+              let manifest = try? decoder.decode(CompletedSessionAcknowledgementManifest.self, from: data) else {
+            return CompletedSessionAcknowledgementManifest()
+        }
+
+        return manifest
+    }
+
+    private func saveManifest(_ manifest: CompletedSessionAcknowledgementManifest) {
+        guard let data = try? encoder.encode(manifest),
+              let json = String(data: data, encoding: .utf8) else {
+            return
+        }
+
+        userDefaults.set(json, forKey: manifestKey)
+    }
+}
+
 @MainActor
 final class WatchConnectivitySyncManager: NSObject, ObservableObject {
     @Published private(set) var liveWorkoutState: LiveWorkoutStateRecord?
@@ -313,6 +370,7 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
     private weak var persistence: PersistenceManager?
     private let fileManager: FileManager
     private let transferStore: CompletedSessionTransferStore
+    private let acknowledgementStore: CompletedSessionAcknowledgementStore
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
 
@@ -323,11 +381,13 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
     init(
         persistence: PersistenceManager? = nil,
         fileManager: FileManager = .default,
-        transferStore: CompletedSessionTransferStore = CompletedSessionTransferStore()
+        transferStore: CompletedSessionTransferStore = CompletedSessionTransferStore(),
+        acknowledgementStore: CompletedSessionAcknowledgementStore = CompletedSessionAcknowledgementStore()
     ) {
         self.persistence = persistence
         self.fileManager = fileManager
         self.transferStore = transferStore
+        self.acknowledgementStore = acknowledgementStore
         self.pendingCompletedSessionIDs = Set(transferStore.pendingSessionIDs)
         #if canImport(WatchConnectivity)
         if WCSession.isSupported() {
@@ -349,6 +409,10 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
     func activate() {
         #if canImport(WatchConnectivity)
         wcSession?.activate()
+        if let applicationContext = wcSession?.receivedApplicationContext {
+            handleApplicationContext(applicationContext)
+        }
+        publishCompletedSessionAcknowledgementsIfNeeded()
         retryPendingCompletedSessions()
         #endif
     }
@@ -469,7 +533,22 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
 
     private func sendCompletedSessionAcknowledgement(for sessionID: UUID) {
         guard let wcSession else { return }
+        acknowledgementStore.markAcknowledged(sessionID)
+        publishCompletedSessionAcknowledgementsIfNeeded()
         wcSession.transferUserInfo([WatchConnectivitySyncKeys.completedSessionAcknowledgement: sessionID.uuidString])
+    }
+
+    private func publishCompletedSessionAcknowledgementsIfNeeded() {
+        #if os(iOS)
+        guard let wcSession else { return }
+
+        let sessionIDStrings = acknowledgementStore.acknowledgedSessionIDs.map(\.uuidString)
+        guard !sessionIDStrings.isEmpty else { return }
+
+        try? wcSession.updateApplicationContext([
+            WatchConnectivitySyncKeys.completedSessionAcknowledgementsContext: sessionIDStrings
+        ])
+        #endif
     }
 
     private func markPendingTransfer(_ sessionID: UUID) {
@@ -486,6 +565,11 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
         pendingCompletedSessionIDs = updatedPendingIDs
     }
 
+    private func handleApplicationContext(_ applicationContext: [String: Any]) {
+        handleLiveWorkoutStateContext(applicationContext)
+        handleCompletedSessionAcknowledgementsContext(applicationContext)
+    }
+
     private func handleLiveWorkoutStateContext(_ applicationContext: [String: Any]) {
         guard let data = applicationContext[WatchConnectivitySyncKeys.liveStateContext] as? Data,
               let state = try? decoder.decode(LiveWorkoutStateRecord.self, from: data) else {
@@ -493,6 +577,17 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
         }
 
         liveWorkoutState = state
+    }
+
+    private func handleCompletedSessionAcknowledgementsContext(_ applicationContext: [String: Any]) {
+        guard let sessionIDStrings = applicationContext[WatchConnectivitySyncKeys.completedSessionAcknowledgementsContext] as? [String] else {
+            return
+        }
+
+        for sessionIDString in sessionIDStrings {
+            guard let sessionID = UUID(uuidString: sessionIDString) else { continue }
+            acknowledgeCompletedSession(sessionID)
+        }
     }
 
     private func importCompletedSessionFileData(_ data: Data) {
@@ -527,6 +622,8 @@ extension WatchConnectivitySyncManager: WCSessionDelegate {
         _ = activationState
         _ = error
         Task { @MainActor in
+            self.publishCompletedSessionAcknowledgementsIfNeeded()
+            self.handleApplicationContext(session.receivedApplicationContext)
             self.retryPendingCompletedSessions()
         }
     }
@@ -543,7 +640,7 @@ extension WatchConnectivitySyncManager: WCSessionDelegate {
 
     nonisolated func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
         Task { @MainActor in
-            self.handleLiveWorkoutStateContext(applicationContext)
+            self.handleApplicationContext(applicationContext)
         }
     }
 

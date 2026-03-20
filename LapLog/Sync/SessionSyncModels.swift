@@ -238,6 +238,10 @@ struct LiveWorkoutStateRecord: Codable, Equatable, Identifiable {
     var isGPSActive: Bool
 
     var id: UUID { sessionID }
+
+    var isTerminalState: Bool {
+        runState == .ended
+    }
 }
 
 struct CompletedSessionTransferManifest: Codable, Equatable {
@@ -440,8 +444,6 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
                 }
             }
         )
-
-        acknowledgeCompletedSession(sessionID)
         return true
     }
 

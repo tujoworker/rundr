@@ -5,10 +5,20 @@ struct CompanionRootView: View {
     @EnvironmentObject private var syncManager: WatchConnectivitySyncManager
     @Query(sort: [SortDescriptor(\Session.startedAt, order: .reverse)]) private var sessions: [Session]
 
+    private var visibleLiveWorkoutState: LiveWorkoutStateRecord? {
+        guard let state = syncManager.liveWorkoutState,
+              !state.isTerminalState,
+              sessions.contains(where: { $0.id == state.sessionID }) == false else {
+            return nil
+        }
+
+        return state
+    }
+
     var body: some View {
         NavigationStack {
             List {
-                if let liveWorkoutState = syncManager.liveWorkoutState {
+                if let liveWorkoutState = visibleLiveWorkoutState {
                     Section("Live on Apple Watch") {
                         CompanionLiveWorkoutCard(state: liveWorkoutState)
                     }

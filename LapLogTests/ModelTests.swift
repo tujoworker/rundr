@@ -86,6 +86,46 @@ final class ModelTests: XCTestCase {
         XCTAssertNotEqual(WorkoutRunState.ending, WorkoutRunState.ended)
     }
 
+    func testLiveWorkoutStateTerminalStateDetection() {
+        let activeState = LiveWorkoutStateRecord(
+            sessionID: UUID(),
+            startedAt: Date(),
+            updatedAt: Date(),
+            runState: .active,
+            trackingMode: .gps,
+            elapsedSeconds: 120,
+            lapElapsedSeconds: 60,
+            completedLapCount: 2,
+            cumulativeDistanceMeters: 800,
+            cumulativeGPSDistanceMeters: 800,
+            currentHeartRate: 150,
+            currentTargetDistanceMeters: nil,
+            restElapsedSeconds: nil,
+            restDurationSeconds: nil,
+            isGPSActive: true
+        )
+        let endedState = LiveWorkoutStateRecord(
+            sessionID: UUID(),
+            startedAt: Date(),
+            updatedAt: Date(),
+            runState: .ended,
+            trackingMode: .gps,
+            elapsedSeconds: 240,
+            lapElapsedSeconds: 0,
+            completedLapCount: 4,
+            cumulativeDistanceMeters: 1600,
+            cumulativeGPSDistanceMeters: 1600,
+            currentHeartRate: nil,
+            currentTargetDistanceMeters: nil,
+            restElapsedSeconds: nil,
+            restDurationSeconds: nil,
+            isGPSActive: false
+        )
+
+        XCTAssertFalse(activeState.isTerminalState)
+        XCTAssertTrue(endedState.isTerminalState)
+    }
+
     // MARK: - Lap Initialization
 
     func testLapCreation() {

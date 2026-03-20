@@ -4,7 +4,6 @@ struct HomeView: View {
     @EnvironmentObject var persistence: PersistenceManager
     @EnvironmentObject var settings: SettingsStore
     @EnvironmentObject var coordinator: NavigationCoordinator
-    @EnvironmentObject var syncManager: WatchConnectivitySyncManager
     @StateObject private var viewModel = HomeViewModel()
 
     var onGetReady: () -> Void
@@ -38,10 +37,7 @@ struct HomeView: View {
                         Button {
                             onSelectSession(session)
                         } label: {
-                            SessionRowView(
-                                session: session,
-                                isPendingPhoneSync: syncManager.hasPendingCompletedSessionTransfer(for: session.id)
-                            )
+                            SessionRowView(session: session)
                         }
                         .buttonStyle(.plain)
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -87,7 +83,6 @@ struct HomeView: View {
 
 struct SessionRowView: View {
     let session: Session
-    let isPendingPhoneSync: Bool
     @EnvironmentObject var settings: SettingsStore
 
     private let columns = [
@@ -124,15 +119,9 @@ struct SessionRowView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            HStack(alignment: .center, spacing: 6) {
-                Text(sessionTitle)
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.white)
-
-                Spacer(minLength: 4)
-
-                SessionSyncStatusBadge(isPendingPhoneSync: isPendingPhoneSync)
-            }
+            Text(sessionTitle)
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(.white)
             .padding(.bottom, 4)
 
             LazyVGrid(columns: columns, alignment: .leading, spacing: 10) {
@@ -154,32 +143,6 @@ struct SessionRowView: View {
         .padding(8)
         .background(Color.white.opacity(0.15))
         .cornerRadius(8)
-    }
-}
-
-private struct SessionSyncStatusBadge: View {
-    let isPendingPhoneSync: Bool
-
-    private var title: String {
-        isPendingPhoneSync ? "Pending Phone Sync" : "Synced to Phone"
-    }
-
-    private var tint: Color {
-        isPendingPhoneSync ? Color.orange : Color.green
-    }
-
-    var body: some View {
-        Text(title)
-            .font(.system(size: 10, weight: .semibold, design: .rounded))
-            .foregroundStyle(tint)
-            .padding(.horizontal, 6)
-            .padding(.vertical, 3)
-            .background(tint.opacity(0.18))
-            .overlay(
-                Capsule(style: .continuous)
-                    .stroke(tint.opacity(0.45), lineWidth: 1)
-            )
-            .clipShape(Capsule(style: .continuous))
     }
 }
 

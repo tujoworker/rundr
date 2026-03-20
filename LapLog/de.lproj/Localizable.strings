@@ -52,6 +52,14 @@
 "Continue" = "Weiter";
 "Laps: %d • %@" = "Runden: %d • %@";
 "Time: %@ • %@" = "Zeit: %@ • %@";
+"From Apple Watch" = "Von Apple Watch";
+"Imported Session" = "Importierte Einheit";
+"Delivered from Apple Watch and saved on iPhone." = "Von der Apple Watch empfangen und auf dem iPhone gespeichert.";
+"Source" = "Quelle";
+"Import Status" = "Importstatus";
+"Import Complete" = "Import abgeschlossen";
+"Unknown Source" = "Unbekannte Quelle";
+"Imported from %@" = "Importiert von %@";
 
 /* Root / Health */
 "Session not found" = "Training nicht gefunden";

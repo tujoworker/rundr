@@ -63,6 +63,16 @@ enum L10n {
     static func timeSummary(_ time: String, _ distance: String) -> String {
         String(format: String(localized: "Time: %@ • %@", comment: "Session summary"), time, distance)
     }
+    static let fromAppleWatch = String(localized: "From Apple Watch", comment: "Companion source badge")
+    static let importedSession = String(localized: "Imported Session", comment: "Companion import status title")
+    static let importedSessionSummary = String(localized: "Delivered from Apple Watch and saved on iPhone.", comment: "Companion import status summary")
+    static let source = String(localized: "Source", comment: "Session source label")
+    static let importStatus = String(localized: "Import Status", comment: "Session import status label")
+    static let importComplete = String(localized: "Import Complete", comment: "Session import completion label")
+    static let sourceUnknown = String(localized: "Unknown Source", comment: "Fallback session source")
+    static func importedFromSource(_ source: String) -> String {
+        String(format: String(localized: "Imported from %@", comment: "Companion imported source description"), source)
+    }
 
     // MARK: - Root / Health
     static let sessionNotFound = String(localized: "Session not found", comment: "Error")

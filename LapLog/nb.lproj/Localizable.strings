@@ -52,6 +52,14 @@
 "Continue" = "Fortsett";
 "Laps: %d • %@" = "Runder: %d • %@";
 "Time: %@ • %@" = "Tid: %@ • %@";
+"From Apple Watch" = "Fra Apple Watch";
+"Imported Session" = "Importert økt";
+"Delivered from Apple Watch and saved on iPhone." = "Mottatt fra Apple Watch og lagret på iPhone.";
+"Source" = "Kilde";
+"Import Status" = "Importstatus";
+"Import Complete" = "Import fullført";
+"Unknown Source" = "Ukjent kilde";
+"Imported from %@" = "Importert fra %@";
 
 /* Root / Health */
 "Session not found" = "Økten ble ikke funnet";

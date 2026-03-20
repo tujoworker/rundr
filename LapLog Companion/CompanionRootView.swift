@@ -84,8 +84,16 @@ private struct CompanionSessionRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(Formatters.historySessionDateTimeString(from: session.startedAt))
-                .font(.headline)
+            HStack(alignment: .center, spacing: 8) {
+                Text(Formatters.historySessionDateTimeString(from: session.startedAt))
+                    .font(.headline)
+
+                Spacer(minLength: 8)
+
+                if session.isImportedFromWatch {
+                    CompanionImportBadge(title: L10n.fromAppleWatch)
+                }
+            }
 
             Text("Laps: \(session.totalLaps) • Avg: \(Formatters.speedString(metersPerSecond: session.averageSpeedMetersPerSecond))")
                 .font(.subheadline)
@@ -108,9 +116,15 @@ private struct CompanionSessionDetailView: View {
 
     var body: some View {
         List {
+            Section {
+                CompanionImportStatusCard(session: session)
+            }
+
             Section("Summary") {
                 LabeledContent("Started", value: Formatters.historySessionDateTimeString(from: session.startedAt))
                 LabeledContent("Ended", value: Formatters.historySessionDateTimeString(from: session.endedAt))
+                LabeledContent(L10n.source, value: session.companionSourceDisplayName)
+                LabeledContent(L10n.importStatus, value: L10n.importComplete)
                 LabeledContent("Mode", value: session.mode.displayName)
                 LabeledContent("Time", value: Formatters.timeString(from: session.durationSeconds))
                 LabeledContent("Distance", value: Formatters.distanceString(meters: session.totalDistanceMeters, unit: .km))
@@ -141,6 +155,49 @@ private struct CompanionSessionDetailView: View {
     }
 }
 
+private struct CompanionImportBadge: View {
+    let title: String
+
+    var body: some View {
+        Text(title)
+            .font(.system(size: 11, weight: .semibold, design: .rounded))
+            .foregroundStyle(Color.blue)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Color.blue.opacity(0.12))
+            .overlay(
+                Capsule(style: .continuous)
+                    .stroke(Color.blue.opacity(0.28), lineWidth: 1)
+            )
+            .clipShape(Capsule(style: .continuous))
+    }
+}
+
+private struct CompanionImportStatusCard: View {
+    let session: Session
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .center, spacing: 8) {
+                Text(L10n.importedSession)
+                    .font(.headline)
+
+                if session.isImportedFromWatch {
+                    CompanionImportBadge(title: L10n.fromAppleWatch)
+                }
+            }
+
+            Text(L10n.importedFromSource(session.companionSourceDisplayName))
+                .font(.subheadline.weight(.semibold))
+
+            Text(L10n.importedSessionSummary)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 4)
+    }
+}
+
 private extension LiveWorkoutStateRecord {
     var runStateLabel: String {
         switch runState {
@@ -159,5 +216,20 @@ private extension LiveWorkoutStateRecord {
         case .ended:
             return "Ended"
         }
+    }
+}
+
+private extension Session {
+    var isImportedFromWatch: Bool {
+        deviceSource.localizedCaseInsensitiveContains("watch")
+    }
+
+    var companionSourceDisplayName: String {
+        if isImportedFromWatch {
+            return "Apple Watch"
+        }
+
+        let trimmedSource = deviceSource.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmedSource.isEmpty ? L10n.sourceUnknown : trimmedSource
     }
 }

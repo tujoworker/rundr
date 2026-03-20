@@ -102,6 +102,64 @@ final class FormattersTests: XCTestCase {
         XCTAssertEqual(Formatters.heartRateString(bpm: 72.8), "72")
     }
 
+    // MARK: - Lap Summary Formatting
+
+    func testLapSummaryStringForRestLapShowsOnlyTime() {
+        let lap = Lap(
+            index: 0,
+            startedAt: Date(),
+            endedAt: Date().addingTimeInterval(30),
+            durationSeconds: 30,
+            distanceMeters: 0,
+            averageSpeedMetersPerSecond: 0,
+            lapType: .rest,
+            source: .distanceTap
+        )
+
+        XCTAssertEqual(
+            Formatters.lapSummaryString(lap: lap, trackingMode: .distanceDistance, unit: .km),
+            "0:30"
+        )
+    }
+
+    func testLapSummaryStringForGPSIncludesTimeDistanceAndPace() {
+        let lap = Lap(
+            index: 1,
+            startedAt: Date(),
+            endedAt: Date().addingTimeInterval(240),
+            durationSeconds: 240,
+            distanceMeters: 1000,
+            gpsDistanceMeters: 1000,
+            averageSpeedMetersPerSecond: 4.16,
+            lapType: .active,
+            source: .distanceTap
+        )
+
+        XCTAssertEqual(
+            Formatters.lapSummaryString(lap: lap, trackingMode: .gps, unit: .km),
+            "4:00 • 1.00 km • 4:00\u{2009}/km"
+        )
+    }
+
+    func testLapSummaryStringForDualIncludesGPSDistanceSummary() {
+        let lap = Lap(
+            index: 1,
+            startedAt: Date(),
+            endedAt: Date().addingTimeInterval(200),
+            durationSeconds: 200,
+            distanceMeters: 400,
+            gpsDistanceMeters: 418,
+            averageSpeedMetersPerSecond: 2,
+            lapType: .active,
+            source: .distanceTap
+        )
+
+        XCTAssertEqual(
+            Formatters.lapSummaryString(lap: lap, trackingMode: .dual, unit: .km),
+            "3:20 • 8:20\u{2009}/km • GPS: 418 m"
+        )
+    }
+
     // MARK: - History Date Formatting
 
     func testHistorySessionDateTimeStringUsesTodayLabel() throws {

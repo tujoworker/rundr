@@ -407,6 +407,41 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(restored.restDurationSeconds, 30)
     }
 
+    func testStartingWithRecoveryStorePersistsSnapshotAndEndingClearsIt() async {
+        let store = OngoingWorkoutStore()
+        store.clear()
+
+        let controller = makeConfiguredController(trackingMode: .dual)
+        controller.attachOngoingWorkoutStore(store)
+        controller.minimumLapDuration = 0
+        controller.startWithoutHealthKit()
+
+        XCTAssertNotNil(store.snapshot)
+        XCTAssertEqual(store.snapshot?.resumeRunState, .active)
+
+        _ = await controller.endSession()
+
+        XCTAssertEqual(controller.runState, .ended)
+        XCTAssertNil(store.snapshot)
+        XCTAssertNil(store.startupSnapshot)
+    }
+
+    func testPauseSessionPersistsPausedRecoverySnapshot() {
+        let store = OngoingWorkoutStore()
+        store.clear()
+
+        let controller = makeStartedController(trackingMode: .dual)
+        controller.attachOngoingWorkoutStore(store)
+        controller.handleGPSDistanceUpdate(additionalMeters: 123)
+
+        controller.pauseSession()
+
+        XCTAssertEqual(controller.runState, .paused)
+        XCTAssertEqual(store.snapshot?.resumeRunState, .active)
+        XCTAssertNotNil(store.snapshot?.pauseStartedAt)
+        XCTAssertEqual(store.snapshot?.currentLapGPSDistanceMeters, 123)
+    }
+
     func testThreeSegmentProgression() {
         let segments = [
             DistanceSegment(distanceMeters: 200, repeatCount: 1),

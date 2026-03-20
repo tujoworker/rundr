@@ -66,9 +66,11 @@ Each completed workout session must store:
 - `startedAt: Date`
 - `endedAt: Date`
 - `durationSeconds: Double`
-- `mode: enum { gps, distanceDistance }`
+- `mode: enum { gps, dual, distanceDistance }`
+- `sportVariantRaw: String?` (optional future classification / workout variant)
 - `distanceLapDistanceMeters: Double?`
 - `totalDistanceMeters: Double`
+- `totalGPSDistanceMeters: Double?` — stored separately for dual mode or GPS workouts
 - `averageSpeedMetersPerSecond: Double`
 - `totalLaps: Int`
 - `laps: [Lap]`
@@ -76,6 +78,7 @@ Each completed workout session must store:
 - `healthKitWorkoutUUID: UUID?` or saved reference if available
 - `createdAt: Date`
 - `updatedAt: Date`
+- `snapshotWorkoutPlan: WorkoutPlanSnapshot` — canonical snapshot of the exact interval/rest plan used
 
 ### Lap
 
@@ -87,6 +90,7 @@ Each lap in a session must store:
 - `endedAt: Date`
 - `durationSeconds: Double`
 - `distanceMeters: Double`
+- `gpsDistanceMeters: Double?` — separate measured GPS distance when manual intervals are active in dual mode
 - `averageSpeedMetersPerSecond: Double`
 - `averageHeartRateBPM: Double?`
 - `lapType: enum { active, rest }`
@@ -119,12 +123,20 @@ Default plan: a single segment of 400 m with unlimited repeats.
 
 Persist the following across app restarts:
 
-- last selected tracking mode (`gps` or `distanceDistance`)
+- last selected tracking mode (`gps`, `dual`, or `distanceDistance`)
 - last entered manual distance in meters (legacy, for backward compatibility)
 - distance segments array (JSON-encoded interval plan)
+- saved interval presets array (JSON-encoded preset library)
 - rest mode (`manual` or `autoDetect`) — manual: user taps to enter/exit rest; auto: HealthKit motion events enter/exit rest
 - primary accent color (blue, green, yellow, orange, pink, dark) — white was removed; migration maps legacy "white" to blue
 - any future session options
+
+Preset library requirements:
+
+- provide a library of predefined interval presets and user-saved presets
+- normalize saved interval plans so earlier open-ended segments become `×1` when later segments exist
+- only save presets for modes that use manual intervals (`distanceDistance`, `dual`)
+- when applying a manual-interval workout plan while the current persisted mode is `gps`, upgrade to `dual` so GPS tracking is preserved alongside manual lap targets
 
 Use lightweight persistent storage so the settings screen restores instantly on app launch.
 
@@ -149,9 +161,10 @@ Purpose: fast entry point for starting a session and opening recent sessions.
 Each row must be easy to tap and show:
 
 - total laps
-- average speed
+- pace
 - total time
 - total distance
+- when the session used dual tracking, show an additional GPS distance stat
 
 Display format should favor quick reading on watch.
 Example row structure:
@@ -181,27 +194,32 @@ Purpose: inspect a previous session.
 
 #### Layout
 
-Show a vertically scrollable list of all laps.
+Show a vertically scrollable session detail view with:
+
+- a date range header (`start - end` on the same row)
+- a compact stats grid showing mode, time, laps, and distance metrics relevant to the tracking mode
+- a vertically scrollable list of all laps
+- a "Reuse This Interval" action that loads the saved workout plan back into setup
 
 Each lap row must show:
 
-- lap number
-- heart rate
-- average speed
-- distance
-- time used
-- whether it was `rest` or `activity`
+- elapsed time
+- lap number for active laps, or a `Rest` badge for rest laps
+- manual interval distance and pace when the session uses manual intervals
+- GPS distance and GPS pace when the session uses GPS distance
+- target time and/or target pace when the original segment defined one
+- heart rate when available
 
 #### Suggested row layout
 
-- line 1: `Lap 4 • Activity`
-- line 2: `Time: 00:01:32 • Dist: 400 m`
-- line 3: `Avg Speed: 4.35 m/s • HR: 163 bpm`
+- line 1: lap badge / rest badge + elapsed time
+- detail grid below: distance, pace, GPS distance, GPS pace, target time, target pace, heart rate as applicable
 
 #### Behavior
 
-- Sort by lap index ascending.
-- If heart rate is unavailable, show `—`.
+- Sort by actual lap order / start time ascending.
+- If heart rate or a metric is unavailable, show `—`.
+- In dual mode, preserve both the manual interval distance and the measured GPS distance in the detail view.
 
 ---
 
@@ -217,7 +235,7 @@ Reached after tapping **Get Ready**.
 
 #### Setting 1 — Intervals (distance segments)
 
-When `Distance` mode is selected, show an **Intervals** section first:
+When a manual-interval mode (`Distance` or `Dual`) is selected, show an **Intervals** section first:
 
 - list of **distance segments** forming the interval plan
 - each segment has a distance value and an optional repeat count
@@ -230,10 +248,14 @@ When `Distance` mode is selected, show an **Intervals** section first:
 - validate each distance as a positive number greater than 0
 - store the full segment plan and restore it on next launch
 - repeat count of `nil` or empty means unlimited
+- include a Browse action that opens an interval library with predefined and saved presets
+- saved presets can be created from interval setup and from completed sessions
+- saved presets are sorted by most recently edited
+- editing a preset that duplicates another saved preset should merge into the existing preset instead of creating duplicates
 
 #### Setting 2 — Mode (tracking mode, rest mode, unit, color)
 
-- **Tracking mode**: segmented control with `GPS` and `Distance`. Persist the selected value.
+- **Tracking mode**: dialog or segmented control with `Distance`, `Dual`, and `GPS`. Persist the selected value.
 - **Rest mode**: `Manual` (user taps to enter/exit rest) or `Auto` (HealthKit motion events enter/exit rest). Persist the selected value.
 - **Distance unit**: km or miles.
 - **Primary color**: blue, green, yellow, orange, pink, dark. Persist the selected value.
@@ -244,6 +266,14 @@ If `GPS` is selected:
 
 - Intervals section is hidden or disabled
 - lap distance is derived live from distance traveled between lap boundaries
+
+#### Dual mode behavior
+
+If `Dual` is selected:
+
+- manual interval segments remain active and define the canonical lap distance
+- GPS tracking stays active in parallel
+- lap detail and session history should expose both manual distance/pace and GPS distance/pace
 
 #### Start button behavior
 
@@ -265,7 +295,8 @@ Purpose: live workout UI while running.
 #### Required layout
 
 - Center/main focus: elapsed seconds counting upward, **large and bold**
-- Top left: **Rest** button
+- A visible lap counter badge must remain visible across `active`, `rest`, `paused`, and `ending` states
+- Top left / session controls support rest, pause/resume, and end-session flow
 - Top right: live heart rate
 - Below main timer: horizontally scrollable lap cards
 - Newest lap card appears on the **right**
@@ -279,8 +310,10 @@ Purpose: live workout UI while running.
 - Use monospaced digits for stability
 - Example: `08:43`
 - In distance mode, show the **current target distance** above the timer (from the active segment in the interval plan)
+- If the active segment has a target time or target pace, prefer showing that target summary above the timer
 - when the interval plan has a finite total, show the **remaining planned laps** beside that label, e.g. `400 m · 5 left`
 - During rest, show "Rest Mode" above the timer instead
+- During a full pause, show `Paused` and stop accumulating elapsed workout time until resumed
 
 #### Lap cards
 
@@ -288,8 +321,8 @@ Show recent completed laps in horizontally scrollable boxes/cards.
 Each card shows:
 
 - lap time (large)
-- distance (for both GPS and distance mode when distance > 0)
-- average speed / pace (smaller)
+- distance or GPS distance summary when available
+- pace summary (smaller)
 - optionally (maybe with a setting) lap label and rest/activity state (maybe just in color)
 
 Behavior:
@@ -304,32 +337,20 @@ Behavior:
   - deleting the lap
 - editing or deleting a lap must recalculate lap numbering, cumulative distance, and interval-plan progress so the session state stays consistent
 
-#### Top-left button state machine
+#### Session control state machine
 
-Initial state during session:
+Current states during an active workout:
 
-- top-left button label: **Rest**
-
-When user presses **Rest**:
-
-- do **not** pause the overall session timer
-- close the current lap if needed and mark subsequent segment as `rest`
-- switch the top-left button label to **End**
-- trigger strong haptic
-
-When user presses **End**:
-
-- finish the session
-- save to local storage
-- write to HealthKit
-- navigate to post-save state or home
-- trigger strong haptic
+- `Rest` enters rest mode without stopping the workout clock
+- a pause control can move the workout into a full `paused` state; paused time should not count toward workout elapsed time
+- rest and paused states expose resume actions
+- the end-session flow still uses explicit confirmation before saving and exiting
 
 Important interpretation:
 
 - `Rest` is not a stopwatch pause.
-- It marks the workout as being in a rest segment.
-- The session clock continues to run.
+- `Paused` is a true pause that temporarily freezes elapsed workout time until resumed.
+- the session clock continues through rest, but not through a full pause.
 
 #### Lap action during active session
 
@@ -358,6 +379,9 @@ When a lap is created:
 
 - session timing and collection must continue correctly while watch is not actively displaying the app
 - when app reappears, restore the active session UI without data loss
+- persist a lightweight ongoing-workout snapshot during the workout so the app can recover after process death or relaunch
+- if a recoverable snapshot exists on launch, show a recovery prompt with `Continue Workout` and `Discard Workout`
+- continuing a recovered workout should reopen the active session in a paused state so the runner explicitly decides when to resume
 
 ---
 
@@ -417,6 +441,14 @@ For each lap:
 - lap distance = difference in cumulative workout distance between lap start and lap end
 - if GPS temporarily drops out, keep timing the lap and use best available distance estimate
 - store distance as meters
+
+#### Dual mode
+
+For each lap:
+
+- canonical `distanceMeters` comes from the active manual interval segment
+- `gpsDistanceMeters` stores the measured GPS distance covered during that same lap
+- history and analytics should keep those values separate instead of collapsing one into the other
 
 #### Distance mode
 
@@ -539,6 +571,7 @@ So the export pipeline must be:
 - Save completed session atomically.
 - Avoid writing every second to persistent storage.
 - During workout, keep state in memory and checkpoint only what is needed for recovery.
+- A lightweight recovery snapshot may be refreshed on important state changes and at most once per elapsed second.
 
 ---
 
@@ -561,7 +594,7 @@ So the export pipeline must be:
 
 ## Edge cases
 
-- App restarts during an active workout: restore active session if recoverable.
+- App restarts during an active workout: offer recovery from the persisted snapshot if recoverable.
 - HealthKit authorization denied: app should still work with local history, but show that Health/Fitness sync is unavailable.
 - GPS unavailable: allow session to continue, but mark distance accuracy as degraded.
 - Manual distance invalid or empty: Start button disabled.
@@ -579,14 +612,18 @@ So the export pipeline must be:
 AppScreenState:
 - home
 - preStart
+- intervalLibrary
 - activeSession
 - sessionDetail(sessionID)
+- historySetup(sessionID)
 
 WorkoutRunState:
 - idle
 - ready
 - active
 - rest
+- paused
+- ending
 - ended
 ```
 
@@ -619,15 +656,17 @@ UI should observe this controller rather than embedding workout logic directly i
 
 ### Session detail acceptance criteria
 
+- Displays a date-range header and compact stats grid.
 - Displays all laps in order.
-- Each lap shows heart rate, average speed, distance, time used, and rest/activity status.
+- Each lap shows time used plus the relevant distance/pace metrics for the active tracking mode.
+- Includes a reuse action that loads the saved interval plan back into setup.
 
 ### Pre-start acceptance criteria
 
 - Start button visible at top.
 - Settings scroll vertically.
-- Tracking mode segmented control supports GPS and Distance.
-- Distance mode reveals distance input in meters.
+- Tracking mode supports Distance, Dual, and GPS.
+- Manual-interval modes reveal interval editing and library browsing.
 - Settings persist across restarts.
 
 ### Active session acceptance criteria
@@ -635,8 +674,9 @@ UI should observe this controller rather than embedding workout logic directly i
 - Large bold elapsed timer visible.
 - Horizontal scroll area of recent lap cards visible.
 - Latest lap appears on right.
-- Top-left Rest button changes to End after being pressed.
+- Lap counter remains visible across active session states.
 - Rest does not stop timer.
+- Pause freezes elapsed workout time until resumed.
 - Top-right shows live heart rate.
 - Action Button can trigger Get Ready, Start, and Lap depending on context.
 - Strong haptic feedback occurs for primary actions.
@@ -646,6 +686,7 @@ UI should observe this controller rather than embedding workout logic directly i
 - Completed sessions are saved locally.
 - Completed sessions are exported to HealthKit/Fitness as fully as platform allows.
 - App local history remains complete even if Fitness display is less detailed.
+- In-progress workouts are recoverable from a persisted snapshot after relaunch.
 
 ---
 

@@ -299,6 +299,63 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(decoded.completedLaps.first?.makeLap().gpsDistanceMeters, 412)
     }
 
+    func testOngoingWorkoutSnapshotComputedProperties() {
+        let savedAt = Date()
+        let pauseStartedAt = savedAt.addingTimeInterval(-12)
+        let activeLap = Lap(
+            index: 1,
+            startedAt: savedAt.addingTimeInterval(-90),
+            endedAt: savedAt.addingTimeInterval(-30),
+            durationSeconds: 60,
+            distanceMeters: 400,
+            gpsDistanceMeters: 415,
+            averageSpeedMetersPerSecond: 6.67,
+            averageHeartRateBPM: 155,
+            lapType: .active,
+            source: .distanceTap
+        )
+        let restLap = Lap(
+            index: 0,
+            startedAt: savedAt.addingTimeInterval(-30),
+            endedAt: savedAt,
+            durationSeconds: 30,
+            distanceMeters: 0,
+            averageSpeedMetersPerSecond: 0,
+            lapType: .rest,
+            source: .distanceTap
+        )
+        let snapshot = OngoingWorkoutSnapshot(
+            savedAt: savedAt,
+            sessionStartDate: savedAt.addingTimeInterval(-180),
+            currentLapStartDate: savedAt.addingTimeInterval(-10),
+            elapsedSeconds: 180,
+            lapElapsedSeconds: 10,
+            trackingMode: .dual,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 45)],
+            restMode: .autoDetect,
+            completedLaps: [OngoingWorkoutLapSnapshot(lap: activeLap), OngoingWorkoutLapSnapshot(lap: restLap)],
+            cumulativeDistanceMeters: 400,
+            currentLapDistanceMeters: 0,
+            cumulativeGPSDistanceMeters: 415,
+            currentLapGPSDistanceMeters: 0,
+            currentHeartRate: 150,
+            currentSegmentIndex: 0,
+            currentSegmentRepeatsDone: 1,
+            resumeRunState: .rest,
+            restElapsedSeconds: 5,
+            restDurationSeconds: 45,
+            pauseStartedAt: pauseStartedAt
+        )
+
+        XCTAssertEqual(snapshot.activeLapCount, 1)
+        XCTAssertEqual(snapshot.workoutPlan.trackingMode, .dual)
+        XCTAssertEqual(snapshot.workoutPlan.distanceLapDistanceMeters, 400)
+        XCTAssertEqual(snapshot.workoutPlan.distanceSegments.count, 1)
+        XCTAssertEqual(snapshot.workoutPlan.restMode, .autoDetect)
+        XCTAssertEqual(snapshot.effectivePauseStartedAt, pauseStartedAt)
+    }
+
     func testSessionModeRawMapping() {
         let session = Session(
             startedAt: Date(),
@@ -410,6 +467,25 @@ final class ModelTests: XCTestCase {
         let d = DistanceSegment.default
         XCTAssertEqual(d.distanceMeters, 400)
         XCTAssertNil(d.repeatCount)
+    }
+
+    func testIntervalPresetNormalizesOpenEndedIntermediateSegments() {
+        let workoutPlan = WorkoutPlanSnapshot(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [
+                DistanceSegment(distanceMeters: 400, repeatCount: nil, restSeconds: 30),
+                DistanceSegment(distanceMeters: 800, repeatCount: nil, restSeconds: 60)
+            ],
+            restMode: .autoDetect
+        )
+
+        let normalized = IntervalPreset.normalizedWorkoutPlan(workoutPlan)
+
+        XCTAssertEqual(normalized.distanceSegments[0].repeatCount, 1)
+        XCTAssertNil(normalized.distanceSegments[1].repeatCount)
+        XCTAssertEqual(normalized.distanceLapDistanceMeters, 400)
+        XCTAssertEqual(normalized.restMode, .manual)
     }
 
     // MARK: - Interval Presets
@@ -549,5 +625,126 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(updatedPreset?.workoutPlan.distanceLapDistanceMeters, updatedPlan.distanceLapDistanceMeters)
         XCTAssertEqual(updatedPreset?.workoutPlan.distanceSegments, updatedPlan.distanceSegments)
         XCTAssertEqual(updatedPreset?.trimmedCustomTitle, "Tempo")
+    }
+
+    func testSettingsStoreTitleUsesPredefinedPresetTitleWhenMatched() {
+        UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON")
+        defer { UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON") }
+
+        let store = SettingsStore()
+        let workoutPlan = SettingsStore.predefinedIntervalPresets[0].workoutPlan
+
+        XCTAssertEqual(store.title(for: workoutPlan), "6 × 400 m")
+    }
+
+    func testSettingsStoreTitleUsesSavedPresetTitleWhenMatched() {
+        UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON")
+        defer { UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON") }
+
+        let store = SettingsStore()
+        let workoutPlan = WorkoutPlanSnapshot(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 300,
+            distanceSegments: [DistanceSegment(distanceMeters: 300, repeatCount: 10, restSeconds: 30)],
+            restMode: .manual
+        )
+
+        _ = store.saveIntervalPreset(workoutPlan, customTitle: "Track Tens")
+
+        XCTAssertEqual(store.title(for: workoutPlan), "Track Tens")
+    }
+
+    func testSettingsStoreSaveIntervalPresetIgnoresGPSPlan() {
+        UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON")
+        defer { UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON") }
+
+        let store = SettingsStore()
+        let workoutPlan = WorkoutPlanSnapshot(
+            trackingMode: .gps,
+            distanceSegments: [.default],
+            restMode: .manual
+        )
+
+        let preset = store.saveIntervalPreset(workoutPlan, customTitle: "Outdoor Run")
+
+        XCTAssertNil(preset)
+        XCTAssertTrue(store.intervalPresets.isEmpty)
+    }
+
+    func testSettingsStoreMergesEditedPresetIntoExistingDuplicate() {
+        UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON")
+        defer { UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON") }
+
+        let store = SettingsStore()
+        let firstPlan = WorkoutPlanSnapshot(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+            restMode: .manual
+        )
+        let secondPlan = WorkoutPlanSnapshot(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 1000,
+            distanceSegments: [DistanceSegment(distanceMeters: 1000, repeatCount: 3, restSeconds: 120)],
+            restMode: .manual
+        )
+
+        let firstPreset = store.saveIntervalPreset(firstPlan, customTitle: "400s")
+        let secondPreset = store.saveIntervalPreset(secondPlan, customTitle: "Ks")
+        let mergedPreset = store.saveIntervalPreset(secondPlan, customTitle: "Ks Updated", existingPresetID: firstPreset?.id)
+
+        XCTAssertEqual(store.intervalPresets.count, 1)
+        XCTAssertEqual(mergedPreset?.id, secondPreset?.id)
+        XCTAssertEqual(store.intervalPresets.first?.id, secondPreset?.id)
+        XCTAssertEqual(store.intervalPresets.first?.trimmedCustomTitle, "Ks Updated")
+    }
+
+    @MainActor
+    func testOngoingWorkoutStoreLoadsStartupSnapshotFromStorage() throws {
+        UserDefaults.standard.removeObject(forKey: "ongoingWorkoutSnapshotJSON")
+        defer { UserDefaults.standard.removeObject(forKey: "ongoingWorkoutSnapshotJSON") }
+
+        let snapshot = OngoingWorkoutSnapshot(
+            savedAt: Date(),
+            sessionStartDate: Date().addingTimeInterval(-180),
+            currentLapStartDate: Date().addingTimeInterval(-20),
+            elapsedSeconds: 180,
+            lapElapsedSeconds: 20,
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 45)],
+            restMode: .manual,
+            completedLaps: [],
+            cumulativeDistanceMeters: 0,
+            currentLapDistanceMeters: 0,
+            cumulativeGPSDistanceMeters: 0,
+            currentLapGPSDistanceMeters: 0,
+            currentHeartRate: nil,
+            currentSegmentIndex: 0,
+            currentSegmentRepeatsDone: 0,
+            resumeRunState: .active,
+            restElapsedSeconds: nil,
+            restDurationSeconds: nil,
+            pauseStartedAt: nil
+        )
+        let data = try JSONEncoder().encode(snapshot)
+        UserDefaults.standard.set(String(decoding: data, as: UTF8.self), forKey: "ongoingWorkoutSnapshotJSON")
+
+        let store = OngoingWorkoutStore()
+
+        XCTAssertEqual(store.snapshot, snapshot)
+        XCTAssertEqual(store.startupSnapshot, snapshot)
+    }
+
+    @MainActor
+    func testOngoingWorkoutStoreClearsInvalidSnapshotDataWhenLoading() {
+        UserDefaults.standard.set("not-json", forKey: "ongoingWorkoutSnapshotJSON")
+        defer { UserDefaults.standard.removeObject(forKey: "ongoingWorkoutSnapshotJSON") }
+
+        let store = OngoingWorkoutStore()
+
+        XCTAssertNil(store.snapshot)
+        XCTAssertNil(store.startupSnapshot)
+        XCTAssertEqual(UserDefaults.standard.string(forKey: "ongoingWorkoutSnapshotJSON"), "")
     }
 }

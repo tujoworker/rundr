@@ -18,6 +18,9 @@ struct ActiveSessionView: View {
     @State private var isRestPulseOn = false
     @State private var isPausePulseOn = false
     @State private var isShowingSessionComplete = false
+    @State private var isEndingSession = false
+    @State private var hasDismissedCompletedSession = false
+    @State private var completedSessionDismissTask: Task<Void, Never>?
 
     private let defaultLapDistanceText = "400"
 
@@ -206,13 +209,7 @@ struct ActiveSessionView: View {
                         onResume: { workoutController.resumeSession() },
                         onPause: { workoutController.pauseSession() },
                         onEnd: {
-                            workoutController.prepareForSessionEnd()
-                            workoutController.commitFinalLap()
-                            isShowingSessionComplete = true
-                            Task {
-                                try? await Task.sleep(for: .seconds(3))
-                                await endSession()
-                            }
+                            finishSession()
                         }
                     )
                     .offset(y: topControlOffset + menuButtonExtraOffset)
@@ -374,7 +371,10 @@ struct ActiveSessionView: View {
         }
         .overlay {
             if isShowingSessionComplete {
-                SessionCompleteView(accentColor: primaryColor)
+                SessionCompleteView(
+                    accentColor: primaryColor,
+                    onDismiss: dismissCompletedSessionIfNeeded
+                )
                     .transition(.opacity)
             }
         }
@@ -406,8 +406,27 @@ struct ActiveSessionView: View {
         .onAppear {
             lastAnimatedLapCount = workoutController.completedLaps.count
         }
+        .onDisappear {
+            completedSessionDismissTask?.cancel()
+        }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarHidden(true)
+    }
+
+    private func finishSession() {
+        guard !isEndingSession else { return }
+
+        isEndingSession = true
+        workoutController.prepareForSessionEnd()
+        workoutController.commitFinalLap()
+        isShowingSessionComplete = true
+
+        Task {
+            await endSession()
+            await MainActor.run {
+                scheduleCompletedSessionDismissal()
+            }
+        }
     }
 
     private func endSession() async {
@@ -429,6 +448,24 @@ struct ActiveSessionView: View {
                 }
             }
         }
+    }
+
+    private func scheduleCompletedSessionDismissal() {
+        completedSessionDismissTask?.cancel()
+        completedSessionDismissTask = Task {
+            try? await Task.sleep(for: .seconds(3))
+            await MainActor.run {
+                dismissCompletedSessionIfNeeded()
+            }
+        }
+    }
+
+    private func dismissCompletedSessionIfNeeded() {
+        guard !hasDismissedCompletedSession else { return }
+
+        hasDismissedCompletedSession = true
+        completedSessionDismissTask?.cancel()
+        completedSessionDismissTask = nil
         onSessionEnded()
     }
 
@@ -803,14 +840,20 @@ private struct WorkoutControlIcon: View {
 
 private struct SessionCompleteView: View {
     let accentColor: Color
+    let onDismiss: () -> Void
 
     var body: some View {
         ZStack {
             AppScreenBackground(accentColor: accentColor)
 
-            Image(systemName: "checkmark")
-                .font(.system(size: 96, weight: .medium))
-                .foregroundStyle(.white)
+            Button(action: onDismiss) {
+                Image(systemName: "checkmark")
+                    .font(.system(size: 96, weight: .medium))
+                    .foregroundStyle(.white)
+                    .padding(24)
+                    .contentShape(Circle())
+            }
+            .buttonStyle(.plain)
         }
         .ignoresSafeArea()
     }

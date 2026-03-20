@@ -111,7 +111,7 @@ enum L10n {
     // MARK: - Tracking Mode
     static let gps = String(localized: "GPS", comment: "Tracking mode")
     static let dual = String(localized: "Dual", comment: "Tracking mode")
-    static let distanceMode = String(localized: "Distance", comment: "Tracking mode")
+    static let distanceMode = String(localized: "Manual", comment: "Tracking mode")
     static func gpsDistance(_ distance: String) -> String {
         String(format: String(localized: "GPS: %@", comment: "GPS distance summary"), distance)
     }

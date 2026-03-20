@@ -36,7 +36,7 @@ enum TrackingMode: String, Codable, CaseIterable, Identifiable {
         case .dual:
             return String(localized: "Dual", comment: "Tracking mode")
         case .distanceDistance:
-            return String(localized: "Distance", comment: "Tracking mode")
+            return String(localized: "Manual", comment: "Tracking mode")
         }
     }
 }

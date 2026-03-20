@@ -8,7 +8,7 @@ final class ModelTests: XCTestCase {
     func testTrackingModeDisplayNames() {
         XCTAssertEqual(TrackingMode.gps.displayName, "GPS")
         XCTAssertEqual(TrackingMode.dual.displayName, "Dual")
-        XCTAssertEqual(TrackingMode.distanceDistance.displayName, "Distance")
+        XCTAssertEqual(TrackingMode.distanceDistance.displayName, "Manual")
     }
 
     func testTrackingModeAllCases() {

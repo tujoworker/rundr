@@ -157,7 +157,7 @@ struct SessionDetailView: View {
 private enum SessionDetailPhoneSyncCopy {
     static let pendingTitle = "Still sending to iPhone"
     static let pendingSubtitle =
-        "This workout is saved on your watch. It will appear in LapLog on your iPhone when your watch and phone connect."
+        "This workout is saved on your Watch. It will appear in LapLog on your phone when your watch and phone connect."
     static let confirmedTitle = "On your iPhone"
     static let confirmedSubtitle = "LapLog on your iPhone already has this workout."
 }

@@ -489,6 +489,11 @@ private struct SegmentRow: View {
     let onTap: () -> Void
     let onDelete: () -> Void
 
+    private let detailColumns = [
+        GridItem(.flexible(), spacing: 10, alignment: .topLeading),
+        GridItem(.flexible(), spacing: 10, alignment: .topLeading)
+    ]
+
     private var distanceDisplay: String {
         if segment.usesOpenDistance {
             return L10n.openDistance
@@ -516,38 +521,72 @@ private struct SegmentRow: View {
         hasRepeatCount || hasRestDuration || hasLastRestDuration || hasTarget
     }
 
-    private func formattedRestLabel(_ seconds: Int) -> String {
-        Formatters.compactTimeString(from: Double(seconds))
+    private var detailItems: [SessionStatItem] {
+        var items: [SessionStatItem] = []
+
+        if let count = segment.repeatCount {
+            items.append(SessionStatItem(label: L10n.repeats, value: "×\(count)"))
+        }
+
+        if let rest = segment.restSeconds {
+            items.append(
+                SessionStatItem(
+                    label: L10n.rest,
+                    value: Formatters.compactTimeString(from: Double(rest))
+                )
+            )
+        }
+
+        if let lastRest = segment.lastRestSeconds {
+            items.append(
+                SessionStatItem(
+                    label: L10n.lastRest,
+                    value: Formatters.compactTimeString(from: Double(lastRest))
+                )
+            )
+        }
+
+        if let targetTime = segment.targetTimeSeconds {
+            items.append(
+                SessionStatItem(
+                    label: L10n.targetTimeLabel,
+                    value: Formatters.compactTimeString(from: targetTime)
+                )
+            )
+        }
+
+        if let targetPace = segment.targetPaceSecondsPerKm {
+            items.append(
+                SessionStatItem(
+                    label: L10n.targetPaceLabel,
+                    value: Formatters.compactPaceString(secondsPerKm: targetPace, unit: distanceUnit)
+                )
+            )
+        }
+
+        return items
     }
 
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 10) {
-                HStack(spacing: 6) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(distanceDisplay)
                         .font(.system(size: 18, weight: .semibold, design: .rounded))
                         .foregroundStyle(.white)
                     if hasSecondaryDetails {
-                        VStack(alignment: .leading, spacing: 1) {
-                            if let count = segment.repeatCount {
-                                Text("×\(count)")
-                                    .font(.system(size: 14, weight: .medium, design: .rounded))
-                                    .foregroundStyle(.white.opacity(0.6))
-                            }
-                            if let rest = segment.restSeconds {
-                                Text("\(formattedRestLabel(rest)) rest")
-                                    .font(.system(size: 12, weight: .medium, design: .rounded))
-                                    .foregroundStyle(.white.opacity(0.45))
-                            }
-                            if let lastRest = segment.lastRestSeconds {
-                                Text("\(formattedRestLabel(lastRest)) last rest")
-                                    .font(.system(size: 12, weight: .medium, design: .rounded))
-                                    .foregroundStyle(.white.opacity(0.45))
-                            }
-                            if let targetTime = segment.effectiveTargetTimeSeconds {
-                                Text(Formatters.compactTimeString(from: targetTime))
-                                    .font(.system(size: 12, weight: .medium, design: .rounded))
-                                    .foregroundStyle(.white.opacity(0.45))
+                        LazyVGrid(columns: detailColumns, alignment: .leading, spacing: 8) {
+                            ForEach(detailItems) { item in
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(item.label)
+                                        .font(.system(size: 13, weight: .regular, design: .rounded))
+                                        .foregroundStyle(.white.opacity(0.55))
+
+                                    Text(item.value)
+                                        .font(.caption2)
+                                        .foregroundStyle(.white)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
                             }
                         }
                     }

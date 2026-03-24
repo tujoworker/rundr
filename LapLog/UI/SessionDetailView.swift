@@ -22,6 +22,10 @@ struct SessionDetailView: View {
         syncManager.hasPendingCompletedSessionTransfer(for: session.id)
     }
 
+    private var sessionUsesOpenIntervals: Bool {
+        session.snapshotWorkoutPlan.distanceSegments.contains(where: \.usesOpenDistance)
+    }
+
     private var sessionStats: [SessionStatItem] {
         let modeValue = session.mode == .distanceDistance ? L10n.manualLabel : session.mode.displayName
         var items: [SessionStatItem] = [
@@ -30,7 +34,7 @@ struct SessionDetailView: View {
             SessionStatItem(label: L10n.laps, value: String(session.totalLaps))
         ]
 
-        if session.mode.usesManualIntervals {
+        if session.mode.usesManualIntervals && !sessionUsesOpenIntervals {
             items.append(
                 SessionStatItem(
                     label: L10n.distance,
@@ -39,18 +43,19 @@ struct SessionDetailView: View {
                         : L10n.dash
                 )
             )
-        } else if session.mode == .gps {
+        } else if session.mode == .gps || (session.mode == .dual && sessionUsesOpenIntervals) {
+            let distanceValue = session.totalGPSDistanceMeters ?? session.totalDistanceMeters
             items.append(
                 SessionStatItem(
                     label: L10n.gpsDistanceLabel,
-                    value: session.totalDistanceMeters > 0
-                        ? Formatters.distanceString(meters: session.totalDistanceMeters, unit: settings.distanceUnit)
+                    value: distanceValue > 0
+                        ? Formatters.distanceString(meters: distanceValue, unit: settings.distanceUnit)
                         : L10n.dash
                 )
             )
         }
 
-        if session.mode == .dual {
+        if session.mode == .dual && !sessionUsesOpenIntervals {
             items.append(
                 SessionStatItem(
                     label: L10n.gpsDistanceLabel,
@@ -184,23 +189,11 @@ private struct SessionDetailPhoneSyncMessageBanner: View {
     let tint: Color
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(title)
-                .font(.system(size: 12, weight: .semibold, design: .rounded))
-                .foregroundStyle(tint)
-
-            Text(subtitle)
-                .font(.system(size: 11, weight: .regular, design: .rounded))
-                .foregroundStyle(.white.opacity(0.72))
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(8)
-        .background(tint.opacity(0.14))
-        .overlay(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .stroke(tint.opacity(0.32), lineWidth: 1)
+        TintedInfoBanner(
+            title: title,
+            subtitle: subtitle,
+            tint: tint
         )
-        .cornerRadius(8)
     }
 }
 
@@ -262,7 +255,9 @@ struct LapRowView: View {
 
         guard lap.lapType != .rest else { return items }
 
-        if trackingMode.usesManualIntervals {
+        let isOpenInterval = targetSegment?.usesOpenDistance == true
+
+        if trackingMode.usesManualIntervals && !isOpenInterval {
             items.append(
                 SessionStatItem(
                     label: L10n.distance,
@@ -289,6 +284,26 @@ struct LapRowView: View {
             gpsDistanceMeters = lap.gpsDistanceMeters
         }
 
+        let paceDistanceMeters: Double?
+        if isOpenInterval {
+            paceDistanceMeters = gpsDistanceMeters ?? (lap.distanceMeters > 0 ? lap.distanceMeters : nil)
+        } else {
+            paceDistanceMeters = lap.distanceMeters > 0 ? lap.distanceMeters : nil
+        }
+
+        if trackingMode.usesManualIntervals || isOpenInterval {
+            items.append(
+                SessionStatItem(
+                    label: L10n.pace,
+                    value: paceDistanceMeters.flatMap { distance in
+                        distance > 0
+                            ? Formatters.paceString(distanceMeters: distance, durationSeconds: lap.durationSeconds, unit: distanceUnit)
+                            : nil
+                    } ?? L10n.dash
+                )
+            )
+        }
+
         if trackingMode.usesGPSDistance {
             items.append(
                 SessionStatItem(
@@ -299,16 +314,18 @@ struct LapRowView: View {
                 )
             )
 
-            items.append(
-                SessionStatItem(
-                    label: L10n.gpsPaceLabel,
-                    value: gpsDistanceMeters.flatMap { distance in
-                        distance > 0
-                            ? Formatters.paceString(distanceMeters: distance, durationSeconds: lap.durationSeconds, unit: distanceUnit)
-                            : nil
-                    } ?? L10n.dash
+            if !isOpenInterval {
+                items.append(
+                    SessionStatItem(
+                        label: L10n.gpsPaceLabel,
+                        value: gpsDistanceMeters.flatMap { distance in
+                            distance > 0
+                                ? Formatters.paceString(distanceMeters: distance, durationSeconds: lap.durationSeconds, unit: distanceUnit)
+                                : nil
+                        } ?? L10n.dash
+                    )
                 )
-            )
+            }
         }
 
         if let targetTime = targetSegment?.targetTimeSeconds {

@@ -20,15 +20,19 @@ struct PreStartView: View {
     @State private var isPrimaryColorDialogPresented = false
     @State private var editingSegmentID: UUID?
     @State private var editingSegmentDistanceText: String = ""
+    @State private var editingSegmentUsesOpenDistance = false
     @State private var editingSegmentRepeatCount: Int = 0
     @State private var editingSegmentRestSeconds: Int = 0
     @State private var editingSegmentTargetPace: Int = 0
     @State private var editingSegmentTargetTime: Int = 0
     @State private var lastAddedDistanceMeters: Double = 400
+    @State private var lastAddedUsesOpenDistance = false
     @State private var lastAddedRepeatCount: Int = 0
     @State private var lastAddedRestSeconds: Int = 0
     @State private var lastAddedTargetPace: Int = 0
     @State private var lastAddedTargetTime: Int = 0
+    @State private var showsOpenDistanceGPSBanner = false
+    @State private var suppressNextGPSPermissionRequest = false
     @StateObject private var locationPermissionRequester = LocationPermissionRequester()
 
     private let readyTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -93,7 +97,7 @@ struct PreStartView: View {
 
     private var isStartDisabled: Bool {
         if settings.trackingMode.usesManualIntervals {
-            return segments.isEmpty || segments.contains { $0.distanceMeters <= 0 }
+            return segments.isEmpty || segments.contains { !$0.usesOpenDistance && $0.distanceMeters <= 0 }
         }
         return false
     }
@@ -126,7 +130,7 @@ struct PreStartView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: 16, weight: .semibold))
-                    Text("Add Distance")
+                    Text(L10n.addInterval)
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                 }
                 .foregroundStyle(.white)
@@ -251,10 +255,12 @@ struct PreStartView: View {
             readyElapsedSeconds = 0
             segments = settings.distanceSegments
             lastAddedDistanceMeters = settings.distanceSegments.last?.distanceMeters ?? 400
+            lastAddedUsesOpenDistance = settings.distanceSegments.last?.usesOpenDistance ?? false
             lastAddedRepeatCount = settings.distanceSegments.last?.repeatCount ?? 0
             lastAddedRestSeconds = settings.distanceSegments.last?.restSeconds ?? 0
             lastAddedTargetPace = Int(settings.distanceSegments.last?.targetPaceSecondsPerKm ?? 0)
             lastAddedTargetTime = Int(settings.distanceSegments.last?.targetTimeSeconds ?? 0)
+            ensureDualModeForOpenDistanceSegments(showBanner: false)
             refreshHeartRate()
         }
         .onReceive(readyTimer) { currentDate in
@@ -265,6 +271,10 @@ struct PreStartView: View {
         }
         .onChange(of: settings.trackingMode) { _, newValue in
             guard newValue.usesGPSDistance else { return }
+            if suppressNextGPSPermissionRequest {
+                suppressNextGPSPermissionRequest = false
+                return
+            }
             Task { @MainActor in
                 let isGranted = await locationPermissionRequester.requestIfNeeded()
                 guard !isGranted else { return }
@@ -318,6 +328,7 @@ struct PreStartView: View {
         )) {
             SegmentEditSheet(
                 distanceText: $editingSegmentDistanceText,
+                usesOpenDistance: $editingSegmentUsesOpenDistance,
                 repeatCount: $editingSegmentRepeatCount,
                 restSeconds: $editingSegmentRestSeconds,
                 targetPace: $editingSegmentTargetPace,
@@ -325,6 +336,10 @@ struct PreStartView: View {
                 distanceLabel: distanceLabel,
                 distanceUnit: settings.distanceUnit,
                 accentColor: settings.primaryAccentColor,
+                showsGPSInfoBanner: showsOpenDistanceGPSBanner,
+                showsGPSPermissionButton: locationPermissionRequester.authorizationStatus == .notDetermined,
+                onRequestLocationAccess: requestLocationPermissionIfNeeded,
+                onDistanceModeChanged: handleEditingDistanceModeChanged,
                 onDone: { commitSegmentEdit() }
             )
         }
@@ -346,6 +361,7 @@ struct PreStartView: View {
     }
 
     private func startSession() {
+        ensureDualModeForOpenDistanceSegments(showBanner: false)
         persistSegments()
         onStart()
     }
@@ -356,6 +372,7 @@ struct PreStartView: View {
                 distanceMeters: lastAddedDistanceMeters,
                 repeatCount: lastAddedRepeatCount > 0 ? lastAddedRepeatCount : nil,
                 restSeconds: lastAddedRestSeconds > 0 ? lastAddedRestSeconds : nil,
+                distanceGoalMode: lastAddedUsesOpenDistance ? .open : .fixed,
                 targetPaceSecondsPerKm: lastAddedTargetPace > 0 ? Double(lastAddedTargetPace) : nil,
                 targetTimeSeconds: lastAddedTargetTime > 0 ? Double(lastAddedTargetTime) : nil
             )
@@ -373,6 +390,7 @@ struct PreStartView: View {
 
     private func beginEditingSegment(_ segment: DistanceSegment) {
         editingSegmentID = segment.id
+        editingSegmentUsesOpenDistance = segment.usesOpenDistance
         let displayDist: Double
         switch settings.distanceUnit {
         case .km: displayDist = segment.distanceMeters
@@ -383,22 +401,31 @@ struct PreStartView: View {
         editingSegmentRestSeconds = segment.restSeconds ?? 0
         editingSegmentTargetPace = Int(segment.targetPaceSecondsPerKm ?? 0)
         editingSegmentTargetTime = Int(segment.targetTimeSeconds ?? 0)
+        showsOpenDistanceGPSBanner = false
     }
 
     private func commitSegmentEdit() {
         guard let id = editingSegmentID,
-              let idx = segments.firstIndex(where: { $0.id == id }),
-              let value = Double(editingSegmentDistanceText), value > 0 else {
+              let idx = segments.firstIndex(where: { $0.id == id }) else {
             editingSegmentID = nil
             return
         }
-        let meters: Double
-        switch settings.distanceUnit {
-        case .km: meters = value
-        case .miles: meters = value / 3.28084
+
+        if !editingSegmentUsesOpenDistance {
+            guard let value = Double(editingSegmentDistanceText), value > 0 else {
+                editingSegmentID = nil
+                return
+            }
+            let meters: Double
+            switch settings.distanceUnit {
+            case .km: meters = value
+            case .miles: meters = value / 3.28084
+            }
+            segments[idx].distanceMeters = meters
+            lastAddedDistanceMeters = meters
         }
-        segments[idx].distanceMeters = meters
-        lastAddedDistanceMeters = meters
+        segments[idx].distanceGoalMode = editingSegmentUsesOpenDistance ? .open : .fixed
+        lastAddedUsesOpenDistance = editingSegmentUsesOpenDistance
         lastAddedRepeatCount = editingSegmentRepeatCount
         lastAddedRestSeconds = editingSegmentRestSeconds
         lastAddedTargetPace = editingSegmentTargetPace
@@ -408,7 +435,34 @@ struct PreStartView: View {
         segments[idx].targetPaceSecondsPerKm = editingSegmentTargetPace > 0 ? Double(editingSegmentTargetPace) : nil
         segments[idx].targetTimeSeconds = editingSegmentTargetTime > 0 ? Double(editingSegmentTargetTime) : nil
         editingSegmentID = nil
+        ensureDualModeForOpenDistanceSegments(showBanner: false)
         persistSegments()
+        showsOpenDistanceGPSBanner = false
+    }
+
+    private func handleEditingDistanceModeChanged(_ usesOpenDistance: Bool) {
+        if usesOpenDistance {
+            editingSegmentTargetPace = 0
+        }
+        ensureDualModeForOpenDistanceSegments(showBanner: usesOpenDistance)
+    }
+
+    private func ensureDualModeForOpenDistanceSegments(showBanner: Bool) {
+        guard segments.contains(where: \.usesOpenDistance) || editingSegmentUsesOpenDistance else { return }
+        guard settings.trackingMode == .distanceDistance else { return }
+        suppressNextGPSPermissionRequest = true
+        settings.trackingMode = .dual
+        if showBanner {
+            withAnimation(.easeOut(duration: 0.2)) {
+                showsOpenDistanceGPSBanner = true
+            }
+        }
+    }
+
+    private func requestLocationPermissionIfNeeded() {
+        Task { @MainActor in
+            _ = await locationPermissionRequester.requestIfNeeded()
+        }
     }
 
     private func refreshHeartRate() {
@@ -428,7 +482,10 @@ private struct SegmentRow: View {
     let onDelete: () -> Void
 
     private var distanceDisplay: String {
-        Formatters.distanceString(meters: segment.distanceMeters, unit: distanceUnit)
+        if segment.usesOpenDistance {
+            return L10n.openDistance
+        }
+        return Formatters.distanceString(meters: segment.distanceMeters, unit: distanceUnit)
     }
 
     private var hasRepeatCount: Bool {
@@ -659,15 +716,19 @@ private struct IntervalSetupView: View {
     @State private var storedPresetID: UUID?
     @State private var editingSegmentID: UUID?
     @State private var editingSegmentDistanceText: String = ""
+    @State private var editingSegmentUsesOpenDistance = false
     @State private var editingSegmentRepeatCount: Int = 0
     @State private var editingSegmentRestSeconds: Int = 0
     @State private var editingSegmentTargetPace: Int = 0
     @State private var editingSegmentTargetTime: Int = 0
     @State private var lastAddedDistanceMeters: Double = 400
+    @State private var lastAddedUsesOpenDistance = false
     @State private var lastAddedRepeatCount: Int = 0
     @State private var lastAddedRestSeconds: Int = 0
     @State private var lastAddedTargetPace: Int = 0
     @State private var lastAddedTargetTime: Int = 0
+    @State private var showsOpenDistanceGPSBanner = false
+    @StateObject private var locationPermissionRequester = LocationPermissionRequester()
 
     private var distanceLabel: String {
         switch settings.distanceUnit {
@@ -678,7 +739,7 @@ private struct IntervalSetupView: View {
 
     private var isContinueDisabled: Bool {
         if trackingMode.usesManualIntervals {
-            return segments.isEmpty || segments.contains { $0.distanceMeters <= 0 }
+            return segments.isEmpty || segments.contains { !$0.usesOpenDistance && $0.distanceMeters <= 0 }
         }
         return false
     }
@@ -706,7 +767,7 @@ private struct IntervalSetupView: View {
                 HStack(spacing: 6) {
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: 16, weight: .semibold))
-                    Text("Add Distance")
+                    Text(L10n.addInterval)
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                 }
                 .foregroundStyle(.white)
@@ -764,6 +825,7 @@ private struct IntervalSetupView: View {
         )) {
             SegmentEditSheet(
                 distanceText: $editingSegmentDistanceText,
+                usesOpenDistance: $editingSegmentUsesOpenDistance,
                 repeatCount: $editingSegmentRepeatCount,
                 restSeconds: $editingSegmentRestSeconds,
                 targetPace: $editingSegmentTargetPace,
@@ -771,6 +833,10 @@ private struct IntervalSetupView: View {
                 distanceLabel: distanceLabel,
                 distanceUnit: settings.distanceUnit,
                 accentColor: settings.primaryAccentColor,
+                showsGPSInfoBanner: showsOpenDistanceGPSBanner,
+                showsGPSPermissionButton: locationPermissionRequester.authorizationStatus == .notDetermined,
+                onRequestLocationAccess: requestLocationPermissionIfNeeded,
+                onDistanceModeChanged: handleEditingDistanceModeChanged,
                 onDone: { commitSegmentEdit() }
             )
         }
@@ -783,10 +849,12 @@ private struct IntervalSetupView: View {
         customTitle = initialCustomTitle ?? ""
         storedPresetID = initialStoredPresetID
         lastAddedDistanceMeters = segments.last?.distanceMeters ?? DistanceSegment.default.distanceMeters
+        lastAddedUsesOpenDistance = segments.last?.usesOpenDistance ?? false
         lastAddedRepeatCount = segments.last?.repeatCount ?? 0
         lastAddedRestSeconds = segments.last?.restSeconds ?? 0
         lastAddedTargetPace = Int(segments.last?.targetPaceSecondsPerKm ?? 0)
         lastAddedTargetTime = Int(segments.last?.targetTimeSeconds ?? 0)
+        ensureDualModeForOpenDistanceSegments(showBanner: false)
     }
 
     private func normalizedSegments(_ input: [DistanceSegment]) -> [DistanceSegment] {
@@ -800,6 +868,7 @@ private struct IntervalSetupView: View {
     }
 
     private func continueToGetReady() {
+        ensureDualModeForOpenDistanceSegments(showBanner: false)
         let normalized = normalizedSegments(segments)
         let distance = normalized.first?.distanceMeters ?? initialWorkoutPlan.distanceLapDistanceMeters
         onContinue(
@@ -845,6 +914,7 @@ private struct IntervalSetupView: View {
                 distanceMeters: lastAddedDistanceMeters,
                 repeatCount: lastAddedRepeatCount > 0 ? lastAddedRepeatCount : nil,
                 restSeconds: lastAddedRestSeconds > 0 ? lastAddedRestSeconds : nil,
+                distanceGoalMode: lastAddedUsesOpenDistance ? .open : .fixed,
                 targetPaceSecondsPerKm: lastAddedTargetPace > 0 ? Double(lastAddedTargetPace) : nil,
                 targetTimeSeconds: lastAddedTargetTime > 0 ? Double(lastAddedTargetTime) : nil
             )
@@ -862,6 +932,7 @@ private struct IntervalSetupView: View {
 
     private func beginEditingSegment(_ segment: DistanceSegment) {
         editingSegmentID = segment.id
+        editingSegmentUsesOpenDistance = segment.usesOpenDistance
         let displayDistance: Double
         switch settings.distanceUnit {
         case .km:
@@ -876,25 +947,34 @@ private struct IntervalSetupView: View {
         editingSegmentRestSeconds = segment.restSeconds ?? 0
         editingSegmentTargetPace = Int(segment.targetPaceSecondsPerKm ?? 0)
         editingSegmentTargetTime = Int(segment.targetTimeSeconds ?? 0)
+        showsOpenDistanceGPSBanner = false
     }
 
     private func commitSegmentEdit() {
         guard let id = editingSegmentID,
-              let index = segments.firstIndex(where: { $0.id == id }),
-              let value = Double(editingSegmentDistanceText), value > 0 else {
+              let index = segments.firstIndex(where: { $0.id == id }) else {
             editingSegmentID = nil
             return
         }
 
-        let meters: Double
-        switch settings.distanceUnit {
-        case .km:
-            meters = value
-        case .miles:
-            meters = value / 3.28084
+        if !editingSegmentUsesOpenDistance {
+            guard let value = Double(editingSegmentDistanceText), value > 0 else {
+                editingSegmentID = nil
+                return
+            }
+
+            let meters: Double
+            switch settings.distanceUnit {
+            case .km:
+                meters = value
+            case .miles:
+                meters = value / 3.28084
+            }
+            segments[index].distanceMeters = meters
+            lastAddedDistanceMeters = meters
         }
-        segments[index].distanceMeters = meters
-        lastAddedDistanceMeters = meters
+        segments[index].distanceGoalMode = editingSegmentUsesOpenDistance ? .open : .fixed
+        lastAddedUsesOpenDistance = editingSegmentUsesOpenDistance
         lastAddedRepeatCount = editingSegmentRepeatCount
         lastAddedRestSeconds = editingSegmentRestSeconds
         lastAddedTargetPace = editingSegmentTargetPace
@@ -904,8 +984,34 @@ private struct IntervalSetupView: View {
         segments[index].targetPaceSecondsPerKm = editingSegmentTargetPace > 0 ? Double(editingSegmentTargetPace) : nil
         segments[index].targetTimeSeconds = editingSegmentTargetTime > 0 ? Double(editingSegmentTargetTime) : nil
         editingSegmentID = nil
+        ensureDualModeForOpenDistanceSegments(showBanner: false)
         segments = normalizedSegments(segments)
         persistPresetAfterEditIfNeeded()
+        showsOpenDistanceGPSBanner = false
+    }
+
+    private func handleEditingDistanceModeChanged(_ usesOpenDistance: Bool) {
+        if usesOpenDistance {
+            editingSegmentTargetPace = 0
+        }
+        ensureDualModeForOpenDistanceSegments(showBanner: usesOpenDistance)
+    }
+
+    private func ensureDualModeForOpenDistanceSegments(showBanner: Bool) {
+        guard segments.contains(where: \.usesOpenDistance) || editingSegmentUsesOpenDistance else { return }
+        guard trackingMode == .distanceDistance else { return }
+        trackingMode = .dual
+        if showBanner {
+            withAnimation(.easeOut(duration: 0.2)) {
+                showsOpenDistanceGPSBanner = true
+            }
+        }
+    }
+
+    private func requestLocationPermissionIfNeeded() {
+        Task { @MainActor in
+            _ = await locationPermissionRequester.requestIfNeeded()
+        }
     }
 }
 
@@ -948,6 +1054,7 @@ private struct IntervalTitleField: View {
 
 private struct SegmentEditSheet: View {
     @Binding var distanceText: String
+    @Binding var usesOpenDistance: Bool
     @Binding var repeatCount: Int
     @Binding var restSeconds: Int
     @Binding var targetPace: Int
@@ -955,6 +1062,10 @@ private struct SegmentEditSheet: View {
     let distanceLabel: String
     let distanceUnit: DistanceUnit
     let accentColor: Color
+    let showsGPSInfoBanner: Bool
+    let showsGPSPermissionButton: Bool
+    let onRequestLocationAccess: () -> Void
+    let onDistanceModeChanged: (Bool) -> Void
     let onDone: () -> Void
 
     private let defaultDistanceText = "400"
@@ -978,11 +1089,57 @@ private struct SegmentEditSheet: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 10) {
-                DistanceInputView(
-                    label: distanceLabel,
-                    accentColor: accentColor,
-                    text: $distanceText
-                )
+                Text(L10n.distanceType)
+                    .font(.caption.bold())
+                    .foregroundStyle(.white.opacity(0.72))
+                    .padding(.horizontal, 4)
+                    .padding(.top, 8)
+
+                HStack(spacing: 8) {
+                    distanceModeButton(title: L10n.fixedDistance, isSelected: !usesOpenDistance) {
+                        usesOpenDistance = false
+                        onDistanceModeChanged(false)
+                    }
+                    distanceModeButton(title: L10n.openDistance, isSelected: usesOpenDistance) {
+                        usesOpenDistance = true
+                        onDistanceModeChanged(true)
+                    }
+                }
+
+                if usesOpenDistance {
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(L10n.openDistance)
+                            .font(.system(size: 18, weight: .semibold, design: .rounded))
+                            .foregroundStyle(.white)
+                        Text(L10n.openDistanceDescription)
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.62))
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(Color.white.opacity(0.12))
+                    )
+
+                    if showsGPSInfoBanner {
+                        TintedInfoBanner(
+                            title: L10n.gpsAlsoEnabledTitle,
+                            subtitle: L10n.gpsAlsoEnabledSubtitle,
+                            tint: .green,
+                            buttonTitle: showsGPSPermissionButton ? L10n.requestLocationAccess : nil,
+                            buttonAction: showsGPSPermissionButton ? onRequestLocationAccess : nil
+                        )
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                    }
+                } else {
+                    DistanceInputView(
+                        label: distanceLabel,
+                        accentColor: accentColor,
+                        text: $distanceText
+                    )
+                }
 
                 Text("Repeats")
                     .font(.caption.bold())
@@ -1080,6 +1237,7 @@ private struct SegmentEditSheet: View {
 
                 HStack(spacing: 8) {
                     Button {
+                        guard !usesOpenDistance else { return }
                         if targetPace >= 15 {
                             targetPace -= 5
                         } else {
@@ -1107,6 +1265,7 @@ private struct SegmentEditSheet: View {
                         )
 
                     Button {
+                        guard !usesOpenDistance else { return }
                         if targetPace == 0 { targetPace = 300 }
                         else { targetPace += 5 }
                         targetTime = 0
@@ -1119,6 +1278,7 @@ private struct SegmentEditSheet: View {
                     }
                     .buttonStyle(.plain)
                 }
+                .opacity(usesOpenDistance ? 0.4 : 1)
 
                 Text(L10n.time)
                     .font(.caption.bold())
@@ -1185,6 +1345,57 @@ private struct SegmentEditSheet: View {
             }
         }
         .scrollContentBackground(.hidden)
+    }
+
+    private func distanceModeButton(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .foregroundStyle(isSelected ? .black : .white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(isSelected ? Color.white : Color.white.opacity(0.12))
+                )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+struct TintedInfoBanner: View {
+    let title: String
+    let subtitle: String
+    let tint: Color
+    var buttonTitle: String? = nil
+    var buttonAction: (() -> Void)? = nil
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .foregroundStyle(tint)
+
+                Text(subtitle)
+                    .font(.system(size: 11, weight: .regular, design: .rounded))
+                    .foregroundStyle(.white.opacity(0.72))
+            }
+
+            if let buttonTitle, let buttonAction {
+                Button(buttonTitle, action: buttonAction)
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .foregroundStyle(tint)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(8)
+        .background(tint.opacity(0.14))
+        .overlay(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(tint.opacity(0.32), lineWidth: 1)
+        )
+        .cornerRadius(8)
     }
 }
 
@@ -1289,7 +1500,9 @@ private extension WorkoutPlanSnapshot {
         let normalizedSegments = distanceSegments.isEmpty ? [DistanceSegment.default] : distanceSegments
         guard let firstSegment = normalizedSegments.first else { return Formatters.distanceString(meters: 400, unit: unit) }
 
-        let distance = Formatters.distanceString(meters: firstSegment.distanceMeters, unit: unit)
+        let distance = firstSegment.usesOpenDistance
+            ? L10n.openDistance
+            : Formatters.distanceString(meters: firstSegment.distanceMeters, unit: unit)
         if normalizedSegments.count == 1, let repeatCount = firstSegment.repeatCount {
             return "\(repeatCount) × \(distance)"
         }
@@ -1302,7 +1515,9 @@ private extension WorkoutPlanSnapshot {
     func displayDetail(unit: DistanceUnit) -> String {
         let normalizedSegments = distanceSegments.isEmpty ? [DistanceSegment.default] : distanceSegments
         let distanceSummary = normalizedSegments.map {
-            let distance = Formatters.distanceString(meters: $0.distanceMeters, unit: unit)
+            let distance = $0.usesOpenDistance
+                ? L10n.openDistance
+                : Formatters.distanceString(meters: $0.distanceMeters, unit: unit)
             if let repeatCount = $0.repeatCount {
                 return "\(repeatCount) × \(distance)"
             }
@@ -1317,11 +1532,13 @@ private extension WorkoutPlanSnapshot {
 private final class LocationPermissionRequester: NSObject, ObservableObject {
     private let manager = CLLocationManager()
     private var continuation: CheckedContinuation<Bool, Never>?
+    @Published private(set) var authorizationStatus: CLAuthorizationStatus = .notDetermined
 
     @MainActor
     override init() {
         super.init()
         manager.delegate = self
+        authorizationStatus = manager.authorizationStatus
     }
 
     @MainActor
@@ -1343,6 +1560,7 @@ private final class LocationPermissionRequester: NSObject, ObservableObject {
 
     @MainActor
     private func handleAuthorizationChange(_ manager: CLLocationManager) {
+        authorizationStatus = manager.authorizationStatus
         guard let continuation else { return }
 
         switch manager.authorizationStatus {

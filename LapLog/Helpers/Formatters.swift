@@ -150,8 +150,11 @@ enum Formatters {
     /// Target display string: "450 m in 1:20".
     static func targetString(segment: DistanceSegment, unit: DistanceUnit) -> String? {
         guard let targetTime = segment.effectiveTargetTimeSeconds else { return nil }
-        let dist = distanceString(meters: segment.distanceMeters, unit: unit)
         let time = compactTimeString(from: targetTime)
+        if segment.usesOpenDistance {
+            return L10n.openTargetDisplay(time)
+        }
+        let dist = distanceString(meters: segment.distanceMeters, unit: unit)
         return L10n.targetDisplay(dist, time)
     }
 

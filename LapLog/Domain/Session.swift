@@ -14,8 +14,12 @@ struct WorkoutPlanSnapshot: Codable, Equatable {
         restMode: RestMode = .manual
     ) {
         let normalizedSegments = distanceSegments.isEmpty ? [.default] : distanceSegments
-        self.trackingMode = trackingMode
-        self.distanceLapDistanceMeters = trackingMode.usesManualIntervals
+        if trackingMode == .distanceDistance, normalizedSegments.contains(where: \.usesOpenDistance) {
+            self.trackingMode = .dual
+        } else {
+            self.trackingMode = trackingMode
+        }
+        self.distanceLapDistanceMeters = self.trackingMode.usesManualIntervals
             ? (distanceLapDistanceMeters ?? normalizedSegments.first?.distanceMeters ?? DistanceSegment.default.distanceMeters)
             : nil
         self.distanceSegments = normalizedSegments

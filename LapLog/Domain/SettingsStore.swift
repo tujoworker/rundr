@@ -34,7 +34,7 @@ struct IntervalPreset: Codable, Identifiable, Equatable {
     static func normalizedWorkoutPlan(_ workoutPlan: WorkoutPlanSnapshot) -> WorkoutPlanSnapshot {
         let normalizedSegments = normalizeSegments(workoutPlan.distanceSegments)
         return WorkoutPlanSnapshot(
-            trackingMode: workoutPlan.trackingMode,
+            trackingMode: resolvedTrackingMode(for: workoutPlan.trackingMode, segments: normalizedSegments),
             distanceLapDistanceMeters: normalizedSegments.first?.distanceMeters ?? workoutPlan.distanceLapDistanceMeters,
             distanceSegments: normalizedSegments,
             restMode: .manual
@@ -57,7 +57,9 @@ struct IntervalPreset: Codable, Identifiable, Equatable {
         guard let firstSegment = segments.first else { return "400 m" }
 
         let distanceText: String
-        if firstSegment.distanceMeters >= 1000,
+        if firstSegment.usesOpenDistance {
+            distanceText = L10n.openDistance
+        } else if firstSegment.distanceMeters >= 1000,
            firstSegment.distanceMeters.truncatingRemainder(dividingBy: 1000) == 0 {
             let kilometers = Int(firstSegment.distanceMeters / 1000)
             distanceText = "\(kilometers) km"
@@ -83,6 +85,13 @@ struct IntervalPreset: Codable, Identifiable, Equatable {
             normalized[index].repeatCount = 1
         }
         return normalized
+    }
+
+    private static func resolvedTrackingMode(for trackingMode: TrackingMode, segments: [DistanceSegment]) -> TrackingMode {
+        if trackingMode == .distanceDistance, segments.contains(where: \.usesOpenDistance) {
+            return .dual
+        }
+        return trackingMode
     }
 }
 
@@ -111,6 +120,7 @@ struct IntervalPresetSignature: Codable, Equatable {
 
 struct IntervalPresetSegmentSignature: Codable, Equatable {
     let distanceMeters: Double
+    let distanceGoalMode: DistanceGoalMode
     let repeatCount: Int?
     let restSeconds: Int?
     let targetPaceSecondsPerKm: Double?
@@ -118,6 +128,7 @@ struct IntervalPresetSegmentSignature: Codable, Equatable {
 
     init(segment: DistanceSegment) {
         distanceMeters = segment.distanceMeters
+        distanceGoalMode = segment.distanceGoalMode
         repeatCount = segment.repeatCount
         restSeconds = segment.restSeconds
         targetPaceSecondsPerKm = segment.targetPaceSecondsPerKm
@@ -213,7 +224,9 @@ final class SettingsStore: ObservableObject {
                 distanceSegmentsJSON = json
             }
             // Keep legacy value in sync with first segment
-            if let first = newValue.first {
+            if let firstFixed = newValue.first(where: { !$0.usesOpenDistance }) {
+                distanceDistanceMeters = firstFixed.distanceMeters
+            } else if let first = newValue.first {
                 distanceDistanceMeters = first.distanceMeters
             }
         }
@@ -256,6 +269,10 @@ final class SettingsStore: ObservableObject {
     }
 
     private func resolvedTrackingMode(for workoutPlan: WorkoutPlanSnapshot) -> TrackingMode {
+        if workoutPlan.trackingMode == .distanceDistance,
+           workoutPlan.distanceSegments.contains(where: \.usesOpenDistance) {
+            return .dual
+        }
         guard trackingMode == .gps, workoutPlan.trackingMode.usesManualIntervals else {
             return workoutPlan.trackingMode
         }

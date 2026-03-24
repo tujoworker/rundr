@@ -94,22 +94,29 @@ struct SessionRowView: View {
         Formatters.historySessionDateTimeString(from: session.startedAt)
     }
 
+    private var sessionUsesOpenIntervals: Bool {
+        session.snapshotWorkoutPlan.distanceSegments.contains(where: \.usesOpenDistance)
+    }
+
     private var sessionStats: [SessionCardStatItem] {
-        var items: [SessionCardStatItem] = [
+        let summaryDistance = sessionUsesOpenIntervals
+            ? (session.totalGPSDistanceMeters ?? session.totalDistanceMeters)
+            : session.totalDistanceMeters
+        let items: [SessionCardStatItem] = [
             SessionCardStatItem(label: L10n.laps, value: String(session.totalLaps)),
             SessionCardStatItem(
                 label: L10n.pace,
                 value: Formatters.paceString(
-                    distanceMeters: session.totalDistanceMeters,
+                    distanceMeters: summaryDistance,
                     durationSeconds: session.durationSeconds,
                     unit: settings.distanceUnit
                 )
             ),
             SessionCardStatItem(label: L10n.time, value: Formatters.timeString(from: session.durationSeconds)),
             SessionCardStatItem(
-                label: session.mode.usesManualIntervals ? L10n.distance : L10n.gpsDistanceLabel,
-                value: session.totalDistanceMeters > 0
-                    ? Formatters.distanceString(meters: session.totalDistanceMeters, unit: settings.distanceUnit)
+                label: session.mode.usesManualIntervals && !sessionUsesOpenIntervals ? L10n.distance : L10n.gpsDistanceLabel,
+                value: summaryDistance > 0
+                    ? Formatters.distanceString(meters: summaryDistance, unit: settings.distanceUnit)
                     : L10n.dash
             )
         ]

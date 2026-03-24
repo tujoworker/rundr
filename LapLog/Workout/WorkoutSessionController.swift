@@ -50,10 +50,10 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private(set) var currentSegmentRepeatsDone: Int = 0
 
     /// The target distance for the next/current lap based on the segment plan.
-    var currentTargetDistanceMeters: Double {
-        guard usesManualIntervals else { return 0 }
+    var currentTargetDistanceMeters: Double? {
+        guard usesManualIntervals else { return nil }
         let segment = currentSegment
-        return segment.distanceMeters
+        return segment.usesOpenDistance ? nil : segment.distanceMeters
     }
 
     /// Effective target time for the current segment, derived from pace or direct time.
@@ -64,7 +64,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     /// All unique distances defined in the segments, for quick-pick UI.
     var availableDistances: [Double] {
-        Array(Set(distanceSegments.map(\.distanceMeters))).sorted()
+        Array(Set(distanceSegments.compactMap { $0.usesOpenDistance ? nil : $0.distanceMeters })).sorted()
     }
 
     /// Total number of planned active intervals when all segments have explicit repeat counts.
@@ -87,6 +87,13 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             return distanceSegments.last ?? .default
         }
         return distanceSegments[currentSegmentIndex]
+    }
+
+    private func resolvedTrackingMode(_ trackingMode: TrackingMode, segments: [DistanceSegment]) -> TrackingMode {
+        if trackingMode == .distanceDistance, segments.contains(where: \.usesOpenDistance) {
+            return .dual
+        }
+        return trackingMode
     }
 
     // MARK: - Internal
@@ -138,9 +145,10 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         healthKitManager: HealthKitManager
     ) {
         cancelPendingAutoRestDetection()
-        self.trackingMode = trackingMode
+        let normalizedSegments = distanceSegments.isEmpty ? [.default] : distanceSegments
+        self.trackingMode = resolvedTrackingMode(trackingMode, segments: normalizedSegments)
         self.distanceLapDistanceMeters = distanceLapDistanceMeters
-        self.distanceSegments = distanceSegments.isEmpty ? [.default] : distanceSegments
+        self.distanceSegments = normalizedSegments
         self.restMode = restMode
         self.healthKitManager = healthKitManager
         self.currentSegmentIndex = 0
@@ -154,10 +162,11 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         stopLocationUpdates()
 
         self.healthKitManager = healthKitManager
-        trackingMode = snapshot.trackingMode
+        let normalizedSegments = snapshot.distanceSegments.isEmpty ? [.default] : snapshot.distanceSegments
+        trackingMode = resolvedTrackingMode(snapshot.trackingMode, segments: normalizedSegments)
         currentSessionID = snapshot.sessionID
         distanceLapDistanceMeters = snapshot.distanceLapDistanceMeters
-        distanceSegments = snapshot.distanceSegments.isEmpty ? [.default] : snapshot.distanceSegments
+        distanceSegments = normalizedSegments
         restMode = snapshot.restMode
         sessionStartDate = snapshot.sessionStartDate
         currentLapStartDate = snapshot.currentLapStartDate
@@ -249,6 +258,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         clearPauseState()
         cancelPendingAutoRestDetection()
         runState = .active
+        startTimer()
         lastPersistedElapsedSecond = 0
         persistRecoverySnapshotIfNeeded()
         publishLiveWorkoutStateIfNeeded()
@@ -509,6 +519,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     // MARK: - Timer
 
     private func startTimer() {
+        stopTimer()
         timerCancellable = Timer.publish(every: 0.01, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
@@ -517,6 +528,16 @@ final class WorkoutSessionController: NSObject, ObservableObject {
                 self.elapsedSeconds = now.timeIntervalSince(start)
                 if let lapStart = self.currentLapStartDate {
                     self.lapElapsedSeconds = now.timeIntervalSince(lapStart)
+                }
+
+                if self.runState == .active,
+                   self.usesManualIntervals,
+                   self.currentSegment.usesOpenDistance,
+                   let targetTime = self.currentTargetTimeSeconds,
+                   targetTime > 0,
+                   self.lapElapsedSeconds >= targetTime {
+                    self.markLap(source: .autoTime)
+                    return
                 }
 
                 let elapsedSecond = Int(self.elapsedSeconds)
@@ -562,8 +583,14 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             distance = 0
             gpsDistance = nil
         } else if usesManualIntervals {
-            distance = currentTargetDistanceMeters
-            gpsDistance = usesGPSDistance ? currentLapGPSDistanceMeters : nil
+            if currentSegment.usesOpenDistance {
+                let measuredDistance = usesGPSDistance ? currentLapGPSDistanceMeters : currentLapDistanceMeters
+                distance = measuredDistance
+                gpsDistance = usesGPSDistance ? currentLapGPSDistanceMeters : nil
+            } else {
+                distance = currentTargetDistanceMeters ?? 0
+                gpsDistance = usesGPSDistance ? currentLapGPSDistanceMeters : nil
+            }
         } else {
             distance = currentLapGPSDistanceMeters
             gpsDistance = currentLapGPSDistanceMeters
@@ -611,7 +638,9 @@ final class WorkoutSessionController: NSObject, ObservableObject {
                 currentSegmentRepeatsDone = 0
             }
         }
-        distanceLapDistanceMeters = currentTargetDistanceMeters
+        if let targetDistance = currentTargetDistanceMeters {
+            distanceLapDistanceMeters = targetDistance
+        }
     }
 
     private func startAutoRest(seconds: Int, initialElapsed: Int = 0) {
@@ -739,7 +768,9 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
         currentSegmentIndex = min(segmentIndex, max(distanceSegments.count - 1, 0))
         currentSegmentRepeatsDone = repeatsDone
-        distanceLapDistanceMeters = currentTargetDistanceMeters
+        if let targetDistance = currentTargetDistanceMeters {
+            distanceLapDistanceMeters = targetDistance
+        }
     }
 
     // MARK: - HealthKit Workout Session
@@ -832,10 +863,12 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         currentLapDistanceMeters += additionalMeters
 
         // Auto-split in distance mode
-        if usesManualIntervals && runState == .active {
-            while currentLapDistanceMeters >= currentTargetDistanceMeters {
-                let overflow = currentLapDistanceMeters - currentTargetDistanceMeters
-                currentLapDistanceMeters = currentTargetDistanceMeters
+        if usesManualIntervals,
+           runState == .active,
+           let targetDistance = currentTargetDistanceMeters {
+            while currentLapDistanceMeters >= targetDistance {
+                let overflow = currentLapDistanceMeters - targetDistance
+                currentLapDistanceMeters = targetDistance
                 commitCurrentLap(source: .autoDistance)
                 currentLapDistanceMeters = overflow
             }

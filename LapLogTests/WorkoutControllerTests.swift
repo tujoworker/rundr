@@ -243,9 +243,9 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.currentTargetDistanceMeters, 400)
     }
 
-    func testGPSModeTargetDistanceIsZero() {
+    func testGPSModeTargetDistanceIsNil() {
         let controller = makeConfiguredController(trackingMode: .gps)
-        XCTAssertEqual(controller.currentTargetDistanceMeters, 0)
+        XCTAssertNil(controller.currentTargetDistanceMeters)
     }
 
     func testDualModeTargetDistanceMatchesCurrentSegment() {
@@ -275,6 +275,57 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.currentLapDistanceMeters, 125)
         XCTAssertEqual(controller.cumulativeGPSDistanceMeters, 418)
         XCTAssertEqual(controller.currentLapGPSDistanceMeters, 418)
+    }
+
+    func testOpenIntervalUsesMeasuredGPSDistanceAndNoDistanceTarget() {
+        let controller = makeStartedController(
+            trackingMode: .distanceDistance,
+            segments: [
+                DistanceSegment(
+                    distanceMeters: 400,
+                    repeatCount: nil,
+                    restSeconds: 15,
+                    distanceGoalMode: .open,
+                    targetTimeSeconds: 45
+                )
+            ]
+        )
+
+        XCTAssertEqual(controller.trackingMode, TrackingMode.dual)
+        XCTAssertNil(controller.currentTargetDistanceMeters)
+        XCTAssertEqual(controller.currentTargetTimeSeconds, 45)
+
+        controller.handleGPSDistanceUpdate(additionalMeters: 212)
+        controller.markLap()
+
+        XCTAssertEqual(controller.completedLaps.count, 1)
+        XCTAssertEqual(controller.completedLaps[0].distanceMeters, 212)
+        XCTAssertEqual(controller.completedLaps[0].gpsDistanceMeters, 212)
+        XCTAssertEqual(controller.runState, WorkoutRunState.rest)
+        XCTAssertEqual(controller.restDurationSeconds, 15)
+    }
+
+    func testOpenIntervalAutoCompletesOnTargetTime() async {
+        let controller = makeStartedController(
+            trackingMode: .distanceDistance,
+            segments: [
+                DistanceSegment(
+                    distanceMeters: 400,
+                    repeatCount: nil,
+                    restSeconds: nil,
+                    distanceGoalMode: .open,
+                    targetTimeSeconds: 1.05
+                )
+            ]
+        )
+
+        controller.handleGPSDistanceUpdate(additionalMeters: 180)
+        try? await Task.sleep(nanoseconds: 300_000_000)
+
+        XCTAssertEqual(controller.completedLaps.count, 1)
+        XCTAssertEqual(controller.completedLaps[0].source, LapSource.autoTime)
+        XCTAssertEqual(controller.completedLaps[0].distanceMeters, 180, accuracy: 0.001)
+        XCTAssertEqual(controller.runState, WorkoutRunState.active)
     }
 
     func testManualLiveStateUsesCompletedLapDistance() {

@@ -160,7 +160,17 @@ struct SessionSyncRecord: Codable, Equatable, Identifiable {
             modelContext.delete(obsoleteLap)
         }
 
-        session.laps = mergedLaps
+        session.laps = mergedLaps.sorted {
+            if $0.startedAt != $1.startedAt {
+                return $0.startedAt < $1.startedAt
+            }
+
+            if $0.index != $1.index {
+                return $0.index < $1.index
+            }
+
+            return $0.id.uuidString < $1.id.uuidString
+        }
     }
 }
 

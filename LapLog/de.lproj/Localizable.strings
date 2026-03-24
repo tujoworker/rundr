@@ -11,8 +11,16 @@
 "No saved intervals yet" = "Noch keine gespeicherten Intervalle";
 "Tracking Mode" = "Tracking-Modus";
 "Distance" = "Distanz";
+"Add Interval" = "Intervall hinzufügen";
 "Distance (meters)" = "Distanz (Meter)";
 "Distance (feet)" = "Distanz (Fuß)";
+"Distance Type" = "Distanztyp";
+"Fixed" = "Fest";
+"Open" = "Offen";
+"No fixed distance" = "Keine feste Distanz";
+"GPS Also Enabled" = "GPS ebenfalls aktiviert";
+"Open intervals use GPS distance, so this workout switched to Dual." = "Offene Intervalle nutzen GPS-Distanz, daher wurde dieses Training auf Dual umgestellt.";
+"Enable GPS Access" = "GPS-Zugriff aktivieren";
 "Unit" = "Einheit";
 "Color" = "Farbe";
 "Rest Mode" = "Erholungsmodus";

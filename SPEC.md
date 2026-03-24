@@ -94,13 +94,13 @@ Each lap in a session must store:
 - `averageSpeedMetersPerSecond: Double`
 - `averageHeartRateBPM: Double?`
 - `lapType: enum { active, rest }`
-- `source: enum { distanceTap, autoDistance, sessionEndSplit }`
+- `source: enum { distanceTap, actionButton, autoDistance, autoTime, sessionEndSplit }`
 
 ### Session settings snapshot
 
 Each session must store the exact settings used when it began:
 
-- `trackingMode: gps | distanceDistance`
+- `trackingMode: gps | dual | distanceDistance`
 - `distanceDistanceMeters: Double?`
 - `distanceSegments: [DistanceSegment]?` (the full interval plan)
 - any future settings added later
@@ -112,8 +112,19 @@ This prevents history from changing if defaults change later.
 Represents one step in an interval plan:
 
 - `id: UUID`
-- `distanceMeters: Double` — the target distance for laps in this segment (e.g. 400)
+- `distanceMeters: Double` — the fixed target distance when `distanceGoalMode = fixed`
+- `distanceGoalMode: enum { fixed, open }`
 - `repeatCount: Int?` — how many laps at this distance before advancing to the next segment. `nil` means unlimited (open-ended).
+- `restSeconds: Int?` — rest duration after the segment. `nil` means manual rest.
+- `targetPaceSecondsPerKm: Double?`
+- `targetTimeSeconds: Double?`
+
+Behavior notes:
+
+- `fixed` segments use `distanceMeters` as their canonical lap distance.
+- `open` segments have no manual distance target and must use measured GPS distance instead.
+- `open` segments may still define a target time.
+- pace-derived target time only applies to `fixed` segments.
 
 Default plan: a single segment of 400 m with unlimited repeats.
 
@@ -164,7 +175,7 @@ Each row must be easy to tap and show:
 - pace
 - total time
 - total distance
-- when the session used dual tracking, show an additional GPS distance stat
+- when the session includes open intervals, show GPS distance as the primary distance metric instead of manual distance
 
 Display format should favor quick reading on watch.
 Example row structure:
@@ -210,6 +221,12 @@ Each lap row must show:
 - target time and/or target pace when the original segment defined one
 - heart rate when available
 
+Open-interval display rule:
+
+- when the original segment used `distanceGoalMode = open`, do not show manual distance
+- show GPS distance as the only distance metric for that lap
+- continue showing pace for that lap
+
 #### Suggested row layout
 
 - line 1: lap badge / rest badge + elapsed time
@@ -238,20 +255,28 @@ Reached after tapping **Get Ready**.
 When a manual-interval mode (`Distance` or `Dual`) is selected, show an **Intervals** section first:
 
 - list of **distance segments** forming the interval plan
-- each segment has a distance value and an optional repeat count
+- each segment has a distance mode (`Fixed` or `Open`), an optional repeat count, optional rest, and optional targets
 - default: one segment of `400` meters with unlimited (∞) repeats
 - user can add new segments below the existing ones
-- user can tap a segment to open **SegmentEditSheet** to edit distance and repeat count
+- user can tap a segment to open **SegmentEditSheet** to edit distance mode, distance, repeat count, rest, and targets
 - when a new segment is added, any earlier segment that was still unlimited must automatically become `×1` so later segments are reachable
-- SegmentEditSheet: distance via TextField (manual entry) and repeat count via +/- stepper; use `.textFieldStyle(.plain)` and `.scrollContentBackground(.hidden)` to avoid double backgrounds
+- SegmentEditSheet: when `Fixed` is selected, distance is editable via TextField (manual entry); when `Open` is selected, hide manual distance entry because there is no manual distance target
 - user can delete segments (at least one must remain)
-- validate each distance as a positive number greater than 0
+- validate each fixed distance as a positive number greater than 0
 - store the full segment plan and restore it on next launch
 - repeat count of `nil` or empty means unlimited
+- `Add Distance` should be labeled `Add Interval`
 - include a Browse action that opens an interval library with predefined and saved presets
 - saved presets can be created from interval setup and from completed sessions
 - saved presets are sorted by most recently edited
 - editing a preset that duplicates another saved preset should merge into the existing preset instead of creating duplicates
+
+Open interval behavior in setup:
+
+- if any segment uses `Open` distance while the selected tracking mode is `Distance`, auto-upgrade the workout to `Dual`
+- show a green inline info banner under the distance control explaining that GPS is also enabled
+- if location permission has not been requested yet, include a button in that banner to request access
+- reuse the same tinted info-banner visual style used elsewhere in the app
 
 #### Setting 2 — Mode (tracking mode, rest mode, unit, color)
 
@@ -274,6 +299,12 @@ If `Dual` is selected:
 - manual interval segments remain active and define the canonical lap distance
 - GPS tracking stays active in parallel
 - lap detail and session history should expose both manual distance/pace and GPS distance/pace
+
+Exception for open intervals:
+
+- if the active segment is `Open`, there is no canonical manual lap distance for that interval
+- `Dual` must still stay active so GPS distance is captured
+- history and detail should show GPS distance for that interval and continue showing pace
 
 #### Start button behavior
 
@@ -311,6 +342,7 @@ Purpose: live workout UI while running.
 - Example: `08:43`
 - In distance mode, show the **current target distance** above the timer (from the active segment in the interval plan)
 - If the active segment has a target time or target pace, prefer showing that target summary above the timer
+- For an open interval with a target time, show an `Open • <time>` style target summary above the timer
 - when the interval plan has a finite total, show the **remaining planned laps** beside that label, e.g. `400 m · 5 left`
 - During rest, show "Rest Mode" above the timer instead
 - During a full pause, show `Paused` and stop accumulating elapsed workout time until resumed
@@ -449,6 +481,12 @@ For each lap:
 - canonical `distanceMeters` comes from the active manual interval segment
 - `gpsDistanceMeters` stores the measured GPS distance covered during that same lap
 - history and analytics should keep those values separate instead of collapsing one into the other
+
+Open interval exception:
+
+- when the active segment uses `distanceGoalMode = open`, `distanceMeters` should store the measured GPS distance for that lap
+- `currentTargetDistanceMeters` should be `nil`
+- if the open segment has `targetTimeSeconds`, the lap should auto-complete on time and use `source = autoTime`
 
 #### Distance mode
 

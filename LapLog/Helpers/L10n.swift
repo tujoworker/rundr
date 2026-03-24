@@ -15,8 +15,16 @@ enum L10n {
     static let noSavedIntervalsYet = String(localized: "No saved intervals yet", comment: "Empty saved intervals state")
     static let mode = String(localized: "Tracking Mode", comment: "Tracking mode setting")
     static let distance = String(localized: "Distance", comment: "Distance setting")
+    static let addInterval = String(localized: "Add Interval", comment: "Add interval button")
     static let distanceMeters = String(localized: "Distance (meters)", comment: "Distance input label")
     static let distanceFeet = String(localized: "Distance (feet)", comment: "Distance input label")
+    static let distanceType = String(localized: "Distance Type", comment: "Distance mode selector")
+    static let fixedDistance = String(localized: "Fixed", comment: "Fixed interval distance")
+    static let openDistance = String(localized: "Open", comment: "Open interval distance")
+    static let openDistanceDescription = String(localized: "No fixed distance", comment: "Open interval distance description")
+    static let gpsAlsoEnabledTitle = String(localized: "GPS Also Enabled", comment: "Open interval GPS banner title")
+    static let gpsAlsoEnabledSubtitle = String(localized: "Open intervals use GPS distance, so this workout switched to Dual.", comment: "Open interval GPS banner subtitle")
+    static let requestLocationAccess = String(localized: "Enable GPS Access", comment: "Open interval GPS banner button")
     static let unit = String(localized: "Unit", comment: "Distance unit setting")
     static let color = String(localized: "Color", comment: "Primary color setting")
     static let restMode = String(localized: "Rest Mode", comment: "Rest mode setting")
@@ -150,6 +158,9 @@ enum L10n {
     static let off = String(localized: "Off", comment: "Target off")
     static func targetDisplay(_ distance: String, _ time: String) -> String {
         String(format: String(localized: "%@ in %@", comment: "Target display: distance in time"), distance, time)
+    }
+    static func openTargetDisplay(_ time: String) -> String {
+        String(format: String(localized: "%@ • %@", comment: "Target display: open interval and time"), openDistance, time)
     }
 
     // MARK: - Distance/Unit suffixes for Formatters

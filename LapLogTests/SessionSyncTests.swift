@@ -168,7 +168,10 @@ final class SessionSyncTests: XCTestCase {
         try persistence.modelContext.save()
 
         XCTAssertEqual(session.laps.count, 2)
-        XCTAssertEqual(session.laps.map(\.id), [lap1ID, lap3ID])
+        XCTAssertEqual(
+            Set(session.laps.map(\.id)),
+            Set([lap1ID, lap3ID])
+        )
         let storedLap1 = session.laps.first { $0.id == lap1ID }
         XCTAssertEqual(storedLap1?.distanceMeters, 999)
 

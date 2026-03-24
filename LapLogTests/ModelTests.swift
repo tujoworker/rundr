@@ -46,10 +46,11 @@ final class ModelTests: XCTestCase {
     // MARK: - LapSource
 
     func testLapSourceCases() {
-        XCTAssertEqual(LapSource.allCases.count, 4)
+        XCTAssertEqual(LapSource.allCases.count, 5)
         XCTAssertNotNil(LapSource(rawValue: "distanceTap"))
         XCTAssertNotNil(LapSource(rawValue: "actionButton"))
         XCTAssertNotNil(LapSource(rawValue: "autoDistance"))
+        XCTAssertNotNil(LapSource(rawValue: "autoTime"))
         XCTAssertNotNil(LapSource(rawValue: "sessionEndSplit"))
     }
 
@@ -604,6 +605,7 @@ final class ModelTests: XCTestCase {
     func testDistanceSegmentDefaults() {
         let segment = DistanceSegment()
         XCTAssertEqual(segment.distanceMeters, 400)
+        XCTAssertEqual(segment.distanceGoalMode, .fixed)
         XCTAssertNil(segment.repeatCount)
         XCTAssertNil(segment.restSeconds)
     }
@@ -662,6 +664,24 @@ final class ModelTests: XCTestCase {
         let decoded = try JSONDecoder().decode([DistanceSegment].self, from: data)
         XCTAssertEqual(decoded[0].restSeconds, 30)
         XCTAssertNil(decoded[1].restSeconds)
+    }
+
+    func testDistanceSegmentDecodesLegacyPayloadWithoutDistanceMode() throws {
+        let data = """
+        [{"id":"00000000-0000-0000-0000-000000000001","distanceMeters":400,"repeatCount":4}]
+        """.data(using: .utf8)!
+        let decoded = try JSONDecoder().decode([DistanceSegment].self, from: data)
+        XCTAssertEqual(decoded[0].distanceGoalMode, .fixed)
+        XCTAssertFalse(decoded[0].usesOpenDistance)
+    }
+
+    func testOpenDistanceSegmentDisablesPaceDerivedTargetTime() {
+        let segment = DistanceSegment(
+            distanceMeters: 400,
+            distanceGoalMode: .open,
+            targetPaceSecondsPerKm: 300
+        )
+        XCTAssertNil(segment.effectiveTargetTimeSeconds)
     }
 
     func testDistanceSegmentDefault() {

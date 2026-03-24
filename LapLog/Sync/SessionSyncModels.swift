@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 import SwiftData
 
 #if canImport(WatchConnectivity)
@@ -367,6 +368,8 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
     @Published private(set) var liveWorkoutState: LiveWorkoutStateRecord?
     @Published private(set) var pendingCompletedSessionIDs: Set<UUID>
 
+    private static let logger = Logger(subsystem: "LapLog", category: "WatchConnectivitySync")
+
     private weak var persistence: PersistenceManager?
     private let fileManager: FileManager
     private let transferStore: CompletedSessionTransferStore
@@ -408,8 +411,10 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
 
     func activate() {
         #if canImport(WatchConnectivity)
+        Self.logger.log("Activating WatchConnectivity session. Pending IDs: \(self.pendingCompletedSessionIDs.count)")
         wcSession?.activate()
         if let applicationContext = wcSession?.receivedApplicationContext {
+            Self.logger.log("Processing cached application context during activate. Keys: \(applicationContext.keys.sorted().joined(separator: ","))")
             handleApplicationContext(applicationContext)
         }
         publishCompletedSessionAcknowledgementsIfNeeded()
@@ -434,8 +439,10 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
 
     func queueCompletedSession(_ session: Session) {
         #if canImport(WatchConnectivity)
+        Self.logger.log("Queueing completed session \(session.id.uuidString, privacy: .public)")
         let envelope = SessionSyncEnvelope(session: SessionSyncRecord(session: session))
         guard let data = try? encoder.encode(envelope) else {
+            Self.logger.error("Failed to encode completed session \(session.id.uuidString, privacy: .public)")
             return
         }
 
@@ -447,11 +454,14 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
             markPendingTransfer(session.id)
 
             if sendCompletedSessionInteractivelyIfPossible(envelope) {
+                Self.logger.log("Completed session \(session.id.uuidString, privacy: .public) sent interactively")
                 return
             }
 
+            Self.logger.log("Completed session \(session.id.uuidString, privacy: .public) falling back to file transfer")
             transferCompletedSessionIfPossible(sessionID: session.id)
         } catch {
+            Self.logger.error("Failed to queue completed session \(session.id.uuidString, privacy: .public): \(error.localizedDescription, privacy: .public)")
             return
         }
         #endif
@@ -467,8 +477,11 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
     private func transferCompletedSessionIfPossible(sessionID: UUID) {
         guard let wcSession else { return }
 
+        Self.logger.log("Attempting file transfer for completed session \(sessionID.uuidString, privacy: .public)")
+
         let fileURL = outboxDirectoryURL.appendingPathComponent("\(sessionID.uuidString).json")
         guard fileManager.fileExists(atPath: fileURL.path) else {
+            Self.logger.log("No outbox file exists for \(sessionID.uuidString, privacy: .public); clearing pending state")
             clearPendingTransfer(sessionID)
             return
         }
@@ -477,7 +490,8 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
     }
 
     private func retryPendingCompletedSessions() {
-        for sessionID in transferStore.pendingSessionIDs {
+        Self.logger.log("Retrying pending completed sessions: \(self.transferStore.pendingSessionIDs.map(\.uuidString).joined(separator: ","), privacy: .public)")
+        for sessionID in self.transferStore.pendingSessionIDs {
             if sendCompletedSessionInteractivelyIfPossible(sessionID: sessionID) {
                 continue
             }
@@ -491,19 +505,23 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
         guard let wcSession,
               wcSession.isReachable,
               let data = try? encoder.encode(envelope) else {
+            Self.logger.log("Interactive send unavailable for completed session \(envelope.session.id.uuidString, privacy: .public)")
             return false
         }
 
         let sessionID = envelope.session.id
+        Self.logger.log("Sending completed session interactively \(sessionID.uuidString, privacy: .public)")
         wcSession.sendMessageData(
             data,
             replyHandler: { _ in
                 Task { @MainActor in
+                    Self.logger.log("Received interactive acknowledgement for completed session \(sessionID.uuidString, privacy: .public)")
                     self.acknowledgeCompletedSession(sessionID)
                 }
             },
             errorHandler: { _ in
                 Task { @MainActor in
+                    Self.logger.error("Interactive send failed for completed session \(sessionID.uuidString, privacy: .public); retrying with file transfer")
                     self.transferCompletedSessionIfPossible(sessionID: sessionID)
                 }
             }
@@ -523,6 +541,7 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
     }
 
     private func acknowledgeCompletedSession(_ sessionID: UUID) {
+        Self.logger.log("Acknowledging completed session \(sessionID.uuidString, privacy: .public)")
         clearPendingTransfer(sessionID)
 
         let fileURL = outboxDirectoryURL.appendingPathComponent("\(sessionID.uuidString).json")
@@ -533,6 +552,7 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
 
     private func sendCompletedSessionAcknowledgement(for sessionID: UUID) {
         guard let wcSession else { return }
+        Self.logger.log("Sending completed session acknowledgement for \(sessionID.uuidString, privacy: .public)")
         acknowledgementStore.markAcknowledged(sessionID)
         publishCompletedSessionAcknowledgementsIfNeeded()
         wcSession.transferUserInfo([WatchConnectivitySyncKeys.completedSessionAcknowledgement: sessionID.uuidString])
@@ -545,6 +565,7 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
         let sessionIDStrings = acknowledgementStore.acknowledgedSessionIDs.map(\.uuidString)
         guard !sessionIDStrings.isEmpty else { return }
 
+        Self.logger.log("Publishing acknowledged completed sessions in application context: \(sessionIDStrings.joined(separator: ","), privacy: .public)")
         try? wcSession.updateApplicationContext([
             WatchConnectivitySyncKeys.completedSessionAcknowledgementsContext: sessionIDStrings
         ])
@@ -552,6 +573,7 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
     }
 
     private func markPendingTransfer(_ sessionID: UUID) {
+        Self.logger.log("Marking completed session pending \(sessionID.uuidString, privacy: .public)")
         transferStore.markPending(sessionID)
         var updatedPendingIDs = pendingCompletedSessionIDs
         updatedPendingIDs.insert(sessionID)
@@ -559,6 +581,7 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
     }
 
     private func clearPendingTransfer(_ sessionID: UUID) {
+        Self.logger.log("Clearing pending completed session \(sessionID.uuidString, privacy: .public)")
         transferStore.clearPending(sessionID)
         var updatedPendingIDs = pendingCompletedSessionIDs
         updatedPendingIDs.remove(sessionID)
@@ -566,6 +589,7 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
     }
 
     private func handleApplicationContext(_ applicationContext: [String: Any]) {
+        Self.logger.log("Handling application context. Keys: \(applicationContext.keys.sorted().joined(separator: ","), privacy: .public)")
         handleLiveWorkoutStateContext(applicationContext)
         handleCompletedSessionAcknowledgementsContext(applicationContext)
     }
@@ -584,6 +608,8 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
             return
         }
 
+        Self.logger.log("Received acknowledged completed sessions from application context: \(sessionIDStrings.joined(separator: ","), privacy: .public)")
+
         for sessionIDString in sessionIDStrings {
             guard let sessionID = UUID(uuidString: sessionIDString) else { continue }
             acknowledgeCompletedSession(sessionID)
@@ -592,8 +618,11 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
 
     private func importCompletedSessionFileData(_ data: Data) {
         guard let envelope = try? decoder.decode(SessionSyncEnvelope.self, from: data) else {
+            Self.logger.error("Failed to decode completed session payload during import")
             return
         }
+
+        Self.logger.log("Importing completed session \(envelope.session.id.uuidString, privacy: .public)")
 
         persistence?.upsertSessionRecord(envelope.session)
         sendCompletedSessionAcknowledgement(for: envelope.session.id)
@@ -622,6 +651,7 @@ extension WatchConnectivitySyncManager: WCSessionDelegate {
         _ = activationState
         _ = error
         Task { @MainActor in
+            Self.logger.log("WatchConnectivity activation completed. State: \(String(describing: activationState.rawValue), privacy: .public)")
             self.publishCompletedSessionAcknowledgementsIfNeeded()
             self.handleApplicationContext(session.receivedApplicationContext)
             self.retryPendingCompletedSessions()
@@ -640,12 +670,14 @@ extension WatchConnectivitySyncManager: WCSessionDelegate {
 
     nonisolated func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
         Task { @MainActor in
+            Self.logger.log("Delegate received application context")
             self.handleApplicationContext(applicationContext)
         }
     }
 
     nonisolated func session(_ session: WCSession, didReceive file: WCSessionFile) {
         Task { @MainActor in
+            Self.logger.log("Delegate received completed session file: \(file.fileURL.lastPathComponent, privacy: .public)")
             self.importCompletedSessionFile(at: file.fileURL)
         }
     }
@@ -657,6 +689,7 @@ extension WatchConnectivitySyncManager: WCSessionDelegate {
         }
 
         Task { @MainActor in
+            Self.logger.log("Delegate received completed session acknowledgement userInfo for \(sessionID.uuidString, privacy: .public)")
             self.acknowledgeCompletedSession(sessionID)
         }
     }
@@ -667,6 +700,7 @@ extension WatchConnectivitySyncManager: WCSessionDelegate {
         replyHandler: @escaping (Data) -> Void
     ) {
         Task { @MainActor in
+            Self.logger.log("Delegate received interactive completed session payload")
             self.importCompletedSessionFileData(messageData)
             replyHandler(Data())
         }

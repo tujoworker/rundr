@@ -612,7 +612,7 @@ private struct SegmentRow: View {
             .padding(.top, 12)
             .padding(.trailing, 14)
         }
-        .alert("", isPresented: $isDeleteConfirmationPresented) {
+        .alert(distanceDisplay, isPresented: $isDeleteConfirmationPresented) {
             Button(L10n.delete, role: .destructive, action: onDelete)
             Button(L10n.cancel, role: .cancel) {}
         }

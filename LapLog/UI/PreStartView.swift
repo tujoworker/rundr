@@ -112,7 +112,7 @@ struct PreStartView: View {
     @ViewBuilder
     private var intervalsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Intervals")
+            Text(L10n.intervalsTitle)
                 .font(.caption.bold())
                 .foregroundStyle(.white.opacity(0.72))
                 .padding(.horizontal, 8)
@@ -241,7 +241,7 @@ struct PreStartView: View {
                     SettingsCardRow(
                         icon: "paintpalette",
                         iconColor: settings.primaryAccentColor,
-                        title: "Color",
+                        title: L10n.color,
                         value: settings.primaryColor.displayName
                     )
                 }
@@ -288,8 +288,8 @@ struct PreStartView: View {
         .onChange(of: settings.distanceUnit) {
             // Segments are stored in meters; no conversion needed on unit change
         }
-        .alert("Location Required", isPresented: $isGPSPermissionAlertPresented) {
-            Button("OK", role: .cancel) {}
+        .alert(L10n.locationRequired, isPresented: $isGPSPermissionAlertPresented) {
+            Button(L10n.ok, role: .cancel) {}
         } message: {
             Text(L10n.gpsModeNeedsLocation)
         }
@@ -301,7 +301,7 @@ struct PreStartView: View {
             }
             Button("Cancel", role: .cancel) {}
         }
-        .confirmationDialog("Distance Unit", isPresented: $isDistanceUnitDialogPresented) {
+        .confirmationDialog(L10n.distanceUnit, isPresented: $isDistanceUnitDialogPresented) {
             ForEach(DistanceUnit.allCases) { unit in
                 Button(unit.displayName) {
                     settings.distanceUnit = unit
@@ -317,7 +317,7 @@ struct PreStartView: View {
             }
             Button("Cancel", role: .cancel) {}
         }
-        .confirmationDialog("Primary Color", isPresented: $isPrimaryColorDialogPresented) {
+        .confirmationDialog(L10n.primaryColor, isPresented: $isPrimaryColorDialogPresented) {
             ForEach(PrimaryColorOption.allCases) { color in
                 Button(color.displayName) {
                     settings.primaryColor = color
@@ -809,7 +809,7 @@ private struct IntervalSetupView: View {
     @ViewBuilder
     private var intervalsSection: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Intervals")
+            Text(L10n.intervalsTitle)
                 .font(.caption.bold())
                 .foregroundStyle(.white.opacity(0.72))
                 .padding(.horizontal, 8)
@@ -1113,7 +1113,7 @@ private struct IntervalTitleField: View {
                 .foregroundStyle(.white.opacity(0.72))
                 .padding(.horizontal, 8)
 
-            TextField("Title (optional)", text: $text)
+            TextField(L10n.optionalTitlePlaceholder, text: $text)
                 .textInputAutocapitalization(.words)
                 .padding(.horizontal, 8)
         }
@@ -1457,7 +1457,7 @@ private struct SegmentEditSheet: View {
                     .buttonStyle(.plain)
                 }
 
-                Button("Done") {
+                Button(L10n.done) {
                     onDone()
                 }
                 .font(.system(size: 16, weight: .bold, design: .rounded))

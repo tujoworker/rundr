@@ -5,9 +5,11 @@
 "Settings" = "Innstillinger";
 "Adjust Interval" = "Juster intervall";
 "Browse" = "Bla gjennom";
+"Intervals" = "Intervaller";
 "My intervals" = "Mine intervaller";
 "Predefined" = "Forhåndsdefinert";
 "Title" = "Tittel";
+"Title (optional)" = "Tittel (valgfri)";
 "No saved intervals yet" = "Ingen lagrede intervaller ennå";
 "Tracking Mode" = "Sporingsmodus";
 "Distance" = "Distanse";
@@ -37,6 +39,7 @@
 "Cancel" = "Avbryt";
 "Distance Unit" = "Distanseenhet";
 "Primary Color" = "Hovedfarge";
+"Done" = "Ferdig";
 "s" = "s";
 "m" = "m";
 

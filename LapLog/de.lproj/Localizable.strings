@@ -5,9 +5,11 @@
 "Settings" = "Einstellungen";
 "Adjust Interval" = "Intervall anpassen";
 "Browse" = "Durchsuchen";
+"Intervals" = "Intervalle";
 "My intervals" = "Meine Intervalle";
 "Predefined" = "Vordefiniert";
 "Title" = "Titel";
+"Title (optional)" = "Titel (optional)";
 "No saved intervals yet" = "Noch keine gespeicherten Intervalle";
 "Tracking Mode" = "Tracking-Modus";
 "Distance" = "Distanz";
@@ -37,6 +39,7 @@
 "Cancel" = "Abbrechen";
 "Distance Unit" = "Distanzeinheit";
 "Primary Color" = "Hauptfarbe";
+"Done" = "Fertig";
 "s" = "s";
 "m" = "m";
 

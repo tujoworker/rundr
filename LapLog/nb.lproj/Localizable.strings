@@ -71,6 +71,10 @@
 /* Session Detail */
 "Session" = "Økt";
 "Rest" = "Hvile";
+"Still sending to iPhone" = "Sender fortsatt til iPhone";
+"This workout is saved on your Watch. It will appear in LapLog on your phone when your watch and phone connect." = "Denne økta er lagret på Apple Watch. Den vises i LapLog på telefonen når klokken og telefonen er koblet sammen.";
+"On your iPhone" = "På telefonen";
+"LapLog on your iPhone already has this workout." = "LapLog på telefonen har allerede denne økta.";
 "Reuse This Interval" = "Bruk dette intervallet igjen";
 "Loaded from %@" = "Lastet fra %@";
 "%d saved" = "%d lagret";

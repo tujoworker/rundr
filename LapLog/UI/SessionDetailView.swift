@@ -98,7 +98,7 @@ struct SessionDetailView: View {
                                     Circle()
                                         .fill(Color.green.opacity(0.88))
                                 )
-                                .accessibilityLabel(SessionDetailPhoneSyncCopy.confirmedTitle)
+                                .accessibilityLabel(L10n.phoneSyncConfirmedTitle)
                                 .padding(6)
                                 .contentShape(Rectangle())
                         }
@@ -154,21 +154,13 @@ struct SessionDetailView: View {
     }
 }
 
-private enum SessionDetailPhoneSyncCopy {
-    static let pendingTitle = "Still sending to iPhone"
-    static let pendingSubtitle =
-        "This workout is saved on your Watch. It will appear in LapLog on your phone when your watch and phone connect."
-    static let confirmedTitle = "On your iPhone"
-    static let confirmedSubtitle = "LapLog on your iPhone already has this workout."
-}
-
 private struct SessionDetailPendingPhoneSyncBanner: View {
     private let tint = Color.orange
 
     var body: some View {
         SessionDetailPhoneSyncMessageBanner(
-            title: SessionDetailPhoneSyncCopy.pendingTitle,
-            subtitle: SessionDetailPhoneSyncCopy.pendingSubtitle,
+            title: L10n.phoneSyncPendingTitle,
+            subtitle: L10n.phoneSyncPendingSubtitle,
             tint: tint
         )
     }
@@ -179,8 +171,8 @@ private struct SessionDetailConfirmedPhoneSyncBanner: View {
 
     var body: some View {
         SessionDetailPhoneSyncMessageBanner(
-            title: SessionDetailPhoneSyncCopy.confirmedTitle,
-            subtitle: SessionDetailPhoneSyncCopy.confirmedSubtitle,
+            title: L10n.phoneSyncConfirmedTitle,
+            subtitle: L10n.phoneSyncConfirmedSubtitle,
             tint: tint
         )
     }

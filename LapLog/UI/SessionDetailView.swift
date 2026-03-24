@@ -8,7 +8,7 @@ struct SessionDetailView: View {
     @EnvironmentObject var syncManager: WatchConnectivitySyncManager
     @Environment(\.dismiss) private var dismiss
 
-    @State private var showPhoneImportConfirmedDetail = false
+    @State private var showConfirmedPhoneSyncMessage = false
 
     private var sortedLaps: [Lap] {
         session.laps.sorted { $0.startedAt < $1.startedAt }
@@ -86,7 +86,9 @@ struct SessionDetailView: View {
 
                     if !isPendingPhoneSync {
                         Button {
-                            showPhoneImportConfirmedDetail = true
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                showConfirmedPhoneSyncMessage.toggle()
+                            }
                         } label: {
                             Image(systemName: "checkmark")
                                 .font(.system(size: 9, weight: .bold))
@@ -109,6 +111,11 @@ struct SessionDetailView: View {
                     SessionDetailPendingPhoneSyncBanner()
                         .padding(.horizontal, 4)
                         .padding(.bottom, 4)
+                } else if showConfirmedPhoneSyncMessage {
+                    SessionDetailConfirmedPhoneSyncBanner()
+                        .padding(.horizontal, 4)
+                        .padding(.bottom, 4)
+                        .transition(.opacity.combined(with: .move(edge: .top)))
                 }
 
                 SessionStatsView(items: sessionStats)
@@ -144,16 +151,6 @@ struct SessionDetailView: View {
             .padding(.vertical, 4)
         }
         .background(Color.clear)
-        .alert(
-            SessionDetailPhoneSyncCopy.confirmedTitle,
-            isPresented: $showPhoneImportConfirmedDetail
-        ) {
-            Button(String(localized: "OK", comment: "Dismiss phone sync info alert")) {
-                showPhoneImportConfirmedDetail = false
-            }
-        } message: {
-            Text(SessionDetailPhoneSyncCopy.confirmedSubtitle)
-        }
     }
 }
 
@@ -168,12 +165,38 @@ private struct SessionDetailPendingPhoneSyncBanner: View {
     private let tint = Color.orange
 
     var body: some View {
+        SessionDetailPhoneSyncMessageBanner(
+            title: SessionDetailPhoneSyncCopy.pendingTitle,
+            subtitle: SessionDetailPhoneSyncCopy.pendingSubtitle,
+            tint: tint
+        )
+    }
+}
+
+private struct SessionDetailConfirmedPhoneSyncBanner: View {
+    private let tint = Color.green
+
+    var body: some View {
+        SessionDetailPhoneSyncMessageBanner(
+            title: SessionDetailPhoneSyncCopy.confirmedTitle,
+            subtitle: SessionDetailPhoneSyncCopy.confirmedSubtitle,
+            tint: tint
+        )
+    }
+}
+
+private struct SessionDetailPhoneSyncMessageBanner: View {
+    let title: String
+    let subtitle: String
+    let tint: Color
+
+    var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(SessionDetailPhoneSyncCopy.pendingTitle)
+            Text(title)
                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                 .foregroundStyle(tint)
 
-            Text(SessionDetailPhoneSyncCopy.pendingSubtitle)
+            Text(subtitle)
                 .font(.system(size: 11, weight: .regular, design: .rounded))
                 .foregroundStyle(.white.opacity(0.72))
         }

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		90A0B0C0D0E0F00112233450 /* LapLog.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 8BEFD367C4AB92E0F59B0B1F /* LapLog.app */; };
 		B10000000000000000000001 /* SessionSyncModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* SessionSyncModels.swift */; };
 		B10000000000000000000002 /* LapLogCompanionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* LapLogCompanionApp.swift */; };
 		B10000000000000000000003 /* CompanionRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* CompanionRootView.swift */; };
@@ -65,8 +66,29 @@
 		FD7F3FB0395174CBAF09E673 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC650870DDC91DB05A48BBA /* HomeView.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		90A0B0C0D0E0F00112233451 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Watch;
+			dstSubfolderSpec = 1;
+			files = (
+				90A0B0C0D0E0F00112233450 /* LapLog.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXContainerItemProxy section */
 		5B0D864BD0A5C80A44B292AA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5299AC4324DC18342A8CCD96 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E92819776D1D900150F17949;
+			remoteInfo = LapLog;
+		};
+		90A0B0C0D0E0F00112233453 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 5299AC4324DC18342A8CCD96 /* Project object */;
 			proxyType = 1;
@@ -345,10 +367,12 @@
 				B30000000000000000000001 /* Sources */,
 				B40000000000000000000001 /* Frameworks */,
 				90A0B0C0D0E0F0011223344A /* Resources */,
+				90A0B0C0D0E0F00112233451 /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				90A0B0C0D0E0F00112233452 /* PBXTargetDependency */,
 			);
 			name = "LapLog Companion";
 			productName = "LapLog Companion";
@@ -373,6 +397,19 @@
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
+
+/* Begin PBXTargetDependency section */
+		EE543492886B1A944A594DA2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E92819776D1D900150F17949 /* LapLog */;
+			targetProxy = 5B0D864BD0A5C80A44B292AA /* PBXContainerItemProxy */;
+		};
+		90A0B0C0D0E0F00112233452 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E92819776D1D900150F17949 /* LapLog */;
+			targetProxy = 90A0B0C0D0E0F00112233453 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXProject section */
 		5299AC4324DC18342A8CCD96 /* Project object */ = {
@@ -500,14 +537,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		EE543492886B1A944A594DA2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E92819776D1D900150F17949 /* LapLog */;
-			targetProxy = 5B0D864BD0A5C80A44B292AA /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		1EC4855024DBC8C984257298 /* Debug */ = {

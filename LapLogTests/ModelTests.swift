@@ -77,6 +77,39 @@ final class ModelTests: XCTestCase {
         }
     }
 
+    func testDistanceSegmentCodablePreservesLastRestSeconds() throws {
+        let segment = DistanceSegment(
+            distanceMeters: 400,
+            repeatCount: 4,
+            restSeconds: 30,
+            lastRestSeconds: 90,
+            targetTimeSeconds: 75
+        )
+
+        let data = try JSONEncoder().encode(segment)
+        let decoded = try JSONDecoder().decode(DistanceSegment.self, from: data)
+
+        XCTAssertEqual(decoded.lastRestSeconds, 90)
+        XCTAssertEqual(decoded.restSeconds, 30)
+        XCTAssertEqual(decoded.targetTimeSeconds, 75)
+    }
+
+    func testDistanceSegmentDecodesLegacyPayloadWithoutLastRestSeconds() throws {
+        let payload = """
+        {
+          \"distanceMeters\": 400,
+          \"distanceGoalMode\": \"fixed\",
+          \"repeatCount\": 4,
+          \"restSeconds\": 30
+        }
+        """.data(using: .utf8)!
+
+        let decoded = try JSONDecoder().decode(DistanceSegment.self, from: payload)
+
+        XCTAssertEqual(decoded.restSeconds, 30)
+        XCTAssertNil(decoded.lastRestSeconds)
+    }
+
     // MARK: - WorkoutRunState
 
     func testWorkoutRunStateCases() {

@@ -123,6 +123,7 @@ struct IntervalPresetSegmentSignature: Codable, Equatable {
     let distanceGoalMode: DistanceGoalMode
     let repeatCount: Int?
     let restSeconds: Int?
+    let lastRestSeconds: Int?
     let targetPaceSecondsPerKm: Double?
     let targetTimeSeconds: Double?
 
@@ -131,6 +132,7 @@ struct IntervalPresetSegmentSignature: Codable, Equatable {
         distanceGoalMode = segment.distanceGoalMode
         repeatCount = segment.repeatCount
         restSeconds = segment.restSeconds
+        lastRestSeconds = segment.lastRestSeconds
         targetPaceSecondsPerKm = segment.targetPaceSecondsPerKm
         targetTimeSeconds = segment.targetTimeSeconds
     }

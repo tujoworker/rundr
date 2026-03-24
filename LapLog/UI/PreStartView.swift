@@ -23,12 +23,14 @@ struct PreStartView: View {
     @State private var editingSegmentUsesOpenDistance = false
     @State private var editingSegmentRepeatCount: Int = 0
     @State private var editingSegmentRestSeconds: Int = 0
+    @State private var editingSegmentLastRestSeconds: Int = 0
     @State private var editingSegmentTargetPace: Int = 0
     @State private var editingSegmentTargetTime: Int = 0
     @State private var lastAddedDistanceMeters: Double = 400
     @State private var lastAddedUsesOpenDistance = false
     @State private var lastAddedRepeatCount: Int = 0
     @State private var lastAddedRestSeconds: Int = 0
+    @State private var lastAddedLastRestSeconds: Int = 0
     @State private var lastAddedTargetPace: Int = 0
     @State private var lastAddedTargetTime: Int = 0
     @State private var showsOpenDistanceGPSBanner = false
@@ -258,6 +260,7 @@ struct PreStartView: View {
             lastAddedUsesOpenDistance = settings.distanceSegments.last?.usesOpenDistance ?? false
             lastAddedRepeatCount = settings.distanceSegments.last?.repeatCount ?? 0
             lastAddedRestSeconds = settings.distanceSegments.last?.restSeconds ?? 0
+            lastAddedLastRestSeconds = settings.distanceSegments.last?.lastRestSeconds ?? 0
             lastAddedTargetPace = Int(settings.distanceSegments.last?.targetPaceSecondsPerKm ?? 0)
             lastAddedTargetTime = Int(settings.distanceSegments.last?.targetTimeSeconds ?? 0)
             ensureDualModeForOpenDistanceSegments(showBanner: false)
@@ -331,6 +334,7 @@ struct PreStartView: View {
                 usesOpenDistance: $editingSegmentUsesOpenDistance,
                 repeatCount: $editingSegmentRepeatCount,
                 restSeconds: $editingSegmentRestSeconds,
+                lastRestSeconds: $editingSegmentLastRestSeconds,
                 targetPace: $editingSegmentTargetPace,
                 targetTime: $editingSegmentTargetTime,
                 distanceLabel: distanceLabel,
@@ -372,6 +376,7 @@ struct PreStartView: View {
                 distanceMeters: lastAddedDistanceMeters,
                 repeatCount: lastAddedRepeatCount > 0 ? lastAddedRepeatCount : nil,
                 restSeconds: lastAddedRestSeconds > 0 ? lastAddedRestSeconds : nil,
+                lastRestSeconds: lastAddedLastRestSeconds > 0 ? lastAddedLastRestSeconds : nil,
                 distanceGoalMode: lastAddedUsesOpenDistance ? .open : .fixed,
                 targetPaceSecondsPerKm: lastAddedTargetPace > 0 ? Double(lastAddedTargetPace) : nil,
                 targetTimeSeconds: lastAddedTargetTime > 0 ? Double(lastAddedTargetTime) : nil
@@ -399,6 +404,7 @@ struct PreStartView: View {
         editingSegmentDistanceText = displayDist == floor(displayDist) ? String(format: "%.0f", displayDist) : String(format: "%g", displayDist)
         editingSegmentRepeatCount = segment.repeatCount ?? 0
         editingSegmentRestSeconds = segment.restSeconds ?? 0
+        editingSegmentLastRestSeconds = segment.lastRestSeconds ?? 0
         editingSegmentTargetPace = Int(segment.targetPaceSecondsPerKm ?? 0)
         editingSegmentTargetTime = Int(segment.targetTimeSeconds ?? 0)
         showsOpenDistanceGPSBanner = false
@@ -428,10 +434,12 @@ struct PreStartView: View {
         lastAddedUsesOpenDistance = editingSegmentUsesOpenDistance
         lastAddedRepeatCount = editingSegmentRepeatCount
         lastAddedRestSeconds = editingSegmentRestSeconds
+        lastAddedLastRestSeconds = editingSegmentLastRestSeconds
         lastAddedTargetPace = editingSegmentTargetPace
         lastAddedTargetTime = editingSegmentTargetTime
         segments[idx].repeatCount = editingSegmentRepeatCount > 0 ? editingSegmentRepeatCount : nil
         segments[idx].restSeconds = editingSegmentRestSeconds > 0 ? editingSegmentRestSeconds : nil
+        segments[idx].lastRestSeconds = editingSegmentLastRestSeconds > 0 ? editingSegmentLastRestSeconds : nil
         segments[idx].targetPaceSecondsPerKm = editingSegmentTargetPace > 0 ? Double(editingSegmentTargetPace) : nil
         segments[idx].targetTimeSeconds = editingSegmentTargetTime > 0 ? Double(editingSegmentTargetTime) : nil
         editingSegmentID = nil
@@ -496,12 +504,16 @@ private struct SegmentRow: View {
         segment.restSeconds != nil
     }
 
+    private var hasLastRestDuration: Bool {
+        segment.lastRestSeconds != nil
+    }
+
     private var hasTarget: Bool {
         segment.effectiveTargetTimeSeconds != nil
     }
 
     private var hasSecondaryDetails: Bool {
-        hasRepeatCount || hasRestDuration || hasTarget
+        hasRepeatCount || hasRestDuration || hasLastRestDuration || hasTarget
     }
 
     var body: some View {
@@ -520,6 +532,11 @@ private struct SegmentRow: View {
                             }
                             if let rest = segment.restSeconds {
                                 Text("\(rest)s rest")
+                                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                                    .foregroundStyle(.white.opacity(0.45))
+                            }
+                            if let lastRest = segment.lastRestSeconds {
+                                Text("\(lastRest)s last rest")
                                     .font(.system(size: 12, weight: .medium, design: .rounded))
                                     .foregroundStyle(.white.opacity(0.45))
                             }
@@ -719,12 +736,14 @@ private struct IntervalSetupView: View {
     @State private var editingSegmentUsesOpenDistance = false
     @State private var editingSegmentRepeatCount: Int = 0
     @State private var editingSegmentRestSeconds: Int = 0
+    @State private var editingSegmentLastRestSeconds: Int = 0
     @State private var editingSegmentTargetPace: Int = 0
     @State private var editingSegmentTargetTime: Int = 0
     @State private var lastAddedDistanceMeters: Double = 400
     @State private var lastAddedUsesOpenDistance = false
     @State private var lastAddedRepeatCount: Int = 0
     @State private var lastAddedRestSeconds: Int = 0
+    @State private var lastAddedLastRestSeconds: Int = 0
     @State private var lastAddedTargetPace: Int = 0
     @State private var lastAddedTargetTime: Int = 0
     @State private var showsOpenDistanceGPSBanner = false
@@ -828,6 +847,7 @@ private struct IntervalSetupView: View {
                 usesOpenDistance: $editingSegmentUsesOpenDistance,
                 repeatCount: $editingSegmentRepeatCount,
                 restSeconds: $editingSegmentRestSeconds,
+                lastRestSeconds: $editingSegmentLastRestSeconds,
                 targetPace: $editingSegmentTargetPace,
                 targetTime: $editingSegmentTargetTime,
                 distanceLabel: distanceLabel,
@@ -852,6 +872,7 @@ private struct IntervalSetupView: View {
         lastAddedUsesOpenDistance = segments.last?.usesOpenDistance ?? false
         lastAddedRepeatCount = segments.last?.repeatCount ?? 0
         lastAddedRestSeconds = segments.last?.restSeconds ?? 0
+        lastAddedLastRestSeconds = segments.last?.lastRestSeconds ?? 0
         lastAddedTargetPace = Int(segments.last?.targetPaceSecondsPerKm ?? 0)
         lastAddedTargetTime = Int(segments.last?.targetTimeSeconds ?? 0)
         ensureDualModeForOpenDistanceSegments(showBanner: false)
@@ -914,6 +935,7 @@ private struct IntervalSetupView: View {
                 distanceMeters: lastAddedDistanceMeters,
                 repeatCount: lastAddedRepeatCount > 0 ? lastAddedRepeatCount : nil,
                 restSeconds: lastAddedRestSeconds > 0 ? lastAddedRestSeconds : nil,
+                lastRestSeconds: lastAddedLastRestSeconds > 0 ? lastAddedLastRestSeconds : nil,
                 distanceGoalMode: lastAddedUsesOpenDistance ? .open : .fixed,
                 targetPaceSecondsPerKm: lastAddedTargetPace > 0 ? Double(lastAddedTargetPace) : nil,
                 targetTimeSeconds: lastAddedTargetTime > 0 ? Double(lastAddedTargetTime) : nil
@@ -945,6 +967,7 @@ private struct IntervalSetupView: View {
             : String(format: "%g", displayDistance)
         editingSegmentRepeatCount = segment.repeatCount ?? 0
         editingSegmentRestSeconds = segment.restSeconds ?? 0
+        editingSegmentLastRestSeconds = segment.lastRestSeconds ?? 0
         editingSegmentTargetPace = Int(segment.targetPaceSecondsPerKm ?? 0)
         editingSegmentTargetTime = Int(segment.targetTimeSeconds ?? 0)
         showsOpenDistanceGPSBanner = false
@@ -977,10 +1000,12 @@ private struct IntervalSetupView: View {
         lastAddedUsesOpenDistance = editingSegmentUsesOpenDistance
         lastAddedRepeatCount = editingSegmentRepeatCount
         lastAddedRestSeconds = editingSegmentRestSeconds
+        lastAddedLastRestSeconds = editingSegmentLastRestSeconds
         lastAddedTargetPace = editingSegmentTargetPace
         lastAddedTargetTime = editingSegmentTargetTime
         segments[index].repeatCount = editingSegmentRepeatCount > 0 ? editingSegmentRepeatCount : nil
         segments[index].restSeconds = editingSegmentRestSeconds > 0 ? editingSegmentRestSeconds : nil
+        segments[index].lastRestSeconds = editingSegmentLastRestSeconds > 0 ? editingSegmentLastRestSeconds : nil
         segments[index].targetPaceSecondsPerKm = editingSegmentTargetPace > 0 ? Double(editingSegmentTargetPace) : nil
         segments[index].targetTimeSeconds = editingSegmentTargetTime > 0 ? Double(editingSegmentTargetTime) : nil
         editingSegmentID = nil
@@ -1057,6 +1082,7 @@ private struct SegmentEditSheet: View {
     @Binding var usesOpenDistance: Bool
     @Binding var repeatCount: Int
     @Binding var restSeconds: Int
+    @Binding var lastRestSeconds: Int
     @Binding var targetPace: Int
     @Binding var targetTime: Int
     let distanceLabel: String
@@ -1076,6 +1102,10 @@ private struct SegmentEditSheet: View {
 
     private var restLabel: String {
         restSeconds > 0 ? "\(restSeconds)s" : L10n.restManual
+    }
+
+    private var lastRestLabel: String {
+        lastRestSeconds > 0 ? "\(lastRestSeconds)s" : L10n.restManual
     }
 
     private var paceLabel: String {
@@ -1141,7 +1171,7 @@ private struct SegmentEditSheet: View {
                     )
                 }
 
-                Text("Repeats")
+                Text(L10n.repeats)
                     .font(.caption.bold())
                     .foregroundStyle(.white.opacity(0.72))
                     .padding(.horizontal, 4)
@@ -1184,7 +1214,7 @@ private struct SegmentEditSheet: View {
                     .buttonStyle(.plain)
                 }
 
-                Text("Rest")
+                Text(L10n.rest)
                     .font(.caption.bold())
                     .foregroundStyle(.white.opacity(0.72))
                     .padding(.horizontal, 4)
@@ -1228,6 +1258,57 @@ private struct SegmentEditSheet: View {
                     }
                     .buttonStyle(.plain)
                 }
+
+                Text(L10n.lastRest)
+                    .font(.caption.bold())
+                    .foregroundStyle(.white.opacity(0.72))
+                    .padding(.horizontal, 4)
+                    .padding(.top, 4)
+
+                HStack(spacing: 8) {
+                    Button {
+                        if lastRestSeconds >= 15 {
+                            lastRestSeconds -= 15
+                        } else {
+                            lastRestSeconds = 0
+                        }
+                    } label: {
+                        Image(systemName: "minus")
+                            .font(.system(size: 16, weight: .bold))
+                            .frame(width: 36, height: 36)
+                            .background(Circle().fill(Color.white.opacity(0.15)))
+                            .foregroundStyle(.white)
+                    }
+                    .buttonStyle(.plain)
+
+                    Text(lastRestLabel)
+                        .font(.system(size: 22, weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .fill(Color.white.opacity(0.12))
+                        )
+
+                    Button {
+                        lastRestSeconds += 15
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 16, weight: .bold))
+                            .frame(width: 36, height: 36)
+                            .background(Circle().fill(Color.white.opacity(0.15)))
+                            .foregroundStyle(.white)
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                Text(L10n.target)
+                    .font(.caption.bold())
+                    .foregroundStyle(.white.opacity(0.72))
+                    .padding(.horizontal, 4)
+                    .padding(.top, 4)
 
                 Text(L10n.pace)
                     .font(.caption.bold())

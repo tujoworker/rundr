@@ -18,6 +18,9 @@
 "Fixed" = "Fast";
 "Open" = "Åpen";
 "No fixed distance" = "Ingen fast distanse";
+"Repeats" = "Repetisjoner";
+"Rest" = "Hvile";
+"Last Rest" = "Siste hvile";
 "GPS Also Enabled" = "GPS er også aktivert";
 "Open intervals use GPS distance, so this workout switched to Dual." = "Åpne intervaller bruker GPS-distanse, så denne økta ble byttet til Dual.";
 "Enable GPS Access" = "Aktiver GPS-tilgang";
@@ -117,6 +120,7 @@
 "Lap" = "Runde";
 
 /* Target */
+"Target" = "Mål";
 "Pace" = "Tempo";
 "Time" = "Tid";
 "Off" = "Av";

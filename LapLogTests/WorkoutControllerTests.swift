@@ -238,6 +238,46 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.currentTargetDistanceMeters, 800)
     }
 
+    func testLastRestOverridesRestBetweenBlocks() {
+        let controller = makeStartedController(
+            segments: [
+                DistanceSegment(distanceMeters: 400, repeatCount: 2, restSeconds: 30, lastRestSeconds: 90),
+                DistanceSegment(distanceMeters: 800, repeatCount: 1, restSeconds: 45)
+            ]
+        )
+
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .rest)
+        XCTAssertEqual(controller.restDurationSeconds, 30)
+
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .active)
+
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .rest)
+        XCTAssertEqual(controller.restDurationSeconds, 90)
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 800)
+    }
+
+    func testFinalBlockFallsBackToRegularRestWhenLastRestMissing() {
+        let controller = makeStartedController(
+            segments: [
+                DistanceSegment(distanceMeters: 400, repeatCount: 2, restSeconds: 30),
+                DistanceSegment(distanceMeters: 800, repeatCount: 1, restSeconds: 45)
+            ]
+        )
+
+        controller.markLap()
+        XCTAssertEqual(controller.restDurationSeconds, 30)
+
+        controller.markLap()
+        controller.markLap()
+
+        XCTAssertEqual(controller.runState, .rest)
+        XCTAssertEqual(controller.restDurationSeconds, 30)
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 800)
+    }
+
     func testEmptySegmentsDefaultsToDefault() {
         let controller = makeConfiguredController(segments: [])
         XCTAssertEqual(controller.currentTargetDistanceMeters, 400)

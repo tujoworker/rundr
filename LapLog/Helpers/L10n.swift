@@ -22,6 +22,8 @@ enum L10n {
     static let fixedDistance = String(localized: "Fixed", comment: "Fixed interval distance")
     static let openDistance = String(localized: "Open", comment: "Open interval distance")
     static let openDistanceDescription = String(localized: "No fixed distance", comment: "Open interval distance description")
+    static let repeats = String(localized: "Repeats", comment: "Segment repeats label")
+    static let lastRest = String(localized: "Last Rest", comment: "Segment last rest label")
     static let gpsAlsoEnabledTitle = String(localized: "GPS Also Enabled", comment: "Open interval GPS banner title")
     static let gpsAlsoEnabledSubtitle = String(localized: "Open intervals use GPS distance, so this workout switched to Dual.", comment: "Open interval GPS banner subtitle")
     static let requestLocationAccess = String(localized: "Enable GPS Access", comment: "Open interval GPS banner button")
@@ -153,6 +155,7 @@ enum L10n {
     static let lap = String(localized: "Lap", comment: "Intent")
 
     // MARK: - Target
+    static let target = String(localized: "Target", comment: "Target section heading")
     static let pace = String(localized: "Pace", comment: "Pace target label")
     static let time = String(localized: "Time", comment: "Time target label")
     static let off = String(localized: "Off", comment: "Target off")

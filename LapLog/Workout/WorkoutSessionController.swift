@@ -278,7 +278,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         let wasResting = (runState == .rest)
         // Capture rest config before commit (which may advance the segment)
         let restSecondsBeforeCommit = (!wasResting && usesManualIntervals)
-            ? currentSegment.restSeconds : nil
+            ? autoRestDurationAfterCurrentActiveLap() : nil
 
         if runState != .ending {
             commitCurrentLap(source: source)
@@ -641,6 +641,19 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         if let targetDistance = currentTargetDistanceMeters {
             distanceLapDistanceMeters = targetDistance
         }
+    }
+
+    private func autoRestDurationAfterCurrentActiveLap() -> Int? {
+        let segment = currentSegment
+        let nextRepeatCount = currentSegmentRepeatsDone + 1
+        let completesSegment = segment.repeatCount.map { nextRepeatCount >= $0 } ?? false
+        let hasNextSegment = currentSegmentIndex + 1 < distanceSegments.count
+
+        if completesSegment && hasNextSegment {
+            return segment.lastRestSeconds ?? segment.restSeconds
+        }
+
+        return segment.restSeconds
     }
 
     private func startAutoRest(seconds: Int, initialElapsed: Int = 0) {

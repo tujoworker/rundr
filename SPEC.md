@@ -115,7 +115,8 @@ Represents one step in an interval plan:
 - `distanceMeters: Double` — the fixed target distance when `distanceGoalMode = fixed`
 - `distanceGoalMode: enum { fixed, open }`
 - `repeatCount: Int?` — how many laps at this distance before advancing to the next segment. `nil` means unlimited (open-ended).
-- `restSeconds: Int?` — rest duration after the segment. `nil` means manual rest.
+- `restSeconds: Int?` — rest duration after non-final repeats inside the segment. `nil` means manual rest.
+- `lastRestSeconds: Int?` — optional override rest duration after the final repeat of the segment before the next segment begins. If `nil`, use `restSeconds`.
 - `targetPaceSecondsPerKm: Double?`
 - `targetTimeSeconds: Double?`
 
@@ -125,6 +126,8 @@ Behavior notes:
 - `open` segments have no manual distance target and must use measured GPS distance instead.
 - `open` segments may still define a target time.
 - pace-derived target time only applies to `fixed` segments.
+- when a segment repeats multiple times, `restSeconds` applies between reps and `lastRestSeconds` applies only after the final rep when advancing into another segment.
+- if `lastRestSeconds` is omitted, the app must fall back to `restSeconds` for segment-to-segment transitions so existing saved plans keep the same behavior.
 
 Default plan: a single segment of 400 m with unlimited repeats.
 
@@ -255,7 +258,7 @@ Reached after tapping **Get Ready**.
 When a manual-interval mode (`Distance` or `Dual`) is selected, show an **Intervals** section first:
 
 - list of **distance segments** forming the interval plan
-- each segment has a distance mode (`Fixed` or `Open`), an optional repeat count, optional rest, and optional targets
+- each segment has a distance mode (`Fixed` or `Open`), an optional repeat count, optional rest, an optional last-rest override between blocks, and optional targets
 - default: one segment of `400` meters with unlimited (∞) repeats
 - user can add new segments below the existing ones
 - user can tap a segment to open **SegmentEditSheet** to edit distance mode, distance, repeat count, rest, and targets

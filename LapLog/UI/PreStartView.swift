@@ -516,6 +516,10 @@ private struct SegmentRow: View {
         hasRepeatCount || hasRestDuration || hasLastRestDuration || hasTarget
     }
 
+    private func formattedRestLabel(_ seconds: Int) -> String {
+        Formatters.compactTimeString(from: Double(seconds))
+    }
+
     var body: some View {
         Button(action: onTap) {
             HStack(spacing: 10) {
@@ -531,12 +535,12 @@ private struct SegmentRow: View {
                                     .foregroundStyle(.white.opacity(0.6))
                             }
                             if let rest = segment.restSeconds {
-                                Text("\(rest)s rest")
+                                Text("\(formattedRestLabel(rest)) rest")
                                     .font(.system(size: 12, weight: .medium, design: .rounded))
                                     .foregroundStyle(.white.opacity(0.45))
                             }
                             if let lastRest = segment.lastRestSeconds {
-                                Text("\(lastRest)s last rest")
+                                Text("\(formattedRestLabel(lastRest)) last rest")
                                     .font(.system(size: 12, weight: .medium, design: .rounded))
                                     .foregroundStyle(.white.opacity(0.45))
                             }
@@ -1101,11 +1105,11 @@ private struct SegmentEditSheet: View {
     }
 
     private var restLabel: String {
-        restSeconds > 0 ? "\(restSeconds)s" : L10n.restManual
+        restSeconds > 0 ? Formatters.compactTimeString(from: Double(restSeconds)) : L10n.restManual
     }
 
     private var lastRestLabel: String {
-        lastRestSeconds > 0 ? "\(lastRestSeconds)s" : L10n.restManual
+        lastRestSeconds > 0 ? Formatters.compactTimeString(from: Double(lastRestSeconds)) : L10n.restManual
     }
 
     private var paceLabel: String {
@@ -1137,22 +1141,6 @@ private struct SegmentEditSheet: View {
                 }
 
                 if usesOpenDistance {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(L10n.openDistance)
-                            .font(.system(size: 18, weight: .semibold, design: .rounded))
-                            .foregroundStyle(.white)
-                        Text(L10n.openDistanceDescription)
-                            .font(.system(size: 12, weight: .medium, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.62))
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 14)
-                    .padding(.vertical, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .fill(Color.white.opacity(0.12))
-                    )
-
                     if showsGPSInfoBanner {
                         TintedInfoBanner(
                             title: L10n.gpsAlsoEnabledTitle,
@@ -1259,56 +1247,77 @@ private struct SegmentEditSheet: View {
                     .buttonStyle(.plain)
                 }
 
-                Text(L10n.lastRest)
-                    .font(.caption.bold())
-                    .foregroundStyle(.white.opacity(0.72))
-                    .padding(.horizontal, 4)
-                    .padding(.top, 4)
+                if lastRestSeconds > 0 {
+                    Text(L10n.lastRest)
+                        .font(.caption.bold())
+                        .foregroundStyle(.white.opacity(0.72))
+                        .padding(.horizontal, 4)
+                        .padding(.top, 4)
 
-                HStack(spacing: 8) {
-                    Button {
-                        if lastRestSeconds >= 15 {
-                            lastRestSeconds -= 15
-                        } else {
-                            lastRestSeconds = 0
+                    HStack(spacing: 8) {
+                        Button {
+                            if lastRestSeconds >= 15 {
+                                lastRestSeconds -= 15
+                            } else {
+                                lastRestSeconds = 0
+                            }
+                        } label: {
+                            Image(systemName: "minus")
+                                .font(.system(size: 16, weight: .bold))
+                                .frame(width: 36, height: 36)
+                                .background(Circle().fill(Color.white.opacity(0.15)))
+                                .foregroundStyle(.white)
                         }
-                    } label: {
-                        Image(systemName: "minus")
-                            .font(.system(size: 16, weight: .bold))
-                            .frame(width: 36, height: 36)
-                            .background(Circle().fill(Color.white.opacity(0.15)))
+                        .buttonStyle(.plain)
+
+                        Text(lastRestLabel)
+                            .font(.system(size: 18, weight: .bold, design: .rounded))
+                            .monospacedDigit()
                             .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .fill(Color.white.opacity(0.12))
+                            )
+
+                        Button {
+                            lastRestSeconds += 15
+                        } label: {
+                            Image(systemName: "plus")
+                                .font(.system(size: 16, weight: .bold))
+                                .frame(width: 36, height: 36)
+                                .background(Circle().fill(Color.white.opacity(0.15)))
+                                .foregroundStyle(.white)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
-
-                    Text(lastRestLabel)
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
-                        .monospacedDigit()
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(Color.white.opacity(0.12))
-                        )
-
+                } else {
                     Button {
-                        lastRestSeconds += 15
+                        lastRestSeconds = max(restSeconds, 15)
                     } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 16, weight: .bold))
-                            .frame(width: 36, height: 36)
-                            .background(Circle().fill(Color.white.opacity(0.15)))
-                            .foregroundStyle(.white)
+                        Text(L10n.addLastRest)
+                            .font(.system(size: 14, weight: .semibold, design: .rounded))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 10)
+                            .background(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .fill(Color.white.opacity(0.08))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                            .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                                    )
+                            )
                     }
                     .buttonStyle(.plain)
                 }
 
                 Text(L10n.target)
-                    .font(.caption.bold())
-                    .foregroundStyle(.white.opacity(0.72))
+                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
                     .padding(.horizontal, 4)
-                    .padding(.top, 4)
+                    .padding(.top, 8)
 
                 Text(L10n.pace)
                     .font(.caption.bold())

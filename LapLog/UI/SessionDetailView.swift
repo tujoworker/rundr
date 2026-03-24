@@ -155,10 +155,11 @@ struct SessionDetailView: View {
 }
 
 private enum SessionDetailPhoneSyncCopy {
-    static let pendingTitle = "Pending phone import"
-    static let pendingSubtitle = "This session is saved on the watch and queued for delivery to the companion app."
-    static let confirmedTitle = "Phone import confirmed"
-    static let confirmedSubtitle = "This session has been acknowledged by the companion app."
+    static let pendingTitle = "Still sending to iPhone"
+    static let pendingSubtitle =
+        "This workout is saved on your watch. It will appear in LapLog on your iPhone when your watch and phone connect."
+    static let confirmedTitle = "On your iPhone"
+    static let confirmedSubtitle = "LapLog on your iPhone already has this workout."
 }
 
 private struct SessionDetailPendingPhoneSyncBanner: View {

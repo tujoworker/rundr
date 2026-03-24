@@ -1,0 +1,12 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run LapLog paired simulators",
+			"type": "shell",
+			"command": "set -euo pipefail\nxcodebuild -project LapLog.xcodeproj -scheme 'LapLog Companion' -destination 'platform=iOS Simulator,name=iPhone 17 Pro with Apple Watch,OS=26.3.1' -derivedDataPath .derived-sim CODE_SIGNING_ALLOWED=NO build\nxcrun simctl boot 'iPhone 17 Pro with Apple Watch' >/dev/null 2>&1 || true\nxcrun simctl install 'iPhone 17 Pro with Apple Watch' \"$PWD/.derived-sim/Build/Products/Debug-iphonesimulator/LapLog Companion.app\"\nxcrun simctl install 'Apple Watch Ultra (49mm)' \"$PWD/.derived-sim/Build/Products/Debug-watchsimulator/LapLog.app\"\nxcrun simctl launch 'iPhone 17 Pro with Apple Watch' com.laplog\nxcrun simctl launch 'Apple Watch Ultra (49mm)' com.laplog.watchapp",
+			"isBackground": false,
+			"group": "build"
+		}
+	]
+}

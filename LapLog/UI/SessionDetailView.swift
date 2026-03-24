@@ -8,6 +8,8 @@ struct SessionDetailView: View {
     @EnvironmentObject var syncManager: WatchConnectivitySyncManager
     @Environment(\.dismiss) private var dismiss
 
+    @State private var showPhoneImportConfirmedDetail = false
+
     private var sortedLaps: [Lap] {
         session.laps.sorted { $0.startedAt < $1.startedAt }
     }
@@ -75,15 +77,39 @@ struct SessionDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 6) {
-                Text(headerTitle)
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 4)
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text(headerTitle)
+                        .font(.caption2.weight(.semibold))
+                        .foregroundStyle(.white)
+                        .multilineTextAlignment(.leading)
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
-                SessionDetailSyncStatusView(isPendingPhoneSync: isPendingPhoneSync)
-                    .padding(.horizontal, 4)
-                    .padding(.bottom, 4)
+                    if !isPendingPhoneSync {
+                        Button {
+                            showPhoneImportConfirmedDetail = true
+                        } label: {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundStyle(.white)
+                                .frame(width: 18, height: 18)
+                                .background(
+                                    Circle()
+                                        .fill(Color.green.opacity(0.88))
+                                )
+                                .accessibilityLabel(SessionDetailPhoneSyncCopy.confirmedTitle)
+                                .padding(6)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 4)
+
+                if isPendingPhoneSync {
+                    SessionDetailPendingPhoneSyncBanner()
+                        .padding(.horizontal, 4)
+                        .padding(.bottom, 4)
+                }
 
                 SessionStatsView(items: sessionStats)
 
@@ -118,33 +144,36 @@ struct SessionDetailView: View {
             .padding(.vertical, 4)
         }
         .background(Color.clear)
+        .alert(
+            SessionDetailPhoneSyncCopy.confirmedTitle,
+            isPresented: $showPhoneImportConfirmedDetail
+        ) {
+            Button(String(localized: "OK", comment: "Dismiss phone sync info alert")) {
+                showPhoneImportConfirmedDetail = false
+            }
+        } message: {
+            Text(SessionDetailPhoneSyncCopy.confirmedSubtitle)
+        }
     }
 }
 
-private struct SessionDetailSyncStatusView: View {
-    let isPendingPhoneSync: Bool
+private enum SessionDetailPhoneSyncCopy {
+    static let pendingTitle = "Pending phone import"
+    static let pendingSubtitle = "This session is saved on the watch and queued for delivery to the companion app."
+    static let confirmedTitle = "Phone import confirmed"
+    static let confirmedSubtitle = "This session has been acknowledged by the companion app."
+}
 
-    private var title: String {
-        isPendingPhoneSync ? "Pending phone import" : "Phone import confirmed"
-    }
-
-    private var subtitle: String {
-        isPendingPhoneSync
-            ? "This session is saved on the watch and queued for delivery to the companion app."
-            : "This session has been acknowledged by the companion app."
-    }
-
-    private var tint: Color {
-        isPendingPhoneSync ? Color.orange : Color.green
-    }
+private struct SessionDetailPendingPhoneSyncBanner: View {
+    private let tint = Color.orange
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(title)
+            Text(SessionDetailPhoneSyncCopy.pendingTitle)
                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                 .foregroundStyle(tint)
 
-            Text(subtitle)
+            Text(SessionDetailPhoneSyncCopy.pendingSubtitle)
                 .font(.system(size: 11, weight: .regular, design: .rounded))
                 .foregroundStyle(.white.opacity(0.72))
         }

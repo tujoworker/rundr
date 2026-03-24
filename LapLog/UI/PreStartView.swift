@@ -121,9 +121,15 @@ struct PreStartView: View {
                 SegmentRow(
                     segment: segment,
                     distanceUnit: settings.distanceUnit,
-                    onTap: { beginEditingSegment(segment) },
-                    onDelete: { deleteSegment(segment) }
+                    onTap: { beginEditingSegment(segment) }
                 )
+                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    Button(role: .destructive) {
+                        deleteSegment(segment)
+                    } label: {
+                        Label(L10n.delete, systemImage: "trash")
+                    }
+                }
             }
 
             Button {
@@ -487,7 +493,6 @@ private struct SegmentRow: View {
     let segment: DistanceSegment
     let distanceUnit: DistanceUnit
     let onTap: () -> Void
-    let onDelete: () -> Void
 
     private let detailColumns = [
         GridItem(.flexible(), spacing: 10, alignment: .topLeading),
@@ -569,39 +574,26 @@ private struct SegmentRow: View {
 
     var body: some View {
         Button(action: onTap) {
-            HStack(spacing: 10) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(distanceDisplay)
-                        .font(.system(size: 18, weight: .semibold, design: .rounded))
-                        .foregroundStyle(.white)
-                    if hasSecondaryDetails {
-                        LazyVGrid(columns: detailColumns, alignment: .leading, spacing: 8) {
-                            ForEach(detailItems) { item in
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(item.label)
-                                        .font(.system(size: 13, weight: .regular, design: .rounded))
-                                        .foregroundStyle(.white.opacity(0.55))
+            VStack(alignment: .leading, spacing: 6) {
+                Text(distanceDisplay)
+                    .font(.system(size: 18, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.white)
+                if hasSecondaryDetails {
+                    LazyVGrid(columns: detailColumns, alignment: .leading, spacing: 8) {
+                        ForEach(detailItems) { item in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(item.label)
+                                    .font(.system(size: 13, weight: .regular, design: .rounded))
+                                    .foregroundStyle(.white.opacity(0.55))
 
-                                    Text(item.value)
-                                        .font(.caption2)
-                                        .foregroundStyle(.white)
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                                Text(item.value)
+                                    .font(.caption2)
+                                    .foregroundStyle(.white)
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
                 }
-
-                Spacer(minLength: 8)
-
-                Button {
-                    onDelete()
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 18))
-                        .foregroundStyle(.white.opacity(0.4))
-                }
-                .buttonStyle(.plain)
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 12)
@@ -818,9 +810,15 @@ private struct IntervalSetupView: View {
                 SegmentRow(
                     segment: segment,
                     distanceUnit: settings.distanceUnit,
-                    onTap: { beginEditingSegment(segment) },
-                    onDelete: { deleteSegment(segment) }
+                    onTap: { beginEditingSegment(segment) }
                 )
+                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                    Button(role: .destructive) {
+                        deleteSegment(segment)
+                    } label: {
+                        Label(L10n.delete, systemImage: "trash")
+                    }
+                }
             }
 
             Button {

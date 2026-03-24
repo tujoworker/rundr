@@ -55,6 +55,7 @@
 		A6AC58E35DDE8D4C3006B265 /* LapSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4087CA1ACDF79F69B6F2FBEC /* LapSource.swift */; };
 		ADF3C560149CC9D36C370A06 /* LapLogApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2ABF59CD03172874BEADEA0 /* LapLogApp.swift */; };
 		C49E8373AE1A8ED3EC6A2880 /* ModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB9EDEF7841220E7F36CEFF /* ModelTests.swift */; };
+		A1B2C3D4E5F6011122334455 /* SessionSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6011122334456 /* SessionSyncTests.swift */; };
 		CFBC8671050DDED6391381E7 /* AppScreenState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BDE8B1656261C1E67BD361 /* AppScreenState.swift */; };
 		D5B5E557FB187878AF5A836B /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 803A3A092975B9BAB810BAB2 /* SettingsStore.swift */; };
 		E9FA61354F306ED894832978 /* WorkoutSessionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C461B28E60C157EE2885A142 /* WorkoutSessionController.swift */; };
@@ -140,6 +141,7 @@
 		E2A1B775A27201FA001C88AF /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		E7F85A1B319257D193FA45B6 /* WorkoutControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutControllerTests.swift; sourceTree = "<group>"; };
 		EFB9EDEF7841220E7F36CEFF /* ModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6011122334456 /* SessionSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSyncTests.swift; sourceTree = "<group>"; };
 		F1D1123CC9D14257B8A27313 /* LapLogShortcutsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapLogShortcutsProvider.swift; sourceTree = "<group>"; };
 		F2ABF59CD03172874BEADEA0 /* LapLogApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapLogApp.swift; sourceTree = "<group>"; };
 		F6DEE2BD2F65FC180005ABAA /* DistanceUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceUnit.swift; sourceTree = "<group>"; };
@@ -201,6 +203,7 @@
 			children = (
 				17AFAC5870B80DC3E8E64B00 /* FormattersTests.swift */,
 				EFB9EDEF7841220E7F36CEFF /* ModelTests.swift */,
+				A1B2C3D4E5F6011122334456 /* SessionSyncTests.swift */,
 				E7F85A1B319257D193FA45B6 /* WorkoutControllerTests.swift */,
 			);
 			path = LapLogTests;
@@ -532,6 +535,7 @@
 			files = (
 				437A1B72867C5867B354E553 /* FormattersTests.swift in Sources */,
 				C49E8373AE1A8ED3EC6A2880 /* ModelTests.swift in Sources */,
+				A1B2C3D4E5F6011122334455 /* SessionSyncTests.swift in Sources */,
 				EB489A6095972420E5B254F4 /* WorkoutControllerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

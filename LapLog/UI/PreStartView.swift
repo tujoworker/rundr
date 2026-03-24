@@ -121,15 +121,9 @@ struct PreStartView: View {
                 SegmentRow(
                     segment: segment,
                     distanceUnit: settings.distanceUnit,
-                    onTap: { beginEditingSegment(segment) }
+                    onTap: { beginEditingSegment(segment) },
+                    onDelete: { deleteSegment(segment) }
                 )
-                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                    Button(role: .destructive) {
-                        deleteSegment(segment)
-                    } label: {
-                        Label(L10n.delete, systemImage: "trash")
-                    }
-                }
             }
 
             Button {
@@ -493,6 +487,8 @@ private struct SegmentRow: View {
     let segment: DistanceSegment
     let distanceUnit: DistanceUnit
     let onTap: () -> Void
+    let onDelete: () -> Void
+    @State private var isDeleteConfirmationPresented = false
 
     private let detailColumns = [
         GridItem(.flexible(), spacing: 10, alignment: .topLeading),
@@ -573,36 +569,52 @@ private struct SegmentRow: View {
     }
 
     var body: some View {
-        Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(distanceDisplay)
-                    .font(.system(size: 18, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white)
-                if hasSecondaryDetails {
-                    LazyVGrid(columns: detailColumns, alignment: .leading, spacing: 8) {
-                        ForEach(detailItems) { item in
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(item.label)
-                                    .font(.system(size: 13, weight: .regular, design: .rounded))
-                                    .foregroundStyle(.white.opacity(0.55))
+        HStack(alignment: .top, spacing: 10) {
+            Button(action: onTap) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(distanceDisplay)
+                        .font(.system(size: 18, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white)
+                    if hasSecondaryDetails {
+                        LazyVGrid(columns: detailColumns, alignment: .leading, spacing: 8) {
+                            ForEach(detailItems) { item in
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(item.label)
+                                        .font(.system(size: 13, weight: .regular, design: .rounded))
+                                        .foregroundStyle(.white.opacity(0.55))
 
-                                Text(item.value)
-                                    .font(.caption2)
-                                    .foregroundStyle(.white)
+                                    Text(item.value)
+                                        .font(.caption2)
+                                        .foregroundStyle(.white)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
                             }
-                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
-            .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    .fill(Color.white.opacity(0.12))
-            )
+            .buttonStyle(.plain)
+
+            Button {
+                isDeleteConfirmationPresented = true
+            } label: {
+                Image(systemName: "trash.circle.fill")
+                    .font(.system(size: 18))
+                    .foregroundStyle(.white.opacity(0.45))
+            }
+            .buttonStyle(.plain)
         }
-        .buttonStyle(.plain)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(Color.white.opacity(0.12))
+        )
+        .confirmationDialog(L10n.delete, isPresented: $isDeleteConfirmationPresented, titleVisibility: .hidden) {
+            Button(L10n.delete, role: .destructive, action: onDelete)
+            Button(L10n.cancel, role: .cancel) {}
+        }
     }
 }
 
@@ -810,15 +822,9 @@ private struct IntervalSetupView: View {
                 SegmentRow(
                     segment: segment,
                     distanceUnit: settings.distanceUnit,
-                    onTap: { beginEditingSegment(segment) }
+                    onTap: { beginEditingSegment(segment) },
+                    onDelete: { deleteSegment(segment) }
                 )
-                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                    Button(role: .destructive) {
-                        deleteSegment(segment)
-                    } label: {
-                        Label(L10n.delete, systemImage: "trash")
-                    }
-                }
             }
 
             Button {

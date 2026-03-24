@@ -789,7 +789,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     // MARK: - HealthKit Workout Session
 
     private func startHealthKitWorkout() async {
-        guard let hkManager = healthKitManager else { return }
+        guard let hkManager = healthKitManager, hkManager.supportsLiveWorkoutSessions else { return }
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = .running
         configuration.locationType = usesGPSDistance ? .outdoor : .indoor

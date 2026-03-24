@@ -431,6 +431,13 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.restMode, .autoDetect)
     }
 
+    func testHealthKitLiveWorkoutSessionsAreDisabledDuringTests() {
+        let manager = HealthKitManager()
+
+        XCTAssertTrue(HealthKitManager.isRunningTests)
+        XCTAssertFalse(manager.supportsLiveWorkoutSessions)
+    }
+
     func testAutoDetectRestEntersRestAfterDelay() async {
         let controller = makeController()
         controller.configure(

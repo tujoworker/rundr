@@ -3,10 +3,18 @@ import HealthKit
 
 final class HealthKitManager: ObservableObject {
 
+    static var isRunningTests: Bool {
+        ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+    }
+
     let healthStore = HKHealthStore()
 
     @Published var isAuthorized = false
     @Published var authorizationError: String?
+
+    var supportsLiveWorkoutSessions: Bool {
+        !Self.isRunningTests && HKHealthStore.isHealthDataAvailable()
+    }
 
     // Types we read
     private var readTypes: Set<HKObjectType> {

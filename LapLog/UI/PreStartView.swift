@@ -569,48 +569,49 @@ private struct SegmentRow: View {
     }
 
     var body: some View {
-        HStack(alignment: .top, spacing: 10) {
-            Button(action: onTap) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text(distanceDisplay)
-                        .font(.system(size: 18, weight: .semibold, design: .rounded))
-                        .foregroundStyle(.white)
-                    if hasSecondaryDetails {
-                        LazyVGrid(columns: detailColumns, alignment: .leading, spacing: 8) {
-                            ForEach(detailItems) { item in
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(item.label)
-                                        .font(.system(size: 13, weight: .regular, design: .rounded))
-                                        .foregroundStyle(.white.opacity(0.55))
+        Button(action: onTap) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(distanceDisplay)
+                    .font(.system(size: 18, weight: .semibold, design: .rounded))
+                    .foregroundStyle(.white)
+                if hasSecondaryDetails {
+                    LazyVGrid(columns: detailColumns, alignment: .leading, spacing: 8) {
+                        ForEach(detailItems) { item in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(item.label)
+                                    .font(.system(size: 13, weight: .regular, design: .rounded))
+                                    .foregroundStyle(.white.opacity(0.55))
 
-                                    Text(item.value)
-                                        .font(.caption2)
-                                        .foregroundStyle(.white)
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                                Text(item.value)
+                                    .font(.caption2)
+                                    .foregroundStyle(.white)
                             }
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .buttonStyle(.plain)
-
-            Button {
-                isDeleteConfirmationPresented = true
-            } label: {
-                Image(systemName: "trash.circle.fill")
-                    .font(.system(size: 18))
-                    .foregroundStyle(.white.opacity(0.45))
-            }
-            .buttonStyle(.plain)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
+        .buttonStyle(.plain)
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
         .background(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .fill(Color.white.opacity(0.12))
         )
+        .overlay(alignment: .topTrailing) {
+            Button {
+                isDeleteConfirmationPresented = true
+            } label: {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.system(size: 18))
+                    .foregroundStyle(.white.opacity(0.45))
+            }
+            .buttonStyle(.plain)
+            .padding(.top, 12)
+            .padding(.trailing, 14)
+        }
         .confirmationDialog(L10n.delete, isPresented: $isDeleteConfirmationPresented, titleVisibility: .hidden) {
             Button(L10n.delete, role: .destructive, action: onDelete)
             Button(L10n.cancel, role: .cancel) {}

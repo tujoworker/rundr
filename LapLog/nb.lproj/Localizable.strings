@@ -22,7 +22,7 @@
 "Repeats" = "Repetisjoner";
 "Rest" = "Hvile";
 "Last Rest" = "Siste hvile";
-"+ Add Last Rest" = "+ Legg til siste hvile";
+"Add Last Rest" = "Legg til siste hvile";
 "GPS Also Enabled" = "GPS er også aktivert";
 "Open intervals use GPS distance, so this workout switched to Dual." = "Åpne intervaller bruker GPS-distanse, så denne økta ble byttet til Dual.";
 "Enable GPS Access" = "Aktiver GPS-tilgang";

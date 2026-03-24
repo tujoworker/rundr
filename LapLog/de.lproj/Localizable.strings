@@ -22,7 +22,7 @@
 "Repeats" = "Wiederholungen";
 "Rest" = "Pause";
 "Last Rest" = "Letzte Pause";
-"+ Add Last Rest" = "+ Letzte Pause hinzufügen";
+"Add Last Rest" = "Letzte Pause hinzufügen";
 "GPS Also Enabled" = "GPS ebenfalls aktiviert";
 "Open intervals use GPS distance, so this workout switched to Dual." = "Offene Intervalle nutzen GPS-Distanz, daher wurde dieses Training auf Dual umgestellt.";
 "Enable GPS Access" = "GPS-Zugriff aktivieren";

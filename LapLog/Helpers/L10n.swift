@@ -25,7 +25,7 @@ enum L10n {
     static let openDistance = String(localized: "Open", comment: "Open interval distance")
     static let repeats = String(localized: "Repeats", comment: "Segment repeats label")
     static let lastRest = String(localized: "Last Rest", comment: "Segment last rest label")
-    static let addLastRest = String(localized: "+ Add Last Rest", comment: "Button to add a last rest field")
+    static let addLastRest = String(localized: "Add Last Rest", comment: "Button to add a last rest field")
     static let gpsAlsoEnabledTitle = String(localized: "GPS Also Enabled", comment: "Open interval GPS banner title")
     static let gpsAlsoEnabledSubtitle = String(localized: "Open intervals use GPS distance, so this workout switched to Dual.", comment: "Open interval GPS banner subtitle")
     static let requestLocationAccess = String(localized: "Enable GPS Access", comment: "Open interval GPS banner button")

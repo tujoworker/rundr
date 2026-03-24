@@ -1156,8 +1156,18 @@ private struct SegmentEditSheet: View {
         lastRestSeconds > 0 ? Formatters.compactTimeString(from: Double(lastRestSeconds)) : L10n.restManual
     }
 
+    private var paceUnitLabel: String {
+        distanceUnit == .km ? L10n.pacePerKm : L10n.pacePerMi
+    }
+
+    private var paceFieldTitle: String {
+        "\(L10n.pace) (\(paceUnitLabel))"
+    }
+
     private var paceLabel: String {
-        targetPace > 0 ? Formatters.compactPaceString(secondsPerKm: Double(targetPace), unit: distanceUnit) : L10n.off
+        guard targetPace > 0 else { return L10n.off }
+        let secondsPerUnit = distanceUnit == .km ? Double(targetPace) : Double(targetPace) * 1.60934
+        return Formatters.compactTimeString(from: secondsPerUnit)
     }
 
     private var timeLabel: String {
@@ -1203,263 +1213,17 @@ private struct SegmentEditSheet: View {
                     )
                 }
 
-                Text(L10n.repeats)
-                    .font(.caption.bold())
-                    .foregroundStyle(.white.opacity(0.72))
-                    .padding(.horizontal, 4)
-                    .padding(.top, 4)
-
-                HStack(spacing: 8) {
-                    Button {
-                        if repeatCount > 0 {
-                            repeatCount -= 1
-                        }
-                    } label: {
-                        Image(systemName: "minus")
-                            .font(.system(size: 16, weight: .bold))
-                            .frame(width: 36, height: 36)
-                            .background(Circle().fill(Color.white.opacity(0.15)))
-                            .foregroundStyle(.white)
-                    }
-                    .buttonStyle(.plain)
-
-                    Text(repeatLabel)
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
-                        .monospacedDigit()
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(Color.white.opacity(0.12))
-                        )
-
-                    Button {
-                        repeatCount += 1
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 16, weight: .bold))
-                            .frame(width: 36, height: 36)
-                            .background(Circle().fill(Color.white.opacity(0.15)))
-                            .foregroundStyle(.white)
-                    }
-                    .buttonStyle(.plain)
+                if usesOpenDistance {
+                    timeTargetSection
                 }
 
-                Text(L10n.rest)
-                    .font(.caption.bold())
-                    .foregroundStyle(.white.opacity(0.72))
-                    .padding(.horizontal, 4)
-                    .padding(.top, 4)
+                repeatsSection
+                restSection
+                lastRestSection
 
-                HStack(spacing: 8) {
-                    Button {
-                        if restSeconds >= 15 {
-                            restSeconds -= 15
-                        } else {
-                            restSeconds = 0
-                        }
-                    } label: {
-                        Image(systemName: "minus")
-                            .font(.system(size: 16, weight: .bold))
-                            .frame(width: 36, height: 36)
-                            .background(Circle().fill(Color.white.opacity(0.15)))
-                            .foregroundStyle(.white)
-                    }
-                    .buttonStyle(.plain)
-
-                    Text(restLabel)
-                        .font(.system(size: 22, weight: .bold, design: .rounded))
-                        .monospacedDigit()
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(Color.white.opacity(0.12))
-                        )
-
-                    Button {
-                        restSeconds += 15
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 16, weight: .bold))
-                            .frame(width: 36, height: 36)
-                            .background(Circle().fill(Color.white.opacity(0.15)))
-                            .foregroundStyle(.white)
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                if lastRestSeconds > 0 {
-                    Text(L10n.lastRest)
-                        .font(.caption.bold())
-                        .foregroundStyle(.white.opacity(0.72))
-                        .padding(.horizontal, 4)
-                        .padding(.top, 4)
-
-                    HStack(spacing: 8) {
-                        Button {
-                            if lastRestSeconds >= 15 {
-                                lastRestSeconds -= 15
-                            } else {
-                                lastRestSeconds = 0
-                            }
-                        } label: {
-                            Image(systemName: "minus")
-                                .font(.system(size: 16, weight: .bold))
-                                .frame(width: 36, height: 36)
-                                .background(Circle().fill(Color.white.opacity(0.15)))
-                                .foregroundStyle(.white)
-                        }
-                        .buttonStyle(.plain)
-
-                        Text(lastRestLabel)
-                            .font(.system(size: 18, weight: .bold, design: .rounded))
-                            .monospacedDigit()
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 10)
-                            .background(
-                                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                    .fill(Color.white.opacity(0.12))
-                            )
-
-                        Button {
-                            lastRestSeconds += 15
-                        } label: {
-                            Image(systemName: "plus")
-                                .font(.system(size: 16, weight: .bold))
-                                .frame(width: 36, height: 36)
-                                .background(Circle().fill(Color.white.opacity(0.15)))
-                                .foregroundStyle(.white)
-                        }
-                        .buttonStyle(.plain)
-                    }
-                } else {
-                    Button {
-                        lastRestSeconds = max(restSeconds, 15)
-                    } label: {
-                        Text(L10n.addLastRest)
-                            .font(.system(size: 14, weight: .semibold, design: .rounded))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 10)
-                            .background(
-                                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                    .fill(Color.white.opacity(0.08))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                            .stroke(Color.white.opacity(0.12), lineWidth: 1)
-                                    )
-                            )
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                Text(L10n.target)
-                    .font(.system(size: 14, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 4)
-                    .padding(.top, 8)
-
-                Text(L10n.pace)
-                    .font(.caption.bold())
-                    .foregroundStyle(.white.opacity(0.72))
-                    .padding(.horizontal, 4)
-                    .padding(.top, 4)
-
-                HStack(spacing: 8) {
-                    Button {
-                        guard !usesOpenDistance else { return }
-                        if targetPace >= 15 {
-                            targetPace -= 5
-                        } else {
-                            targetPace = 0
-                        }
-                        if targetPace > 0 { targetTime = 0 }
-                    } label: {
-                        Image(systemName: "minus")
-                            .font(.system(size: 16, weight: .bold))
-                            .frame(width: 36, height: 36)
-                            .background(Circle().fill(Color.white.opacity(0.15)))
-                            .foregroundStyle(.white)
-                    }
-                    .buttonStyle(.plain)
-
-                    Text(paceLabel)
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                        .monospacedDigit()
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(Color.white.opacity(0.12))
-                        )
-
-                    Button {
-                        guard !usesOpenDistance else { return }
-                        if targetPace == 0 { targetPace = 300 }
-                        else { targetPace += 5 }
-                        targetTime = 0
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 16, weight: .bold))
-                            .frame(width: 36, height: 36)
-                            .background(Circle().fill(Color.white.opacity(0.15)))
-                            .foregroundStyle(.white)
-                    }
-                    .buttonStyle(.plain)
-                }
-                .opacity(usesOpenDistance ? 0.4 : 1)
-
-                Text(L10n.time)
-                    .font(.caption.bold())
-                    .foregroundStyle(.white.opacity(0.72))
-                    .padding(.horizontal, 4)
-                    .padding(.top, 4)
-
-                HStack(spacing: 8) {
-                    Button {
-                        if targetTime >= 10 {
-                            targetTime -= 5
-                        } else {
-                            targetTime = 0
-                        }
-                        if targetTime > 0 { targetPace = 0 }
-                    } label: {
-                        Image(systemName: "minus")
-                            .font(.system(size: 16, weight: .bold))
-                            .frame(width: 36, height: 36)
-                            .background(Circle().fill(Color.white.opacity(0.15)))
-                            .foregroundStyle(.white)
-                    }
-                    .buttonStyle(.plain)
-
-                    Text(timeLabel)
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                        .monospacedDigit()
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(Color.white.opacity(0.12))
-                        )
-
-                    Button {
-                        if targetTime == 0 { targetTime = 90 }
-                        else { targetTime += 5 }
-                        targetPace = 0
-                    } label: {
-                        Image(systemName: "plus")
-                            .font(.system(size: 16, weight: .bold))
-                            .frame(width: 36, height: 36)
-                            .background(Circle().fill(Color.white.opacity(0.15)))
-                            .foregroundStyle(.white)
-                    }
-                    .buttonStyle(.plain)
+                if !usesOpenDistance {
+                    paceTargetSection
+                    timeTargetSection
                 }
 
                 Button(L10n.done) {
@@ -1479,6 +1243,280 @@ private struct SegmentEditSheet: View {
             }
         }
         .scrollContentBackground(.hidden)
+    }
+
+    private var repeatsSection: some View {
+        Group {
+            Text(L10n.repeats)
+                .font(.caption.bold())
+                .foregroundStyle(.white.opacity(0.72))
+                .padding(.horizontal, 4)
+                .padding(.top, 4)
+
+            HStack(spacing: 8) {
+                Button {
+                    if repeatCount > 0 {
+                        repeatCount -= 1
+                    }
+                } label: {
+                    Image(systemName: "minus")
+                        .font(.system(size: 16, weight: .bold))
+                        .frame(width: 36, height: 36)
+                        .background(Circle().fill(Color.white.opacity(0.15)))
+                        .foregroundStyle(.white)
+                }
+                .buttonStyle(.plain)
+
+                Text(repeatLabel)
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(Color.white.opacity(0.12))
+                    )
+
+                Button {
+                    repeatCount += 1
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 16, weight: .bold))
+                        .frame(width: 36, height: 36)
+                        .background(Circle().fill(Color.white.opacity(0.15)))
+                        .foregroundStyle(.white)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private var restSection: some View {
+        Group {
+            Text(L10n.rest)
+                .font(.caption.bold())
+                .foregroundStyle(.white.opacity(0.72))
+                .padding(.horizontal, 4)
+                .padding(.top, 4)
+
+            HStack(spacing: 8) {
+                Button {
+                    if restSeconds >= 15 {
+                        restSeconds -= 15
+                    } else {
+                        restSeconds = 0
+                    }
+                } label: {
+                    Image(systemName: "minus")
+                        .font(.system(size: 16, weight: .bold))
+                        .frame(width: 36, height: 36)
+                        .background(Circle().fill(Color.white.opacity(0.15)))
+                        .foregroundStyle(.white)
+                }
+                .buttonStyle(.plain)
+
+                Text(restLabel)
+                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(Color.white.opacity(0.12))
+                    )
+
+                Button {
+                    restSeconds += 15
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 16, weight: .bold))
+                        .frame(width: 36, height: 36)
+                        .background(Circle().fill(Color.white.opacity(0.15)))
+                        .foregroundStyle(.white)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var lastRestSection: some View {
+        if lastRestSeconds > 0 {
+            Text(L10n.lastRest)
+                .font(.caption.bold())
+                .foregroundStyle(.white.opacity(0.72))
+                .padding(.horizontal, 4)
+                .padding(.top, 4)
+
+            HStack(spacing: 8) {
+                Button {
+                    if lastRestSeconds >= 15 {
+                        lastRestSeconds -= 15
+                    } else {
+                        lastRestSeconds = 0
+                    }
+                } label: {
+                    Image(systemName: "minus")
+                        .font(.system(size: 16, weight: .bold))
+                        .frame(width: 36, height: 36)
+                        .background(Circle().fill(Color.white.opacity(0.15)))
+                        .foregroundStyle(.white)
+                }
+                .buttonStyle(.plain)
+
+                Text(lastRestLabel)
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(Color.white.opacity(0.12))
+                    )
+
+                Button {
+                    lastRestSeconds += 15
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 16, weight: .bold))
+                        .frame(width: 36, height: 36)
+                        .background(Circle().fill(Color.white.opacity(0.15)))
+                        .foregroundStyle(.white)
+                }
+                .buttonStyle(.plain)
+            }
+        } else {
+            Button {
+                lastRestSeconds = max(restSeconds, 15)
+            } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 16, weight: .semibold))
+
+                    Text(L10n.addLastRest)
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                }
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(Color.white.opacity(0.08))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                        )
+                )
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    private var paceTargetSection: some View {
+        Group {
+            Text(paceFieldTitle)
+                .font(.caption.bold())
+                .foregroundStyle(.white.opacity(0.72))
+                .padding(.horizontal, 4)
+                .padding(.top, 8)
+
+            HStack(spacing: 8) {
+                Button {
+                    if targetPace >= 15 {
+                        targetPace -= 5
+                    } else {
+                        targetPace = 0
+                    }
+                    if targetPace > 0 { targetTime = 0 }
+                } label: {
+                    Image(systemName: "minus")
+                        .font(.system(size: 16, weight: .bold))
+                        .frame(width: 36, height: 36)
+                        .background(Circle().fill(Color.white.opacity(0.15)))
+                        .foregroundStyle(.white)
+                }
+                .buttonStyle(.plain)
+
+                Text(paceLabel)
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(Color.white.opacity(0.12))
+                    )
+
+                Button {
+                    if targetPace == 0 { targetPace = 300 }
+                    else { targetPace += 5 }
+                    targetTime = 0
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 16, weight: .bold))
+                        .frame(width: 36, height: 36)
+                        .background(Circle().fill(Color.white.opacity(0.15)))
+                        .foregroundStyle(.white)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private var timeTargetSection: some View {
+        Group {
+            Text(L10n.time)
+                .font(.caption.bold())
+                .foregroundStyle(.white.opacity(0.72))
+                .padding(.horizontal, 4)
+                .padding(.top, 4)
+
+            HStack(spacing: 8) {
+                Button {
+                    if targetTime >= 10 {
+                        targetTime -= 5
+                    } else {
+                        targetTime = 0
+                    }
+                    if targetTime > 0 { targetPace = 0 }
+                } label: {
+                    Image(systemName: "minus")
+                        .font(.system(size: 16, weight: .bold))
+                        .frame(width: 36, height: 36)
+                        .background(Circle().fill(Color.white.opacity(0.15)))
+                        .foregroundStyle(.white)
+                }
+                .buttonStyle(.plain)
+
+                Text(timeLabel)
+                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .monospacedDigit()
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(Color.white.opacity(0.12))
+                    )
+
+                Button {
+                    if targetTime == 0 { targetTime = 90 }
+                    else { targetTime += 5 }
+                    targetPace = 0
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 16, weight: .bold))
+                        .frame(width: 36, height: 36)
+                        .background(Circle().fill(Color.white.opacity(0.15)))
+                        .foregroundStyle(.white)
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 
     private func distanceModeButton(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {

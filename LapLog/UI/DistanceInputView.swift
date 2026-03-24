@@ -101,11 +101,12 @@ struct DistanceInputView: View {
                 }
             }
         )) {
-            DistanceInputEditorScreen(
+            NumericKeypadEditorScreen(
                 title: label,
                 accentColor: accentColor,
                 keypadRows: keypadRows,
                 text: $editorText,
+                onTapKey: tapKey,
                 onDone: {
                     commitEditorText()
                 }
@@ -138,11 +139,12 @@ struct DistanceInputView: View {
     }
 }
 
-private struct DistanceInputEditorScreen: View {
+struct NumericKeypadEditorScreen: View {
     let title: String
     let accentColor: Color
     let keypadRows: [[String]]
     @Binding var text: String
+    let onTapKey: (String, inout String) -> Void
     let onDone: () -> Void
 
     private let headerContentHeight: CGFloat = 8
@@ -192,15 +194,17 @@ private struct DistanceInputEditorScreen: View {
                                 ForEach(0..<keypadRows.count, id: \.self) { rowIndex in
                                     HStack(spacing: 6) {
                                         ForEach(keypadRows[rowIndex], id: \.self) { key in
-                                            KeypadButton(key: key) {
-                                                tapKey(key)
+                                            NumericKeypadButton(key: key) {
+                                                var nextText = text
+                                                onTapKey(key, &nextText)
+                                                text = nextText
                                             }
                                         }
                                     }
                                 }
                             }
 
-                            Button("Done") {
+                            Button(L10n.done) {
                                 onDone()
                             }
                             .padding(.top, 4)
@@ -214,32 +218,39 @@ private struct DistanceInputEditorScreen: View {
         }
     }
 
-    private func tapKey(_ key: String) {
-        if key == "⌫" {
-            if !text.isEmpty {
-                text.removeLast()
-            }
-            return
-        }
+}
 
-        if key == "." {
-            if text.isEmpty {
-                text = "0."
-            } else if !text.contains(".") {
-                text += key
-            }
-            return
+func distanceFieldTapKey(_ key: String, text: inout String) {
+    if key == "⌫" {
+        if !text.isEmpty {
+            text.removeLast()
         }
+        return
+    }
 
-        if text == "0" {
-            text = key
-        } else {
+    if key == "." {
+        if text.isEmpty {
+            text = "0."
+        } else if !text.contains(".") {
             text += key
         }
+        return
+    }
+
+    if text == "0" {
+        text = key
+    } else {
+        text += key
     }
 }
 
-private struct KeypadButton: View {
+private extension DistanceInputView {
+    func tapKey(_ key: String, text: inout String) {
+        distanceFieldTapKey(key, text: &text)
+    }
+}
+
+private struct NumericKeypadButton: View {
     let key: String
     let action: () -> Void
 
@@ -256,5 +267,13 @@ private struct KeypadButton: View {
                 )
         }
         .buttonStyle(.plain)
+    }
+}
+
+private extension DistanceInputView {
+    func tapKey(_ key: String) {
+        var nextText = text
+        tapKey(key, text: &nextText)
+        text = nextText
     }
 }

@@ -1143,6 +1143,17 @@ private struct SegmentEditSheet: View {
     let onDone: () -> Void
 
     private let defaultDistanceText = "400"
+    private let durationKeypadRows: [[String]] = [
+        ["1", "2", "3"],
+        ["4", "5", "6"],
+        ["7", "8", "9"],
+        [":", "0", "⌫"]
+    ]
+
+    @State private var isPaceEditorPresented = false
+    @State private var isTimeEditorPresented = false
+    @State private var paceEditorText = ""
+    @State private var timeEditorText = ""
 
     private var repeatLabel: String {
         repeatCount > 0 ? "\(repeatCount)" : "∞"
@@ -1243,6 +1254,50 @@ private struct SegmentEditSheet: View {
             }
         }
         .scrollContentBackground(.hidden)
+        .sheet(isPresented: Binding(
+            get: { isPaceEditorPresented },
+            set: { presented in
+                if !presented {
+                    commitPaceEditorText()
+                } else {
+                    isPaceEditorPresented = true
+                }
+            }
+        )) {
+            NumericKeypadEditorScreen(
+                title: paceFieldTitle,
+                accentColor: accentColor,
+                keypadRows: durationKeypadRows,
+                text: $paceEditorText,
+                onTapKey: durationFieldTapKey,
+                onDone: {
+                    commitPaceEditorText()
+                }
+            )
+            .toolbar(.hidden, for: .navigationBar)
+        }
+        .sheet(isPresented: Binding(
+            get: { isTimeEditorPresented },
+            set: { presented in
+                if !presented {
+                    commitTimeEditorText()
+                } else {
+                    isTimeEditorPresented = true
+                }
+            }
+        )) {
+            NumericKeypadEditorScreen(
+                title: L10n.time,
+                accentColor: accentColor,
+                keypadRows: durationKeypadRows,
+                text: $timeEditorText,
+                onTapKey: durationFieldTapKey,
+                onDone: {
+                    commitTimeEditorText()
+                }
+            )
+            .toolbar(.hidden, for: .navigationBar)
+        }
     }
 
     private var repeatsSection: some View {
@@ -1440,16 +1495,23 @@ private struct SegmentEditSheet: View {
                 }
                 .buttonStyle(.plain)
 
-                Text(paceLabel)
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .background(
+                Button {
+                    paceEditorText = targetPace > 0 ? paceLabel : ""
+                    isPaceEditorPresented = true
+                } label: {
+                    ZStack {
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
                             .fill(Color.white.opacity(0.12))
-                    )
+
+                        Text(targetPace > 0 ? paceLabel : L10n.off)
+                            .font(.system(size: 18, weight: .bold, design: .rounded))
+                            .monospacedDigit()
+                            .foregroundStyle(.white)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 46)
+                }
+                .frame(maxWidth: .infinity)
+                .buttonStyle(.plain)
 
                 Button {
                     if targetPace == 0 { targetPace = 300 }
@@ -1492,16 +1554,23 @@ private struct SegmentEditSheet: View {
                 }
                 .buttonStyle(.plain)
 
-                Text(timeLabel)
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .background(
+                Button {
+                    timeEditorText = targetTime > 0 ? timeLabel : ""
+                    isTimeEditorPresented = true
+                } label: {
+                    ZStack {
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
                             .fill(Color.white.opacity(0.12))
-                    )
+
+                        Text(targetTime > 0 ? timeLabel : L10n.off)
+                            .font(.system(size: 18, weight: .bold, design: .rounded))
+                            .monospacedDigit()
+                            .foregroundStyle(.white)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 46)
+                }
+                .frame(maxWidth: .infinity)
+                .buttonStyle(.plain)
 
                 Button {
                     if targetTime == 0 { targetTime = 90 }
@@ -1519,6 +1588,45 @@ private struct SegmentEditSheet: View {
         }
     }
 
+    private func commitPaceEditorText() {
+        targetPace = parsedDurationSeconds(from: paceEditorText)
+        if targetPace > 0 {
+            targetTime = 0
+        }
+        isPaceEditorPresented = false
+    }
+
+    private func commitTimeEditorText() {
+        targetTime = parsedDurationSeconds(from: timeEditorText)
+        if targetTime > 0 {
+            targetPace = 0
+        }
+        isTimeEditorPresented = false
+    }
+
+    private func parsedDurationSeconds(from value: String) -> Int {
+        let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedValue.isEmpty else { return 0 }
+
+        let components = trimmedValue.split(separator: ":", omittingEmptySubsequences: false)
+
+        if components.count == 1 {
+            return Int(components[0]) ?? 0
+        }
+
+        guard components.count <= 3 else { return 0 }
+        guard components.allSatisfy({ !$0.isEmpty && Int($0) != nil }) else { return 0 }
+
+        let values = components.compactMap { Int($0) }
+        guard values.count == components.count else { return 0 }
+        guard values.dropFirst().allSatisfy({ $0 < 60 }) else { return 0 }
+
+        return values.reversed().enumerated().reduce(0) { partialResult, pair in
+            let (index, component) = pair
+            return partialResult + component * Int(pow(60.0, Double(index)))
+        }
+    }
+
     private func distanceModeButton(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
@@ -1532,6 +1640,27 @@ private struct SegmentEditSheet: View {
                 )
         }
         .buttonStyle(.plain)
+    }
+}
+
+private func durationFieldTapKey(_ key: String, text: inout String) {
+    if key == "⌫" {
+        if !text.isEmpty {
+            text.removeLast()
+        }
+        return
+    }
+
+    if key == ":" {
+        guard !text.isEmpty, !text.hasSuffix(":"), text.filter({ $0 == ":" }).count < 2 else { return }
+        text += key
+        return
+    }
+
+    if text == "0" {
+        text = key
+    } else {
+        text += key
     }
 }
 

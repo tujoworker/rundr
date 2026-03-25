@@ -14,8 +14,8 @@ struct SessionDetailView: View {
         session.laps.sorted { $0.startedAt < $1.startedAt }
     }
 
-    private var headerTitle: String {
-        Formatters.historySessionDateRangeString(start: session.startedAt, end: session.endedAt)
+    private var headerTitle: HistoryDateRangeParts {
+        Formatters.historySessionDateRangeParts(start: session.startedAt, end: session.endedAt)
     }
 
     private var isPendingPhoneSync: Bool {
@@ -83,11 +83,17 @@ struct SessionDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 6) {
                 HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    Text(headerTitle)
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(.white)
-                        .multilineTextAlignment(.leading)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(headerTitle.dayText)
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(.white)
+
+                        Text(headerTitle.timeText)
+                            .font(.system(size: 11, weight: .regular, design: .rounded))
+                            .foregroundStyle(.white.opacity(0.72))
+                    }
+                    .multilineTextAlignment(.leading)
+                    .frame(maxWidth: .infinity, alignment: .leading)
 
                     if !isPendingPhoneSync {
                         Button {

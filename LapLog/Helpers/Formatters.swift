@@ -1,5 +1,15 @@
 import Foundation
 
+struct HistoryDateTimeParts: Equatable {
+    let dayText: String
+    let timeText: String
+}
+
+struct HistoryDateRangeParts: Equatable {
+    let dayText: String
+    let timeText: String
+}
+
 enum Formatters {
 
     private static let relativeDayFormatter: DateFormatter = {
@@ -17,6 +27,15 @@ enum Formatters {
         referenceDate: Date = Date(),
         calendar: Calendar = .current
     ) -> String {
+        let parts = historySessionDateTimeParts(from: date, referenceDate: referenceDate, calendar: calendar)
+        return "\(parts.dayText), \(parts.timeText)"
+    }
+
+    static func historySessionDateTimeParts(
+        from date: Date,
+        referenceDate: Date = Date(),
+        calendar: Calendar = .current
+    ) -> HistoryDateTimeParts {
         let now = referenceDate
         let dayText: String
         let referenceStart = calendar.startOfDay(for: now)
@@ -34,7 +53,7 @@ enum Formatters {
         }
 
         let timeText = date.formatted(date: .omitted, time: .shortened)
-        return "\(dayText), \(timeText)"
+        return HistoryDateTimeParts(dayText: dayText, timeText: timeText)
     }
 
     static func historySessionDateRangeString(
@@ -43,16 +62,27 @@ enum Formatters {
         referenceDate: Date = Date(),
         calendar: Calendar = .current
     ) -> String {
-        let startText = historySessionDateTimeString(from: start, referenceDate: referenceDate, calendar: calendar)
-        let endText: String
+        let parts = historySessionDateRangeParts(start: start, end: end, referenceDate: referenceDate, calendar: calendar)
+        return "\(parts.dayText), \(parts.timeText)"
+    }
+
+    static func historySessionDateRangeParts(
+        start: Date,
+        end: Date,
+        referenceDate: Date = Date(),
+        calendar: Calendar = .current
+    ) -> HistoryDateRangeParts {
+        let startParts = historySessionDateTimeParts(from: start, referenceDate: referenceDate, calendar: calendar)
+        let timeText: String
 
         if calendar.isDate(start, inSameDayAs: end) {
-            endText = end.formatted(date: .omitted, time: .shortened)
+            timeText = "\(startParts.timeText) - \(end.formatted(date: .omitted, time: .shortened))"
         } else {
-            endText = historySessionDateTimeString(from: end, referenceDate: referenceDate, calendar: calendar)
+            let endParts = historySessionDateTimeParts(from: end, referenceDate: referenceDate, calendar: calendar)
+            timeText = "\(startParts.timeText) - \(endParts.dayText), \(endParts.timeText)"
         }
 
-        return "\(startText) - \(endText)"
+        return HistoryDateRangeParts(dayText: startParts.dayText, timeText: timeText)
     }
 
     // MARK: - Time

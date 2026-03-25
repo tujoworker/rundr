@@ -179,6 +179,24 @@ final class FormattersTests: XCTestCase {
         )
     }
 
+    func testHistorySessionDateTimePartsSplitDayAndTime() throws {
+        let referenceDate = try makeDate(year: 2026, month: 3, day: 19, hour: 12)
+        let sessionDate = try makeDate(year: 2026, month: 3, day: 19, hour: 10, minute: 15)
+
+        let formatter = DateFormatter()
+        formatter.dateStyle = .full
+        formatter.timeStyle = .none
+        formatter.doesRelativeDateFormatting = true
+
+        XCTAssertEqual(
+            Formatters.historySessionDateTimeParts(from: sessionDate, referenceDate: referenceDate, calendar: testCalendar),
+            HistoryDateTimeParts(
+                dayText: formatter.string(from: sessionDate),
+                timeText: sessionDate.formatted(date: .omitted, time: .shortened)
+            )
+        )
+    }
+
     func testHistorySessionDateTimeStringUsesYesterdayLabel() throws {
         let referenceDate = try makeDate(year: 2026, month: 3, day: 19, hour: 12)
         let sessionDate = try makeDate(year: 2026, month: 3, day: 18, hour: 10, minute: 15)
@@ -238,6 +256,25 @@ final class FormattersTests: XCTestCase {
         XCTAssertEqual(
             Formatters.historySessionDateRangeString(start: start, end: end, referenceDate: referenceDate, calendar: testCalendar),
             expected
+        )
+    }
+
+    func testHistorySessionDateRangePartsUseSharedDayForSameDayRange() throws {
+        let referenceDate = try makeDate(year: 2026, month: 3, day: 19, hour: 12)
+        let start = try makeDate(year: 2026, month: 3, day: 19, hour: 10, minute: 0)
+        let end = try makeDate(year: 2026, month: 3, day: 19, hour: 11, minute: 5)
+
+        let formatter = DateFormatter()
+        formatter.dateStyle = .full
+        formatter.timeStyle = .none
+        formatter.doesRelativeDateFormatting = true
+
+        XCTAssertEqual(
+            Formatters.historySessionDateRangeParts(start: start, end: end, referenceDate: referenceDate, calendar: testCalendar),
+            HistoryDateRangeParts(
+                dayText: formatter.string(from: start),
+                timeText: "\(start.formatted(date: .omitted, time: .shortened)) - \(end.formatted(date: .omitted, time: .shortened))"
+            )
         )
     }
 

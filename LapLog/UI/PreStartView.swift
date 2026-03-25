@@ -525,10 +525,6 @@ private struct SegmentRow: View {
     private var detailItems: [SessionStatItem] {
         var items: [SessionStatItem] = []
 
-        if let count = segment.repeatCount {
-            items.append(SessionStatItem(label: L10n.repeats, value: "×\(count)"))
-        }
-
         if let rest = segment.restSeconds {
             items.append(
                 SessionStatItem(
@@ -536,6 +532,15 @@ private struct SegmentRow: View {
                     value: Formatters.compactTimeString(from: Double(rest))
                 )
             )
+        }
+
+        if let count = segment.repeatCount {
+            let repeatItem = SessionStatItem(label: L10n.repeats, value: "×\(count)")
+            if segment.usesOpenDistance {
+                items.append(repeatItem)
+            } else {
+                items.insert(repeatItem, at: 0)
+            }
         }
 
         if let lastRest = segment.lastRestSeconds {
@@ -569,38 +574,40 @@ private struct SegmentRow: View {
     }
 
     var body: some View {
-        Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(distanceDisplay)
-                    .font(.system(size: 18, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white)
-                if hasSecondaryDetails {
-                    LazyVGrid(columns: detailColumns, alignment: .leading, spacing: 8) {
-                        ForEach(detailItems) { item in
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text(item.label)
-                                    .font(.system(size: 13, weight: .regular, design: .rounded))
-                                    .foregroundStyle(.white.opacity(0.55))
+        ZStack(alignment: .topTrailing) {
+            Button(action: onTap) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(distanceDisplay)
+                        .font(.system(size: 18, weight: .semibold, design: .rounded))
+                        .foregroundStyle(.white)
+                    if hasSecondaryDetails {
+                        LazyVGrid(columns: detailColumns, alignment: .leading, spacing: 8) {
+                            ForEach(detailItems) { item in
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(item.label)
+                                        .font(.system(size: 13, weight: .regular, design: .rounded))
+                                        .foregroundStyle(.white.opacity(0.55))
 
-                                Text(item.value)
-                                    .font(.caption2)
-                                    .foregroundStyle(.white)
+                                    Text(item.value)
+                                        .font(.caption2)
+                                        .foregroundStyle(.white)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
                             }
-                            .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        .fill(Color.white.opacity(0.12))
+                )
+                .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-        .buttonStyle(.plain)
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
-        .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .fill(Color.white.opacity(0.12))
-        )
-        .overlay(alignment: .topTrailing) {
+            .buttonStyle(.plain)
+
             Button {
                 isDeleteConfirmationPresented = true
             } label: {
@@ -1226,10 +1233,13 @@ private struct SegmentEditSheet: View {
 
                 if usesOpenDistance {
                     timeTargetSection
+                    restSection
+                    repeatsSection
+                } else {
+                    repeatsSection
+                    restSection
                 }
 
-                repeatsSection
-                restSection
                 lastRestSection
 
                 if !usesOpenDistance {

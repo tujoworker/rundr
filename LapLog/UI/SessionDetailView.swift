@@ -237,6 +237,8 @@ struct LapRowView: View {
     var distanceUnit: DistanceUnit = .km
     var targetSegment: DistanceSegment? = nil
 
+    private let badgeOpticalLift: CGFloat = 2
+
     private let columns = [
         GridItem(.flexible(), spacing: 12, alignment: .topLeading),
         GridItem(.flexible(), spacing: 12, alignment: .topLeading)
@@ -360,7 +362,7 @@ struct LapRowView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 6) {
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
                 if lap.lapType == .rest {
                     Text(L10n.rest)
                         .font(.caption.bold())
@@ -374,6 +376,9 @@ struct LapRowView: View {
                             RoundedRectangle(cornerRadius: 8, style: .continuous)
                                 .fill(.white)
                         )
+                        .alignmentGuide(.firstTextBaseline) { dimensions in
+                            dimensions[.firstTextBaseline] + badgeOpticalLift
+                        }
                 }
 
                 Text(headerItems.joined(separator: " • "))

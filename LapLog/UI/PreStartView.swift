@@ -1662,18 +1662,7 @@ private struct SegmentEditSheet: View {
     }
 
     private func distanceModeButton(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(.system(size: 14, weight: .semibold, design: .rounded))
-                .foregroundStyle(isSelected ? .black : .white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .background(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(isSelected ? Color.white : Color.white.opacity(0.12))
-                )
-        }
-        .buttonStyle(.plain)
+        SelectionToggleButton(title: title, isSelected: isSelected, action: action)
     }
 }
 

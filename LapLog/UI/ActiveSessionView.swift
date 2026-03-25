@@ -791,30 +791,12 @@ private struct LapEditorScreen: View {
 
     @ViewBuilder
     private func lapTypeButton(title: String, type: LapType) -> some View {
-        Button {
+        SelectionToggleButton(title: title, isSelected: lapType == type) {
             lapType = type
             if type == .active && distanceText.isEmpty {
                 distanceText = defaultDistanceText
             }
-        } label: {
-            Text(title)
-                .font(.system(size: 15, weight: .semibold, design: .rounded))
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .background(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(lapType == type ? accentColor.opacity(0.2) : Color.white.opacity(0.08))
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .stroke(
-                            lapType == type ? accentColor.opacity(0.4) : Color.white.opacity(0.12),
-                            lineWidth: 1.5
-                        )
-                )
         }
-        .buttonStyle(.plain)
     }
 }
 

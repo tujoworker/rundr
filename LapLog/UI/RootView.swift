@@ -51,6 +51,27 @@ extension View {
     }
 }
 
+struct SelectionToggleButton: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .foregroundStyle(isSelected ? .black : .white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(isSelected ? Color.white : Color.white.opacity(0.12))
+                )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
 struct RootView: View {
     @EnvironmentObject var coordinator: NavigationCoordinator
     @EnvironmentObject var persistence: PersistenceManager

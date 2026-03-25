@@ -80,37 +80,17 @@ enum Formatters {
         calendar: Calendar = .current
     ) -> HistoryDateRangeParts {
         let startParts = historySessionDateTimeParts(from: start, referenceDate: referenceDate, calendar: calendar)
-        let durationText = historySessionDurationString(start: start, end: end)
         let timeRangeText = historyTimeIntervalFormatter.string(from: start, to: end)
-        let timeText = durationText.isEmpty ? timeRangeText : "\(timeRangeText) (\(durationText))"
 
         if calendar.isDate(start, inSameDayAs: end) {
-            return HistoryDateRangeParts(dayText: startParts.dayText, timeText: timeText)
+            return HistoryDateRangeParts(dayText: startParts.dayText, timeText: timeRangeText)
         } else {
             let endParts = historySessionDateTimeParts(from: end, referenceDate: referenceDate, calendar: calendar)
             return HistoryDateRangeParts(
                 dayText: "\(startParts.dayText) - \(endParts.dayText)",
-                timeText: timeText
+                timeText: timeRangeText
             )
         }
-    }
-
-    private static func historySessionDurationString(start: Date, end: Date) -> String {
-        let duration = max(end.timeIntervalSince(start), 0)
-        let formatter = DateComponentsFormatter()
-        formatter.unitsStyle = .short
-        formatter.maximumUnitCount = 2
-        formatter.zeroFormattingBehavior = .dropAll
-
-        if duration >= 3600 {
-            formatter.allowedUnits = [.hour, .minute]
-        } else if duration >= 60 {
-            formatter.allowedUnits = [.minute, .second]
-        } else {
-            formatter.allowedUnits = [.second]
-        }
-
-        return formatter.string(from: duration) ?? ""
     }
 
     // MARK: - Time

@@ -90,8 +90,8 @@ struct SessionRowView: View {
         GridItem(.flexible(), spacing: 12, alignment: .topLeading)
     ]
 
-    private var sessionTitle: HistoryDateTimeParts {
-        Formatters.historySessionDateTimeParts(from: session.startedAt)
+    private var sessionTitle: String {
+        Formatters.historySessionDateTimeString(from: session.startedAt)
     }
 
     private var sessionUsesOpenIntervals: Bool {
@@ -126,16 +126,9 @@ struct SessionRowView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            VStack(alignment: .leading, spacing: 1) {
-                Text(sessionTitle.dayText)
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.white)
-
-                Text(sessionTitle.timeText)
-                    .font(.system(size: 12, weight: .regular, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.72))
-            }
-            .fixedSize(horizontal: false, vertical: true)
+            Text(sessionTitle)
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(.white)
             .padding(.bottom, 4)
 
             LazyVGrid(columns: columns, alignment: .leading, spacing: 10) {

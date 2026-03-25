@@ -20,6 +20,13 @@ enum Formatters {
         return formatter
     }()
 
+    private static let historyTimeIntervalFormatter: DateIntervalFormatter = {
+        let formatter = DateIntervalFormatter()
+        formatter.dateStyle = .none
+        formatter.timeStyle = .short
+        return formatter
+    }()
+
     // MARK: - Date
 
     static func historySessionDateTimeString(
@@ -73,16 +80,37 @@ enum Formatters {
         calendar: Calendar = .current
     ) -> HistoryDateRangeParts {
         let startParts = historySessionDateTimeParts(from: start, referenceDate: referenceDate, calendar: calendar)
-        let timeText: String
+        let durationText = historySessionDurationString(start: start, end: end)
+        let timeRangeText = historyTimeIntervalFormatter.string(from: start, to: end)
+        let timeText = durationText.isEmpty ? timeRangeText : "\(timeRangeText) (\(durationText))"
 
         if calendar.isDate(start, inSameDayAs: end) {
-            timeText = "\(startParts.timeText) - \(end.formatted(date: .omitted, time: .shortened))"
+            return HistoryDateRangeParts(dayText: startParts.dayText, timeText: timeText)
         } else {
             let endParts = historySessionDateTimeParts(from: end, referenceDate: referenceDate, calendar: calendar)
-            timeText = "\(startParts.timeText) - \(endParts.dayText), \(endParts.timeText)"
+            return HistoryDateRangeParts(
+                dayText: "\(startParts.dayText) - \(endParts.dayText)",
+                timeText: timeText
+            )
+        }
+    }
+
+    private static func historySessionDurationString(start: Date, end: Date) -> String {
+        let duration = max(end.timeIntervalSince(start), 0)
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .short
+        formatter.maximumUnitCount = 2
+        formatter.zeroFormattingBehavior = .dropAll
+
+        if duration >= 3600 {
+            formatter.allowedUnits = [.hour, .minute]
+        } else if duration >= 60 {
+            formatter.allowedUnits = [.minute, .second]
+        } else {
+            formatter.allowedUnits = [.second]
         }
 
-        return HistoryDateRangeParts(dayText: startParts.dayText, timeText: timeText)
+        return formatter.string(from: duration) ?? ""
     }
 
     // MARK: - Time

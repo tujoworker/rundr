@@ -112,7 +112,7 @@ struct SessionRowView: View {
                     unit: settings.distanceUnit
                 )
             ),
-            SessionCardStatItem(label: L10n.time, value: Formatters.timeString(from: session.durationSeconds)),
+            SessionCardStatItem(label: L10n.duration, value: Formatters.timeString(from: session.durationSeconds)),
             SessionCardStatItem(
                 label: session.mode.usesManualIntervals && !sessionUsesOpenIntervals ? L10n.distance : L10n.gpsDistanceLabel,
                 value: summaryDistance > 0

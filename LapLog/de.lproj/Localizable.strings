@@ -85,6 +85,7 @@
 /* Session Detail */
 "Session" = "Training";
 "Rest" = "Pause";
+"Duration" = "Dauer";
 "Still sending to iPhone" = "Wird noch ans iPhone übertragen";
 "This workout is saved on your Watch. It will appear in LapLog on your phone when your watch and phone connect." = "Dieses Training ist auf deiner Apple Watch gespeichert. Es erscheint in LapLog auf dem iPhone, sobald sich Apple Watch und iPhone verbinden.";
 "On your iPhone" = "Auf dem iPhone";

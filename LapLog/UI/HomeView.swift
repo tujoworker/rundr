@@ -132,7 +132,7 @@ struct SessionRowView: View {
                     .foregroundStyle(.white)
 
                 Text(sessionTitle.timeText)
-                    .font(.system(size: 11, weight: .regular, design: .rounded))
+                    .font(.system(size: 12, weight: .regular, design: .rounded))
                     .foregroundStyle(.white.opacity(0.72))
             }
             .fixedSize(horizontal: false, vertical: true)

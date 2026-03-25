@@ -89,7 +89,7 @@ struct SessionDetailView: View {
                             .foregroundStyle(.white)
 
                         Text(headerTitle.timeText)
-                            .font(.system(size: 11, weight: .regular, design: .rounded))
+                            .font(.system(size: 12, weight: .regular, design: .rounded))
                             .foregroundStyle(.white.opacity(0.72))
                     }
                     .multilineTextAlignment(.leading)

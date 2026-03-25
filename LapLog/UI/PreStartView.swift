@@ -1433,53 +1433,65 @@ private struct SegmentEditSheet: View {
     @ViewBuilder
     private var lastRestSection: some View {
         if lastRestSeconds > 0 {
-            Text(L10n.lastRest)
-                .font(.caption.bold())
-                .foregroundStyle(.white.opacity(0.72))
-                .padding(.horizontal, 4)
-                .padding(.top, 4)
+            VStack(alignment: .leading, spacing: 8) {
+                Text(L10n.lastRest)
+                    .font(.caption.bold())
+                    .foregroundStyle(.white.opacity(0.72))
+                    .padding(.horizontal, 4)
+                    .padding(.top, 4)
 
-            HStack(spacing: 8) {
-                Button {
-                    if lastRestSeconds >= 15 {
-                        lastRestSeconds -= 15
-                    } else {
-                        lastRestSeconds = 0
+                HStack(spacing: 8) {
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.22)) {
+                            if lastRestSeconds >= 15 {
+                                lastRestSeconds -= 15
+                            } else {
+                                lastRestSeconds = 0
+                            }
+                        }
+                    } label: {
+                        Image(systemName: "minus")
+                            .font(.system(size: 16, weight: .bold))
+                            .frame(width: 36, height: 36)
+                            .background(Circle().fill(Color.white.opacity(0.15)))
+                            .foregroundStyle(.white)
                     }
-                } label: {
-                    Image(systemName: "minus")
-                        .font(.system(size: 16, weight: .bold))
-                        .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(0.15)))
-                        .foregroundStyle(.white)
-                }
-                .buttonStyle(.plain)
+                    .buttonStyle(.plain)
 
-                Text(lastRestLabel)
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .background(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .fill(Color.white.opacity(0.12))
-                    )
-
-                Button {
-                    lastRestSeconds += 15
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 16, weight: .bold))
-                        .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(0.15)))
+                    Text(lastRestLabel)
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .monospacedDigit()
                         .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .fill(Color.white.opacity(0.12))
+                        )
+
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.22)) {
+                            lastRestSeconds += 15
+                        }
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.system(size: 16, weight: .bold))
+                            .frame(width: 36, height: 36)
+                            .background(Circle().fill(Color.white.opacity(0.15)))
+                            .foregroundStyle(.white)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .buttonStyle(.plain)
             }
+            .transition(.asymmetric(
+                insertion: .move(edge: .top).combined(with: .opacity),
+                removal: .move(edge: .top).combined(with: .opacity)
+            ))
         } else {
             Button {
-                lastRestSeconds = max(restSeconds, 15)
+                withAnimation(.easeInOut(duration: 0.22)) {
+                    lastRestSeconds = max(restSeconds, 15)
+                }
             } label: {
                 HStack(spacing: 6) {
                     Image(systemName: "plus.circle.fill")
@@ -1501,6 +1513,10 @@ private struct SegmentEditSheet: View {
                 )
             }
             .buttonStyle(.plain)
+            .transition(.asymmetric(
+                insertion: .move(edge: .top).combined(with: .opacity),
+                removal: .move(edge: .top).combined(with: .opacity)
+            ))
         }
     }
 

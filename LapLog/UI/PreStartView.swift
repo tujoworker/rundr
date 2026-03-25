@@ -1132,6 +1132,22 @@ private struct IntervalTitleField: View {
     }
 }
 
+enum SegmentEditSheetSection: Hashable {
+    case timeTarget
+    case rest
+    case lastRest
+    case repeats
+    case paceTarget
+
+    static func orderedSections(for usesOpenDistance: Bool) -> [SegmentEditSheetSection] {
+        if usesOpenDistance {
+            return [.timeTarget, .rest, .lastRest, .repeats]
+        }
+
+        return [.rest, .lastRest, .repeats, .paceTarget, .timeTarget]
+    }
+}
+
 private struct SegmentEditSheet: View {
     @Binding var distanceText: String
     @Binding var usesOpenDistance: Bool
@@ -1192,6 +1208,26 @@ private struct SegmentEditSheet: View {
         targetTime > 0 ? Formatters.compactTimeString(from: Double(targetTime)) : L10n.off
     }
 
+    private var orderedSections: [SegmentEditSheetSection] {
+        SegmentEditSheetSection.orderedSections(for: usesOpenDistance)
+    }
+
+    @ViewBuilder
+    private func sectionView(_ section: SegmentEditSheetSection) -> some View {
+        switch section {
+        case .timeTarget:
+            timeTargetSection
+        case .rest:
+            restSection
+        case .lastRest:
+            lastRestSection
+        case .repeats:
+            repeatsSection
+        case .paceTarget:
+            paceTargetSection
+        }
+    }
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 10) {
@@ -1231,20 +1267,8 @@ private struct SegmentEditSheet: View {
                     )
                 }
 
-                if usesOpenDistance {
-                    timeTargetSection
-                    restSection
-                    repeatsSection
-                } else {
-                    repeatsSection
-                    restSection
-                }
-
-                lastRestSection
-
-                if !usesOpenDistance {
-                    paceTargetSection
-                    timeTargetSection
+                ForEach(orderedSections, id: \.self) { section in
+                    sectionView(section)
                 }
 
                 Button(L10n.done) {

@@ -110,6 +110,20 @@ final class ModelTests: XCTestCase {
         XCTAssertNil(decoded.lastRestSeconds)
     }
 
+    func testSegmentEditSheetSectionOrderForFixedDistancePlacesLastRestAfterRest() {
+        XCTAssertEqual(
+            SegmentEditSheetSection.orderedSections(for: false),
+            [.rest, .lastRest, .repeats, .paceTarget, .timeTarget]
+        )
+    }
+
+    func testSegmentEditSheetSectionOrderForOpenDistancePlacesLastRestAfterRest() {
+        XCTAssertEqual(
+            SegmentEditSheetSection.orderedSections(for: true),
+            [.timeTarget, .rest, .lastRest, .repeats]
+        )
+    }
+
     // MARK: - WorkoutRunState
 
     func testWorkoutRunStateCases() {

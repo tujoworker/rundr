@@ -251,22 +251,12 @@ final class FormattersTests: XCTestCase {
         let start = try makeDate(year: 2026, month: 3, day: 19, hour: 10, minute: 0)
         let end = try makeDate(year: 2026, month: 3, day: 19, hour: 11, minute: 5)
 
-        let intervalFormatter = DateIntervalFormatter()
-        intervalFormatter.dateStyle = .none
-        intervalFormatter.timeStyle = .short
-
-        let durationFormatter = DateComponentsFormatter()
-        durationFormatter.unitsStyle = .short
-        durationFormatter.maximumUnitCount = 2
-        durationFormatter.zeroFormattingBehavior = .dropAll
-        durationFormatter.allowedUnits = [.hour, .minute]
-
         let startDayText = Formatters.historySessionDateTimeParts(
             from: start,
             referenceDate: referenceDate,
             calendar: testCalendar
         ).dayText
-        let intervalText = intervalFormatter.string(from: start, to: end)
+        let intervalText = "\(start.formatted(date: .omitted, time: .shortened)) - \(end.formatted(date: .omitted, time: .shortened))"
         let expected = "\(startDayText), \(intervalText)"
 
         XCTAssertEqual(
@@ -284,12 +274,7 @@ final class FormattersTests: XCTestCase {
         formatter.dateStyle = .full
         formatter.timeStyle = .none
         formatter.doesRelativeDateFormatting = true
-
-        let intervalFormatter = DateIntervalFormatter()
-        intervalFormatter.dateStyle = .none
-        intervalFormatter.timeStyle = .short
-
-        let intervalText = intervalFormatter.string(from: start, to: end)
+        let intervalText = "\(start.formatted(date: .omitted, time: .shortened)) - \(end.formatted(date: .omitted, time: .shortened))"
 
         XCTAssertEqual(
             Formatters.historySessionDateRangeParts(start: start, end: end, referenceDate: referenceDate, calendar: testCalendar),
@@ -305,19 +290,9 @@ final class FormattersTests: XCTestCase {
         let start = try makeDate(year: 2026, month: 3, day: 18, hour: 23, minute: 30)
         let end = try makeDate(year: 2026, month: 3, day: 19, hour: 0, minute: 15)
 
-        let intervalFormatter = DateIntervalFormatter()
-        intervalFormatter.dateStyle = .none
-        intervalFormatter.timeStyle = .short
-
-        let durationFormatter = DateComponentsFormatter()
-        durationFormatter.unitsStyle = .short
-        durationFormatter.maximumUnitCount = 2
-        durationFormatter.zeroFormattingBehavior = .dropAll
-        durationFormatter.allowedUnits = [.minute, .second]
-
         let startParts = Formatters.historySessionDateTimeParts(from: start, referenceDate: referenceDate, calendar: testCalendar)
         let endParts = Formatters.historySessionDateTimeParts(from: end, referenceDate: referenceDate, calendar: testCalendar)
-        let intervalText = intervalFormatter.string(from: start, to: end)
+        let intervalText = "\(start.formatted(date: .omitted, time: .shortened)) - \(end.formatted(date: .omitted, time: .shortened))"
         let expected = "\(startParts.dayText) - \(endParts.dayText), \(intervalText)"
 
         XCTAssertEqual(

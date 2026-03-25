@@ -20,13 +20,6 @@ enum Formatters {
         return formatter
     }()
 
-    private static let historyTimeIntervalFormatter: DateIntervalFormatter = {
-        let formatter = DateIntervalFormatter()
-        formatter.dateStyle = .none
-        formatter.timeStyle = .short
-        return formatter
-    }()
-
     // MARK: - Date
 
     static func historySessionDateTimeString(
@@ -80,7 +73,7 @@ enum Formatters {
         calendar: Calendar = .current
     ) -> HistoryDateRangeParts {
         let startParts = historySessionDateTimeParts(from: start, referenceDate: referenceDate, calendar: calendar)
-        let timeRangeText = historyTimeIntervalFormatter.string(from: start, to: end)
+        let timeRangeText = historyTimeRangeString(start: start, end: end)
 
         if calendar.isDate(start, inSameDayAs: end) {
             return HistoryDateRangeParts(dayText: startParts.dayText, timeText: timeRangeText)
@@ -91,6 +84,12 @@ enum Formatters {
                 timeText: timeRangeText
             )
         }
+    }
+
+    private static func historyTimeRangeString(start: Date, end: Date) -> String {
+        let startText = start.formatted(date: .omitted, time: .shortened)
+        let endText = end.formatted(date: .omitted, time: .shortened)
+        return "\(startText) - \(endText)"
     }
 
     // MARK: - Time

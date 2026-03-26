@@ -68,11 +68,19 @@ private struct CompanionLiveWorkoutCard: View {
         isStale ? .orange : .secondary
     }
 
+    private var isOpenActivity: Bool {
+        state.trackingMode.usesManualIntervals && state.currentTargetDistanceMeters == nil
+    }
+
     private var hasGPSDistance: Bool {
         state.cumulativeGPSDistanceMeters != nil
     }
 
     private var primaryDistanceLabel: String {
+        if isOpenActivity {
+            return hasGPSDistance ? L10n.gpsDistanceLabel : "Distance"
+        }
+
         if state.trackingMode.usesManualIntervals {
             return L10n.manualDistance
         }
@@ -82,6 +90,19 @@ private struct CompanionLiveWorkoutCard: View {
         }
 
         return "Distance"
+    }
+
+    private var primaryDistanceMeters: Double {
+        if isOpenActivity, let gps = state.cumulativeGPSDistanceMeters {
+            return gps
+        }
+        return state.cumulativeDistanceMeters
+    }
+
+    /// Show a separate GPS row when it adds info beyond the primary distance.
+    private var showsSecondaryGPSDistance: Bool {
+        guard let _ = state.cumulativeGPSDistanceMeters else { return false }
+        return !isOpenActivity
     }
 
     var body: some View {
@@ -113,11 +134,11 @@ private struct CompanionLiveWorkoutCard: View {
                         Text(primaryDistanceLabel)
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                        Text(Formatters.distanceString(meters: state.cumulativeDistanceMeters, unit: .km))
+                        Text(Formatters.distanceString(meters: primaryDistanceMeters, unit: .km))
                             .font(.title3.weight(.semibold))
                     }
 
-                    if let gpsDistanceMeters = state.cumulativeGPSDistanceMeters {
+                    if showsSecondaryGPSDistance, let gpsDistanceMeters = state.cumulativeGPSDistanceMeters {
                         VStack(alignment: .trailing, spacing: 4) {
                             Text(L10n.gpsDistanceLabel)
                                 .font(.caption)

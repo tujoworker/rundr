@@ -267,7 +267,7 @@ struct ActiveSessionView: View {
 
             if workoutController.isTimeGoalWarningActive {
                 Color.white
-                    .opacity(isTimeGoalPulseOn ? 0.6 : 0)
+                    .opacity(isTimeGoalPulseOn ? 0.15 : 0)
                     .ignoresSafeArea()
             }
 
@@ -381,7 +381,7 @@ struct ActiveSessionView: View {
         }
         .onChange(of: workoutController.isTimeGoalWarningActive) { _, active in
             if active {
-                withAnimation(.easeInOut(duration: 0.45).repeatForever(autoreverses: true)) {
+                withAnimation(.easeInOut(duration: 0.75).repeatForever(autoreverses: true)) {
                     isTimeGoalPulseOn = true
                 }
             } else {

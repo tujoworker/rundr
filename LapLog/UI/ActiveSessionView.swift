@@ -257,23 +257,20 @@ struct ActiveSessionView: View {
             AppScreenBackground(accentColor: primaryColor)
 
             // Keep pause/rest pulses behind content so labels remain readable.
-            if isResting {
-                Color.white
-                    .opacity(isPausePulseOn ? 0.1 : 0)
-                    .ignoresSafeArea()
-            }
+            // Always present in the view tree (opacity-only hiding) to avoid
+            // changing the ZStack child count during layout, which can trigger
+            // an infinite PUICCarouselCollectionViewLayout invalidation loop.
+            Color.white
+                .opacity(isResting && isPausePulseOn ? 0.1 : 0)
+                .ignoresSafeArea()
 
-            if isResting {
-                Color.white
-                    .opacity(isRestPulseOn ? 0.3 : 0)
-                    .ignoresSafeArea()
-            }
+            Color.white
+                .opacity(isResting && isRestPulseOn ? 0.3 : 0)
+                .ignoresSafeArea()
 
-            if workoutController.isTimeGoalWarningActive {
-                Color.white
-                    .opacity(isTimeGoalPulseOn ? 0.15 : 0)
-                    .ignoresSafeArea()
-            }
+            Color.white
+                .opacity(workoutController.isTimeGoalWarningActive && isTimeGoalPulseOn ? 0.15 : 0)
+                .ignoresSafeArea()
 
             VStack(spacing: 0) {
                 Color.clear

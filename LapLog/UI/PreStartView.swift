@@ -264,6 +264,7 @@ struct PreStartView: View {
         }
         .tint(settings.primaryAccentColor)
         .background(Color.clear)
+        .toolbar(.visible, for: .navigationBar)
         .onAppear {
             readyStartDate = Date()
             readyElapsedSeconds = 0
@@ -779,6 +780,7 @@ struct IntervalLibraryView: View {
         .listStyle(.carousel)
         .scrollContentBackground(.hidden)
         .background(Color.clear)
+        .toolbar(.visible, for: .navigationBar)
     }
 }
 
@@ -904,6 +906,7 @@ private struct IntervalSetupView: View {
         }
         .tint(settings.primaryAccentColor)
         .background(Color.clear)
+        .toolbar(.visible, for: .navigationBar)
         .onAppear(perform: loadSnapshot)
         .sheet(isPresented: Binding(
             get: { editingSegmentID != nil },

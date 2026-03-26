@@ -169,6 +169,7 @@ struct SessionDetailView: View {
             .padding(.vertical, 4)
         }
         .background(Color.clear)
+        .toolbar(.visible, for: .navigationBar)
     }
 }
 

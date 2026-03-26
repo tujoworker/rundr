@@ -395,12 +395,12 @@ struct LapRowView: View {
                 }
 
                 Text(headerItems.joined(separator: " • "))
-                    .font(.caption.weight(.medium))
+                    .font(.system(size: 15, weight: .medium))
 
                 if let delta = timeDeltaText {
                     Text(delta)
-                        .font(.caption)
-                        .opacity(0.8)
+                        .font(.system(size: 13, weight: .regular, design: .rounded))
+                        .foregroundStyle(.secondary)
                 }
             }
 

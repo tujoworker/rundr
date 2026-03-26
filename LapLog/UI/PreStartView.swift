@@ -1172,10 +1172,22 @@ private struct SegmentEditSheet: View {
         ["7", "8", "9"],
         [":", "0", "⌫"]
     ]
+    private let repeatKeypadRows: [[String]] = [
+        ["1", "2", "3"],
+        ["4", "5", "6"],
+        ["7", "8", "9"],
+        ["∞", "0", "⌫"]
+    ]
 
+    @State private var isRepeatEditorPresented = false
     @State private var isPaceEditorPresented = false
+    @State private var isRestEditorPresented = false
+    @State private var isLastRestEditorPresented = false
     @State private var isTimeEditorPresented = false
+    @State private var repeatEditorText = ""
     @State private var paceEditorText = ""
+    @State private var restEditorText = ""
+    @State private var lastRestEditorText = ""
     @State private var timeEditorText = ""
 
     private var repeatLabel: String {
@@ -1289,6 +1301,72 @@ private struct SegmentEditSheet: View {
         }
         .scrollContentBackground(.hidden)
         .sheet(isPresented: Binding(
+            get: { isRepeatEditorPresented },
+            set: { presented in
+                if !presented {
+                    commitRepeatEditorText()
+                } else {
+                    isRepeatEditorPresented = true
+                }
+            }
+        )) {
+            NumericKeypadEditorScreen(
+                title: L10n.repeats,
+                accentColor: accentColor,
+                keypadRows: repeatKeypadRows,
+                text: $repeatEditorText,
+                onTapKey: repeatFieldTapKey,
+                onDone: {
+                    commitRepeatEditorText()
+                }
+            )
+            .toolbar(.hidden, for: .navigationBar)
+        }
+        .sheet(isPresented: Binding(
+            get: { isRestEditorPresented },
+            set: { presented in
+                if !presented {
+                    commitRestEditorText()
+                } else {
+                    isRestEditorPresented = true
+                }
+            }
+        )) {
+            NumericKeypadEditorScreen(
+                title: L10n.rest,
+                accentColor: accentColor,
+                keypadRows: durationKeypadRows,
+                text: $restEditorText,
+                onTapKey: durationFieldTapKey,
+                onDone: {
+                    commitRestEditorText()
+                }
+            )
+            .toolbar(.hidden, for: .navigationBar)
+        }
+        .sheet(isPresented: Binding(
+            get: { isLastRestEditorPresented },
+            set: { presented in
+                if !presented {
+                    commitLastRestEditorText()
+                } else {
+                    isLastRestEditorPresented = true
+                }
+            }
+        )) {
+            NumericKeypadEditorScreen(
+                title: L10n.lastRest,
+                accentColor: accentColor,
+                keypadRows: durationKeypadRows,
+                text: $lastRestEditorText,
+                onTapKey: durationFieldTapKey,
+                onDone: {
+                    commitLastRestEditorText()
+                }
+            )
+            .toolbar(.hidden, for: .navigationBar)
+        }
+        .sheet(isPresented: Binding(
             get: { isPaceEditorPresented },
             set: { presented in
                 if !presented {
@@ -1356,16 +1434,14 @@ private struct SegmentEditSheet: View {
                 }
                 .buttonStyle(.plain)
 
-                Text(repeatLabel)
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .background(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .fill(Color.white.opacity(0.12))
-                    )
+                Button {
+                    repeatEditorText = repeatCount > 0 ? "\(repeatCount)" : ""
+                    isRepeatEditorPresented = true
+                } label: {
+                    editorValueField(repeatLabel)
+                }
+                .frame(maxWidth: .infinity)
+                .buttonStyle(.plain)
 
                 Button {
                     repeatCount += 1
@@ -1405,16 +1481,14 @@ private struct SegmentEditSheet: View {
                 }
                 .buttonStyle(.plain)
 
-                Text(restLabel)
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
-                    .monospacedDigit()
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .background(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .fill(Color.white.opacity(0.12))
-                    )
+                Button {
+                    restEditorText = restSeconds > 0 ? restLabel : ""
+                    isRestEditorPresented = true
+                } label: {
+                    editorValueField(restSeconds > 0 ? restLabel : L10n.restManual)
+                }
+                .frame(maxWidth: .infinity)
+                .buttonStyle(.plain)
 
                 Button {
                     restSeconds += 15
@@ -1458,16 +1532,14 @@ private struct SegmentEditSheet: View {
                     }
                     .buttonStyle(.plain)
 
-                    Text(lastRestLabel)
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                        .monospacedDigit()
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .fill(Color.white.opacity(0.12))
-                        )
+                    Button {
+                        lastRestEditorText = lastRestSeconds > 0 ? lastRestLabel : ""
+                        isLastRestEditorPresented = true
+                    } label: {
+                        editorValueField(lastRestSeconds > 0 ? lastRestLabel : L10n.restManual)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .buttonStyle(.plain)
 
                     Button {
                         withAnimation(.easeInOut(duration: 0.22)) {
@@ -1549,16 +1621,7 @@ private struct SegmentEditSheet: View {
                     paceEditorText = targetPace > 0 ? paceLabel : ""
                     isPaceEditorPresented = true
                 } label: {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .fill(Color.white.opacity(0.12))
-
-                        Text(targetPace > 0 ? paceLabel : L10n.off)
-                            .font(.system(size: 18, weight: .bold, design: .rounded))
-                            .monospacedDigit()
-                            .foregroundStyle(.white)
-                    }
-                    .frame(maxWidth: .infinity, minHeight: 46)
+                    editorValueField(targetPace > 0 ? paceLabel : L10n.off)
                 }
                 .frame(maxWidth: .infinity)
                 .buttonStyle(.plain)
@@ -1608,16 +1671,7 @@ private struct SegmentEditSheet: View {
                     timeEditorText = targetTime > 0 ? timeLabel : ""
                     isTimeEditorPresented = true
                 } label: {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .fill(Color.white.opacity(0.12))
-
-                        Text(targetTime > 0 ? timeLabel : L10n.off)
-                            .font(.system(size: 18, weight: .bold, design: .rounded))
-                            .monospacedDigit()
-                            .foregroundStyle(.white)
-                    }
-                    .frame(maxWidth: .infinity, minHeight: 46)
+                    editorValueField(targetTime > 0 ? timeLabel : L10n.off)
                 }
                 .frame(maxWidth: .infinity)
                 .buttonStyle(.plain)
@@ -1638,23 +1692,70 @@ private struct SegmentEditSheet: View {
         }
     }
 
+    private func editorValueField(_ text: String) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(Color.white.opacity(0.12))
+
+            Text(text)
+                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .monospacedDigit()
+                .foregroundStyle(.white)
+        }
+        .frame(maxWidth: .infinity, minHeight: 46)
+    }
+
     private func commitPaceEditorText() {
-        targetPace = parsedDurationSeconds(from: paceEditorText)
+        targetPace = SegmentEditInputParser.parseDurationSeconds(from: paceEditorText)
         if targetPace > 0 {
             targetTime = 0
         }
         isPaceEditorPresented = false
     }
 
+    private func commitRepeatEditorText() {
+        repeatCount = SegmentEditInputParser.parseRepeatCount(from: repeatEditorText)
+        isRepeatEditorPresented = false
+    }
+
+    private func commitRestEditorText() {
+        restSeconds = SegmentEditInputParser.parseDurationSeconds(from: restEditorText)
+        isRestEditorPresented = false
+    }
+
+    private func commitLastRestEditorText() {
+        lastRestSeconds = SegmentEditInputParser.parseDurationSeconds(from: lastRestEditorText)
+        isLastRestEditorPresented = false
+    }
+
     private func commitTimeEditorText() {
-        targetTime = parsedDurationSeconds(from: timeEditorText)
+        targetTime = SegmentEditInputParser.parseDurationSeconds(from: timeEditorText)
         if targetTime > 0 {
             targetPace = 0
         }
         isTimeEditorPresented = false
     }
 
-    private func parsedDurationSeconds(from value: String) -> Int {
+    private func distanceModeButton(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
+        SelectionToggleButton(title: title, isSelected: isSelected, action: action)
+    }
+}
+
+private func durationFieldTapKey(_ key: String, text: inout String) {
+    SegmentEditInputParser.applyDurationKey(key, to: &text)
+}
+
+private func repeatFieldTapKey(_ key: String, text: inout String) {
+    SegmentEditInputParser.applyRepeatKey(key, to: &text)
+}
+
+enum SegmentEditInputParser {
+    static func parseRepeatCount(from value: String) -> Int {
+        let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        return Int(trimmedValue) ?? 0
+    }
+
+    static func parseDurationSeconds(from value: String) -> Int {
         let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedValue.isEmpty else { return 0 }
 
@@ -1677,29 +1778,45 @@ private struct SegmentEditSheet: View {
         }
     }
 
-    private func distanceModeButton(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        SelectionToggleButton(title: title, isSelected: isSelected, action: action)
-    }
-}
-
-private func durationFieldTapKey(_ key: String, text: inout String) {
-    if key == "⌫" {
-        if !text.isEmpty {
-            text.removeLast()
+    static func applyDurationKey(_ key: String, to text: inout String) {
+        if key == "⌫" {
+            if !text.isEmpty {
+                text.removeLast()
+            }
+            return
         }
-        return
+
+        if key == ":" {
+            guard !text.isEmpty, !text.hasSuffix(":"), text.filter({ $0 == ":" }).count < 2 else { return }
+            text += key
+            return
+        }
+
+        if text == "0" {
+            text = key
+        } else {
+            text += key
+        }
     }
 
-    if key == ":" {
-        guard !text.isEmpty, !text.hasSuffix(":"), text.filter({ $0 == ":" }).count < 2 else { return }
-        text += key
-        return
-    }
+    static func applyRepeatKey(_ key: String, to text: inout String) {
+        if key == "⌫" {
+            if !text.isEmpty {
+                text.removeLast()
+            }
+            return
+        }
 
-    if text == "0" {
-        text = key
-    } else {
-        text += key
+        if key == "∞" {
+            text = ""
+            return
+        }
+
+        if text == "0" {
+            text = key
+        } else {
+            text += key
+        }
     }
 }
 

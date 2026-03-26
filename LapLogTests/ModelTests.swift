@@ -124,6 +124,60 @@ final class ModelTests: XCTestCase {
         )
     }
 
+    func testSegmentEditInputParserParsesDurationFormats() {
+        XCTAssertEqual(SegmentEditInputParser.parseDurationSeconds(from: "75"), 75)
+        XCTAssertEqual(SegmentEditInputParser.parseDurationSeconds(from: "1:15"), 75)
+        XCTAssertEqual(SegmentEditInputParser.parseDurationSeconds(from: "1:02:03"), 3723)
+        XCTAssertEqual(SegmentEditInputParser.parseDurationSeconds(from: "1:99"), 0)
+        XCTAssertEqual(SegmentEditInputParser.parseDurationSeconds(from: ""), 0)
+    }
+
+    func testSegmentEditInputParserAppliesDurationKeys() {
+        var text = ""
+
+        SegmentEditInputParser.applyDurationKey("1", to: &text)
+        SegmentEditInputParser.applyDurationKey(":", to: &text)
+        SegmentEditInputParser.applyDurationKey("3", to: &text)
+        SegmentEditInputParser.applyDurationKey("0", to: &text)
+
+        XCTAssertEqual(text, "1:30")
+
+        SegmentEditInputParser.applyDurationKey(":", to: &text)
+        SegmentEditInputParser.applyDurationKey("4", to: &text)
+        SegmentEditInputParser.applyDurationKey("5", to: &text)
+
+        XCTAssertEqual(text, "1:30:45")
+
+        SegmentEditInputParser.applyDurationKey(":", to: &text)
+        XCTAssertEqual(text, "1:30:45")
+
+        SegmentEditInputParser.applyDurationKey("⌫", to: &text)
+        XCTAssertEqual(text, "1:30:4")
+    }
+
+    func testSegmentEditInputParserParsesRepeatCounts() {
+        XCTAssertEqual(SegmentEditInputParser.parseRepeatCount(from: "12"), 12)
+        XCTAssertEqual(SegmentEditInputParser.parseRepeatCount(from: " 7 "), 7)
+        XCTAssertEqual(SegmentEditInputParser.parseRepeatCount(from: ""), 0)
+    }
+
+    func testSegmentEditInputParserAppliesRepeatKeys() {
+        var text = "0"
+
+        SegmentEditInputParser.applyRepeatKey("8", to: &text)
+        XCTAssertEqual(text, "8")
+
+        SegmentEditInputParser.applyRepeatKey("⌫", to: &text)
+        XCTAssertEqual(text, "")
+
+        SegmentEditInputParser.applyRepeatKey("1", to: &text)
+        SegmentEditInputParser.applyRepeatKey("2", to: &text)
+        XCTAssertEqual(text, "12")
+
+        SegmentEditInputParser.applyRepeatKey("∞", to: &text)
+        XCTAssertEqual(text, "")
+    }
+
     // MARK: - WorkoutRunState
 
     func testWorkoutRunStateCases() {

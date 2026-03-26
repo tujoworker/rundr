@@ -246,6 +246,18 @@ struct PreStartView: View {
                     )
                 }
                 .buttonStyle(.plain)
+
+                Button {
+                    settings.timeGoalAlerts.toggle()
+                } label: {
+                    SettingsCardRow(
+                        icon: "bell.badge",
+                        iconColor: .orange,
+                        title: L10n.alerts,
+                        value: settings.timeGoalAlerts ? L10n.on : L10n.off
+                    )
+                }
+                .buttonStyle(.plain)
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 8)

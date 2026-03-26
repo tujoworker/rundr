@@ -25,12 +25,18 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     @Published var restDurationSeconds: Int? = nil
     /// True when ≤5 seconds remain in a timed rest (for UI warning pulse).
     @Published var isRestWarningActive: Bool = false
+    /// True when the time goal has been reached on an open interval (for UI warning pulse).
+    @Published var isTimeGoalWarningActive: Bool = false
 
     // MARK: - Settings Snapshot
 
     private(set) var trackingMode: TrackingMode = .gps
     private(set) var distanceLapDistanceMeters: Double = 400
     private(set) var restMode: RestMode = .manual
+    var timeGoalAlertsEnabled: Bool = true
+
+    /// Tracks the last integer second at which a time-goal haptic was played.
+    private var lastTimeGoalAlertSecond: Int = -1
 
     private var usesGPSDistance: Bool {
         trackingMode.usesGPSDistance
@@ -188,6 +194,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         restElapsedSeconds = snapshot.resumeRunState == .rest ? snapshot.restElapsedSeconds : nil
         restDurationSeconds = snapshot.resumeRunState == .rest ? snapshot.restDurationSeconds : nil
         isRestWarningActive = false
+        isTimeGoalWarningActive = false
+        lastTimeGoalAlertSecond = -1
         lastHealthKitCumulativeDistanceMeters = 0
         lastLocation = nil
         hkWorkoutSession = nil
@@ -276,6 +284,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     func markLap(source: LapSource = .distanceTap) {
         guard runState == .active || runState == .rest || runState == .ending else { return }
         let wasResting = (runState == .rest)
+        clearTimeGoalWarning()
         // Capture rest config before commit (which may advance the segment)
         let restSecondsBeforeCommit = (!wasResting && usesManualIntervals)
             ? autoRestDurationAfterCurrentActiveLap() : nil
@@ -310,6 +319,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     func commitFinalLap() {
         guard runState == .active || runState == .rest else { return }
+        clearTimeGoalWarning()
         commitCurrentLap(source: .sessionEndSplit)
         runState = .ending
         stopTimer()
@@ -348,6 +358,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
         cancelPendingAutoRestDetection()
         cancelRestTimer()
+        clearTimeGoalWarning()
         stopTimer()
         stopLocationUpdates()
         pauseHealthKitWorkout()
@@ -391,6 +402,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     func prepareForSessionEnd() {
         cancelPendingAutoRestDetection()
         cancelRestTimer()
+        clearTimeGoalWarning()
     }
 
     func persistRecoverySnapshotIfNeeded() {
@@ -417,6 +429,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
         cancelRestTimer()
         cancelPendingAutoRestDetection()
+        clearTimeGoalWarning()
         runState = .ended
         stopTimer()
         stopLocationUpdates()
@@ -486,6 +499,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         clearPauseState()
         cancelPendingAutoRestDetection()
         cancelRestTimer()
+        clearTimeGoalWarning()
         stopTimer()
         stopLocationUpdates()
         clearRecoverySnapshot()
@@ -533,11 +547,23 @@ final class WorkoutSessionController: NSObject, ObservableObject {
                 if self.runState == .active,
                    self.usesManualIntervals,
                    self.currentSegment.usesOpenDistance,
+                   self.timeGoalAlertsEnabled,
                    let targetTime = self.currentTargetTimeSeconds,
                    targetTime > 0,
                    self.lapElapsedSeconds >= targetTime {
-                    self.markLap(source: .autoTime)
-                    return
+                    if !self.isTimeGoalWarningActive {
+                        self.isTimeGoalWarningActive = true
+                        self.playHaptic(.notification)
+                        self.lastTimeGoalAlertSecond = Int(self.lapElapsedSeconds)
+                    }
+                    let currentSecond = Int(self.lapElapsedSeconds)
+                    let secondsSinceGoal = currentSecond - Int(targetTime)
+                    if secondsSinceGoal > 0,
+                       secondsSinceGoal % 5 == 0,
+                       currentSecond != self.lastTimeGoalAlertSecond {
+                        self.lastTimeGoalAlertSecond = currentSecond
+                        self.playHaptic(.notification)
+                    }
                 }
 
                 let elapsedSecond = Int(self.elapsedSeconds)
@@ -690,6 +716,11 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         restElapsedSeconds = nil
         restDurationSeconds = nil
         isRestWarningActive = false
+    }
+
+    private func clearTimeGoalWarning() {
+        isTimeGoalWarningActive = false
+        lastTimeGoalAlertSecond = -1
     }
 
     private func applyPausedDuration(until resumeDate: Date) {

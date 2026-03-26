@@ -358,13 +358,13 @@ final class WorkoutControllerTests: XCTestCase {
                 )
             ]
         )
+        controller.timeGoalAlertsEnabled = false
 
         controller.handleGPSDistanceUpdate(additionalMeters: 180)
         try? await Task.sleep(nanoseconds: 300_000_000)
 
-        XCTAssertEqual(controller.completedLaps.count, 1)
-        XCTAssertEqual(controller.completedLaps[0].source, LapSource.autoTime)
-        XCTAssertEqual(controller.completedLaps[0].distanceMeters, 180, accuracy: 0.001)
+        // With alerts disabled, open intervals still do nothing at time goal
+        XCTAssertEqual(controller.completedLaps.count, 0)
         XCTAssertEqual(controller.runState, WorkoutRunState.active)
     }
 
@@ -893,5 +893,101 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.completedLaps[0].index, 1)
         XCTAssertEqual(controller.cumulativeDistanceMeters, 250)
         XCTAssertGreaterThan(controller.completedLaps[0].averageSpeedMetersPerSecond, 0)
+    }
+
+    // MARK: - Time Goal Alerts
+
+    func testTimeGoalWarningActivatesWhenTimeReached() async {
+        let controller = makeStartedController(
+            trackingMode: .distanceDistance,
+            segments: [
+                DistanceSegment(
+                    distanceMeters: 400,
+                    repeatCount: nil,
+                    restSeconds: nil,
+                    distanceGoalMode: .open,
+                    targetTimeSeconds: 1.05
+                )
+            ]
+        )
+        XCTAssertTrue(controller.timeGoalAlertsEnabled)
+        XCTAssertFalse(controller.isTimeGoalWarningActive)
+
+        try? await Task.sleep(nanoseconds: 1_200_000_000)
+
+        XCTAssertTrue(controller.isTimeGoalWarningActive)
+        XCTAssertEqual(controller.completedLaps.count, 0, "Lap should NOT auto-complete when alerts are enabled")
+        XCTAssertEqual(controller.runState, WorkoutRunState.active)
+    }
+
+    func testTimeGoalWarningDoesNotActivateWhenAlertsDisabled() async {
+        let controller = makeStartedController(
+            trackingMode: .distanceDistance,
+            segments: [
+                DistanceSegment(
+                    distanceMeters: 400,
+                    repeatCount: nil,
+                    restSeconds: nil,
+                    distanceGoalMode: .open,
+                    targetTimeSeconds: 1.05
+                )
+            ]
+        )
+        controller.timeGoalAlertsEnabled = false
+
+        try? await Task.sleep(nanoseconds: 1_200_000_000)
+
+        XCTAssertFalse(controller.isTimeGoalWarningActive)
+        XCTAssertEqual(controller.completedLaps.count, 0, "Lap should NOT auto-complete even with alerts disabled")
+    }
+
+    func testTimeGoalWarningClearsOnMarkLap() async {
+        let controller = makeStartedController(
+            trackingMode: .distanceDistance,
+            segments: [
+                DistanceSegment(
+                    distanceMeters: 400,
+                    repeatCount: nil,
+                    restSeconds: nil,
+                    distanceGoalMode: .open,
+                    targetTimeSeconds: 1.05
+                )
+            ]
+        )
+
+        try? await Task.sleep(nanoseconds: 1_200_000_000)
+        XCTAssertTrue(controller.isTimeGoalWarningActive)
+
+        controller.markLap()
+
+        XCTAssertFalse(controller.isTimeGoalWarningActive)
+        XCTAssertEqual(controller.completedLaps.count, 1)
+    }
+
+    func testTimeGoalWarningClearsOnPause() async {
+        let controller = makeStartedController(
+            trackingMode: .distanceDistance,
+            segments: [
+                DistanceSegment(
+                    distanceMeters: 400,
+                    repeatCount: nil,
+                    restSeconds: nil,
+                    distanceGoalMode: .open,
+                    targetTimeSeconds: 1.05
+                )
+            ]
+        )
+
+        try? await Task.sleep(nanoseconds: 1_200_000_000)
+        XCTAssertTrue(controller.isTimeGoalWarningActive)
+
+        controller.pauseSession()
+
+        XCTAssertFalse(controller.isTimeGoalWarningActive)
+    }
+
+    func testTimeGoalAlertsDefaultsToEnabled() {
+        let controller = makeController()
+        XCTAssertTrue(controller.timeGoalAlertsEnabled)
     }
 }

@@ -128,6 +128,8 @@
 "Pace" = "Tempo";
 "Time" = "Zeit";
 "Off" = "Aus";
+"On" = "An";
+"Alerts" = "Benachrichtigungen";
 "%@ in %@" = "%@ in %@";
 
 /* Distance/Unit suffixes - "m" is used for both minutes and meters */

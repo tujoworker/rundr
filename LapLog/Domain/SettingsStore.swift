@@ -146,6 +146,7 @@ final class SettingsStore: ObservableObject {
     @AppStorage("restMode") private var restModeRaw: String = RestMode.manual.rawValue
     // Preserve the user's existing saved setting while migrating from the old name.
     @AppStorage("pauseMode") private var legacyRestModeRaw: String = RestMode.manual.rawValue
+    @AppStorage("timeGoalAlerts") var timeGoalAlerts: Bool = true
 
     var primaryColor: PrimaryColorOption {
         get { PrimaryColorOption(rawValue: primaryColorRaw) ?? .blue }

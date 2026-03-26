@@ -17,6 +17,7 @@ struct ActiveSessionView: View {
     @State private var lapEditorState: LapEditorState?
     @State private var isRestPulseOn = false
     @State private var isPausePulseOn = false
+    @State private var isTimeGoalPulseOn = false
     @State private var isShowingSessionComplete = false
     @State private var isEndingSession = false
     @State private var hasDismissedCompletedSession = false
@@ -264,6 +265,12 @@ struct ActiveSessionView: View {
                     .ignoresSafeArea()
             }
 
+            if workoutController.isTimeGoalWarningActive {
+                Color.white
+                    .opacity(isTimeGoalPulseOn ? 0.6 : 0)
+                    .ignoresSafeArea()
+            }
+
             VStack(spacing: 0) {
                 Color.clear
                     .frame(height: topHeaderHeight + 16)
@@ -370,6 +377,15 @@ struct ActiveSessionView: View {
                 }
             } else {
                 withAnimation(nil) { isRestPulseOn = false }
+            }
+        }
+        .onChange(of: workoutController.isTimeGoalWarningActive) { _, active in
+            if active {
+                withAnimation(.easeInOut(duration: 0.45).repeatForever(autoreverses: true)) {
+                    isTimeGoalPulseOn = true
+                }
+            } else {
+                withAnimation(nil) { isTimeGoalPulseOn = false }
             }
         }
         .overlay {

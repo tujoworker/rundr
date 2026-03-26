@@ -166,30 +166,34 @@ struct ActiveSessionView: View {
 
     @ViewBuilder
     private var sessionTimerView: some View {
-        Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
-            .font(.system(size: 100, weight: .medium, design: .rounded))
-            .monospacedDigit()
-            .minimumScaleFactor(0.45)
-            .lineLimit(1)
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, 22)
-            .padding(.vertical, 6)
-            .frame(maxHeight: 120)
-            .background(Capsule().fill(primaryColor.opacity(0.1)))
-            .overlay(timerBorderOverlay)
-            .overlay(lapGlowOverlay)
-            .overlay(alignment: .top) {
-                timerTopOverlay
-                    .offset(y: -31)
-            }
-            .scaleEffect(isTimerBounceActive ? 1.11 : 1)
-            .brightness(isTimerGlowActive ? 0.3 : 0)
-            .shadow(color: Color.white.opacity(isTimerGlowActive ? 0.5 : 0), radius: 18)
-            .shadow(color: primaryColor.opacity(isTimerGlowActive ? 0.72 : 0), radius: 24)
-            .padding(.horizontal, 4)
-            .contentShape(Capsule())
-            .onTapGesture { handleLapTap() }
+        Button {
+            handleLapTap()
+        } label: {
+            Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
+                .font(.system(size: 100, weight: .medium, design: .rounded))
+                .monospacedDigit()
+                .minimumScaleFactor(0.45)
+                .lineLimit(1)
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 22)
+                .padding(.vertical, 6)
+                .frame(maxHeight: 120)
+                .background(Capsule().fill(primaryColor.opacity(0.1)))
+                .overlay(timerBorderOverlay)
+                .overlay(lapGlowOverlay)
+                .overlay(alignment: .top) {
+                    timerTopOverlay
+                        .offset(y: -31)
+                }
+                .scaleEffect(isTimerBounceActive ? 1.11 : 1)
+                .brightness(isTimerGlowActive ? 0.3 : 0)
+                .shadow(color: Color.white.opacity(isTimerGlowActive ? 0.5 : 0), radius: 18)
+                .shadow(color: primaryColor.opacity(isTimerGlowActive ? 0.72 : 0), radius: 24)
+                .padding(.horizontal, 4)
+                .contentShape(Capsule())
+        }
+        .buttonStyle(TimerPressStyle())
     }
 
     private let topControlOffset: CGFloat = -8
@@ -288,12 +292,13 @@ struct ActiveSessionView: View {
                                         .offset(x: -8)
                                 } else {
                                     ForEach(workoutController.completedLaps, id: \.id) { lap in
-                                        LapCardView(lap: lap, trackingMode: workoutController.trackingMode, distanceUnit: settings.distanceUnit, accentColor: primaryColor, isLatest: lap.id == workoutController.completedLaps.last?.id)
-                                            .contentShape(Rectangle())
-                                            .onTapGesture {
-                                                presentLapEditor(for: lap)
-                                            }
-                                            .id(lap.id)
+                                        Button {
+                                            presentLapEditor(for: lap)
+                                        } label: {
+                                            LapCardView(lap: lap, trackingMode: workoutController.trackingMode, distanceUnit: settings.distanceUnit, accentColor: primaryColor, isLatest: lap.id == workoutController.completedLaps.last?.id)
+                                        }
+                                        .buttonStyle(LapCardPressStyle())
+                                        .id(lap.id)
                                     }
                                 }
                             }
@@ -911,5 +916,24 @@ private struct SessionMenuButton: View {
             }
             Button("Cancel", role: .cancel) {}
         }
+    }
+}
+
+// MARK: - Press Styles
+
+private struct TimerPressStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(configuration.isPressed ? 0.7 : 1)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
+private struct LapCardPressStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.93 : 1)
+            .opacity(configuration.isPressed ? 0.8 : 1)
+            .animation(.spring(response: 0.25, dampingFraction: 0.65), value: configuration.isPressed)
     }
 }

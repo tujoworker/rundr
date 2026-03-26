@@ -1024,7 +1024,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             trackingMode: trackingMode,
             elapsedSeconds: elapsedSeconds,
             lapElapsedSeconds: lapElapsedSeconds,
-            completedLapCount: completedLaps.count,
+            completedLapCount: completedLaps.filter { $0.lapType == .active }.count,
             cumulativeDistanceMeters: liveManualDistanceMeters,
             cumulativeGPSDistanceMeters: usesGPSDistance ? cumulativeGPSDistanceMeters : nil,
             currentHeartRate: currentHeartRate,

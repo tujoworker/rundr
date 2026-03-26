@@ -29,3 +29,12 @@ xcodebuild test -project LapLog.xcodeproj -scheme LapLog -destination 'platform=
 ## Active session layout
 
 - The lap cards scroll area at the bottom of `ActiveSessionView` must always reserve its fixed height (60pt), even when no laps exist yet, so the layout does not shift when the first card appears.
+
+## Localization
+
+- The app ships three locales: English (base), German (`de.lproj`), and Norwegian Bokmål (`nb.lproj`).
+- When adding or changing a user-facing string, update all three places together:
+  1. `LapLog/Helpers/L10n.swift` — add or update the `L10n` constant.
+  2. `LapLog/de.lproj/Localizable.strings` — add the German translation.
+  3. `LapLog/nb.lproj/Localizable.strings` — add the Norwegian translation.
+- Never leave a new string without translations in both locale files.

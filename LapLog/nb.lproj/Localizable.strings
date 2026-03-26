@@ -137,3 +137,6 @@
 "m" = "m";
 "mi" = "mi";
 "ft" = "fot";
+
+/* Companion */
+"Waiting for Watch\U2026" = "Venter p\U00e5 klokka\U2026";

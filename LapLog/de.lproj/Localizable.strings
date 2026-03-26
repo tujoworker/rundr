@@ -137,3 +137,6 @@
 "m" = "m";
 "mi" = "mi";
 "ft" = "ft";
+
+/* Companion */
+"Waiting for Watch\U2026" = "Warte auf Watch\U2026";

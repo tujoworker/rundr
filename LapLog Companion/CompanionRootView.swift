@@ -46,6 +46,27 @@ struct CompanionRootView: View {
 
 private struct CompanionLiveWorkoutCard: View {
     let state: LiveWorkoutStateRecord
+    @State private var now = Date()
+    private let stalenessTimer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
+
+    /// Live state is stale if it hasn't been updated in 10 seconds
+    /// and the workout isn't in a naturally static state.
+    private var isStale: Bool {
+        guard state.runState != .paused,
+              state.runState != .ended,
+              state.runState != .idle else {
+            return false
+        }
+        return now.timeIntervalSince(state.updatedAt) > 10
+    }
+
+    private var statusLabel: String {
+        isStale ? L10n.waitingForWatch : state.runStateLabel
+    }
+
+    private var statusColor: Color {
+        isStale ? .orange : .secondary
+    }
 
     private var hasGPSDistance: Bool {
         state.cumulativeGPSDistanceMeters != nil
@@ -71,9 +92,9 @@ private struct CompanionLiveWorkoutCard: View {
             HStack {
                 Label(Formatters.timeString(from: state.elapsedSeconds), systemImage: "timer")
                 Spacer()
-                Text(state.runStateLabel)
+                Text(statusLabel)
                     .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(statusColor)
             }
 
             HStack(alignment: .top) {
@@ -114,6 +135,8 @@ private struct CompanionLiveWorkoutCard: View {
             }
         }
         .padding(.vertical, 4)
+        .onReceive(stalenessTimer) { now = $0 }
+        .onAppear { now = Date() }
     }
 }
 

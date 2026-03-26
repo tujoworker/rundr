@@ -177,4 +177,7 @@ enum L10n {
     static let mSuffix = String(localized: "m", comment: "Meter unit")
     static let miSuffix = String(localized: "mi", comment: "Mile unit")
     static let ftSuffix = String(localized: "ft", comment: "Feet unit")
+
+    // MARK: - Companion
+    static let waitingForWatch = String(localized: "Waiting for Watch…", comment: "Companion live state when watch connection is stale")
 }

@@ -27,11 +27,18 @@ struct SessionDetailView: View {
     }
 
     private var sessionStats: [SessionStatItem] {
-        let modeValue = session.mode == .distanceDistance ? L10n.manualLabel : session.mode.displayName
+        let firstSegment = session.snapshotWorkoutPlan.distanceSegments.first
+        let thirdItem: SessionStatItem
+        if let targetTime = firstSegment?.targetTimeSeconds {
+            thirdItem = SessionStatItem(label: L10n.targetTimeLabel, value: Formatters.compactTimeString(from: targetTime))
+        } else {
+            let modeValue = session.mode == .distanceDistance ? L10n.manualLabel : session.mode.displayName
+            thirdItem = SessionStatItem(label: L10n.mode, value: modeValue)
+        }
         var items: [SessionStatItem] = [
             SessionStatItem(label: L10n.laps, value: String(session.activeLapCount)),
             SessionStatItem(label: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds)),
-            SessionStatItem(label: L10n.mode, value: modeValue)
+            thirdItem
         ]
 
         if session.mode.usesManualIntervals && !sessionUsesOpenIntervals {
@@ -334,15 +341,6 @@ struct LapRowView: View {
                     )
                 )
             }
-        }
-
-        if let targetTime = targetSegment?.targetTimeSeconds {
-            items.append(
-                SessionStatItem(
-                    label: L10n.targetTimeLabel,
-                    value: Formatters.compactTimeString(from: targetTime)
-                )
-            )
         }
 
         if let targetPace = targetSegment?.targetPaceSecondsPerKm {

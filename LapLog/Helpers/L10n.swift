@@ -115,6 +115,8 @@ enum L10n {
     static let targetTimeLabel = String(localized: "Target Time", comment: "Lap target time label")
     static let targetPaceLabel = String(localized: "Target Pace", comment: "Lap target pace label")
     static let useSessionSettings = String(localized: "Reuse This Interval", comment: "Button")
+    static let deleteSession = String(localized: "Delete Session", comment: "Button")
+    static let deleteSessionConfirmMessage = String(localized: "This session will be permanently deleted.", comment: "Delete session confirmation message")
     static let phoneSyncPendingTitle = String(localized: "Still sending to iPhone", comment: "Watch history: session not yet on phone")
     static let phoneSyncPendingSubtitle = String(localized: "This workout is saved on your Watch. It will appear in LapLog on your phone when your watch and phone connect.", comment: "Watch history: explain pending phone sync")
     static let phoneSyncConfirmedTitle = String(localized: "On your iPhone", comment: "Watch history: session already on phone")

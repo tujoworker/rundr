@@ -9,6 +9,7 @@ struct SessionDetailView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var showConfirmedPhoneSyncMessage = false
+    @State private var isDeleteConfirmationPresented = false
 
     private var sortedLaps: [Lap] {
         session.laps.sorted { $0.startedAt < $1.startedAt }
@@ -153,16 +154,18 @@ struct SessionDetailView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)
                 }
-                .frame(maxWidth: .infinity, alignment: .center)
+                .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: 16)
+                .buttonStyle(.plain)
                 .padding(.top, 10)
                 .padding(.horizontal, 4)
 
-                Button(String(localized: "Delete Session", comment: "Button to delete a saved session"), role: .destructive) {
-                    persistence.deleteSession(session)
-                    dismiss()
+                Button(role: .destructive) {
+                    isDeleteConfirmationPresented = true
+                } label: {
+                    Text(L10n.deleteSession)
+                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .frame(maxWidth: .infinity)
                 }
-                .font(.system(size: 16, weight: .semibold, design: .rounded))
-                .frame(maxWidth: .infinity)
                 .padding(.top, 10)
                 .padding(.horizontal, 4)
             }
@@ -170,6 +173,15 @@ struct SessionDetailView: View {
         }
         .background(Color.clear)
         .toolbar(.visible, for: .navigationBar)
+        .alert(L10n.deleteSession, isPresented: $isDeleteConfirmationPresented) {
+            Button(L10n.delete, role: .destructive) {
+                persistence.deleteSession(session)
+                dismiss()
+            }
+            Button(L10n.cancel, role: .cancel) {}
+        } message: {
+            Text(L10n.deleteSessionConfirmMessage)
+        }
     }
 }
 

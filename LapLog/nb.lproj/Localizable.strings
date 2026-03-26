@@ -91,6 +91,8 @@
 "On your iPhone" = "På telefonen";
 "LapLog on your iPhone already has this workout." = "LapLog på telefonen har allerede denne økta.";
 "Reuse This Interval" = "Bruk dette intervallet igjen";
+"Delete Session" = "Slett økt";
+"This session will be permanently deleted." = "Denne økta blir permanent slettet.";
 "Loaded from %@" = "Lastet fra %@";
 "%d saved" = "%d lagret";
 

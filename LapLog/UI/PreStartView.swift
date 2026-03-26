@@ -1484,6 +1484,11 @@ private struct SegmentEditSheet: View {
                     } else {
                         restSeconds = 0
                     }
+                    if restSeconds <= 0 {
+                        withAnimation(.easeInOut(duration: 0.22)) {
+                            lastRestSeconds = 0
+                        }
+                    }
                 } label: {
                     Image(systemName: "minus")
                         .font(.system(size: 16, weight: .bold))
@@ -1518,7 +1523,9 @@ private struct SegmentEditSheet: View {
 
     @ViewBuilder
     private var lastRestSection: some View {
-        if lastRestSeconds > 0 {
+        if restSeconds <= 0 {
+            EmptyView()
+        } else if lastRestSeconds > 0 {
             VStack(alignment: .leading, spacing: 8) {
                 Text(L10n.lastRest)
                     .font(.caption.bold())
@@ -1732,6 +1739,11 @@ private struct SegmentEditSheet: View {
 
     private func commitRestEditorText() {
         restSeconds = SegmentEditInputParser.parseDurationSeconds(from: restEditorText)
+        if restSeconds <= 0 {
+            withAnimation(.easeInOut(duration: 0.22)) {
+                lastRestSeconds = 0
+            }
+        }
         isRestEditorPresented = false
     }
 

@@ -1576,38 +1576,45 @@ private struct SegmentEditSheet: View {
                 insertion: .move(edge: .top).combined(with: .opacity),
                 removal: .move(edge: .top).combined(with: .opacity)
             ))
-        } else {
-            Button {
-                withAnimation(.easeInOut(duration: 0.22)) {
-                    lastRestSeconds = max(restSeconds, 15)
-                }
-            } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 16, weight: .semibold))
-
-                    Text(L10n.addLastRest)
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
-                }
-                .foregroundStyle(.white.opacity(restSeconds > 0 ? 1 : 0.3))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .background(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(Color.white.opacity(restSeconds > 0 ? 0.08 : 0.04))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .stroke(Color.white.opacity(restSeconds > 0 ? 0.12 : 0.06), lineWidth: 1)
-                        )
-                )
-            }
-            .buttonStyle(.plain)
-            .disabled(restSeconds <= 0)
-            .transition(.asymmetric(
-                insertion: .move(edge: .top).combined(with: .opacity),
-                removal: .move(edge: .top).combined(with: .opacity)
-            ))
         }
+
+        addLastRestButton
+    }
+
+    private var addLastRestButton: some View {
+        let isActive = lastRestSeconds <= 0 || restSeconds <= 0
+        let isEnabled = restSeconds > 0 && lastRestSeconds <= 0
+
+        return Button {
+            withAnimation(.easeInOut(duration: 0.22)) {
+                lastRestSeconds = max(restSeconds, 15)
+            }
+        } label: {
+            HStack(spacing: 6) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 16, weight: .semibold))
+
+                Text(L10n.addLastRest)
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+            }
+            .foregroundStyle(.white.opacity(isEnabled ? 1 : 0.3))
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Color.white.opacity(isEnabled ? 0.08 : 0.04))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .stroke(Color.white.opacity(isEnabled ? 0.12 : 0.06), lineWidth: 1)
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+        .disabled(!isEnabled)
+        .frame(height: isActive ? nil : 0, alignment: .top)
+        .clipped()
+        .opacity(isActive ? 1 : 0)
+        .animation(.easeInOut(duration: 0.22), value: isActive)
     }
 
     private var paceTargetSection: some View {

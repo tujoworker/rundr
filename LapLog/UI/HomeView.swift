@@ -78,6 +78,11 @@ struct HomeView: View {
         .onChange(of: coordinator.path) {
             viewModel.loadRecent(persistence: persistence)
         }
+        .onChange(of: coordinator.isShowingActiveSession) { _, showing in
+            if !showing {
+                viewModel.loadRecent(persistence: persistence)
+            }
+        }
     }
 }
 

@@ -30,8 +30,8 @@ struct SessionDetailView: View {
         let modeValue = session.mode == .distanceDistance ? L10n.manualLabel : session.mode.displayName
         var items: [SessionStatItem] = [
             SessionStatItem(label: L10n.mode, value: modeValue),
-            SessionStatItem(label: L10n.duration, value: Formatters.timeString(from: session.durationSeconds)),
-            SessionStatItem(label: L10n.laps, value: String(session.totalLaps))
+            SessionStatItem(label: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds)),
+            SessionStatItem(label: L10n.laps, value: String(session.activeLapCount))
         ]
 
         if session.mode.usesManualIntervals && !sessionUsesOpenIntervals {

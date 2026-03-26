@@ -177,11 +177,11 @@ private struct CompanionSessionRow: View {
                 }
             }
 
-            Text("Laps: \(session.totalLaps) • Avg: \(Formatters.speedString(metersPerSecond: session.averageSpeedMetersPerSecond))")
+            Text("Laps: \(session.activeLapCount) • Avg: \(Formatters.speedString(metersPerSecond: session.averageSpeedMetersPerSecond))")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
-            Text("Time: \(Formatters.timeString(from: session.durationSeconds)) • Dist: \(Formatters.distanceString(meters: session.totalDistanceMeters, unit: .km))")
+            Text("Time: \(Formatters.timeString(from: session.activeDurationSeconds)) • Dist: \(Formatters.distanceString(meters: session.totalDistanceMeters, unit: .km))")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
@@ -208,7 +208,7 @@ private struct CompanionSessionDetailView: View {
                 LabeledContent(L10n.source, value: session.companionSourceDisplayName)
                 LabeledContent(L10n.importStatus, value: L10n.importComplete)
                 LabeledContent(L10n.mode, value: session.mode.displayName)
-                LabeledContent("Time", value: Formatters.timeString(from: session.durationSeconds))
+                LabeledContent("Time", value: Formatters.timeString(from: session.activeDurationSeconds))
                 LabeledContent("Distance", value: Formatters.distanceString(meters: session.totalDistanceMeters, unit: .km))
                 if let gpsDistance = session.totalGPSDistanceMeters {
                     LabeledContent("GPS Distance", value: Formatters.distanceString(meters: gpsDistance, unit: .km))

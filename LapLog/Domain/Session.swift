@@ -96,6 +96,14 @@ final class Session {
         }
     }
 
+    var activeLapCount: Int {
+        laps.filter { $0.lapType == .active }.count
+    }
+
+    var activeDurationSeconds: Double {
+        laps.filter { $0.lapType == .active }.reduce(0) { $0 + $1.durationSeconds }
+    }
+
     init(
         id: UUID = UUID(),
         startedAt: Date,

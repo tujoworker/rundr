@@ -108,16 +108,16 @@ struct SessionRowView: View {
             ? (session.totalGPSDistanceMeters ?? session.totalDistanceMeters)
             : session.totalDistanceMeters
         let items: [SessionCardStatItem] = [
-            SessionCardStatItem(label: L10n.laps, value: String(session.totalLaps)),
+            SessionCardStatItem(label: L10n.laps, value: String(session.activeLapCount)),
             SessionCardStatItem(
                 label: L10n.pace,
                 value: Formatters.paceString(
                     distanceMeters: summaryDistance,
-                    durationSeconds: session.durationSeconds,
+                    durationSeconds: session.activeDurationSeconds,
                     unit: settings.distanceUnit
                 )
             ),
-            SessionCardStatItem(label: L10n.duration, value: Formatters.timeString(from: session.durationSeconds)),
+            SessionCardStatItem(label: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds)),
             SessionCardStatItem(
                 label: session.mode.usesManualIntervals && !sessionUsesOpenIntervals ? L10n.distance : L10n.gpsDistanceLabel,
                 value: summaryDistance > 0

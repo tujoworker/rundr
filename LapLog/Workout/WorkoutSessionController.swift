@@ -37,7 +37,6 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     /// Tracks the last integer second at which a time-goal haptic was played.
     private var lastTimeGoalAlertSecond: Int = -1
-    private var timeGoalPulseDismissTask: Task<Void, Never>?
 
     private var usesGPSDistance: Bool {
         trackingMode.usesGPSDistance
@@ -552,17 +551,18 @@ final class WorkoutSessionController: NSObject, ObservableObject {
                    let targetTime = self.currentTargetTimeSeconds,
                    targetTime > 0,
                    self.lapElapsedSeconds >= targetTime {
+                    if !self.isTimeGoalWarningActive {
+                        self.isTimeGoalWarningActive = true
+                        self.playHaptic(.notification)
+                        self.lastTimeGoalAlertSecond = Int(self.lapElapsedSeconds)
+                    }
                     let currentSecond = Int(self.lapElapsedSeconds)
-                    let isFirstAlert = self.lastTimeGoalAlertSecond == -1
                     let secondsSinceGoal = currentSecond - Int(targetTime)
-                    let isDueRepeat = !isFirstAlert
-                        && secondsSinceGoal > 0
-                        && secondsSinceGoal % 5 == 0
-                        && currentSecond != self.lastTimeGoalAlertSecond
-
-                    if isFirstAlert || isDueRepeat {
+                    if secondsSinceGoal > 0,
+                       secondsSinceGoal % 5 == 0,
+                       currentSecond != self.lastTimeGoalAlertSecond {
                         self.lastTimeGoalAlertSecond = currentSecond
-                        self.fireTimeGoalPulse()
+                        self.playHaptic(.notification)
                     }
                 }
 
@@ -719,21 +719,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     }
 
     private func clearTimeGoalWarning() {
-        timeGoalPulseDismissTask?.cancel()
-        timeGoalPulseDismissTask = nil
         isTimeGoalWarningActive = false
         lastTimeGoalAlertSecond = -1
-    }
-
-    private func fireTimeGoalPulse() {
-        timeGoalPulseDismissTask?.cancel()
-        isTimeGoalWarningActive = true
-        playHaptic(.notification)
-        timeGoalPulseDismissTask = Task { [weak self] in
-            try? await Task.sleep(for: .seconds(2))
-            guard !Task.isCancelled else { return }
-            await MainActor.run { self?.isTimeGoalWarningActive = false }
-        }
     }
 
     private func applyPausedDuration(until resumeDate: Date) {

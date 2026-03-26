@@ -364,6 +364,15 @@ struct LapRowView: View {
         return items
     }
 
+    private var timeDeltaText: String? {
+        guard lap.lapType != .rest,
+              let targetTime = targetSegment?.targetTimeSeconds else { return nil }
+        let delta = Int(lap.durationSeconds - targetTime)
+        if delta == 0 { return "(\(L10n.dash))" }
+        let sign = delta > 0 ? "+" : ""
+        return "(\(sign)\(delta)s)"
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(alignment: .firstTextBaseline, spacing: 6) {
@@ -386,7 +395,13 @@ struct LapRowView: View {
                 }
 
                 Text(headerItems.joined(separator: " • "))
-                    .font(.caption)
+                    .font(.caption.weight(.medium))
+
+                if let delta = timeDeltaText {
+                    Text(delta)
+                        .font(.caption)
+                        .opacity(0.8)
+                }
             }
 
             if !detailItems.isEmpty {

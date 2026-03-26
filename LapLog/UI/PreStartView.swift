@@ -1523,9 +1523,7 @@ private struct SegmentEditSheet: View {
 
     @ViewBuilder
     private var lastRestSection: some View {
-        if restSeconds <= 0 {
-            EmptyView()
-        } else if lastRestSeconds > 0 {
+        if lastRestSeconds > 0 && restSeconds > 0 {
             VStack(alignment: .leading, spacing: 8) {
                 Text(L10n.lastRest)
                     .font(.caption.bold())
@@ -1591,19 +1589,20 @@ private struct SegmentEditSheet: View {
                     Text(L10n.addLastRest)
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                 }
-                .foregroundStyle(.white)
+                .foregroundStyle(.white.opacity(restSeconds > 0 ? 1 : 0.3))
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 10)
                 .background(
                     RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(Color.white.opacity(0.08))
+                        .fill(Color.white.opacity(restSeconds > 0 ? 0.08 : 0.04))
                         .overlay(
                             RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                .stroke(Color.white.opacity(0.12), lineWidth: 1)
+                                .stroke(Color.white.opacity(restSeconds > 0 ? 0.12 : 0.06), lineWidth: 1)
                         )
                 )
             }
             .buttonStyle(.plain)
+            .disabled(restSeconds <= 0)
             .transition(.asymmetric(
                 insertion: .move(edge: .top).combined(with: .opacity),
                 removal: .move(edge: .top).combined(with: .opacity)

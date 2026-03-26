@@ -255,13 +255,13 @@ struct ActiveSessionView: View {
             // Keep pause/rest pulses behind content so labels remain readable.
             if isResting {
                 Color.white
-                    .opacity(isPausePulseOn ? 0.2 : 0)
+                    .opacity(isPausePulseOn ? 0.1 : 0)
                     .ignoresSafeArea()
             }
 
             if isResting {
                 Color.white
-                    .opacity(isRestPulseOn ? 0.6 : 0)
+                    .opacity(isRestPulseOn ? 0.3 : 0)
                     .ignoresSafeArea()
             }
 

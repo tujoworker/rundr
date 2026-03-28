@@ -131,7 +131,7 @@ struct SessionDetailView: View {
                         .padding(.horizontal, 4)
                         .padding(.bottom, 4)
                 } else if showConfirmedPhoneSyncMessage {
-                    SessionDetailConfirmedPhoneSyncBanner()
+                    SessionDetailConfirmedPhoneSyncBanner(tint: settings.primaryAccentColor)
                         .padding(.horizontal, 4)
                         .padding(.bottom, 4)
                         .transition(.opacity.combined(with: .move(edge: .top)))
@@ -198,7 +198,7 @@ private struct SessionDetailPendingPhoneSyncBanner: View {
 }
 
 private struct SessionDetailConfirmedPhoneSyncBanner: View {
-    private let tint = Color.green
+    let tint: Color
 
     var body: some View {
         SessionDetailPhoneSyncMessageBanner(

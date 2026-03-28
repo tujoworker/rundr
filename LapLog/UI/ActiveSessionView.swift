@@ -167,7 +167,8 @@ struct ActiveSessionView: View {
     @ViewBuilder
     private var sessionTimerView: some View {
         let screenWidth = WKInterfaceDevice.current().screenBounds.width
-        let timerFontSize = min(100, round(screenWidth * 0.51))
+        let t = max(0, min(1, (screenWidth - 162) / (205 - 162)))
+        let timerFontSize = round(60 + t * 40)
         Button {
             handleLapTap()
         } label: {
@@ -250,7 +251,7 @@ struct ActiveSessionView: View {
             .frame(maxWidth: .infinity, alignment: .center)
         }
         .padding(.horizontal, 14)
-        .padding(.top, 2)
+        .padding(.top, 5)
         .frame(height: topHeaderHeight, alignment: .top)
     }
 

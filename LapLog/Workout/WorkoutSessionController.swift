@@ -33,7 +33,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private(set) var trackingMode: TrackingMode = .gps
     private(set) var distanceLapDistanceMeters: Double = 400
     private(set) var restMode: RestMode = .manual
-    var timeGoalAlertsEnabled: Bool = true
+    var lapAlertsEnabled: Bool = true
+    var restAlertsEnabled: Bool = true
 
     /// Tracks the last integer second at which a time-goal haptic was played.
     private var lastTimeGoalAlertSecond: Int = -1
@@ -547,7 +548,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
                 if self.runState == .active,
                    self.usesManualIntervals,
                    self.currentSegment.usesOpenDistance,
-                   self.timeGoalAlertsEnabled,
+                   self.lapAlertsEnabled,
                    let targetTime = self.currentTargetTimeSeconds,
                    targetTime > 0,
                    self.lapElapsedSeconds >= targetTime {
@@ -703,7 +704,9 @@ final class WorkoutSessionController: NSObject, ObservableObject {
                     if !self.isRestWarningActive {
                         self.isRestWarningActive = true
                     }
-                    self.playHaptic(.notification)
+                    if self.restAlertsEnabled {
+                        self.playHaptic(.notification)
+                    }
                 }
 
                 self.persistRecoverySnapshot()

@@ -358,7 +358,7 @@ final class WorkoutControllerTests: XCTestCase {
                 )
             ]
         )
-        controller.timeGoalAlertsEnabled = false
+        controller.lapAlertsEnabled = false
 
         controller.handleGPSDistanceUpdate(additionalMeters: 180)
         try? await Task.sleep(nanoseconds: 300_000_000)
@@ -910,7 +910,7 @@ final class WorkoutControllerTests: XCTestCase {
                 )
             ]
         )
-        XCTAssertTrue(controller.timeGoalAlertsEnabled)
+        XCTAssertTrue(controller.lapAlertsEnabled)
         XCTAssertFalse(controller.isTimeGoalWarningActive)
 
         try? await Task.sleep(nanoseconds: 1_200_000_000)
@@ -933,7 +933,7 @@ final class WorkoutControllerTests: XCTestCase {
                 )
             ]
         )
-        controller.timeGoalAlertsEnabled = false
+        controller.lapAlertsEnabled = false
 
         try? await Task.sleep(nanoseconds: 1_200_000_000)
 
@@ -988,6 +988,7 @@ final class WorkoutControllerTests: XCTestCase {
 
     func testTimeGoalAlertsDefaultsToEnabled() {
         let controller = makeController()
-        XCTAssertTrue(controller.timeGoalAlertsEnabled)
+        XCTAssertTrue(controller.lapAlertsEnabled)
+        XCTAssertTrue(controller.restAlertsEnabled)
     }
 }

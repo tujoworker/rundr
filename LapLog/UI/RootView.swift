@@ -127,7 +127,8 @@ struct RootView: View {
                                     restMode: settings.restMode,
                                     healthKitManager: healthKitManager
                                 )
-                                workoutController.timeGoalAlertsEnabled = settings.timeGoalAlerts
+                                workoutController.lapAlertsEnabled = settings.lapAlerts
+                                workoutController.restAlertsEnabled = settings.restAlerts
                                 Task {
                                     await workoutController.start()
                                 }
@@ -211,7 +212,8 @@ struct RootView: View {
 
         ongoingWorkoutStore.consumeStartupSnapshot()
         workoutController.restore(snapshot: snapshot, healthKitManager: healthKitManager)
-        workoutController.timeGoalAlertsEnabled = settings.timeGoalAlerts
+        workoutController.lapAlertsEnabled = settings.lapAlerts
+        workoutController.restAlertsEnabled = settings.restAlerts
         coordinator.goToActiveSession()
 
         withAnimation(.easeInOut(duration: 0.28)) {

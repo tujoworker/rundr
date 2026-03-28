@@ -111,7 +111,8 @@ struct LapLogApp: App {
                 restMode: settings.restMode,
                 healthKitManager: healthKitManager
             )
-            workoutController.timeGoalAlertsEnabled = settings.timeGoalAlerts
+            workoutController.lapAlertsEnabled = settings.lapAlerts
+            workoutController.restAlertsEnabled = settings.restAlerts
             Task {
                 await workoutController.start()
             }

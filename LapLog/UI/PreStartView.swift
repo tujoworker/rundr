@@ -18,6 +18,7 @@ struct PreStartView: View {
     @State private var isDistanceUnitDialogPresented = false
     @State private var isRestModeDialogPresented = false
     @State private var isPrimaryColorDialogPresented = false
+    @State private var isAlertsDialogPresented = false
     @State private var editingSegmentID: UUID?
     @State private var editingSegmentDistanceText: String = ""
     @State private var editingSegmentUsesOpenDistance = false
@@ -43,6 +44,15 @@ struct PreStartView: View {
         switch settings.distanceUnit {
         case .km: return "Distance (m)"
         case .miles: return "Distance (ft)"
+        }
+    }
+
+    private var alertsSummary: String {
+        switch (settings.lapAlerts, settings.restAlerts) {
+        case (true, true): return L10n.on
+        case (false, false): return L10n.off
+        case (true, false): return L10n.lapAlerts
+        case (false, true): return L10n.restAlerts
         }
     }
 
@@ -248,13 +258,13 @@ struct PreStartView: View {
                 .buttonStyle(.plain)
 
                 Button {
-                    settings.timeGoalAlerts.toggle()
+                    isAlertsDialogPresented = true
                 } label: {
                     SettingsCardRow(
                         icon: "bell.badge",
                         iconColor: .orange,
                         title: L10n.alerts,
-                        value: settings.timeGoalAlerts ? L10n.on : L10n.off
+                        value: alertsSummary
                     )
                 }
                 .buttonStyle(.plain)
@@ -335,6 +345,15 @@ struct PreStartView: View {
                 Button(color.displayName) {
                     settings.primaryColor = color
                 }
+            }
+            Button("Cancel", role: .cancel) {}
+        }
+        .confirmationDialog(L10n.alerts, isPresented: $isAlertsDialogPresented) {
+            Button(settings.lapAlerts ? "\(L10n.lapAlerts) ✓" : L10n.lapAlerts) {
+                settings.lapAlerts.toggle()
+            }
+            Button(settings.restAlerts ? "\(L10n.restAlerts) ✓" : L10n.restAlerts) {
+                settings.restAlerts.toggle()
             }
             Button("Cancel", role: .cancel) {}
         }

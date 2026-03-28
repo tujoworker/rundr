@@ -132,6 +132,8 @@
 "Off" = "Aus";
 "On" = "An";
 "Alerts" = "Benachrichtigungen";
+"Lap Alerts" = "Runden-Alerts";
+"Rest Alerts" = "Pausen-Alerts";
 "%@ in %@" = "%@ in %@";
 
 /* Preset usage */

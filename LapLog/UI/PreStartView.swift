@@ -883,43 +883,51 @@ private struct IntervalSetupView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(headerTitle)
-                        .font(.headline.weight(.semibold))
-                        .foregroundStyle(.white)
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(headerTitle)
+                            .font(.headline.weight(.semibold))
+                            .foregroundStyle(.white)
 
-                    if let subtitle, !subtitle.isEmpty {
-                        Text(subtitle)
-                            .font(.footnote.weight(.medium))
-                            .foregroundStyle(.white.opacity(0.72))
+                        if let subtitle, !subtitle.isEmpty {
+                            Text(subtitle)
+                                .font(.footnote.weight(.medium))
+                                .foregroundStyle(.white.opacity(0.72))
+                        }
                     }
-                }
-                .padding(.horizontal, 6)
+                    .padding(.horizontal, 6)
+                    .id("top")
 
-                if showsCustomTitle {
-                    IntervalTitleField(text: $customTitle)
-                }
+                    if showsCustomTitle {
+                        IntervalTitleField(text: $customTitle)
+                    }
 
-                if trackingMode.usesManualIntervals {
-                    intervalsSection
-                }
+                    if trackingMode.usesManualIntervals {
+                        intervalsSection
+                    }
 
-                Button(action: continueToGetReady) {
-                    Text(L10n.useSessionSettings)
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
+                    Button {
+                        withAnimation {
+                            proxy.scrollTo("top", anchor: .top)
+                        }
+                        continueToGetReady()
+                    } label: {
+                        Text(L10n.useSessionSettings)
+                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                    }
+                    .buttonStyle(.bordered)
+                    .disabled(isContinueDisabled)
+                    .opacity(isContinueDisabled ? 0.5 : 1)
+                    .padding(.top, 10)
+                    .padding(.horizontal, 4)
                 }
-                .buttonStyle(.bordered)
-                .disabled(isContinueDisabled)
-                .opacity(isContinueDisabled ? 0.5 : 1)
-                .padding(.top, 10)
-                .padding(.horizontal, 4)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 8)
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 8)
         }
         .tint(settings.primaryAccentColor)
         .background(Color.clear)

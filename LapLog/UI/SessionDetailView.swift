@@ -115,7 +115,7 @@ struct SessionDetailView: View {
                                 .frame(width: 18, height: 18)
                                 .background(
                                     Circle()
-                                        .fill(Color.green.opacity(0.88))
+                                        .fill(settings.primaryAccentColor.opacity(0.8))
                                 )
                                 .accessibilityLabel(L10n.phoneSyncConfirmedTitle)
                                 .padding(6)

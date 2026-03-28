@@ -1,4 +1,4 @@
-# LapLog Apple Watch App — Build Spec for AI Code Generation
+# Rundr Apple Watch App — Build Spec for AI Code Generation
 
 ## Goal
 
@@ -774,7 +774,7 @@ Provide reusable formatters for:
 
 ## Explicit build instructions for the coding AI
 
-1. Build a watchOS SwiftUI app named **LapLog**.
+1. Build a watchOS SwiftUI app named **Rundr**.
 2. Make the watch app the primary experience.
 3. Implement the four screens exactly as described.
 4. Persist settings using AppStorage/UserDefaults.

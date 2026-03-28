@@ -1,0 +1,148 @@
+/* German translations for Rundr */
+
+/* PreStart */
+"Press the Action Button" = "Drücke die Aktions-Taste";
+"Settings" = "Einstellungen";
+"Adjust Interval" = "Intervall anpassen";
+"Browse" = "Durchsuchen";
+"Intervals" = "Intervalle";
+"My intervals" = "Meine Intervalle";
+"Predefined" = "Vordefiniert";
+"Title" = "Titel";
+"Title (optional)" = "Titel (optional)";
+"No saved intervals yet" = "Noch keine gespeicherten Intervalle";
+"Tracking Mode" = "Tracking-Modus";
+"Distance" = "Distanz";
+"Add Interval" = "Intervall hinzufügen";
+"Distance (meters)" = "Distanz (Meter)";
+"Distance (feet)" = "Distanz (Fuß)";
+"Distance Type" = "Distanztyp";
+"Fixed" = "Fest";
+"Open" = "Offen";
+"Repeats" = "Wiederholungen";
+"Rest" = "Pause";
+"Last Rest" = "Letzte Pause";
+"Add Last Rest" = "Letzte Pause hinzufügen";
+"GPS Also Enabled" = "GPS ebenfalls aktiviert";
+"Open intervals use GPS distance, so this workout switched to Dual." = "Offene Intervalle nutzen GPS-Distanz, daher wurde dieses Training auf Dual umgestellt.";
+"Enable GPS Access" = "GPS-Zugriff aktivieren";
+"Unit" = "Einheit";
+"Color" = "Farbe";
+"Rest Mode" = "Erholungsmodus";
+"Manual" = "Manuell";
+"Auto-detect" = "Auto erkennen";
+"e.g. 400" = "z.B. 400";
+"e.g. 1320" = "z.B. 1320";
+"Location Required" = "Standort erforderlich";
+"OK" = "OK";
+"GPS-based modes need location access. The mode was switched back to Distance." = "GPS-basierte Modi benötigen Standortzugriff. Der Modus wurde auf Distanz zurückgestellt.";
+"Cancel" = "Abbrechen";
+"Distance Unit" = "Distanzeinheit";
+"Primary Color" = "Hauptfarbe";
+"Done" = "Fertig";
+"s" = "s";
+"m" = "m";
+
+/* Active Session */
+"Delete Lap" = "Runde löschen";
+"Lap %d" = "Runde %d";
+"End Rest" = "Pause beenden";
+"Pause" = "Pausieren";
+"Resume" = "Fortsetzen";
+"Paused" = "Pausiert";
+"End" = "Beenden";
+"Delete" = "Löschen";
+"Active" = "Aktiv";
+
+/* Pace / Units */
+"/km" = "/km";
+"/mi" = "/mi";
+"—" = "—";
+
+/* Home */
+"Get Ready" = "Bereit machen";
+"No sessions yet" = "Noch keine Trainings";
+"Load More" = "Mehr laden";
+"Continue" = "Weiter";
+"Laps: %d • %@" = "Runden: %d • %@";
+"Time: %@ • %@" = "Zeit: %@ • %@";
+"From Apple Watch" = "Von Apple Watch";
+"Imported Session" = "Importierte Einheit";
+"Delivered from Apple Watch and saved on iPhone." = "Von der Apple Watch empfangen und auf dem iPhone gespeichert.";
+"Source" = "Quelle";
+"Import Status" = "Importstatus";
+"Import Complete" = "Import abgeschlossen";
+"Unknown Source" = "Unbekannte Quelle";
+"Imported from %@" = "Importiert von %@";
+
+/* Root / Health */
+"Session not found" = "Training nicht gefunden";
+"Rundr needs:" = "Rundr benötigt:";
+"Health Access" = "Gesundheitszugriff";
+"Not now" = "Nicht jetzt";
+"Health data not available on this device." = "Gesundheitsdaten sind auf diesem Gerät nicht verfügbar.";
+
+/* Session Detail */
+"Session" = "Training";
+"Rest" = "Pause";
+"Duration" = "Dauer";
+"Still sending to iPhone" = "Wird noch ans iPhone übertragen";
+"This workout is saved on your Watch. It will appear in Rundr on your phone when your watch and phone connect." = "Dieses Training ist auf deiner Apple Watch gespeichert. Es erscheint in Rundr auf dem iPhone, sobald sich Apple Watch und iPhone verbinden.";
+"On your iPhone" = "Auf dem iPhone";
+"Rundr on your iPhone already has this workout." = "Rundr auf dem iPhone enthält dieses Training bereits.";
+"Use Activity" = "Aktivität nutzen";
+"Redo Activity" = "Aktivität wiederholen";
+"Delete Session" = "Session löschen";
+"This session will be permanently deleted." = "Diese Session wird unwiderruflich gelöscht.";
+"Loaded from %@" = "Geladen aus %@";
+"%d saved" = "%d gespeichert";
+
+/* Tracking Mode */
+"GPS" = "GPS";
+"Dual" = "Dual";
+"Distance" = "Distanz";
+"GPS: %@" = "GPS: %@";
+
+/* Distance Unit */
+"Kilometers" = "Kilometer";
+"Miles" = "Meilen";
+
+/* Primary Color */
+"Blue" = "Blau";
+"Green" = "Grün";
+"Yellow" = "Gelb";
+"Orange" = "Orange";
+"Pink" = "Rosa";
+"White" = "Weiß";
+"Dark" = "Dunkel";
+
+/* Lap Type */
+"Activity" = "Aktivität";
+
+/* Intents */
+"Start Intervals" = "Intervalle starten";
+"Start a intervals workout." = "Ein Intervalltraining starten.";
+"Workout" = "Training";
+"Intervals" = "Intervalle";
+"Lap" = "Runde";
+
+/* Target */
+"Target" = "Ziel";
+"Pace" = "Tempo";
+"Time" = "Zeit";
+"Off" = "Aus";
+"On" = "An";
+"Alerts" = "Benachrichtigungen";
+"%@ in %@" = "%@ in %@";
+
+/* Preset usage */
+"%dx" = "%dx";
+
+/* Distance/Unit suffixes - "m" is used for both minutes and meters */
+"km" = "km";
+"m" = "m";
+"mi" = "mi";
+"ft" = "ft";
+
+/* Companion */
+"Waiting for Watch\U2026" = "Warte auf Watch\U2026";

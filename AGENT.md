@@ -9,15 +9,15 @@
 ## Running tests
 
 - Run the test suite before finishing meaningful code changes.
-- Project scheme: `LapLog`
-- Test target: `LapLogTests`
+- Project scheme: `Rundr`
+- Test target: `RundrTests`
 - Command:
 
 ```sh
-xcodebuild test -project LapLog.xcodeproj -scheme LapLog -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (46mm)'
+xcodebuild test -project Rundr.xcodeproj -scheme Rundr -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (46mm)'
 ```
 
-- If that simulator is unavailable, use `xcodebuild -showdestinations -project LapLog.xcodeproj -scheme LapLog` and pick an available watchOS simulator.
+- If that simulator is unavailable, use `xcodebuild -showdestinations -project Rundr.xcodeproj -scheme Rundr` and pick an available watchOS simulator.
 
 ## Commits
 
@@ -34,7 +34,7 @@ xcodebuild test -project LapLog.xcodeproj -scheme LapLog -destination 'platform=
 
 - The app ships three locales: English (base), German (`de.lproj`), and Norwegian Bokmål (`nb.lproj`).
 - When adding or changing a user-facing string, update all three places together:
-  1. `LapLog/Helpers/L10n.swift` — add or update the `L10n` constant.
-  2. `LapLog/de.lproj/Localizable.strings` — add the German translation.
-  3. `LapLog/nb.lproj/Localizable.strings` — add the Norwegian translation.
+  1. `Rundr/Helpers/L10n.swift` — add or update the `L10n` constant.
+  2. `Rundr/de.lproj/Localizable.strings` — add the German translation.
+  3. `Rundr/nb.lproj/Localizable.strings` — add the Norwegian translation.
 - Never leave a new string without translations in both locale files.

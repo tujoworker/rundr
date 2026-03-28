@@ -1,8 +1,8 @@
-# LapLog Agent Guide
+# Rundr Agent Guide
 
 ## Product Context
 
-- LapLog is a watchOS-first interval running app with an iPhone companion.
+- Rundr is a watchOS-first interval running app with an iPhone companion.
 - The watch app is the primary surface; optimize for glanceability, large touch targets, and fast setup flows.
 
 ## Translation Rules
@@ -10,9 +10,9 @@
 - Always localize user-facing strings.
 - Prefer `L10n` constants over inline string literals in SwiftUI and model/UI code.
 - When adding a new user-facing string, update all three places together:
-  - `LapLog/Helpers/L10n.swift`
-  - `LapLog/de.lproj/Localizable.strings`
-  - `LapLog/nb.lproj/Localizable.strings`
+  - `Rundr/Helpers/L10n.swift`
+  - `Rundr/de.lproj/Localizable.strings`
+  - `Rundr/nb.lproj/Localizable.strings`
 - Do not leave new English-only UI text in the app.
 - Reuse existing localized labels when the wording already exists.
 
@@ -33,10 +33,10 @@
 - Default command:
 
 ```sh
-xcodebuild test -project LapLog.xcodeproj -scheme LapLog -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (46mm)'
+xcodebuild test -project Rundr.xcodeproj -scheme Rundr -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (46mm)'
 ```
 
-- If that simulator is unavailable, run `xcodebuild -showdestinations -project LapLog.xcodeproj -scheme LapLog` and choose an available watchOS simulator.
+- If that simulator is unavailable, run `xcodebuild -showdestinations -project Rundr.xcodeproj -scheme Rundr` and choose an available watchOS simulator.
 
 ## Commits
 

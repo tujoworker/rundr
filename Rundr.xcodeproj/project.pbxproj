@@ -1,0 +1,850 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		012B7841E2D242F37F954082 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A1B775A27201FA001C88AF /* HomeViewModel.swift */; };
+		1C5FBAD9B17FA11B1506817D /* ActiveSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A391721789A00DCE1A52C5 /* ActiveSessionView.swift */; };
+		29AE989F7AC9917AD935DF22 /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E3127CE770FF5C05C276665 /* Formatters.swift */; };
+		33435AFF099565517A2981F6 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E613F59ADF522B5282AC2A3 /* Session.swift */; };
+		3522748E3D40B521A48CBEA2 /* PrimaryColorOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3522748D3D40B521A48CBEA2 /* PrimaryColorOption.swift */; };
+		437A1B72867C5867B354E553 /* FormattersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17AFAC5870B80DC3E8E64B00 /* FormattersTests.swift */; };
+		4400B362EFED68F5CCBD88CF /* SessionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5AEA32CF41F4A95EA655A2 /* SessionDetailView.swift */; };
+		45B7D4110A16858C07A6357E /* ActionButtonCommandStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2F9EBC2633B3C17127B2A8 /* ActionButtonCommandStore.swift */; };
+		4631A319E31F7DD1259C594B /* MarkLapIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F786B38610A7C830AC765F1 /* MarkLapIntent.swift */; };
+		472DD6F47869F929F51C29B0 /* StartRunningWorkoutIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8912F0A720200E8D9538C4D5 /* StartRunningWorkoutIntent.swift */; };
+		4F356F5E44F096D44C41E43B /* ActionButtonCommandObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9C66FDE63E4D65F194A3975 /* ActionButtonCommandObserver.swift */; };
+		51E4D39D4B5D45B68ED4C11A /* RundrShortcutsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1D1123CC9D14257B8A27313 /* RundrShortcutsProvider.swift */; };
+		52686DF91E00697D94B39D92 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22A7AAFEB69EBE8A0D0FB048 /* RootView.swift */; };
+		52A98D9F8DEB461B7EA6583F /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A52D079F75CFBF9BB2BA7C41 /* HealthKitManager.swift */; };
+		5B42CCC5F71E7FFD525E342C /* PersistenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6018669638742E3118B29041 /* PersistenceManager.swift */; };
+		5D1F2DA465451D371A979B32 /* Lap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A88263B0A43413879ABF4DB7 /* Lap.swift */; };
+		6CB934415EF3BDC0D65EF3E1 /* TrackingMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE97F98043246AF98F971416 /* TrackingMode.swift */; };
+		6D0A2E2B5F7C4A1E9B3D1101 /* OngoingWorkoutSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0A2E2B5F7C4A1E9B3D1102 /* OngoingWorkoutSnapshot.swift */; };
+		6D0A2E2B5F7C4A1E9B3D1103 /* OngoingWorkoutStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0A2E2B5F7C4A1E9B3D1104 /* OngoingWorkoutStore.swift */; };
+		6D0A2E2B5F7C4A1E9B3D1105 /* OngoingWorkoutRecoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0A2E2B5F7C4A1E9B3D1106 /* OngoingWorkoutRecoveryView.swift */; };
+		6E02E5DF235633F34728DC8C /* LapType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586AE861C21CF4145AD81D08 /* LapType.swift */; };
+		7BB47A6891185829ADD4094F /* PreStartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80845E9FC8FEA57AA0E6D7F /* PreStartView.swift */; };
+		826AF4CE8424BB9A4EF1F5CC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3C468A8CAAB5486BF89EDC4 /* Assets.xcassets */; };
+		90A0B0C0D0E0F00112233445 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 90A0B0C0D0E0F00112233446 /* Assets.xcassets */; };
+		90A0B0C0D0E0F00112233450 /* Rundr.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 8BEFD367C4AB92E0F59B0B1F /* Rundr.app */; };
+		A1B2C3D4E5F6011122334455 /* SessionSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6011122334456 /* SessionSyncTests.swift */; };
+		A1B2C3D4E5F607080910ABCD /* DistanceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F607080910ABCE /* DistanceSegment.swift */; };
+		A6AC58E35DDE8D4C3006B265 /* LapSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4087CA1ACDF79F69B6F2FBEC /* LapSource.swift */; };
+		ADF3C560149CC9D36C370A06 /* RundrApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2ABF59CD03172874BEADEA0 /* RundrApp.swift */; };
+		B10000000000000000000001 /* SessionSyncModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* SessionSyncModels.swift */; };
+		B10000000000000000000002 /* RundrCompanionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* RundrCompanionApp.swift */; };
+		B10000000000000000000003 /* CompanionRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* CompanionRootView.swift */; };
+		B10000000000000000000004 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E613F59ADF522B5282AC2A3 /* Session.swift */; };
+		B10000000000000000000005 /* Lap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A88263B0A43413879ABF4DB7 /* Lap.swift */; };
+		B10000000000000000000006 /* TrackingMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE97F98043246AF98F971416 /* TrackingMode.swift */; };
+		B10000000000000000000007 /* DistanceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F607080910ABCE /* DistanceSegment.swift */; };
+		B10000000000000000000008 /* RestMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = RestModeFileRef /* RestMode.swift */; };
+		B10000000000000000000009 /* LapType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586AE861C21CF4145AD81D08 /* LapType.swift */; };
+		B1000000000000000000000A /* LapSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4087CA1ACDF79F69B6F2FBEC /* LapSource.swift */; };
+		B1000000000000000000000B /* PersistenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6018669638742E3118B29041 /* PersistenceManager.swift */; };
+		B1000000000000000000000C /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E3127CE770FF5C05C276665 /* Formatters.swift */; };
+		B1000000000000000000000D /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = L10nFileRef /* L10n.swift */; };
+		B1000000000000000000000E /* DistanceUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DEE2BD2F65FC180005ABAA /* DistanceUnit.swift */; };
+		B1000000000000000000000F /* WorkoutRunState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7B588DE96AFFC30AE7ABBA /* WorkoutRunState.swift */; };
+		B10000000000000000000010 /* SessionSyncModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* SessionSyncModels.swift */; };
+		C49E8373AE1A8ED3EC6A2880 /* ModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB9EDEF7841220E7F36CEFF /* ModelTests.swift */; };
+		CFBC8671050DDED6391381E7 /* AppScreenState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BDE8B1656261C1E67BD361 /* AppScreenState.swift */; };
+		D5B5E557FB187878AF5A836B /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 803A3A092975B9BAB810BAB2 /* SettingsStore.swift */; };
+		DistanceInputViewRef /* DistanceInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DistanceInputViewFile /* DistanceInputView.swift */; };
+		E9FA61354F306ED894832978 /* WorkoutSessionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C461B28E60C157EE2885A142 /* WorkoutSessionController.swift */; };
+		EB489A6095972420E5B254F4 /* WorkoutControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F85A1B319257D193FA45B6 /* WorkoutControllerTests.swift */; };
+		EEF02F2BA438237E59FFD96E /* NavigationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B56B88EBFA89F92A11A0E1 /* NavigationCoordinator.swift */; };
+		F6DEE2BE2F65FC180005ABAA /* DistanceUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DEE2BD2F65FC180005ABAA /* DistanceUnit.swift */; };
+		FCBEE6361F5E5147C8E53373 /* WorkoutRunState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7B588DE96AFFC30AE7ABBA /* WorkoutRunState.swift */; };
+		FD7F3FB0395174CBAF09E673 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC650870DDC91DB05A48BBA /* HomeView.swift */; };
+		L10nBuildRef /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = L10nFileRef /* L10n.swift */; };
+		LocalizableStringsBuildRef /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = LocalizableStringsGroupRef /* Localizable.strings */; };
+		RestModeBuildRef /* RestMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = RestModeFileRef /* RestMode.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		5B0D864BD0A5C80A44B292AA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5299AC4324DC18342A8CCD96 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E92819776D1D900150F17949;
+			remoteInfo = Rundr;
+		};
+		90A0B0C0D0E0F00112233453 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5299AC4324DC18342A8CCD96 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E92819776D1D900150F17949;
+			remoteInfo = Rundr;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		90A0B0C0D0E0F00112233451 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Watch;
+			dstSubfolderSpec = 1;
+			files = (
+				90A0B0C0D0E0F00112233450 /* Rundr.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		02A391721789A00DCE1A52C5 /* ActiveSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveSessionView.swift; sourceTree = "<group>"; };
+		02AC43A08A4599D8442B24FA /* RundrTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RundrTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0C25755AF893FBC0ACEE2B23 /* Preview Content */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Preview Content"; sourceTree = "<group>"; };
+		17AFAC5870B80DC3E8E64B00 /* FormattersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormattersTests.swift; sourceTree = "<group>"; };
+		22A7AAFEB69EBE8A0D0FB048 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		2DC650870DDC91DB05A48BBA /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
+		3522748D3D40B521A48CBEA2 /* PrimaryColorOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrimaryColorOption.swift; sourceTree = "<group>"; };
+		4087CA1ACDF79F69B6F2FBEC /* LapSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapSource.swift; sourceTree = "<group>"; };
+		4F786B38610A7C830AC765F1 /* MarkLapIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkLapIntent.swift; sourceTree = "<group>"; };
+		586AE861C21CF4145AD81D08 /* LapType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapType.swift; sourceTree = "<group>"; };
+		58B56B88EBFA89F92A11A0E1 /* NavigationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinator.swift; sourceTree = "<group>"; };
+		5E613F59ADF522B5282AC2A3 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
+		6018669638742E3118B29041 /* PersistenceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceManager.swift; sourceTree = "<group>"; };
+		6D0A2E2B5F7C4A1E9B3D1102 /* OngoingWorkoutSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OngoingWorkoutSnapshot.swift; sourceTree = "<group>"; };
+		6D0A2E2B5F7C4A1E9B3D1104 /* OngoingWorkoutStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OngoingWorkoutStore.swift; sourceTree = "<group>"; };
+		6D0A2E2B5F7C4A1E9B3D1106 /* OngoingWorkoutRecoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OngoingWorkoutRecoveryView.swift; sourceTree = "<group>"; };
+		803A3A092975B9BAB810BAB2 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
+		8912F0A720200E8D9538C4D5 /* StartRunningWorkoutIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartRunningWorkoutIntent.swift; sourceTree = "<group>"; };
+		8B2F9EBC2633B3C17127B2A8 /* ActionButtonCommandStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonCommandStore.swift; sourceTree = "<group>"; };
+		8BEFD367C4AB92E0F59B0B1F /* Rundr.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Rundr.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8E3127CE770FF5C05C276665 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
+		90A0B0C0D0E0F00112233446 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		90A0B0C0D0E0F00112233447 /* Rundr Companion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Rundr Companion.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1B2C3D4E5F6011122334456 /* SessionSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSyncTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F607080910ABCE /* DistanceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceSegment.swift; sourceTree = "<group>"; };
+		A52D079F75CFBF9BB2BA7C41 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
+		A88263B0A43413879ABF4DB7 /* Lap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lap.swift; sourceTree = "<group>"; };
+		AE97F98043246AF98F971416 /* TrackingMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackingMode.swift; sourceTree = "<group>"; };
+		AF7B588DE96AFFC30AE7ABBA /* WorkoutRunState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutRunState.swift; sourceTree = "<group>"; };
+		B20000000000000000000001 /* SessionSyncModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSyncModels.swift; sourceTree = "<group>"; };
+		B20000000000000000000002 /* RundrCompanionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RundrCompanionApp.swift; sourceTree = "<group>"; };
+		B20000000000000000000003 /* CompanionRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionRootView.swift; sourceTree = "<group>"; };
+		B20000000000000000000004 /* Rundr Companion.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Rundr Companion.entitlements"; sourceTree = "<group>"; };
+		B3C468A8CAAB5486BF89EDC4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C461B28E60C157EE2885A142 /* WorkoutSessionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutSessionController.swift; sourceTree = "<group>"; };
+		C9C66FDE63E4D65F194A3975 /* ActionButtonCommandObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonCommandObserver.swift; sourceTree = "<group>"; };
+		D8BDE8B1656261C1E67BD361 /* AppScreenState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppScreenState.swift; sourceTree = "<group>"; };
+		DistanceInputViewFile /* DistanceInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceInputView.swift; sourceTree = "<group>"; };
+		E2A1B775A27201FA001C88AF /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
+		E7F85A1B319257D193FA45B6 /* WorkoutControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutControllerTests.swift; sourceTree = "<group>"; };
+		EFB9EDEF7841220E7F36CEFF /* ModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelTests.swift; sourceTree = "<group>"; };
+		F1D1123CC9D14257B8A27313 /* RundrShortcutsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RundrShortcutsProvider.swift; sourceTree = "<group>"; };
+		F2ABF59CD03172874BEADEA0 /* RundrApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RundrApp.swift; sourceTree = "<group>"; };
+		F6DEE2BD2F65FC180005ABAA /* DistanceUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceUnit.swift; sourceTree = "<group>"; };
+		F6DEE2BF2F66038A0005ABAA /* Rundr.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Rundr.entitlements; sourceTree = "<group>"; };
+		F6DEE2C22F6612F00005ABAA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		F80845E9FC8FEA57AA0E6D7F /* PreStartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreStartView.swift; sourceTree = "<group>"; };
+		FC5AEA32CF41F4A95EA655A2 /* SessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailView.swift; sourceTree = "<group>"; };
+		L10nFileRef /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
+		LocalizableStringsDeRef /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		LocalizableStringsNbRef /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
+		RestModeFileRef /* RestMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestMode.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		58A6AD7DA7544B8406AD7709 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B40000000000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E350EE90246378D4D995D966 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0DB76932C055B50DE5275514 /* RundrTests */ = {
+			isa = PBXGroup;
+			children = (
+				17AFAC5870B80DC3E8E64B00 /* FormattersTests.swift */,
+				EFB9EDEF7841220E7F36CEFF /* ModelTests.swift */,
+				A1B2C3D4E5F6011122334456 /* SessionSyncTests.swift */,
+				E7F85A1B319257D193FA45B6 /* WorkoutControllerTests.swift */,
+			);
+			path = RundrTests;
+			sourceTree = "<group>";
+		};
+		0EAB7458B5E343B5ED95EE6F /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				D8BDE8B1656261C1E67BD361 /* AppScreenState.swift */,
+				58B56B88EBFA89F92A11A0E1 /* NavigationCoordinator.swift */,
+				22A7AAFEB69EBE8A0D0FB048 /* RootView.swift */,
+				6D0A2E2B5F7C4A1E9B3D1106 /* OngoingWorkoutRecoveryView.swift */,
+				2DC650870DDC91DB05A48BBA /* HomeView.swift */,
+				E2A1B775A27201FA001C88AF /* HomeViewModel.swift */,
+				FC5AEA32CF41F4A95EA655A2 /* SessionDetailView.swift */,
+				DistanceInputViewFile /* DistanceInputView.swift */,
+				F80845E9FC8FEA57AA0E6D7F /* PreStartView.swift */,
+				02A391721789A00DCE1A52C5 /* ActiveSessionView.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		17EC92BDA3D6F030AF7F9E5A /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				F6DEE2BD2F65FC180005ABAA /* DistanceUnit.swift */,
+				A1B2C3D4E5F607080910ABCE /* DistanceSegment.swift */,
+				6D0A2E2B5F7C4A1E9B3D1102 /* OngoingWorkoutSnapshot.swift */,
+				3522748D3D40B521A48CBEA2 /* PrimaryColorOption.swift */,
+				RestModeFileRef /* RestMode.swift */,
+				AE97F98043246AF98F971416 /* TrackingMode.swift */,
+				586AE861C21CF4145AD81D08 /* LapType.swift */,
+				4087CA1ACDF79F69B6F2FBEC /* LapSource.swift */,
+				A88263B0A43413879ABF4DB7 /* Lap.swift */,
+				5E613F59ADF522B5282AC2A3 /* Session.swift */,
+				803A3A092975B9BAB810BAB2 /* SettingsStore.swift */,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		34612946D52F7ABFAA8B912E /* Persistence */ = {
+			isa = PBXGroup;
+			children = (
+				6018669638742E3118B29041 /* PersistenceManager.swift */,
+				6D0A2E2B5F7C4A1E9B3D1104 /* OngoingWorkoutStore.swift */,
+			);
+			path = Persistence;
+			sourceTree = "<group>";
+		};
+		382EA684D1D74C7A2B0D30AC /* Intents */ = {
+			isa = PBXGroup;
+			children = (
+				C9C66FDE63E4D65F194A3975 /* ActionButtonCommandObserver.swift */,
+				8B2F9EBC2633B3C17127B2A8 /* ActionButtonCommandStore.swift */,
+				F1D1123CC9D14257B8A27313 /* RundrShortcutsProvider.swift */,
+				4F786B38610A7C830AC765F1 /* MarkLapIntent.swift */,
+				8912F0A720200E8D9538C4D5 /* StartRunningWorkoutIntent.swift */,
+			);
+			path = Intents;
+			sourceTree = "<group>";
+		};
+		5928955287B8089ED2177128 = {
+			isa = PBXGroup;
+			children = (
+				6728A9E758BE484BE4D5E89A /* Rundr */,
+				90A0B0C0D0E0F00112233448 /* Rundr Companion */,
+				0DB76932C055B50DE5275514 /* RundrTests */,
+				BF7A2D27A78D590BDEF15AF2 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		5947E500C310CB92A269BFB0 /* Workout */ = {
+			isa = PBXGroup;
+			children = (
+				AF7B588DE96AFFC30AE7ABBA /* WorkoutRunState.swift */,
+				C461B28E60C157EE2885A142 /* WorkoutSessionController.swift */,
+			);
+			path = Workout;
+			sourceTree = "<group>";
+		};
+		6728A9E758BE484BE4D5E89A /* Rundr */ = {
+			isa = PBXGroup;
+			children = (
+				LocalizableStringsGroupRef /* Localizable.strings */,
+				F6DEE2C22F6612F00005ABAA /* Info.plist */,
+				F6DEE2BF2F66038A0005ABAA /* Rundr.entitlements */,
+				F2ABF59CD03172874BEADEA0 /* RundrApp.swift */,
+				17EC92BDA3D6F030AF7F9E5A /* Domain */,
+				75B762909BDB834AA9044E45 /* Health */,
+				7675693986D84F095B28B67D /* Helpers */,
+				382EA684D1D74C7A2B0D30AC /* Intents */,
+				34612946D52F7ABFAA8B912E /* Persistence */,
+				B20000000000000000000005 /* Sync */,
+				5947E500C310CB92A269BFB0 /* Workout */,
+				0EAB7458B5E343B5ED95EE6F /* UI */,
+				B3C468A8CAAB5486BF89EDC4 /* Assets.xcassets */,
+				0C25755AF893FBC0ACEE2B23 /* Preview Content */,
+			);
+			path = Rundr;
+			sourceTree = "<group>";
+		};
+		75B762909BDB834AA9044E45 /* Health */ = {
+			isa = PBXGroup;
+			children = (
+				A52D079F75CFBF9BB2BA7C41 /* HealthKitManager.swift */,
+			);
+			path = Health;
+			sourceTree = "<group>";
+		};
+		7675693986D84F095B28B67D /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				8E3127CE770FF5C05C276665 /* Formatters.swift */,
+				L10nFileRef /* L10n.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		90A0B0C0D0E0F00112233448 /* Rundr Companion */ = {
+			isa = PBXGroup;
+			children = (
+				B20000000000000000000002 /* RundrCompanionApp.swift */,
+				B20000000000000000000003 /* CompanionRootView.swift */,
+				B20000000000000000000004 /* Rundr Companion.entitlements */,
+				90A0B0C0D0E0F00112233446 /* Assets.xcassets */,
+			);
+			path = "Rundr Companion";
+			sourceTree = "<group>";
+		};
+		B20000000000000000000005 /* Sync */ = {
+			isa = PBXGroup;
+			children = (
+				B20000000000000000000001 /* SessionSyncModels.swift */,
+			);
+			path = Sync;
+			sourceTree = "<group>";
+		};
+		BF7A2D27A78D590BDEF15AF2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8BEFD367C4AB92E0F59B0B1F /* Rundr.app */,
+				90A0B0C0D0E0F00112233447 /* Rundr Companion.app */,
+				02AC43A08A4599D8442B24FA /* RundrTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		45972596DBEF12805283439E /* RundrTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 938997E94E15DD5CF3243B0D /* Build configuration list for PBXNativeTarget "RundrTests" */;
+			buildPhases = (
+				E36BB787EC76E27E13DAFFBA /* Sources */,
+				E350EE90246378D4D995D966 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EE543492886B1A944A594DA2 /* PBXTargetDependency */,
+			);
+			name = RundrTests;
+			productName = RundrTests;
+			productReference = 02AC43A08A4599D8442B24FA /* RundrTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		90A0B0C0D0E0F00112233449 /* Rundr Companion */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 90A0B0C0D0E0F0011223344D /* Build configuration list for PBXNativeTarget "Rundr Companion" */;
+			buildPhases = (
+				B30000000000000000000001 /* Sources */,
+				B40000000000000000000001 /* Frameworks */,
+				90A0B0C0D0E0F0011223344A /* Resources */,
+				90A0B0C0D0E0F00112233451 /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				90A0B0C0D0E0F00112233452 /* PBXTargetDependency */,
+			);
+			name = "Rundr Companion";
+			productName = "Rundr Companion";
+			productReference = 90A0B0C0D0E0F00112233447 /* Rundr Companion.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E92819776D1D900150F17949 /* Rundr */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A5565127C23E2209755B64B6 /* Build configuration list for PBXNativeTarget "Rundr" */;
+			buildPhases = (
+				76444D7591C0121B498AF864 /* Sources */,
+				58A6AD7DA7544B8406AD7709 /* Frameworks */,
+				24F985E6D2A373B47700D575 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Rundr;
+			productName = Rundr;
+			productReference = 8BEFD367C4AB92E0F59B0B1F /* Rundr.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5299AC4324DC18342A8CCD96 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 2630;
+			};
+			buildConfigurationList = FE422E61AE992D05BC2E14C2 /* Build configuration list for PBXProject "Rundr" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				de,
+				en,
+				nb,
+				Base,
+			);
+			mainGroup = 5928955287B8089ED2177128;
+			productRefGroup = BF7A2D27A78D590BDEF15AF2 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				90A0B0C0D0E0F00112233449 /* Rundr Companion */,
+				E92819776D1D900150F17949 /* Rundr */,
+				45972596DBEF12805283439E /* RundrTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		24F985E6D2A373B47700D575 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				826AF4CE8424BB9A4EF1F5CC /* Assets.xcassets in Resources */,
+				LocalizableStringsBuildRef /* Localizable.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		90A0B0C0D0E0F0011223344A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				90A0B0C0D0E0F00112233445 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		76444D7591C0121B498AF864 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				ADF3C560149CC9D36C370A06 /* RundrApp.swift in Sources */,
+				6CB934415EF3BDC0D65EF3E1 /* TrackingMode.swift in Sources */,
+				RestModeBuildRef /* RestMode.swift in Sources */,
+				6E02E5DF235633F34728DC8C /* LapType.swift in Sources */,
+				A6AC58E35DDE8D4C3006B265 /* LapSource.swift in Sources */,
+				5D1F2DA465451D371A979B32 /* Lap.swift in Sources */,
+				33435AFF099565517A2981F6 /* Session.swift in Sources */,
+				3522748E3D40B521A48CBEA2 /* PrimaryColorOption.swift in Sources */,
+				D5B5E557FB187878AF5A836B /* SettingsStore.swift in Sources */,
+				52A98D9F8DEB461B7EA6583F /* HealthKitManager.swift in Sources */,
+				29AE989F7AC9917AD935DF22 /* Formatters.swift in Sources */,
+				L10nBuildRef /* L10n.swift in Sources */,
+				5B42CCC5F71E7FFD525E342C /* PersistenceManager.swift in Sources */,
+				6D0A2E2B5F7C4A1E9B3D1103 /* OngoingWorkoutStore.swift in Sources */,
+				FCBEE6361F5E5147C8E53373 /* WorkoutRunState.swift in Sources */,
+				E9FA61354F306ED894832978 /* WorkoutSessionController.swift in Sources */,
+				CFBC8671050DDED6391381E7 /* AppScreenState.swift in Sources */,
+				EEF02F2BA438237E59FFD96E /* NavigationCoordinator.swift in Sources */,
+				52686DF91E00697D94B39D92 /* RootView.swift in Sources */,
+				6D0A2E2B5F7C4A1E9B3D1105 /* OngoingWorkoutRecoveryView.swift in Sources */,
+				FD7F3FB0395174CBAF09E673 /* HomeView.swift in Sources */,
+				012B7841E2D242F37F954082 /* HomeViewModel.swift in Sources */,
+				4400B362EFED68F5CCBD88CF /* SessionDetailView.swift in Sources */,
+				DistanceInputViewRef /* DistanceInputView.swift in Sources */,
+				7BB47A6891185829ADD4094F /* PreStartView.swift in Sources */,
+				1C5FBAD9B17FA11B1506817D /* ActiveSessionView.swift in Sources */,
+				4F356F5E44F096D44C41E43B /* ActionButtonCommandObserver.swift in Sources */,
+				45B7D4110A16858C07A6357E /* ActionButtonCommandStore.swift in Sources */,
+				51E4D39D4B5D45B68ED4C11A /* RundrShortcutsProvider.swift in Sources */,
+				4631A319E31F7DD1259C594B /* MarkLapIntent.swift in Sources */,
+				472DD6F47869F929F51C29B0 /* StartRunningWorkoutIntent.swift in Sources */,
+				F6DEE2BE2F65FC180005ABAA /* DistanceUnit.swift in Sources */,
+				A1B2C3D4E5F607080910ABCD /* DistanceSegment.swift in Sources */,
+				6D0A2E2B5F7C4A1E9B3D1101 /* OngoingWorkoutSnapshot.swift in Sources */,
+				B10000000000000000000001 /* SessionSyncModels.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B30000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B10000000000000000000002 /* RundrCompanionApp.swift in Sources */,
+				B10000000000000000000003 /* CompanionRootView.swift in Sources */,
+				B10000000000000000000004 /* Session.swift in Sources */,
+				B10000000000000000000005 /* Lap.swift in Sources */,
+				B10000000000000000000006 /* TrackingMode.swift in Sources */,
+				B10000000000000000000008 /* RestMode.swift in Sources */,
+				B10000000000000000000009 /* LapType.swift in Sources */,
+				B1000000000000000000000A /* LapSource.swift in Sources */,
+				B1000000000000000000000B /* PersistenceManager.swift in Sources */,
+				B1000000000000000000000C /* Formatters.swift in Sources */,
+				B1000000000000000000000D /* L10n.swift in Sources */,
+				B1000000000000000000000E /* DistanceUnit.swift in Sources */,
+				B1000000000000000000000F /* WorkoutRunState.swift in Sources */,
+				B10000000000000000000007 /* DistanceSegment.swift in Sources */,
+				B10000000000000000000010 /* SessionSyncModels.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E36BB787EC76E27E13DAFFBA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				437A1B72867C5867B354E553 /* FormattersTests.swift in Sources */,
+				C49E8373AE1A8ED3EC6A2880 /* ModelTests.swift in Sources */,
+				A1B2C3D4E5F6011122334455 /* SessionSyncTests.swift in Sources */,
+				EB489A6095972420E5B254F4 /* WorkoutControllerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		90A0B0C0D0E0F00112233452 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E92819776D1D900150F17949 /* Rundr */;
+			targetProxy = 90A0B0C0D0E0F00112233453 /* PBXContainerItemProxy */;
+		};
+		EE543492886B1A944A594DA2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E92819776D1D900150F17949 /* Rundr */;
+			targetProxy = 5B0D864BD0A5C80A44B292AA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		LocalizableStringsGroupRef /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				LocalizableStringsDeRef /* de */,
+				LocalizableStringsNbRef /* nb */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		1EC4855024DBC8C984257298 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Rundr/Rundr.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Rundr/Preview Content\"";
+				DEVELOPMENT_TEAM = D7U32ULZSD;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Rundr/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Rundr;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "The app reads heart rate data during workouts.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "The app saves your workout sessions to Apple Health.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Rundr uses GPS to track your running distance.";
+				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.rundr;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rundr.watchapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = NO;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		4B76C35BB1D534F10245EF37 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rundr.watchapp.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Rundr.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Rundr";
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		819EE775D92C0EF73120C600 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rundr.watchapp.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Rundr.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Rundr";
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		90A0B0C0D0E0F0011223344B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "Rundr Companion/Rundr Companion.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D7U32ULZSD;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Rundr;
+				INFOPLIST_KEY_LSRequiresIPhoneOS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rundr;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		90A0B0C0D0E0F0011223344C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = "Rundr Companion/Rundr Companion.entitlements";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = D7U32ULZSD;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Rundr;
+				INFOPLIST_KEY_LSRequiresIPhoneOS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rundr;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A17D69B82EEA6AD12837DC68 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = Rundr/Rundr.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Rundr/Preview Content\"";
+				DEVELOPMENT_TEAM = D7U32ULZSD;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Rundr/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Rundr;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "The app reads heart rate data during workouts.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "The app saves your workout sessions to Apple Health.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Rundr uses GPS to track your running distance.";
+				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.rundr;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rundr.watchapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = NO;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		B74382A4D110BEFC1DEB55E4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		F901A40D62D95EAB754CE15B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		90A0B0C0D0E0F0011223344D /* Build configuration list for PBXNativeTarget "Rundr Companion" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				90A0B0C0D0E0F0011223344B /* Debug */,
+				90A0B0C0D0E0F0011223344C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		938997E94E15DD5CF3243B0D /* Build configuration list for PBXNativeTarget "RundrTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4B76C35BB1D534F10245EF37 /* Debug */,
+				819EE775D92C0EF73120C600 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A5565127C23E2209755B64B6 /* Build configuration list for PBXNativeTarget "Rundr" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1EC4855024DBC8C984257298 /* Debug */,
+				A17D69B82EEA6AD12837DC68 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FE422E61AE992D05BC2E14C2 /* Build configuration list for PBXProject "Rundr" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B74382A4D110BEFC1DEB55E4 /* Debug */,
+				F901A40D62D95EAB754CE15B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5299AC4324DC18342A8CCD96 /* Project object */;
+}

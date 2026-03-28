@@ -1,8 +1,8 @@
-# LapLog Companion Sync Spec
+# Rundr Companion Sync Spec
 
 ## Goal
 
-Extend LapLog from a watch-only app into a watch-first system with:
+Extend Rundr from a watch-only app into a watch-first system with:
 
 - a usable iPhone companion app
 - live workout mirroring from Watch to iPhone

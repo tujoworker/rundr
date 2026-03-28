@@ -90,7 +90,7 @@
 "This workout is saved on your Watch. It will appear in LapLog on your phone when your watch and phone connect." = "Dieses Training ist auf deiner Apple Watch gespeichert. Es erscheint in LapLog auf dem iPhone, sobald sich Apple Watch und iPhone verbinden.";
 "On your iPhone" = "Auf dem iPhone";
 "LapLog on your iPhone already has this workout." = "LapLog auf dem iPhone enthält dieses Training bereits.";
-"Reuse This Interval" = "Dieses Intervall wiederverwenden";
+"Use Activity" = "Aktivität nutzen";
 "Delete Session" = "Session löschen";
 "This session will be permanently deleted." = "Diese Session wird unwiderruflich gelöscht.";
 "Loaded from %@" = "Geladen aus %@";

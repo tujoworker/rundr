@@ -7,25 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		90A0B0C0D0E0F00112233450 /* LapLog.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 8BEFD367C4AB92E0F59B0B1F /* LapLog.app */; };
-		B10000000000000000000001 /* SessionSyncModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* SessionSyncModels.swift */; };
-		B10000000000000000000002 /* LapLogCompanionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* LapLogCompanionApp.swift */; };
-		B10000000000000000000003 /* CompanionRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* CompanionRootView.swift */; };
-		B10000000000000000000004 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E613F59ADF522B5282AC2A3 /* Session.swift */; };
-		B10000000000000000000005 /* Lap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A88263B0A43413879ABF4DB7 /* Lap.swift */; };
-		B10000000000000000000006 /* TrackingMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE97F98043246AF98F971416 /* TrackingMode.swift */; };
-		B10000000000000000000007 /* DistanceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F607080910ABCE /* DistanceSegment.swift */; };
-		B10000000000000000000008 /* RestMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = RestModeFileRef /* RestMode.swift */; };
-		B10000000000000000000009 /* LapType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586AE861C21CF4145AD81D08 /* LapType.swift */; };
-		B1000000000000000000000A /* LapSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4087CA1ACDF79F69B6F2FBEC /* LapSource.swift */; };
-		B1000000000000000000000B /* PersistenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6018669638742E3118B29041 /* PersistenceManager.swift */; };
-		B1000000000000000000000C /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E3127CE770FF5C05C276665 /* Formatters.swift */; };
-		B1000000000000000000000D /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = L10nFileRef /* L10n.swift */; };
-		B1000000000000000000000E /* DistanceUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DEE2BD2F65FC180005ABAA /* DistanceUnit.swift */; };
-		B1000000000000000000000F /* WorkoutRunState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7B588DE96AFFC30AE7ABBA /* WorkoutRunState.swift */; };
-		B10000000000000000000010 /* SessionSyncModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* SessionSyncModels.swift */; };
-		L10nBuildRef /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = L10nFileRef /* L10n.swift */; };
-		LocalizableStringsBuildRef /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = LocalizableStringsGroupRef /* Localizable.strings */; };
 		012B7841E2D242F37F954082 /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A1B775A27201FA001C88AF /* HomeViewModel.swift */; };
 		1C5FBAD9B17FA11B1506817D /* ActiveSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 02A391721789A00DCE1A52C5 /* ActiveSessionView.swift */; };
 		29AE989F7AC9917AD935DF22 /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E3127CE770FF5C05C276665 /* Formatters.swift */; };
@@ -46,40 +27,45 @@
 		6D0A2E2B5F7C4A1E9B3D1101 /* OngoingWorkoutSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0A2E2B5F7C4A1E9B3D1102 /* OngoingWorkoutSnapshot.swift */; };
 		6D0A2E2B5F7C4A1E9B3D1103 /* OngoingWorkoutStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0A2E2B5F7C4A1E9B3D1104 /* OngoingWorkoutStore.swift */; };
 		6D0A2E2B5F7C4A1E9B3D1105 /* OngoingWorkoutRecoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0A2E2B5F7C4A1E9B3D1106 /* OngoingWorkoutRecoveryView.swift */; };
-		RestModeBuildRef /* RestMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = RestModeFileRef /* RestMode.swift */; };
 		6E02E5DF235633F34728DC8C /* LapType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586AE861C21CF4145AD81D08 /* LapType.swift */; };
 		7BB47A6891185829ADD4094F /* PreStartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80845E9FC8FEA57AA0E6D7F /* PreStartView.swift */; };
-		DistanceInputViewRef /* DistanceInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DistanceInputViewFile /* DistanceInputView.swift */; };
 		826AF4CE8424BB9A4EF1F5CC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3C468A8CAAB5486BF89EDC4 /* Assets.xcassets */; };
 		90A0B0C0D0E0F00112233445 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 90A0B0C0D0E0F00112233446 /* Assets.xcassets */; };
+		90A0B0C0D0E0F00112233450 /* LapLog.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 8BEFD367C4AB92E0F59B0B1F /* LapLog.app */; };
+		A1B2C3D4E5F6011122334455 /* SessionSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6011122334456 /* SessionSyncTests.swift */; };
+		A1B2C3D4E5F607080910ABCD /* DistanceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F607080910ABCE /* DistanceSegment.swift */; };
 		A6AC58E35DDE8D4C3006B265 /* LapSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4087CA1ACDF79F69B6F2FBEC /* LapSource.swift */; };
 		ADF3C560149CC9D36C370A06 /* LapLogApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2ABF59CD03172874BEADEA0 /* LapLogApp.swift */; };
+		B10000000000000000000001 /* SessionSyncModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* SessionSyncModels.swift */; };
+		B10000000000000000000002 /* LapLogCompanionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* LapLogCompanionApp.swift */; };
+		B10000000000000000000003 /* CompanionRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* CompanionRootView.swift */; };
+		B10000000000000000000004 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E613F59ADF522B5282AC2A3 /* Session.swift */; };
+		B10000000000000000000005 /* Lap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A88263B0A43413879ABF4DB7 /* Lap.swift */; };
+		B10000000000000000000006 /* TrackingMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE97F98043246AF98F971416 /* TrackingMode.swift */; };
+		B10000000000000000000007 /* DistanceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F607080910ABCE /* DistanceSegment.swift */; };
+		B10000000000000000000008 /* RestMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = RestModeFileRef /* RestMode.swift */; };
+		B10000000000000000000009 /* LapType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586AE861C21CF4145AD81D08 /* LapType.swift */; };
+		B1000000000000000000000A /* LapSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4087CA1ACDF79F69B6F2FBEC /* LapSource.swift */; };
+		B1000000000000000000000B /* PersistenceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6018669638742E3118B29041 /* PersistenceManager.swift */; };
+		B1000000000000000000000C /* Formatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E3127CE770FF5C05C276665 /* Formatters.swift */; };
+		B1000000000000000000000D /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = L10nFileRef /* L10n.swift */; };
+		B1000000000000000000000E /* DistanceUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DEE2BD2F65FC180005ABAA /* DistanceUnit.swift */; };
+		B1000000000000000000000F /* WorkoutRunState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7B588DE96AFFC30AE7ABBA /* WorkoutRunState.swift */; };
+		B10000000000000000000010 /* SessionSyncModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* SessionSyncModels.swift */; };
 		C49E8373AE1A8ED3EC6A2880 /* ModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB9EDEF7841220E7F36CEFF /* ModelTests.swift */; };
-		A1B2C3D4E5F6011122334455 /* SessionSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6011122334456 /* SessionSyncTests.swift */; };
 		CFBC8671050DDED6391381E7 /* AppScreenState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BDE8B1656261C1E67BD361 /* AppScreenState.swift */; };
 		D5B5E557FB187878AF5A836B /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 803A3A092975B9BAB810BAB2 /* SettingsStore.swift */; };
+		DistanceInputViewRef /* DistanceInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DistanceInputViewFile /* DistanceInputView.swift */; };
 		E9FA61354F306ED894832978 /* WorkoutSessionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C461B28E60C157EE2885A142 /* WorkoutSessionController.swift */; };
 		EB489A6095972420E5B254F4 /* WorkoutControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7F85A1B319257D193FA45B6 /* WorkoutControllerTests.swift */; };
 		EEF02F2BA438237E59FFD96E /* NavigationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58B56B88EBFA89F92A11A0E1 /* NavigationCoordinator.swift */; };
 		F6DEE2BE2F65FC180005ABAA /* DistanceUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DEE2BD2F65FC180005ABAA /* DistanceUnit.swift */; };
 		FCBEE6361F5E5147C8E53373 /* WorkoutRunState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7B588DE96AFFC30AE7ABBA /* WorkoutRunState.swift */; };
-		A1B2C3D4E5F607080910ABCD /* DistanceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F607080910ABCE /* DistanceSegment.swift */; };
 		FD7F3FB0395174CBAF09E673 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DC650870DDC91DB05A48BBA /* HomeView.swift */; };
+		L10nBuildRef /* L10n.swift in Sources */ = {isa = PBXBuildFile; fileRef = L10nFileRef /* L10n.swift */; };
+		LocalizableStringsBuildRef /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = LocalizableStringsGroupRef /* Localizable.strings */; };
+		RestModeBuildRef /* RestMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = RestModeFileRef /* RestMode.swift */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		90A0B0C0D0E0F00112233451 /* Embed Watch Content */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = Watch;
-			dstSubfolderSpec = 1;
-			files = (
-				90A0B0C0D0E0F00112233450 /* LapLog.app in Embed Watch Content */,
-			);
-			name = "Embed Watch Content";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXContainerItemProxy section */
 		5B0D864BD0A5C80A44B292AA /* PBXContainerItemProxy */ = {
@@ -98,14 +84,21 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		90A0B0C0D0E0F00112233451 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Watch;
+			dstSubfolderSpec = 1;
+			files = (
+				90A0B0C0D0E0F00112233450 /* LapLog.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		B20000000000000000000001 /* SessionSyncModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSyncModels.swift; sourceTree = "<group>"; };
-		B20000000000000000000002 /* LapLogCompanionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapLogCompanionApp.swift; sourceTree = "<group>"; };
-		B20000000000000000000003 /* CompanionRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionRootView.swift; sourceTree = "<group>"; };
-		B20000000000000000000004 /* LapLog Companion.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "LapLog Companion.entitlements"; sourceTree = "<group>"; };
-		L10nFileRef /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
-		LocalizableStringsNbRef /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
-		LocalizableStringsDeRef /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		02A391721789A00DCE1A52C5 /* ActiveSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveSessionView.swift; sourceTree = "<group>"; };
 		02AC43A08A4599D8442B24FA /* LapLogTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LapLogTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0C25755AF893FBC0ACEE2B23 /* Preview Content */ = {isa = PBXFileReference; lastKnownFileType = folder; path = "Preview Content"; sourceTree = "<group>"; };
@@ -129,28 +122,35 @@
 		8E3127CE770FF5C05C276665 /* Formatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Formatters.swift; sourceTree = "<group>"; };
 		90A0B0C0D0E0F00112233446 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		90A0B0C0D0E0F00112233447 /* LapLog Companion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "LapLog Companion.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1B2C3D4E5F6011122334456 /* SessionSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSyncTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F607080910ABCE /* DistanceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceSegment.swift; sourceTree = "<group>"; };
 		A52D079F75CFBF9BB2BA7C41 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
 		A88263B0A43413879ABF4DB7 /* Lap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lap.swift; sourceTree = "<group>"; };
 		AE97F98043246AF98F971416 /* TrackingMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackingMode.swift; sourceTree = "<group>"; };
-		RestModeFileRef /* RestMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestMode.swift; sourceTree = "<group>"; };
 		AF7B588DE96AFFC30AE7ABBA /* WorkoutRunState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutRunState.swift; sourceTree = "<group>"; };
+		B20000000000000000000001 /* SessionSyncModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSyncModels.swift; sourceTree = "<group>"; };
+		B20000000000000000000002 /* LapLogCompanionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapLogCompanionApp.swift; sourceTree = "<group>"; };
+		B20000000000000000000003 /* CompanionRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionRootView.swift; sourceTree = "<group>"; };
+		B20000000000000000000004 /* LapLog Companion.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "LapLog Companion.entitlements"; sourceTree = "<group>"; };
 		B3C468A8CAAB5486BF89EDC4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C461B28E60C157EE2885A142 /* WorkoutSessionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutSessionController.swift; sourceTree = "<group>"; };
 		C9C66FDE63E4D65F194A3975 /* ActionButtonCommandObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonCommandObserver.swift; sourceTree = "<group>"; };
 		D8BDE8B1656261C1E67BD361 /* AppScreenState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppScreenState.swift; sourceTree = "<group>"; };
+		DistanceInputViewFile /* DistanceInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceInputView.swift; sourceTree = "<group>"; };
 		E2A1B775A27201FA001C88AF /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		E7F85A1B319257D193FA45B6 /* WorkoutControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutControllerTests.swift; sourceTree = "<group>"; };
 		EFB9EDEF7841220E7F36CEFF /* ModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelTests.swift; sourceTree = "<group>"; };
-		A1B2C3D4E5F6011122334456 /* SessionSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSyncTests.swift; sourceTree = "<group>"; };
 		F1D1123CC9D14257B8A27313 /* LapLogShortcutsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapLogShortcutsProvider.swift; sourceTree = "<group>"; };
 		F2ABF59CD03172874BEADEA0 /* LapLogApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapLogApp.swift; sourceTree = "<group>"; };
 		F6DEE2BD2F65FC180005ABAA /* DistanceUnit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceUnit.swift; sourceTree = "<group>"; };
 		F6DEE2BF2F66038A0005ABAA /* LapLog.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LapLog.entitlements; sourceTree = "<group>"; };
-		A1B2C3D4E5F607080910ABCE /* DistanceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceSegment.swift; sourceTree = "<group>"; };
 		F6DEE2C22F6612F00005ABAA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		DistanceInputViewFile /* DistanceInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceInputView.swift; sourceTree = "<group>"; };
 		F80845E9FC8FEA57AA0E6D7F /* PreStartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreStartView.swift; sourceTree = "<group>"; };
 		FC5AEA32CF41F4A95EA655A2 /* SessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailView.swift; sourceTree = "<group>"; };
+		L10nFileRef /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
+		LocalizableStringsDeRef /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		LocalizableStringsNbRef /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
+		RestModeFileRef /* RestMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestMode.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -177,27 +177,7 @@
 		};
 /* End PBXFrameworksBuildPhase section */
 
-/* Begin PBXVariantGroup section */
-		LocalizableStringsGroupRef /* Localizable.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				LocalizableStringsDeRef /* de */,
-				LocalizableStringsNbRef /* nb */,
-			);
-			name = "Localizable.strings";
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
-
 /* Begin PBXGroup section */
-		B20000000000000000000005 /* Sync */ = {
-			isa = PBXGroup;
-			children = (
-				B20000000000000000000001 /* SessionSyncModels.swift */,
-			);
-			path = Sync;
-			sourceTree = "<group>";
-		};
 		0DB76932C055B50DE5275514 /* LapLogTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -333,6 +313,14 @@
 			path = "LapLog Companion";
 			sourceTree = "<group>";
 		};
+		B20000000000000000000005 /* Sync */ = {
+			isa = PBXGroup;
+			children = (
+				B20000000000000000000001 /* SessionSyncModels.swift */,
+			);
+			path = Sync;
+			sourceTree = "<group>";
+		};
 		BF7A2D27A78D590BDEF15AF2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -401,19 +389,6 @@
 		};
 /* End PBXNativeTarget section */
 
-/* Begin PBXTargetDependency section */
-		EE543492886B1A944A594DA2 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E92819776D1D900150F17949 /* LapLog */;
-			targetProxy = 5B0D864BD0A5C80A44B292AA /* PBXContainerItemProxy */;
-		};
-		90A0B0C0D0E0F00112233452 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = E92819776D1D900150F17949 /* LapLog */;
-			targetProxy = 90A0B0C0D0E0F00112233453 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
-
 /* Begin PBXProject section */
 		5299AC4324DC18342A8CCD96 /* Project object */ = {
 			isa = PBXProject;
@@ -465,28 +440,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		B30000000000000000000001 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B10000000000000000000002 /* LapLogCompanionApp.swift in Sources */,
-				B10000000000000000000003 /* CompanionRootView.swift in Sources */,
-				B10000000000000000000004 /* Session.swift in Sources */,
-				B10000000000000000000005 /* Lap.swift in Sources */,
-				B10000000000000000000006 /* TrackingMode.swift in Sources */,
-				B10000000000000000000008 /* RestMode.swift in Sources */,
-				B10000000000000000000009 /* LapType.swift in Sources */,
-				B1000000000000000000000A /* LapSource.swift in Sources */,
-				B1000000000000000000000B /* PersistenceManager.swift in Sources */,
-				B1000000000000000000000C /* Formatters.swift in Sources */,
-				B1000000000000000000000D /* L10n.swift in Sources */,
-				B1000000000000000000000E /* DistanceUnit.swift in Sources */,
-				B1000000000000000000000F /* WorkoutRunState.swift in Sources */,
-				B10000000000000000000007 /* DistanceSegment.swift in Sources */,
-				B10000000000000000000010 /* SessionSyncModels.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		76444D7591C0121B498AF864 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -529,6 +482,28 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B30000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B10000000000000000000002 /* LapLogCompanionApp.swift in Sources */,
+				B10000000000000000000003 /* CompanionRootView.swift in Sources */,
+				B10000000000000000000004 /* Session.swift in Sources */,
+				B10000000000000000000005 /* Lap.swift in Sources */,
+				B10000000000000000000006 /* TrackingMode.swift in Sources */,
+				B10000000000000000000008 /* RestMode.swift in Sources */,
+				B10000000000000000000009 /* LapType.swift in Sources */,
+				B1000000000000000000000A /* LapSource.swift in Sources */,
+				B1000000000000000000000B /* PersistenceManager.swift in Sources */,
+				B1000000000000000000000C /* Formatters.swift in Sources */,
+				B1000000000000000000000D /* L10n.swift in Sources */,
+				B1000000000000000000000E /* DistanceUnit.swift in Sources */,
+				B1000000000000000000000F /* WorkoutRunState.swift in Sources */,
+				B10000000000000000000007 /* DistanceSegment.swift in Sources */,
+				B10000000000000000000010 /* SessionSyncModels.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		E36BB787EC76E27E13DAFFBA /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -541,6 +516,31 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		90A0B0C0D0E0F00112233452 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E92819776D1D900150F17949 /* LapLog */;
+			targetProxy = 90A0B0C0D0E0F00112233453 /* PBXContainerItemProxy */;
+		};
+		EE543492886B1A944A594DA2 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E92819776D1D900150F17949 /* LapLog */;
+			targetProxy = 5B0D864BD0A5C80A44B292AA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		LocalizableStringsGroupRef /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				LocalizableStringsDeRef /* de */,
+				LocalizableStringsNbRef /* nb */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		1EC4855024DBC8C984257298 /* Debug */ = {

@@ -174,6 +174,11 @@ enum L10n {
         String(format: String(localized: "%@ • %@", comment: "Target display: open interval and time"), openDistance, time)
     }
 
+    // MARK: - Preset Usage
+    static func usedCount(_ count: Int) -> String {
+        String(format: String(localized: "Used %dx", comment: "Preset usage count badge"), count)
+    }
+
     // MARK: - Distance/Unit suffixes for Formatters
     static let kmSuffix = String(localized: "km", comment: "Kilometer unit")
     static let mSuffix = String(localized: "m", comment: "Meter unit")

@@ -709,7 +709,8 @@ struct IntervalLibraryView: View {
                         } label: {
                             IntervalLibraryRowView(
                                 title: preset.displayTitle(unit: settings.distanceUnit),
-                                subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit)
+                                subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
+                                usageCount: settings.presetUsageCount(for: preset.workoutPlan)
                             )
                         }
                         .buttonStyle(.plain)
@@ -767,7 +768,8 @@ struct IntervalLibraryView: View {
                     } label: {
                         IntervalLibraryRowView(
                             title: preset.title,
-                            subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit)
+                            subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
+                            usageCount: settings.presetUsageCount(for: preset.workoutPlan)
                         )
                     }
                     .buttonStyle(.plain)
@@ -1113,12 +1115,19 @@ private struct IntervalSetupView: View {
 private struct IntervalLibraryRowView: View {
     let title: String
     let subtitle: String
+    var usageCount: Int = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(title)
-                .font(.headline.weight(.semibold))
-                .foregroundStyle(.white)
+            HStack {
+                Text(title)
+                    .font(.headline.weight(.semibold))
+                    .foregroundStyle(.white)
+                Spacer()
+                if usageCount > 0 {
+                    PresetUsageBadge(count: usageCount)
+                }
+            }
             Text(subtitle)
                 .font(.caption)
                 .foregroundStyle(.white.opacity(0.72))
@@ -1127,6 +1136,20 @@ private struct IntervalLibraryRowView: View {
         .padding(8)
         .background(Color.white.opacity(0.15))
         .cornerRadius(8)
+    }
+}
+
+private struct PresetUsageBadge: View {
+    let count: Int
+
+    var body: some View {
+        Text(L10n.usedCount(count))
+            .font(.system(size: 11, weight: .semibold, design: .rounded))
+            .foregroundStyle(.white.opacity(0.72))
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(.white.opacity(0.12))
+            .clipShape(Capsule(style: .continuous))
     }
 }
 

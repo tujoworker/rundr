@@ -134,6 +134,9 @@
 "Alerts" = "Benachrichtigungen";
 "%@ in %@" = "%@ in %@";
 
+/* Preset usage */
+"Used %dx" = "%dx verwendet";
+
 /* Distance/Unit suffixes - "m" is used for both minutes and meters */
 "km" = "km";
 "m" = "m";

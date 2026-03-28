@@ -456,6 +456,7 @@ struct ActiveSessionView: View {
             persistence.saveSession(session)
             syncManager.queueCompletedSession(session)
             settings.storeSessionIntervalPresetIfUnique(session.snapshotWorkoutPlan)
+            settings.recordPresetUsage(for: session.snapshotWorkoutPlan)
             Task.detached {
                 do {
                     let uuid = try await self.healthKitManager.saveWorkout(session: session)

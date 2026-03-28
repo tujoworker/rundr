@@ -177,6 +177,8 @@ final class SettingsStore: ObservableObject {
 
     @AppStorage("distanceSegmentsJSON") private var distanceSegmentsJSON: String = ""
     @AppStorage("intervalPresetsJSON") private var intervalPresetsJSON: String = ""
+    @AppStorage("presetUsageCountsJSON") private var presetUsageCountsJSON: String = ""
+
 
     static let predefinedIntervalPresets: [PredefinedIntervalPreset] = [
         PredefinedIntervalPreset(
@@ -364,6 +366,50 @@ final class SettingsStore: ObservableObject {
         var presets = intervalPresets
         presets.removeAll { $0.id == id }
         persistIntervalPresets(presets)
+    }
+
+    // MARK: - Preset Usage Tracking
+
+    private func decodeUsageCounts() -> [String: Int] {
+        let raw = presetUsageCountsJSON
+        guard !raw.isEmpty,
+              let data = raw.data(using: .utf8),
+              let counts = try? JSONDecoder().decode([String: Int].self, from: data) else {
+            return [:]
+        }
+        return counts
+    }
+
+    private func encodeUsageCounts(_ counts: [String: Int]) {
+        guard let data = try? JSONEncoder().encode(counts),
+              let json = String(data: data, encoding: .utf8) else {
+            presetUsageCountsJSON = ""
+            return
+        }
+        presetUsageCountsJSON = json
+    }
+
+    func recordPresetUsage(for workoutPlan: WorkoutPlanSnapshot) {
+        let normalized = IntervalPreset.normalizedWorkoutPlan(workoutPlan)
+        guard normalized.trackingMode.usesManualIntervals else { return }
+        let key = signatureKey(for: normalized)
+        var counts = decodeUsageCounts()
+        counts[key, default: 0] += 1
+        encodeUsageCounts(counts)
+        objectWillChange.send()
+    }
+
+    func presetUsageCount(for workoutPlan: WorkoutPlanSnapshot) -> Int {
+        let key = signatureKey(for: IntervalPreset.normalizedWorkoutPlan(workoutPlan))
+        return decodeUsageCounts()[key] ?? 0
+    }
+
+    private func signatureKey(for workoutPlan: WorkoutPlanSnapshot) -> String {
+        let signature = IntervalPresetSignature(workoutPlan: workoutPlan)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        guard let data = try? encoder.encode(signature) else { return "" }
+        return data.base64EncodedString()
     }
 
     private func persistIntervalPresets(_ presets: [IntervalPreset]) {

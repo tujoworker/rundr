@@ -1070,4 +1070,69 @@ final class ModelTests: XCTestCase {
         XCTAssertNil(store.startupSnapshot)
         XCTAssertEqual(UserDefaults.standard.string(forKey: "ongoingWorkoutSnapshotJSON"), "")
     }
+
+    // MARK: - Preset Usage Tracking
+
+    func testRecordPresetUsageIncrementsCount() {
+        UserDefaults.standard.removeObject(forKey: "presetUsageCountsJSON")
+        defer { UserDefaults.standard.removeObject(forKey: "presetUsageCountsJSON") }
+
+        let store = SettingsStore()
+        let plan = WorkoutPlanSnapshot(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+            restMode: .manual
+        )
+
+        XCTAssertEqual(store.presetUsageCount(for: plan), 0)
+
+        store.recordPresetUsage(for: plan)
+        XCTAssertEqual(store.presetUsageCount(for: plan), 1)
+
+        store.recordPresetUsage(for: plan)
+        XCTAssertEqual(store.presetUsageCount(for: plan), 2)
+    }
+
+    func testRecordPresetUsageIgnoresGPSPlan() {
+        UserDefaults.standard.removeObject(forKey: "presetUsageCountsJSON")
+        defer { UserDefaults.standard.removeObject(forKey: "presetUsageCountsJSON") }
+
+        let store = SettingsStore()
+        let gpsPlan = WorkoutPlanSnapshot(
+            trackingMode: .gps,
+            distanceLapDistanceMeters: nil,
+            distanceSegments: [.default],
+            restMode: .manual
+        )
+
+        store.recordPresetUsage(for: gpsPlan)
+        XCTAssertEqual(store.presetUsageCount(for: gpsPlan), 0)
+    }
+
+    func testPresetUsageCountDistinguishesDifferentPlans() {
+        UserDefaults.standard.removeObject(forKey: "presetUsageCountsJSON")
+        defer { UserDefaults.standard.removeObject(forKey: "presetUsageCountsJSON") }
+
+        let store = SettingsStore()
+        let planA = WorkoutPlanSnapshot(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+            restMode: .manual
+        )
+        let planB = WorkoutPlanSnapshot(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 200,
+            distanceSegments: [DistanceSegment(distanceMeters: 200, repeatCount: 8, restSeconds: 45)],
+            restMode: .manual
+        )
+
+        store.recordPresetUsage(for: planA)
+        store.recordPresetUsage(for: planA)
+        store.recordPresetUsage(for: planB)
+
+        XCTAssertEqual(store.presetUsageCount(for: planA), 2)
+        XCTAssertEqual(store.presetUsageCount(for: planB), 1)
+    }
 }

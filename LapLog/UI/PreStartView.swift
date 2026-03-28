@@ -155,6 +155,7 @@ struct PreStartView: View {
     }
 
     var body: some View {
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .top) {
@@ -272,11 +273,13 @@ struct PreStartView: View {
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 8)
+            .id("prestart-top")
         }
         .tint(settings.primaryAccentColor)
         .background(Color.clear)
         .toolbar(.visible, for: .navigationBar)
         .onAppear {
+            proxy.scrollTo("prestart-top", anchor: .top)
             readyStartDate = Date()
             readyElapsedSeconds = 0
             segments = settings.distanceSegments
@@ -374,6 +377,7 @@ struct PreStartView: View {
                 onDone: { commitSegmentEdit() }
             )
         }
+        } // ScrollViewReader
     }
 
     private func persistSegments() {
@@ -910,9 +914,6 @@ private struct IntervalSetupView: View {
                     }
 
                     Button {
-                        withAnimation {
-                            proxy.scrollTo("top", anchor: .top)
-                        }
                         continueToGetReady()
                     } label: {
                         Text(L10n.useSessionSettings)

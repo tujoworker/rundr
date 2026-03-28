@@ -166,11 +166,13 @@ struct ActiveSessionView: View {
 
     @ViewBuilder
     private var sessionTimerView: some View {
+        let screenWidth = WKInterfaceDevice.current().screenBounds.width
+        let timerFontSize = min(100, round(screenWidth * 0.51))
         Button {
             handleLapTap()
         } label: {
             Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
-                .font(.system(size: 100, weight: .medium, design: .rounded))
+                .font(.system(size: timerFontSize, weight: .medium, design: .rounded))
                 .monospacedDigit()
                 .minimumScaleFactor(0.45)
                 .lineLimit(1)

@@ -894,14 +894,16 @@ private struct IntervalSetupView: View {
                 }
 
                 Button(action: continueToGetReady) {
-                    Text(L10n.continueToGetReady)
+                    Text(L10n.useSessionSettings)
                         .font(.system(size: 16, weight: .semibold, design: .rounded))
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
+                        .padding(.vertical, 8)
                 }
+                .buttonStyle(.bordered)
                 .disabled(isContinueDisabled)
                 .opacity(isContinueDisabled ? 0.5 : 1)
-                .padding(.top, 6)
+                .padding(.top, 10)
+                .padding(.horizontal, 4)
             }
             .padding(.horizontal, 8)
             .padding(.vertical, 8)

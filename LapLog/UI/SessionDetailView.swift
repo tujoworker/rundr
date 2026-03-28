@@ -154,8 +154,7 @@ struct SessionDetailView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)
                 }
-                .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: 16)
-                .buttonStyle(.plain)
+                .buttonStyle(.bordered)
                 .padding(.top, 10)
                 .padding(.horizontal, 4)
 

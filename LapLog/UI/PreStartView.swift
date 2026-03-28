@@ -202,6 +202,7 @@ struct PreStartView: View {
                         )
                     }
                     .buttonStyle(.plain)
+                    .padding(.top, 12)
                 }
 
                 Text(L10n.settings)

@@ -348,14 +348,8 @@ struct PreStartView: View {
             }
             Button("Cancel", role: .cancel) {}
         }
-        .confirmationDialog(L10n.alerts, isPresented: $isAlertsDialogPresented) {
-            Button(settings.lapAlerts ? "\(L10n.lapAlerts) ✓" : L10n.lapAlerts) {
-                settings.lapAlerts.toggle()
-            }
-            Button(settings.restAlerts ? "\(L10n.restAlerts) ✓" : L10n.restAlerts) {
-                settings.restAlerts.toggle()
-            }
-            Button("Cancel", role: .cancel) {}
+        .sheet(isPresented: $isAlertsDialogPresented) {
+            AlertsSettingsSheet(settings: settings)
         }
         .sheet(isPresented: Binding(
             get: { editingSegmentID != nil },
@@ -1157,6 +1151,19 @@ private struct IntervalLibraryRowView: View {
         .padding(8)
         .background(Color.white.opacity(0.15))
         .cornerRadius(8)
+    }
+}
+
+private struct AlertsSettingsSheet: View {
+    @ObservedObject var settings: SettingsStore
+
+    var body: some View {
+        List {
+            Toggle(L10n.lapAlerts, isOn: $settings.lapAlerts)
+            Toggle(L10n.restAlerts, isOn: $settings.restAlerts)
+        }
+        .navigationTitle(L10n.alerts)
+        .tint(settings.primaryAccentColor)
     }
 }
 

@@ -155,6 +155,7 @@ struct SessionDetailView: View {
                         .padding(.vertical, 8)
                 }
                 .buttonStyle(.bordered)
+                .tint(settings.primaryAccentColor)
                 .padding(.top, 10)
                 .padding(.horizontal, 4)
 

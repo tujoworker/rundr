@@ -167,8 +167,8 @@ enum L10n {
     static let off = String(localized: "Off", comment: "Target off")
     static let on = String(localized: "On", comment: "Setting enabled")
     static let alerts = String(localized: "Alerts", comment: "Alerts setting")
-    static let lapAlerts = String(localized: "Lap Alerts", comment: "Lap alerts setting")
-    static let restAlerts = String(localized: "Rest Alerts", comment: "Rest alerts setting")
+    static let lapAlerts = String(localized: "Lap", comment: "Lap alerts setting")
+    static let restAlerts = String(localized: "Rest", comment: "Rest alerts setting")
     static func targetDisplay(_ distance: String, _ time: String) -> String {
         String(format: String(localized: "%@ in %@", comment: "Target display: distance in time"), distance, time)
     }

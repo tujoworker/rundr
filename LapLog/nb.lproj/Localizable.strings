@@ -132,8 +132,6 @@
 "Off" = "Av";
 "On" = "På";
 "Alerts" = "Varsler";
-"Lap Alerts" = "Rundevarsler";
-"Rest Alerts" = "Hvilervarsler";
 "%@ in %@" = "%@ på %@";
 
 /* Preset usage */

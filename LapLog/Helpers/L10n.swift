@@ -176,7 +176,7 @@ enum L10n {
 
     // MARK: - Preset Usage
     static func usedCount(_ count: Int) -> String {
-        String(format: String(localized: "Used %dx", comment: "Preset usage count badge"), count)
+        String(format: String(localized: "%dx", comment: "Preset usage count badge"), count)
     }
 
     // MARK: - Distance/Unit suffixes for Formatters

@@ -135,7 +135,7 @@
 "%@ in %@" = "%@ på %@";
 
 /* Preset usage */
-"Used %dx" = "Brukt %dx";
+"%dx" = "%dx";
 
 /* Distance/Unit suffixes - "m" is used for both minutes and meters */
 "km" = "km";

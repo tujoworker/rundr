@@ -135,7 +135,7 @@
 "%@ in %@" = "%@ in %@";
 
 /* Preset usage */
-"Used %dx" = "%dx verwendet";
+"%dx" = "%dx";
 
 /* Distance/Unit suffixes - "m" is used for both minutes and meters */
 "km" = "km";

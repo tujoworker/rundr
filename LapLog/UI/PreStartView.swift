@@ -1924,17 +1924,17 @@ struct TintedInfoBanner: View {
         VStack(alignment: .leading, spacing: 8) {
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundStyle(tint)
 
                 Text(subtitle)
-                    .font(.system(size: 11, weight: .regular, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.72))
+                    .font(.system(size: 13, weight: .regular, design: .rounded))
+                    .foregroundStyle(.white)
             }
 
             if let buttonTitle, let buttonAction {
                 Button(buttonTitle, action: buttonAction)
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
                     .foregroundStyle(tint)
             }
         }

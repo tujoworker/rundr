@@ -1651,15 +1651,15 @@ private struct SegmentEditSheet: View {
                 Text(L10n.addLastRest)
                     .font(.system(size: 14, weight: .semibold, design: .rounded))
             }
-            .foregroundStyle(.white.opacity(isEnabled ? 1 : 0.3))
+            .foregroundStyle(.white.opacity(isEnabled ? 1 : 0.8))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(Color.white.opacity(isEnabled ? 0.08 : 0.04))
+                    .fill(Color.white.opacity(isEnabled ? 0.08 : 0.1))
                     .overlay(
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .stroke(Color.white.opacity(isEnabled ? 0.12 : 0.06), lineWidth: 1)
+                            .stroke(Color.white.opacity(isEnabled ? 0.12 : 0.13), lineWidth: 1)
                     )
             )
         }

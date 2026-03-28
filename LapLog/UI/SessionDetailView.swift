@@ -149,7 +149,7 @@ struct SessionDetailView: View {
                 }
 
                 Button(action: onUseSessionSettings) {
-                    Text(L10n.useSessionSettings)
+                    Text(L10n.redoActivity)
                         .font(.system(size: 16, weight: .semibold, design: .rounded))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 8)

@@ -187,7 +187,7 @@ struct SessionDetailView: View {
 }
 
 private struct SessionDetailPendingPhoneSyncBanner: View {
-    private let tint = Color.orange
+    private let tint = Color.white
 
     var body: some View {
         SessionDetailPhoneSyncMessageBanner(

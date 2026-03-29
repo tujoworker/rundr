@@ -139,12 +139,18 @@ extension EnvironmentValues {
 
 // MARK: - Theme Injection Modifier
 
-/// Attach at the root of the app to inject the theme and force dark appearance.
+/// Attach at the root of the app to inject the theme and honour the user's appearance setting.
 struct ThemeProvider: ViewModifier {
+    @AppStorage("appearanceMode") private var appearanceModeRaw: String = AppearanceMode.system.rawValue
+
+    private var colorScheme: ColorScheme? {
+        (AppearanceMode(rawValue: appearanceModeRaw) ?? .system).colorScheme
+    }
+
     func body(content: Content) -> some View {
         content
             .environment(\.appTheme, AppTheme())
-            .preferredColorScheme(.dark)
+            .preferredColorScheme(colorScheme)
     }
 }
 

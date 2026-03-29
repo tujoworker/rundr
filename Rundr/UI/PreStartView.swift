@@ -2056,7 +2056,7 @@ private struct SettingsCardRow: View {
         .padding(.vertical, Tokens.Spacing.xxxl)
         .background(
             RoundedRectangle(cornerRadius: Tokens.Radius.xxxxl, style: .continuous)
-                .fill(theme.background.neutral)
+                .fill(theme.background.neutralAction)
         )
     }
 }

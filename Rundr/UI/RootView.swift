@@ -116,7 +116,7 @@ struct SelectionToggleButton: View {
                 .padding(.vertical, Tokens.Spacing.lg)
                 .background(
                     RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous)
-                        .fill(isSelected ? theme.background.bold : theme.background.neutral)
+                        .fill(isSelected ? theme.background.bold : theme.background.neutralAction)
                 )
         }
         .buttonStyle(.plain)

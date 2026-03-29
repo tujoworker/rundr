@@ -48,7 +48,7 @@ struct DistanceInputView: View {
                     Image(systemName: "minus")
                         .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(theme.background.neutral))
+                        .background(Circle().fill(theme.background.neutralAction))
                         .foregroundStyle(theme.text.neutral)
                 }
                 .buttonStyle(.plain)
@@ -59,7 +59,7 @@ struct DistanceInputView: View {
                 } label: {
                     ZStack {
                         RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous)
-                            .fill(theme.background.neutral)
+                            .fill(theme.background.neutralAction)
 
                         Text(displayText)
                             .font(.system(size: Tokens.FontSize.xxl, weight: .bold, design: .rounded))
@@ -80,7 +80,7 @@ struct DistanceInputView: View {
                     Image(systemName: "plus")
                         .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(theme.background.neutral))
+                        .background(Circle().fill(theme.background.neutralAction))
                         .foregroundStyle(theme.text.neutral)
                 }
                 .buttonStyle(.plain)
@@ -265,7 +265,7 @@ private struct NumericKeypadButton: View {
                 .frame(height: 38)
                 .background(
                     RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
-                        .fill(theme.background.neutral)
+                        .fill(theme.background.neutralAction)
                 )
         }
         .buttonStyle(.plain)

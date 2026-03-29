@@ -39,6 +39,13 @@ struct AppTheme {
                 : .black.opacity(0.08)
         }
 
+        /// Interactive controls: buttons, toggles, tappable fields.
+        var neutralAction: Color {
+            isDark
+                ? .white.opacity(Tokens.Opacity.fillCard)
+                : .black.opacity(0.08)
+        }
+
         /// Accent-tinted surfaces (buttons, banners).
         func emphasis(_ accent: Color) -> Color {
             accent.opacity(Tokens.Opacity.fillAccent)

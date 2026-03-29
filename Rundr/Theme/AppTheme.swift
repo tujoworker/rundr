@@ -148,6 +148,25 @@ struct AppTheme {
     var errorText: Color {
         .red.opacity(isDark ? 0.9 : 1)
     }
+
+    // MARK: Badge
+
+    /// Dark foreground text on bright badge backgrounds (lap numbers).
+    var badgeForeground: Color {
+        isDark
+            ? Color(red: 0.07, green: 0.09, blue: 0.15)
+            : .white
+    }
+
+    /// Bright badge background (lap number pill).
+    var badgeBackground: Color {
+        isDark ? .white : .black
+    }
+
+    /// Rest-state card text (dark-on-light).
+    var textOnRestSurface: Color {
+        isDark ? .black : .black
+    }
 }
 
 // MARK: - Environment Key

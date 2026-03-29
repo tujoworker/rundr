@@ -98,14 +98,16 @@ struct ActiveSessionView: View {
         return timerTopLabel()
     }
 
+    @Environment(\.appTheme) private var theme
+
     private var timerBorderOverlay: some View {
         Capsule()
-            .strokeBorder(primaryColor.opacity(0.1), lineWidth: 3)
+            .strokeBorder(theme.accentSubtle(primaryColor), lineWidth: Tokens.LineWidth.thick)
     }
 
     private var lapGlowOverlay: some View {
         Capsule()
-            .stroke(Color.white.opacity(isTimerGlowActive ? 0.6 : 0), lineWidth: 3)
+            .stroke(Color.white.opacity(isTimerGlowActive ? 0.6 : 0), lineWidth: Tokens.LineWidth.thick)
             .blur(radius: isTimerGlowActive ? 3 : 0)
     }
 
@@ -117,7 +119,6 @@ struct ActiveSessionView: View {
     private var timerTopOverlay: some View {
         if showsLapCounterBadge {
             let labelFont = Font.system(size: 15, weight: .regular, design: .rounded)
-            let labelColor = Color.white
 
             HStack(spacing: 5) {
                 Group {
@@ -125,27 +126,27 @@ struct ActiveSessionView: View {
                         HStack(alignment: .firstTextBaseline, spacing: 0) {
                             Text("\(displayedLapCounter)")
                                 .font(.system(size: 20, weight: .bold, design: .rounded))
-                                .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
+                                .foregroundStyle(theme.badgeForeground)
                         Text("/\(total)")
                             .font(.system(size: 12, weight: .semibold, design: .rounded))
-                            .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
+                            .foregroundStyle(theme.badgeForeground)
                         }
-                        .padding(.horizontal, 4)
+                        .padding(.horizontal, Tokens.Spacing.xs)
                         .padding(.vertical, 0)
                         .background(
-                            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .fill(.white)
+                            RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
+                                .fill(theme.badgeBackground)
                         )
                     } else {
                         Text("\(displayedLapCounter)")
                             .font(.system(size: 20, weight: .bold, design: .rounded))
                             .monospacedDigit()
-                            .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
-                            .padding(.horizontal, 4)
+                            .foregroundStyle(theme.badgeForeground)
+                            .padding(.horizontal, Tokens.Spacing.xs)
                             .padding(.vertical, 0)
                             .background(
-                                RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                    .fill(.white)
+                                RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous)
+                                    .fill(theme.badgeBackground)
                             )
                     }
                 }
@@ -153,13 +154,13 @@ struct ActiveSessionView: View {
                 if !timerTopLabel.isEmpty {
                     Text(timerTopLabel)
                         .font(labelFont)
-                        .foregroundStyle(labelColor)
+                        .foregroundStyle(theme.textPrimary)
                 }
             }
         } else {
             Text(timerTopLabel)
                 .font(.system(size: 15, weight: .semibold, design: .rounded))
-                .foregroundStyle(.white.opacity(0.82))
+                .foregroundStyle(theme.textPrimary.opacity(Tokens.Opacity.foregroundTimerSecondary))
                 .opacity(timerTopLabel.isEmpty ? 0 : 1)
         }
     }
@@ -177,12 +178,12 @@ struct ActiveSessionView: View {
                 .monospacedDigit()
                 .minimumScaleFactor(0.45)
                 .lineLimit(1)
-                .foregroundStyle(.white)
+                .foregroundStyle(theme.textPrimary)
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 22)
-                .padding(.vertical, 6)
+                .padding(.vertical, Tokens.Spacing.sm)
                 .frame(maxHeight: 120)
-                .background(Capsule().fill(primaryColor.opacity(0.1)))
+                .background(Capsule().fill(theme.accentSubtle(primaryColor)))
                 .overlay(timerBorderOverlay)
                 .overlay(lapGlowOverlay)
                 .overlay(alignment: .top) {
@@ -193,7 +194,7 @@ struct ActiveSessionView: View {
                 .brightness(isTimerGlowActive ? 0.3 : 0)
                 .shadow(color: Color.white.opacity(isTimerGlowActive ? 0.5 : 0), radius: 18)
                 .shadow(color: primaryColor.opacity(isTimerGlowActive ? 0.72 : 0), radius: 24)
-                .padding(.horizontal, 4)
+                .padding(.horizontal, Tokens.Spacing.xs)
                 .contentShape(Capsule())
         }
         .buttonStyle(TimerPressStyle())
@@ -236,21 +237,21 @@ struct ActiveSessionView: View {
             }
             .padding(.top, -10)
 
-            HStack(spacing: 6) {
+            HStack(spacing: Tokens.Spacing.sm) {
                 Text(Formatters.heartRateString(bpm: workoutController.currentHeartRate))
                     .font(.system(size: 16, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(theme.textPrimary)
                     .monospacedDigit()
 
                 Image(systemName: "heart.fill")
                     .font(.system(size: 12, weight: .semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(theme.textPrimary)
             }
             .padding(.top, 2)
             .offset(y: -16)
             .frame(maxWidth: .infinity, alignment: .center)
         }
-        .padding(.horizontal, 14)
+        .padding(.horizontal, Tokens.Spacing.xxl)
         .padding(.top, 5)
         .frame(height: topHeaderHeight, alignment: .top)
     }
@@ -355,7 +356,7 @@ struct ActiveSessionView: View {
                         .clear
                     ],
                     center: .center,
-                    startRadius: 18,
+                    startRadius: Tokens.Spacing.xxxl,
                     endRadius: 170
                 )
                 .ignoresSafeArea()
@@ -619,39 +620,40 @@ private let lapCardTopPadding: CGFloat = 10
 private let lapCardLeadingPadding: CGFloat = 8
 private let lapCardBottomPadding: CGFloat = 10
 private let lapCardTrailingPadding: CGFloat = 14
-private let standardLapCardBackground = Color.white.opacity(0.15)
+private let standardLapCardBackground = Color.white.opacity(Tokens.Opacity.fillCard)
 
 struct PlaceholderLapCardView: View {
     var accentColor: Color = .blue
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: Tokens.Spacing.sm) {
             Text("1")
                 .font(.system(size: 20, weight: .bold, design: .rounded))
                 .monospacedDigit()
-                .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
-                .padding(.horizontal, 4)
+                .foregroundStyle(theme.badgeForeground)
+                .padding(.horizontal, Tokens.Spacing.xs)
                 .padding(.vertical, 0)
                 .background(
-                    RoundedRectangle(cornerRadius: 6, style: .continuous)
-                        .fill(.white)
+                    RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous)
+                        .fill(theme.badgeBackground)
                 )
             Text("—:——")
                 .font(.system(size: 25, weight: .medium, design: .rounded))
                 .monospacedDigit()
-                .foregroundColor(.white)
+                .foregroundColor(theme.textPrimary)
         }
         .padding(.top, lapCardTopPadding)
         .padding(.leading, lapCardLeadingPadding)
         .padding(.bottom, lapCardBottomPadding)
         .padding(.trailing, lapCardTrailingPadding)
         .frame(height: latestCardHeight)
-        .background(accentColor.opacity(0.1))
-        .cornerRadius(14)
+        .background(theme.accentSubtle(accentColor))
+        .cornerRadius(Tokens.Radius.xl)
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
-                .inset(by: 1.5)
-                .stroke(Color.white.opacity(0.1), lineWidth: 2)
+            RoundedRectangle(cornerRadius: Tokens.Radius.xl)
+                .inset(by: Tokens.LineWidth.regular)
+                .stroke(theme.borderSubtle, lineWidth: Tokens.LineWidth.medium)
         )
     }
 }
@@ -662,15 +664,16 @@ struct LapCardView: View {
     var distanceUnit: DistanceUnit = .km
     var accentColor: Color = .blue
     var isLatest: Bool = false
+    @Environment(\.appTheme) private var theme
 
     private var isRest: Bool { lap.lapType == .rest }
 
     private var cardBackgroundColor: Color {
         if isRest {
-            return Color.white.opacity(0.9)
+            return theme.surfaceRestCard
         }
 
-        return accentColor.opacity(0.1)
+        return theme.accentSubtle(accentColor)
     }
 
     var body: some View {
@@ -680,16 +683,16 @@ struct LapCardView: View {
                     .font(.system(size: 25, weight: .medium, design: .rounded))
                     .monospacedDigit()
             } else {
-                HStack(spacing: 6) {
+                HStack(spacing: Tokens.Spacing.sm) {
                     Text("\(lap.index)")
                         .font(.system(size: 20, weight: .bold, design: .rounded))
                         .monospacedDigit()
-                        .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
-                        .padding(.horizontal, 4)
+                        .foregroundStyle(theme.badgeForeground)
+                        .padding(.horizontal, Tokens.Spacing.xs)
                         .padding(.vertical, 0)
                         .background(
-                            RoundedRectangle(cornerRadius: 6, style: .continuous)
-                                .fill(.white)
+                            RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous)
+                                .fill(theme.badgeBackground)
                         )
                     VStack(alignment: .leading, spacing: 0) {
                         Text(Formatters.compactTimeString(from: lap.durationSeconds))
@@ -716,13 +719,13 @@ struct LapCardView: View {
         .padding(.trailing, isRest ? lapCardLeadingPadding : lapCardTrailingPadding)
         .frame(height: latestCardHeight)
         .fixedSize(horizontal: true, vertical: false)
-        .foregroundColor(isRest ? .black : .white)
+        .foregroundColor(isRest ? theme.textOnRestSurface : theme.textPrimary)
         .background(cardBackgroundColor)
-        .cornerRadius(14)
+        .cornerRadius(Tokens.Radius.xl)
         .overlay(
-            RoundedRectangle(cornerRadius: 14)
+            RoundedRectangle(cornerRadius: Tokens.Radius.xl)
                 .inset(by: !isRest ? 1 : 0)
-                .stroke(Color.white.opacity(0.1), lineWidth: !isRest ? 2 : 0)
+                .stroke(theme.borderSubtle, lineWidth: !isRest ? Tokens.LineWidth.medium : 0)
         )
     }
 }
@@ -782,10 +785,10 @@ private struct LapEditorScreen: View {
                     } else {
                         Text("This lap will be treated as rest.")
                             .font(.system(size: 16, weight: .medium, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.8))
+                            .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundBody))
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, 4)
-                            .padding(.vertical, 12)
+                            .padding(.horizontal, Tokens.Spacing.xs)
+                            .padding(.vertical, Tokens.Spacing.xl)
                     }
 
                     Button(L10n.deleteLap, role: .destructive) {
@@ -794,10 +797,10 @@ private struct LapEditorScreen: View {
                     }
                     .frame(maxWidth: .infinity)
                     .foregroundStyle(.red)
-                    .padding(.top, 10)
+                    .padding(.top, Tokens.Spacing.lg)
                 }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 12)
+                .padding(.horizontal, Tokens.Spacing.xl)
+                .padding(.vertical, Tokens.Spacing.xl)
             }
         }
         .onDisappear {
@@ -825,29 +828,31 @@ private struct LapEditorScreen: View {
 private struct WorkoutControlIcon: View {
     let systemName: String
     let baseColor: Color
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
         ZStack {
             Circle()
-                .fill(baseColor.opacity(0.2))
+                .fill(theme.accentFill(baseColor))
 
             Circle()
-                .stroke(baseColor.opacity(0.4), lineWidth: 3)
-                .padding(1.5)
+                .stroke(theme.accentStroke(baseColor), lineWidth: Tokens.LineWidth.thick)
+                .padding(Tokens.LineWidth.regular)
         }
         .overlay {
             Image(systemName: systemName)
                 .font(.system(size: 18, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(theme.textPrimary)
         }
         .frame(width: 46, height: 46)
-        .shadow(color: baseColor.opacity(0.28), radius: 6, y: 2)
+        .shadow(color: baseColor.opacity(0.28), radius: Tokens.Radius.small, y: 2)
     }
 }
 
 private struct SessionCompleteView: View {
     let accentColor: Color
     let onDismiss: () -> Void
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
         ZStack {
@@ -856,8 +861,8 @@ private struct SessionCompleteView: View {
             Button(action: onDismiss) {
                 Image(systemName: "checkmark")
                     .font(.system(size: 96, weight: .medium))
-                    .foregroundStyle(.white)
-                    .padding(24)
+                    .foregroundStyle(theme.textPrimary)
+                    .padding(Tokens.Spacing.xxxxl)
                     .contentShape(Circle())
             }
             .buttonStyle(.plain)

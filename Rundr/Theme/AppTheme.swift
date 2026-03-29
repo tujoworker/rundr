@@ -14,42 +14,32 @@ struct AppTheme {
 
     /// Primary text — full contrast.
     var textPrimary: Color {
-        isDark ? .white : .black
+        .white
     }
 
     /// Timer secondary label, subtitle text.
     var textSecondary: Color {
-        isDark
-            ? .white.opacity(Tokens.Opacity.foregroundSecondary)
-            : .black.opacity(0.55)
+        .white.opacity(Tokens.Opacity.foregroundSecondary)
     }
 
     /// Sidebar captions, tertiary info.
     var textTertiary: Color {
-        isDark
-            ? .white.opacity(Tokens.Opacity.foregroundTertiary)
-            : .black.opacity(0.45)
+        .white.opacity(Tokens.Opacity.foregroundTertiary)
     }
 
     /// Prompt body, recovery description text.
     var textBody: Color {
-        isDark
-            ? .white.opacity(Tokens.Opacity.foregroundBody)
-            : .black.opacity(0.65)
+        .white.opacity(Tokens.Opacity.foregroundBody)
     }
 
     /// De-emphasized counts, inactive labels.
     var textQuaternary: Color {
-        isDark
-            ? .white.opacity(Tokens.Opacity.foregroundQuaternary)
-            : .black.opacity(0.35)
+        .white.opacity(Tokens.Opacity.foregroundQuaternary)
     }
 
     /// Placeholder / disabled text.
     var textDisabled: Color {
-        isDark
-            ? .white.opacity(Tokens.Opacity.foregroundDisabled)
-            : .black.opacity(0.28)
+        .white.opacity(Tokens.Opacity.foregroundDisabled)
     }
 
     // MARK: Surfaces
@@ -100,14 +90,19 @@ struct AppTheme {
 
     // MARK: Screen Background
 
-    /// End color of the screen gradient (accent-tinted).
+    /// End color of the screen gradient.
     func screenGradientEnd(accent: Color) -> Color {
-        accent.opacity(isDark ? Tokens.Opacity.fillGradientEnd : 0.10)
+        isDark ? accent.opacity(Tokens.Opacity.fillGradientEnd) : accent
     }
 
     /// Start color of the screen gradient.
     var screenGradientStart: Color {
         isDark ? .black : .white
+    }
+
+    /// Start color used by the full-screen app background.
+    func screenBackgroundStart(accent: Color) -> Color {
+        isDark ? .black : accent
     }
 
     // MARK: Accent Chrome
@@ -117,14 +112,39 @@ struct AppTheme {
         accent.opacity(Tokens.Opacity.fillAccent)
     }
 
+    /// Fill color for primary action buttons.
+    func accentButtonFill(_ accent: Color) -> Color {
+        isDark ? accent.opacity(Tokens.Opacity.fillAccent) : .white.opacity(Tokens.Opacity.fillAccent)
+    }
+
     /// Stroke color for accent-tinted buttons.
     func accentStroke(_ accent: Color) -> Color {
         accent.opacity(Tokens.Opacity.strokeAccent)
     }
 
+    /// Stroke color for primary action buttons.
+    func accentButtonStroke(_ accent: Color) -> Color {
+        isDark ? accent.opacity(Tokens.Opacity.strokeAccent) : .white.opacity(Tokens.Opacity.strokeAccent)
+    }
+
+    /// Foreground color for primary action buttons.
+    var accentButtonForeground: Color {
+        .white
+    }
+
     /// Subtle accent tint (lap cards, backgrounds).
     func accentSubtle(_ accent: Color) -> Color {
         accent.opacity(Tokens.Opacity.fillSubtle)
+    }
+
+    /// Bright surface for tinted secondary actions.
+    var tintedButtonBackground: Color {
+        isDark ? .white : .white.opacity(Tokens.Opacity.fillAccent)
+    }
+
+    /// Border for tinted secondary actions.
+    func tintedButtonStroke(_ tint: Color) -> Color {
+        tint.opacity(isDark ? 0.34 : 0.18)
     }
 
     // MARK: Selection Toggle
@@ -152,18 +172,16 @@ struct AppTheme {
 
     /// Dark foreground text on bright badge backgrounds (lap numbers).
     var badgeForeground: Color {
-        isDark
-            ? Color(red: 0.07, green: 0.09, blue: 0.15)
-            : .white
+        Color(red: 0.07, green: 0.09, blue: 0.15)
     }
 
     /// Bright badge background (lap number pill).
     var badgeBackground: Color {
-        isDark ? .white : .black
+        .white
     }
 
     /// Rest-state card text (dark-on-light).
-    var textOnRestSurface: Color { .black }
+    var textOnRestSurface: Color { isDark ? .black : .white }
 }
 
 // MARK: - Environment Key

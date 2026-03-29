@@ -155,8 +155,8 @@ struct SessionDetailView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, Tokens.Spacing.md)
                 }
-                .buttonStyle(.bordered)
-                .tint(settings.primaryAccentColor)
+                .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor)
+                .buttonStyle(.plain)
                 .padding(.top, Tokens.Spacing.lg)
                 .padding(.horizontal, Tokens.Spacing.xs)
 
@@ -166,7 +166,10 @@ struct SessionDetailView: View {
                     Text(L10n.deleteSession)
                         .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
                         .frame(maxWidth: .infinity)
+                        .padding(.vertical, Tokens.Spacing.md)
                 }
+                .tintedSurfaceButtonChrome(tintColor: .red)
+                .buttonStyle(.plain)
                 .padding(.top, Tokens.Spacing.lg)
                 .padding(.horizontal, Tokens.Spacing.xs)
             }

@@ -7,7 +7,7 @@ struct AppScreenBackground: View {
     var body: some View {
         LinearGradient(
             colors: [
-                theme.screenGradientStart,
+                theme.screenBackgroundStart(accent: accentColor),
                 theme.screenGradientEnd(accent: accentColor)
             ],
             startPoint: .top,
@@ -25,14 +25,34 @@ struct AccentRoundedButtonChrome: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .foregroundStyle(theme.textPrimary)
+            .foregroundStyle(theme.accentButtonForeground)
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(theme.accentFill(accentColor))
+                    .fill(theme.accentButtonFill(accentColor))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .stroke(theme.accentStroke(accentColor), lineWidth: lineWidth)
+                    .stroke(theme.accentButtonStroke(accentColor), lineWidth: lineWidth)
+            )
+    }
+}
+
+struct TintedSurfaceButtonChrome: ViewModifier {
+    let tintColor: Color
+    var cornerRadius: CGFloat = Tokens.Radius.xxxl
+    var lineWidth: CGFloat = Tokens.LineWidth.regular
+    @Environment(\.appTheme) private var theme
+
+    func body(content: Content) -> some View {
+        content
+            .foregroundStyle(tintColor)
+            .background(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(theme.tintedButtonBackground)
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .stroke(theme.tintedButtonStroke(tintColor), lineWidth: lineWidth)
             )
     }
 }
@@ -46,6 +66,20 @@ extension View {
         modifier(
             AccentRoundedButtonChrome(
                 accentColor: accentColor,
+                cornerRadius: cornerRadius,
+                lineWidth: lineWidth
+            )
+        )
+    }
+
+    func tintedSurfaceButtonChrome(
+        tintColor: Color,
+        cornerRadius: CGFloat = Tokens.Radius.xxxl,
+        lineWidth: CGFloat = Tokens.LineWidth.regular
+    ) -> some View {
+        modifier(
+            TintedSurfaceButtonChrome(
+                tintColor: tintColor,
                 cornerRadius: cornerRadius,
                 lineWidth: lineWidth
             )
@@ -263,47 +297,48 @@ private struct HealthAccessPromptView: View {
     @Environment(\.appTheme) private var theme
 
     var body: some View {
-        VStack(spacing: 0) {
-            Spacer()
+        GeometryReader { proxy in
+            ScrollView(.vertical, showsIndicators: true) {
+                VStack(spacing: Tokens.Spacing.xxl) {
+                    Text(L10n.rundrNeeds)
+                        .font(.system(size: 15, weight: .medium, design: .rounded))
+                        .foregroundStyle(theme.textBody)
+                        .multilineTextAlignment(.center)
 
-            VStack(spacing: Tokens.Spacing.xxl) {
-                Text(L10n.rundrNeeds)
-                    .font(.system(size: 15, weight: .medium, design: .rounded))
-                    .foregroundStyle(theme.textBody)
-                    .multilineTextAlignment(.center)
+                    Button(action: onRequestAccess) {
+                        if isRequestingAccess {
+                            ProgressView()
+                                .tint(theme.textPrimary)
+                                .frame(maxWidth: .infinity, minHeight: 50)
+                        } else {
+                            Text(L10n.healthAccess)
+                                .font(.title3.bold())
+                                .frame(maxWidth: .infinity, minHeight: 50)
+                        }
+                    }
+                    .accentRoundedButtonChrome(accentColor: accentColor, cornerRadius: Tokens.Radius.pill, lineWidth: Tokens.LineWidth.thick)
+                    .buttonStyle(.plain)
+                    .disabled(isRequestingAccess)
 
-                Button(action: onRequestAccess) {
-                    if isRequestingAccess {
-                        ProgressView()
-                            .tint(theme.textPrimary)
-                            .frame(maxWidth: .infinity, minHeight: 50)
-                    } else {
-                        Text(L10n.healthAccess)
-                            .font(.title3.bold())
-                            .frame(maxWidth: .infinity, minHeight: 50)
+                    Button(L10n.notNow, action: onContinueWithoutHealth)
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(theme.textSecondary)
+
+                    if let authorizationError, !authorizationError.isEmpty {
+                        Text(authorizationError)
+                            .font(.caption2)
+                            .foregroundStyle(theme.errorText)
+                            .multilineTextAlignment(.center)
+                            .lineLimit(nil)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .frame(maxWidth: .infinity)
                     }
                 }
-                .accentRoundedButtonChrome(accentColor: accentColor, cornerRadius: Tokens.Radius.pill, lineWidth: Tokens.LineWidth.thick)
-                .buttonStyle(.plain)
-                .disabled(isRequestingAccess)
-
-                Button(L10n.notNow, action: onContinueWithoutHealth)
-                    .font(.footnote.weight(.semibold))
-                    .foregroundStyle(theme.textSecondary)
-
-                if let authorizationError, !authorizationError.isEmpty {
-                    Text(authorizationError)
-                        .font(.caption2)
-                        .foregroundStyle(theme.errorText)
-                        .multilineTextAlignment(.center)
-                        .lineLimit(nil)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .frame(maxWidth: .infinity)
-                }
+                .padding(.horizontal, Tokens.Spacing.xxxl)
+                .padding(.vertical, Tokens.Spacing.xxxl)
+                .frame(maxWidth: .infinity)
+                .frame(minHeight: proxy.size.height, alignment: .center)
             }
-            .padding(.horizontal, Tokens.Spacing.xxxl)
-
-            Spacer()
         }
     }
 }

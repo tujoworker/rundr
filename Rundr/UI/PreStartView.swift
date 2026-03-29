@@ -1993,16 +1993,16 @@ private struct ReadyStartIcon: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(theme.accentFill(baseColor))
+                .fill(theme.accentButtonFill(baseColor))
 
             Circle()
-                .stroke(theme.accentStroke(baseColor), lineWidth: Tokens.LineWidth.thick)
+                .stroke(theme.accentButtonStroke(baseColor), lineWidth: Tokens.LineWidth.thick)
                 .padding(Tokens.LineWidth.regular)
         }
         .overlay {
             Image(systemName: "figure.run")
                 .font(.system(size: 34, weight: .bold))
-                .foregroundStyle(theme.textPrimary)
+                .foregroundStyle(theme.accentButtonForeground)
         }
         .frame(width: 78, height: 78)
         .shadow(color: baseColor.opacity(0.28), radius: Tokens.Radius.small, y: 2)

@@ -5,15 +5,8 @@ struct AppScreenBackground: View {
     @Environment(\.appTheme) private var theme
 
     var body: some View {
-        LinearGradient(
-            colors: [
-                theme.screenGradientStart,
-                theme.screenGradientEnd(accent: accentColor)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .ignoresSafeArea()
+        theme.screenBackground(accent: accentColor)
+            .ignoresSafeArea()
     }
 }
 

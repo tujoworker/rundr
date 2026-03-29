@@ -2036,14 +2036,21 @@ private struct SettingsCardRow: View {
                 Text(title)
                     .font(.system(size: Tokens.FontSize.xl, weight: .medium, design: .rounded))
                     .foregroundStyle(theme.text.neutral)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.85)
+                    .allowsTightening(true)
 
                 if let value {
                     Text(value)
                         .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
                         .foregroundStyle(theme.text.subtle)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+                        .allowsTightening(true)
                 }
             }
 
+            .layoutPriority(1)
             Spacer(minLength: Tokens.Spacing.lg)
 
             if showsChevron {

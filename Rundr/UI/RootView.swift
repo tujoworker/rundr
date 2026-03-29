@@ -7,8 +7,8 @@ struct AppScreenBackground: View {
     var body: some View {
         LinearGradient(
             colors: [
-                theme.screenBackgroundStart(accent: accentColor),
-                theme.screenGradientEnd(accent: accentColor)
+                theme.appGradientStart(accent: accentColor),
+                theme.appGradientEnd(accent: accentColor)
             ],
             startPoint: .top,
             endPoint: .bottom
@@ -25,14 +25,14 @@ struct AccentRoundedButtonChrome: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .foregroundStyle(theme.accentButtonForeground)
+            .foregroundStyle(theme.text.emphasis)
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(theme.accentButtonFill(accentColor))
+                    .fill(theme.background.emphasis(accentColor))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .stroke(theme.accentButtonStroke(accentColor), lineWidth: lineWidth)
+                    .stroke(theme.stroke.emphasis(accentColor), lineWidth: lineWidth)
             )
     }
 }
@@ -48,11 +48,11 @@ struct TintedSurfaceButtonChrome: ViewModifier {
             .foregroundStyle(tintColor)
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(theme.tintedButtonBackground)
+                    .fill(theme.background.bold)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .stroke(theme.tintedButtonStroke(tintColor), lineWidth: lineWidth)
+                    .stroke(theme.stroke.emphasis(tintColor), lineWidth: lineWidth)
             )
     }
 }
@@ -111,12 +111,12 @@ struct SelectionToggleButton: View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: 14, weight: .semibold, design: .rounded))
-                .foregroundStyle(isSelected ? theme.toggleSelectedForeground : theme.textPrimary)
+                .foregroundStyle(isSelected ? theme.text.bold : theme.text.neutral)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Tokens.Spacing.lg)
                 .background(
                     RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous)
-                        .fill(isSelected ? theme.toggleSelectedBackground : theme.surfaceInput)
+                        .fill(isSelected ? theme.background.bold : theme.background.neutral)
                 )
         }
         .buttonStyle(.plain)
@@ -302,13 +302,13 @@ private struct HealthAccessPromptView: View {
                 VStack(spacing: Tokens.Spacing.xxl) {
                     Text(L10n.rundrNeeds)
                         .font(.system(size: 15, weight: .medium, design: .rounded))
-                        .foregroundStyle(theme.textBody)
+                        .foregroundStyle(theme.text.subtle)
                         .multilineTextAlignment(.center)
 
                     Button(action: onRequestAccess) {
                         if isRequestingAccess {
                             ProgressView()
-                                .tint(theme.textPrimary)
+                                .tint(theme.text.neutral)
                                 .frame(maxWidth: .infinity, minHeight: 50)
                         } else {
                             Text(L10n.healthAccess)
@@ -322,12 +322,12 @@ private struct HealthAccessPromptView: View {
 
                     Button(L10n.notNow, action: onContinueWithoutHealth)
                         .font(.footnote.weight(.semibold))
-                        .foregroundStyle(theme.textSecondary)
+                        .foregroundStyle(theme.text.subtle)
 
                     if let authorizationError, !authorizationError.isEmpty {
                         Text(authorizationError)
                             .font(.caption2)
-                            .foregroundStyle(theme.errorText)
+                            .foregroundStyle(theme.text.error)
                             .multilineTextAlignment(.center)
                             .lineLimit(nil)
                             .fixedSize(horizontal: false, vertical: true)

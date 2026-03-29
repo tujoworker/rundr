@@ -18,14 +18,14 @@ struct OngoingWorkoutRecoveryView: View {
             VStack(spacing: 16) {
                 Text(L10n.recoverWorkoutTitle)
                     .font(.system(size: 22, weight: .bold, design: .rounded))
-                    .foregroundStyle(theme.textPrimary)
+                    .foregroundStyle(theme.text.neutral)
                     .lineLimit(3)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Text(startedText)
                     .font(.system(size: Tokens.FontSize.md, weight: .medium, design: .rounded))
-                    .foregroundStyle(theme.textBody)
+                    .foregroundStyle(theme.text.subtle)
                     .multilineTextAlignment(.center)
 
                 Button(action: onContinue) {
@@ -41,7 +41,7 @@ struct OngoingWorkoutRecoveryView: View {
                         .frame(maxWidth: .infinity, minHeight: 34)
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(theme.textBody)
+                .foregroundStyle(theme.text.subtle)
             }
             .padding(.horizontal, 16)
             .tint(accentColor)

@@ -102,7 +102,7 @@ struct ActiveSessionView: View {
 
     private var timerBorderOverlay: some View {
         Capsule()
-            .strokeBorder(theme.accentSubtle(primaryColor), lineWidth: Tokens.LineWidth.thick)
+            .strokeBorder(theme.stroke.emphasis(primaryColor), lineWidth: Tokens.LineWidth.thick)
     }
 
     private var lapGlowOverlay: some View {
@@ -126,27 +126,27 @@ struct ActiveSessionView: View {
                         HStack(alignment: .firstTextBaseline, spacing: 0) {
                             Text("\(displayedLapCounter)")
                                 .font(.system(size: Tokens.FontSize.xxl, weight: .bold, design: .rounded))
-                                .foregroundStyle(theme.badgeForeground)
+                                .foregroundStyle(theme.text.bold)
                         Text("/\(total)")
                             .font(.system(size: Tokens.FontSize.xs, weight: .semibold, design: .rounded))
-                            .foregroundStyle(theme.badgeForeground)
+                            .foregroundStyle(theme.text.bold)
                         }
                         .padding(.horizontal, Tokens.Spacing.xs)
                         .padding(.vertical, 0)
                         .background(
                             RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
-                                .fill(theme.badgeBackground)
+                                .fill(theme.background.bold)
                         )
                     } else {
                         Text("\(displayedLapCounter)")
                             .font(.system(size: Tokens.FontSize.xxl, weight: .bold, design: .rounded))
                             .monospacedDigit()
-                            .foregroundStyle(theme.badgeForeground)
+                            .foregroundStyle(theme.text.bold)
                             .padding(.horizontal, Tokens.Spacing.xs)
                             .padding(.vertical, 0)
                             .background(
                                 RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous)
-                                    .fill(theme.badgeBackground)
+                                    .fill(theme.background.bold)
                             )
                     }
                 }
@@ -154,13 +154,13 @@ struct ActiveSessionView: View {
                 if !timerTopLabel.isEmpty {
                     Text(timerTopLabel)
                         .font(labelFont)
-                        .foregroundStyle(theme.textPrimary)
+                        .foregroundStyle(theme.text.neutral)
                 }
             }
         } else {
             Text(timerTopLabel)
                 .font(.system(size: Tokens.FontSize.base, weight: .semibold, design: .rounded))
-                .foregroundStyle(theme.textPrimary.opacity(Tokens.Opacity.foregroundTimerSecondary))
+                .foregroundStyle(theme.text.subtle)
                 .opacity(timerTopLabel.isEmpty ? 0 : 1)
         }
     }
@@ -178,12 +178,12 @@ struct ActiveSessionView: View {
                 .monospacedDigit()
                 .minimumScaleFactor(0.45)
                 .lineLimit(1)
-                .foregroundStyle(theme.textPrimary)
+                .foregroundStyle(theme.text.neutral)
                 .frame(maxWidth: .infinity)
                 .padding(.horizontal, 22)
                 .padding(.vertical, Tokens.Spacing.sm)
                 .frame(maxHeight: 120)
-                .background(Capsule().fill(theme.accentSubtle(primaryColor)))
+                .background(Capsule().fill(theme.background.emphasis(primaryColor)))
                 .overlay(timerBorderOverlay)
                 .overlay(lapGlowOverlay)
                 .overlay(alignment: .top) {
@@ -240,12 +240,12 @@ struct ActiveSessionView: View {
             HStack(spacing: Tokens.Spacing.sm) {
                 Text(Formatters.heartRateString(bpm: workoutController.currentHeartRate))
                     .font(.system(size: Tokens.FontSize.lg, weight: .bold, design: .rounded))
-                    .foregroundStyle(theme.textPrimary)
+                    .foregroundStyle(theme.text.neutral)
                     .monospacedDigit()
 
                 Image(systemName: "heart.fill")
                     .font(.system(size: Tokens.FontSize.xs, weight: .semibold))
-                    .foregroundStyle(theme.textPrimary)
+                    .foregroundStyle(theme.text.neutral)
             }
             .padding(.top, Tokens.Spacing.xxs)
             .offset(y: -16)
@@ -631,29 +631,29 @@ struct PlaceholderLapCardView: View {
             Text("1")
                 .font(.system(size: Tokens.FontSize.xxl, weight: .bold, design: .rounded))
                 .monospacedDigit()
-                .foregroundStyle(theme.badgeForeground)
+                .foregroundStyle(theme.text.bold)
                 .padding(.horizontal, Tokens.Spacing.xs)
                 .padding(.vertical, 0)
                 .background(
                     RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous)
-                        .fill(theme.badgeBackground)
+                        .fill(theme.background.bold)
                 )
             Text("—:——")
                 .font(.system(size: 25, weight: .medium, design: .rounded))
                 .monospacedDigit()
-                .foregroundColor(theme.textPrimary)
+                .foregroundColor(theme.text.neutral)
         }
         .padding(.top, lapCardTopPadding)
         .padding(.leading, lapCardLeadingPadding)
         .padding(.bottom, lapCardBottomPadding)
         .padding(.trailing, lapCardTrailingPadding)
         .frame(height: latestCardHeight)
-        .background(theme.accentSubtle(accentColor))
+        .background(theme.background.emphasis(accentColor))
         .cornerRadius(Tokens.Radius.xl)
         .overlay(
             RoundedRectangle(cornerRadius: Tokens.Radius.xl)
                 .inset(by: Tokens.LineWidth.thin)
-                .stroke(theme.borderSubtle, lineWidth: Tokens.LineWidth.medium)
+                .stroke(theme.stroke.neutral, lineWidth: Tokens.LineWidth.medium)
         )
     }
 }
@@ -670,10 +670,10 @@ struct LapCardView: View {
 
     private var cardBackgroundColor: Color {
         if isRest {
-            return theme.surfaceRestCard
+            return theme.background.bold
         }
 
-        return theme.accentSubtle(accentColor)
+        return theme.background.emphasis(accentColor)
     }
 
     var body: some View {
@@ -687,12 +687,12 @@ struct LapCardView: View {
                     Text("\(lap.index)")
                         .font(.system(size: Tokens.FontSize.xxl, weight: .bold, design: .rounded))
                         .monospacedDigit()
-                        .foregroundStyle(theme.badgeForeground)
+                        .foregroundStyle(theme.text.bold)
                         .padding(.horizontal, Tokens.Spacing.xs)
                         .padding(.vertical, 0)
                         .background(
                             RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous)
-                                .fill(theme.badgeBackground)
+                                .fill(theme.background.bold)
                         )
                     VStack(alignment: .leading, spacing: 0) {
                         Text(Formatters.compactTimeString(from: lap.durationSeconds))
@@ -719,13 +719,13 @@ struct LapCardView: View {
         .padding(.trailing, isRest ? lapCardLeadingPadding : lapCardTrailingPadding)
         .frame(height: latestCardHeight)
         .fixedSize(horizontal: true, vertical: false)
-        .foregroundColor(isRest ? theme.textOnRestSurface : theme.textPrimary)
+        .foregroundColor(isRest ? theme.text.bold : theme.text.neutral)
         .background(cardBackgroundColor)
         .cornerRadius(Tokens.Radius.xl)
         .overlay(
             RoundedRectangle(cornerRadius: Tokens.Radius.xl)
                 .inset(by: !isRest ? Tokens.LineWidth.thin : 0)
-                .stroke(theme.borderSubtle, lineWidth: !isRest ? Tokens.LineWidth.medium : 0)
+                .stroke(theme.stroke.neutral, lineWidth: !isRest ? Tokens.LineWidth.medium : 0)
         )
     }
 }
@@ -833,16 +833,16 @@ private struct WorkoutControlIcon: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(theme.accentButtonFill(baseColor))
+                .fill(theme.background.emphasis(baseColor))
 
             Circle()
-                .stroke(theme.accentButtonStroke(baseColor), lineWidth: Tokens.LineWidth.thick)
+                .stroke(theme.stroke.emphasis(baseColor), lineWidth: Tokens.LineWidth.thick)
                 .padding(Tokens.LineWidth.regular)
         }
         .overlay {
             Image(systemName: systemName)
                 .font(.system(size: Tokens.FontSize.xl, weight: .bold))
-                .foregroundStyle(theme.textPrimary)
+                .foregroundStyle(theme.text.neutral)
         }
         .frame(width: 46, height: 46)
         .shadow(color: baseColor.opacity(Tokens.Opacity.shadow), radius: Tokens.Radius.small, y: 2)
@@ -861,7 +861,7 @@ private struct SessionCompleteView: View {
             Button(action: onDismiss) {
                 Image(systemName: "checkmark")
                     .font(.system(size: 96, weight: .medium))
-                    .foregroundStyle(theme.textPrimary)
+                    .foregroundStyle(theme.text.neutral)
                     .padding(Tokens.Spacing.xxxxl)
                     .contentShape(Circle())
             }

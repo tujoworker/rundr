@@ -95,11 +95,11 @@ struct SessionDetailView: View {
                     VStack(alignment: .leading, spacing: Tokens.Spacing.xxxs) {
                         Text(headerTitle.dayText)
                             .font(.caption2.weight(.semibold))
-                            .foregroundStyle(theme.textPrimary)
+                            .foregroundStyle(theme.text.neutral)
 
                         Text(headerTitle.timeText)
                             .font(.caption2.weight(.regular))
-                            .foregroundStyle(theme.textSecondary)
+                            .foregroundStyle(theme.text.subtle)
                     }
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -112,7 +112,7 @@ struct SessionDetailView: View {
                         } label: {
                             Image(systemName: "checkmark")
                                 .font(.system(size: 9, weight: .bold))
-                                .foregroundStyle(theme.textPrimary)
+                                .foregroundStyle(theme.text.neutral)
                                 .frame(width: 18, height: 18)
                                 .background(
                                     Circle()
@@ -245,18 +245,18 @@ private struct SessionStatsView: View {
                     VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                         Text(item.label)
                             .font(.system(size: Tokens.FontSize.sm, weight: .regular, design: .rounded))
-                            .foregroundStyle(theme.textTertiary)
+                            .foregroundStyle(theme.text.subtle)
 
                         Text(item.value)
                             .font(.caption2.weight(.semibold))
-                            .foregroundStyle(theme.textPrimary)
+                            .foregroundStyle(theme.text.neutral)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(Tokens.Spacing.md)
-            .background(theme.surfaceInput)
+            .background(theme.background.neutral)
             .cornerRadius(Tokens.Radius.medium)
             .padding(.horizontal, Tokens.Spacing.xs)
             .padding(.bottom, Tokens.Spacing.sm)
@@ -403,12 +403,12 @@ struct LapRowView: View {
                 } else {
                     Text(badgeTitle)
                         .font(.system(size: Tokens.FontSize.sm, weight: .semibold, design: .rounded))
-                        .foregroundStyle(theme.badgeForeground)
+                        .foregroundStyle(theme.text.bold)
                         .padding(.horizontal, Tokens.Spacing.sm)
                         .padding(.vertical, Tokens.Spacing.xxxs)
                         .background(
                             RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
-                                .fill(theme.badgeBackground)
+                                .fill(theme.background.bold)
                         )
                         .alignmentGuide(.firstTextBaseline) { dimensions in
                             dimensions[.firstTextBaseline] + badgeOpticalLift
@@ -444,8 +444,8 @@ struct LapRowView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Tokens.Spacing.md)
-        .background(lap.lapType == .rest ? theme.surfaceRestCard : theme.surfaceCard)
-        .foregroundColor(lap.lapType == .rest ? theme.textOnRestSurface : theme.textPrimary)
+        .background(lap.lapType == .rest ? theme.background.bold : theme.background.neutral)
+        .foregroundColor(lap.lapType == .rest ? theme.text.bold : theme.text.neutral)
         .cornerRadius(Tokens.Radius.medium)
         .padding(.horizontal, Tokens.Spacing.xs)
     }

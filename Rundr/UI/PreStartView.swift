@@ -63,14 +63,14 @@ struct PreStartView: View {
         let s = readyElapsedSeconds
         let bigFont = Font.system(size: 26, weight: .bold, design: .rounded)
         let smallFont = Font.system(size: Tokens.FontSize.sm, weight: .semibold, design: .rounded)
-        let smallColor = theme.textBody
+        let smallColor = theme.text.subtle
 
         HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.xxs) {
             if s < 60 {
                 Text("\(s)")
                     .font(bigFont)
                     .monospacedDigit()
-                    .foregroundStyle(theme.textPrimary)
+                    .foregroundStyle(theme.text.neutral)
                 Text(L10n.secondsAbbrev)
                     .font(smallFont)
                     .foregroundStyle(smallColor)
@@ -81,7 +81,7 @@ struct PreStartView: View {
                     Text("\(m)")
                         .font(bigFont)
                         .monospacedDigit()
-                        .foregroundStyle(theme.textPrimary)
+                        .foregroundStyle(theme.text.neutral)
                     Text(L10n.minutesAbbrev)
                         .font(smallFont)
                         .foregroundStyle(smallColor)
@@ -89,14 +89,14 @@ struct PreStartView: View {
                     Text("\(m)")
                         .font(bigFont)
                         .monospacedDigit()
-                        .foregroundStyle(theme.textPrimary)
+                        .foregroundStyle(theme.text.neutral)
                     Text(L10n.minutesAbbrev)
                         .font(smallFont)
                         .foregroundStyle(smallColor)
                     Text("\(secs)")
                         .font(bigFont)
                         .monospacedDigit()
-                        .foregroundStyle(theme.textPrimary)
+                        .foregroundStyle(theme.text.neutral)
                     Text(L10n.secondsAbbrev)
                         .font(smallFont)
                         .foregroundStyle(smallColor)
@@ -126,7 +126,7 @@ struct PreStartView: View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
             Text(L10n.intervalsTitle)
                 .font(.caption.bold())
-                .foregroundStyle(theme.textSecondary)
+                .foregroundStyle(theme.text.subtle)
                 .padding(.horizontal, Tokens.Spacing.md)
 
             ForEach(segments) { segment in
@@ -147,7 +147,7 @@ struct PreStartView: View {
                     Text(L10n.addInterval)
                         .font(.system(size: Tokens.FontSize.md, weight: .semibold, design: .rounded))
                 }
-                .foregroundStyle(theme.textPrimary)
+                .foregroundStyle(theme.text.neutral)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, Tokens.Spacing.lg)
                 .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: Tokens.Radius.xxl)
@@ -185,7 +185,7 @@ struct PreStartView: View {
                 if supportsActionButton {
                     Text(L10n.pressActionButton)
                         .font(.system(size: Tokens.FontSize.sm, weight: .medium, design: .rounded))
-                        .foregroundStyle(theme.textPrimary.opacity(Tokens.Opacity.foregroundMuted))
+                        .foregroundStyle(theme.text.subtle)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, Tokens.Spacing.sm)
                         .padding(.bottom, Tokens.Spacing.xxs)
@@ -1163,7 +1163,7 @@ private struct IntervalLibraryRowView: View {
             HStack {
                 Text(title)
                     .font(.headline.weight(.semibold))
-                    .foregroundStyle(theme.textPrimary)
+                    .foregroundStyle(theme.text.neutral)
                 Spacer()
                 if usageCount > 0 {
                     PresetUsageBadge(count: usageCount)
@@ -1171,11 +1171,11 @@ private struct IntervalLibraryRowView: View {
             }
             Text(subtitle)
                 .font(.caption)
-                .foregroundStyle(theme.textSecondary)
+                .foregroundStyle(theme.text.subtle)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Tokens.Spacing.md)
-        .background(theme.surfaceCard)
+        .background(theme.background.neutral)
         .cornerRadius(Tokens.Radius.medium)
     }
 }
@@ -1200,10 +1200,10 @@ private struct PresetUsageBadge: View {
     var body: some View {
         Text(L10n.usedCount(count))
             .font(.system(size: 11, weight: .semibold, design: .rounded))
-            .foregroundStyle(theme.textSecondary)
+            .foregroundStyle(theme.text.subtle)
             .padding(.horizontal, Tokens.Spacing.sm)
             .padding(.vertical, Tokens.Spacing.xxs)
-            .background(theme.surfaceInput)
+            .background(theme.background.neutral)
             .clipShape(Capsule(style: .continuous))
     }
 }
@@ -1216,7 +1216,7 @@ private struct IntervalTitleField: View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
             Text(L10n.title)
                 .font(.caption.bold())
-                .foregroundStyle(theme.textSecondary)
+                .foregroundStyle(theme.text.subtle)
                 .padding(.horizontal, Tokens.Spacing.md)
 
             TextField(L10n.optionalTitlePlaceholder, text: $text)
@@ -1963,7 +1963,7 @@ struct TintedInfoBanner: View {
         .background(tint.opacity(Tokens.Opacity.fillCard))
         .overlay(
             RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
-                .stroke(theme.tintedButtonStroke(tint), lineWidth: Tokens.LineWidth.thin)
+                .stroke(theme.stroke.emphasis(tint), lineWidth: Tokens.LineWidth.thin)
         )
         .cornerRadius(Tokens.Radius.medium)
     }
@@ -1977,12 +1977,12 @@ private struct ReadyHeartIndicator: View {
         HStack(spacing: Tokens.Spacing.sm) {
             Text(heartRateText)
                 .font(.system(size: Tokens.FontSize.lg, weight: .bold, design: .rounded))
-                .foregroundStyle(theme.textPrimary)
+                .foregroundStyle(theme.text.neutral)
                 .monospacedDigit()
 
             Image(systemName: "heart.fill")
                 .font(.system(size: Tokens.FontSize.xs, weight: .semibold))
-                .foregroundStyle(theme.textPrimary)
+                .foregroundStyle(theme.text.neutral)
         }
     }
 }
@@ -1994,16 +1994,16 @@ private struct ReadyStartIcon: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(theme.accentButtonFill(baseColor))
+                .fill(theme.background.emphasis(baseColor))
 
             Circle()
-                .stroke(theme.accentButtonStroke(baseColor), lineWidth: Tokens.LineWidth.thick)
+                .stroke(theme.stroke.emphasis(baseColor), lineWidth: Tokens.LineWidth.thick)
                 .padding(Tokens.LineWidth.regular)
         }
         .overlay {
             Image(systemName: "figure.run")
                 .font(.system(size: 34, weight: .bold))
-                .foregroundStyle(theme.accentButtonForeground)
+                .foregroundStyle(theme.text.emphasis)
         }
         .frame(width: 78, height: 78)
         .shadow(color: baseColor.opacity(Tokens.Opacity.shadow), radius: Tokens.Radius.small, y: 2)
@@ -2035,12 +2035,12 @@ private struct SettingsCardRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
                     .font(.system(size: Tokens.FontSize.xl, weight: .medium, design: .rounded))
-                    .foregroundStyle(theme.textPrimary)
+                    .foregroundStyle(theme.text.neutral)
 
                 if let value {
                     Text(value)
                         .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
-                        .foregroundStyle(theme.textSecondary)
+                        .foregroundStyle(theme.text.subtle)
                 }
             }
 
@@ -2049,14 +2049,14 @@ private struct SettingsCardRow: View {
             if showsChevron {
                 Image(systemName: "chevron.right")
                     .font(.system(size: Tokens.FontSize.sm, weight: .semibold))
-                    .foregroundStyle(theme.textDisabled)
+                    .foregroundStyle(theme.text.subtle)
             }
         }
         .padding(.horizontal, Tokens.Spacing.xxxl)
         .padding(.vertical, Tokens.Spacing.xxxl)
         .background(
             RoundedRectangle(cornerRadius: Tokens.Radius.xxxxl, style: .continuous)
-                .fill(theme.surfaceInput)
+                .fill(theme.background.neutral)
         )
     }
 }

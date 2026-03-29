@@ -134,7 +134,7 @@ struct SessionRowView: View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
             Text(sessionTitle)
                 .font(.caption2.weight(.semibold))
-                .foregroundStyle(theme.textPrimary)
+                .foregroundStyle(theme.text.neutral)
             .padding(.bottom, Tokens.Spacing.xs)
 
             LazyVGrid(columns: columns, alignment: .leading, spacing: Tokens.Spacing.lg) {
@@ -142,11 +142,11 @@ struct SessionRowView: View {
                     VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                         Text(item.label)
                             .font(.system(size: Tokens.FontSize.sm, weight: .regular, design: .rounded))
-                            .foregroundStyle(theme.textTertiary)
+                            .foregroundStyle(theme.text.subtle)
 
                         Text(item.value)
                             .font(.caption2.weight(.semibold))
-                            .foregroundStyle(theme.textPrimary)
+                            .foregroundStyle(theme.text.neutral)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
@@ -154,7 +154,7 @@ struct SessionRowView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Tokens.Spacing.md)
-        .background(theme.surfaceCard)
+        .background(theme.background.neutral)
         .cornerRadius(Tokens.Radius.medium)
     }
 }

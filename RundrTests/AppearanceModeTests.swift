@@ -20,67 +20,67 @@ final class AppearanceModeTests: XCTestCase {
         XCTAssertFalse(AppTheme(colorScheme: .light).isDark)
     }
 
-    func testAppThemeUsesWhitePrimaryTextColorsForDarkAndLightModes() throws {
+    func testAppThemeUsesWhiteNeutralTextColorsForDarkAndLightModes() throws {
         let darkTheme = AppTheme(colorScheme: .dark)
         let lightTheme = AppTheme(colorScheme: .light)
 
-        XCTAssertEqual(try rgbaComponents(for: darkTheme.textPrimary), [1, 1, 1, 1])
-        XCTAssertEqual(try rgbaComponents(for: lightTheme.textPrimary), [1, 1, 1, 1])
+        XCTAssertEqual(try rgbaComponents(for: darkTheme.text.neutral), [1, 1, 1, 1])
+        XCTAssertEqual(try rgbaComponents(for: lightTheme.text.neutral), [1, 1, 1, 1])
     }
 
-    func testAppThemeUsesDifferentSurfaceCardColorsForDarkAndLightModes() throws {
+    func testAppThemeUsesDifferentNeutralBackgroundColorsForDarkAndLightModes() throws {
         let darkTheme = AppTheme(colorScheme: .dark)
         let lightTheme = AppTheme(colorScheme: .light)
 
         assertEqualComponents(
-            try rgbaComponents(for: darkTheme.surfaceCard),
+            try rgbaComponents(for: darkTheme.background.neutral),
             [1, 1, 1, Tokens.Opacity.fillCard],
             accuracy: 0.001
         )
         assertEqualComponents(
-            try rgbaComponents(for: lightTheme.surfaceCard),
+            try rgbaComponents(for: lightTheme.background.neutral),
             [0, 0, 0, 0.08],
             accuracy: 0.001
         )
     }
 
-    func testAppThemeUsesDifferentGradientStartColorsForDarkAndLightModes() throws {
+    func testAppThemeUsesDifferentAppBackgroundColorsForDarkAndLightModes() throws {
         let darkTheme = AppTheme(colorScheme: .dark)
         let lightTheme = AppTheme(colorScheme: .light)
 
-        XCTAssertEqual(try rgbaComponents(for: darkTheme.screenGradientStart), [0, 0, 0, 1])
-        XCTAssertEqual(try rgbaComponents(for: lightTheme.screenGradientStart), [1, 1, 1, 1])
+        XCTAssertEqual(try rgbaComponents(for: darkTheme.background.app), [0, 0, 0, 1])
+        XCTAssertEqual(try rgbaComponents(for: lightTheme.background.app), [1, 1, 1, 1])
     }
 
-    func testAppThemeUsesDarkBackgroundStartAndLightAccentBackgroundStart() throws {
+    func testAppThemeUsesDarkGradientStartAndLightAccentGradientStart() throws {
         let accent = Color(red: 0.8, green: 0.4, blue: 0.2)
         let darkTheme = AppTheme(colorScheme: .dark)
         let lightTheme = AppTheme(colorScheme: .light)
 
         assertEqualComponents(
-            try rgbaComponents(for: darkTheme.screenBackgroundStart(accent: accent)),
+            try rgbaComponents(for: darkTheme.appGradientStart(accent: accent)),
             [0, 0, 0, 1],
             accuracy: 0.001
         )
         assertEqualComponents(
-            try rgbaComponents(for: lightTheme.screenBackgroundStart(accent: accent)),
+            try rgbaComponents(for: lightTheme.appGradientStart(accent: accent)),
             [0.8, 0.4, 0.2, 1],
             accuracy: 0.001
         )
     }
 
-    func testAppThemeUsesDarkGradientEndAndLightAccentBackgroundEnd() throws {
+    func testAppThemeUsesDarkGradientEndAndLightAccentGradientEnd() throws {
         let accent = Color(red: 0.8, green: 0.4, blue: 0.2)
         let darkTheme = AppTheme(colorScheme: .dark)
         let lightTheme = AppTheme(colorScheme: .light)
 
         assertEqualComponents(
-            try rgbaComponents(for: darkTheme.screenGradientEnd(accent: accent)),
+            try rgbaComponents(for: darkTheme.appGradientEnd(accent: accent)),
             [0.8, 0.4, 0.2, Tokens.Opacity.fillGradientEnd],
             accuracy: 0.001
         )
         assertEqualComponents(
-            try rgbaComponents(for: lightTheme.screenGradientEnd(accent: accent)),
+            try rgbaComponents(for: lightTheme.appGradientEnd(accent: accent)),
             [0.8, 0.4, 0.2, 1],
             accuracy: 0.001
         )

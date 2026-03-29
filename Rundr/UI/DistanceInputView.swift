@@ -35,7 +35,7 @@ struct DistanceInputView: View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
             Text(label)
                 .font(.caption.bold())
-                .foregroundStyle(theme.textSecondary)
+                .foregroundStyle(theme.text.subtle)
                 .padding(.horizontal, Tokens.Spacing.xs)
                 .padding(.top, Tokens.Spacing.md)
 
@@ -48,8 +48,8 @@ struct DistanceInputView: View {
                     Image(systemName: "minus")
                         .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(theme.surfaceCard))
-                        .foregroundStyle(theme.textPrimary)
+                        .background(Circle().fill(theme.background.neutral))
+                        .foregroundStyle(theme.text.neutral)
                 }
                 .buttonStyle(.plain)
 
@@ -59,14 +59,14 @@ struct DistanceInputView: View {
                 } label: {
                     ZStack {
                         RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous)
-                            .fill(theme.surfaceInput)
+                            .fill(theme.background.neutral)
 
                         Text(displayText)
                             .font(.system(size: Tokens.FontSize.xxl, weight: .bold, design: .rounded))
                             .monospacedDigit()
                             .minimumScaleFactor(0.7)
                             .lineLimit(1)
-                            .foregroundStyle(theme.textPrimary)
+                            .foregroundStyle(theme.text.neutral)
                     }
                     .frame(maxWidth: .infinity, minHeight: controlHeight)
                 }
@@ -80,8 +80,8 @@ struct DistanceInputView: View {
                     Image(systemName: "plus")
                         .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(theme.surfaceCard))
-                        .foregroundStyle(theme.textPrimary)
+                        .background(Circle().fill(theme.background.neutral))
+                        .foregroundStyle(theme.text.neutral)
                 }
                 .buttonStyle(.plain)
             }
@@ -260,12 +260,12 @@ private struct NumericKeypadButton: View {
         Button(action: action) {
             Text(key)
                 .font(.system(size: Tokens.FontSize.xxl, weight: .semibold, design: .rounded))
-                .foregroundStyle(theme.textPrimary)
+                .foregroundStyle(theme.text.neutral)
                 .frame(maxWidth: .infinity)
                 .frame(height: 38)
                 .background(
                     RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
-                        .fill(theme.surfaceCard)
+                        .fill(theme.background.neutral)
                 )
         }
         .buttonStyle(.plain)

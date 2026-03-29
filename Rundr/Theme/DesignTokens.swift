@@ -22,6 +22,8 @@ enum Tokens {
         static let xxl: CGFloat = 16
         /// 18 pt – large accent buttons (default)
         static let xxxl: CGFloat = 18
+        /// 22 pt – settings card rows
+        static let xxxxl: CGFloat = 22
         /// 999 pt – pill / fully-rounded shapes
         static let pill: CGFloat = 999
     }
@@ -74,6 +76,8 @@ enum Tokens {
         static let fillInput: Double = 0.12
         /// 0.10 – accent tint on lap cards, subtle borders
         static let fillSubtle: Double = 0.10
+        /// 0.28 – icon / button drop shadows
+        static let shadow: Double = 0.28
     }
 
     // MARK: Font Size

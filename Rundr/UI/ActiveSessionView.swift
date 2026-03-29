@@ -652,7 +652,7 @@ struct PlaceholderLapCardView: View {
         .cornerRadius(Tokens.Radius.xl)
         .overlay(
             RoundedRectangle(cornerRadius: Tokens.Radius.xl)
-                .inset(by: Tokens.LineWidth.regular)
+                .inset(by: Tokens.LineWidth.thin)
                 .stroke(theme.borderSubtle, lineWidth: Tokens.LineWidth.medium)
         )
     }
@@ -724,7 +724,7 @@ struct LapCardView: View {
         .cornerRadius(Tokens.Radius.xl)
         .overlay(
             RoundedRectangle(cornerRadius: Tokens.Radius.xl)
-                .inset(by: !isRest ? 1 : 0)
+                .inset(by: !isRest ? Tokens.LineWidth.thin : 0)
                 .stroke(theme.borderSubtle, lineWidth: !isRest ? Tokens.LineWidth.medium : 0)
         )
     }
@@ -833,10 +833,10 @@ private struct WorkoutControlIcon: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(theme.accentFill(baseColor))
+                .fill(theme.accentButtonFill(baseColor))
 
             Circle()
-                .stroke(theme.accentStroke(baseColor), lineWidth: Tokens.LineWidth.thick)
+                .stroke(theme.accentButtonStroke(baseColor), lineWidth: Tokens.LineWidth.thick)
                 .padding(Tokens.LineWidth.regular)
         }
         .overlay {
@@ -845,7 +845,7 @@ private struct WorkoutControlIcon: View {
                 .foregroundStyle(theme.textPrimary)
         }
         .frame(width: 46, height: 46)
-        .shadow(color: baseColor.opacity(0.28), radius: Tokens.Radius.small, y: 2)
+        .shadow(color: baseColor.opacity(Tokens.Opacity.shadow), radius: Tokens.Radius.small, y: 2)
     }
 }
 

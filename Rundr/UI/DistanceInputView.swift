@@ -164,7 +164,7 @@ struct NumericKeypadEditorScreen: View {
 
                         Color.black.opacity(0.18)
 
-                        accentColor.opacity(0.12)
+                        accentColor.opacity(Tokens.Opacity.fillInput)
 
                         Text(text.isEmpty ? " " : text)
                             .font(.system(size: 28, weight: .bold, design: .rounded))

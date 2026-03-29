@@ -766,7 +766,7 @@ struct IntervalLibraryView: View {
                                 .font(.footnote.weight(.semibold))
                                 .frame(maxWidth: .infinity, minHeight: 34)
                         }
-                        .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: 999)
+                        .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: Tokens.Radius.pill)
                         .buttonStyle(.plain)
                         .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
                         .listRowBackground(Color.clear)
@@ -1684,10 +1684,10 @@ private struct SegmentEditSheet: View {
             .padding(.vertical, Tokens.Spacing.lg)
             .background(
                 RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous)
-                    .fill(Color.white.opacity(isEnabled ? 0.08 : 0.1))
+                    .fill(Color.white.opacity(Tokens.Opacity.fillSubtle))
                     .overlay(
                         RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous)
-                            .stroke(Color.white.opacity(isEnabled ? 0.12 : 0.13), lineWidth: Tokens.LineWidth.thin)
+                            .stroke(Color.white.opacity(Tokens.Opacity.fillInput), lineWidth: Tokens.LineWidth.thin)
                     )
             )
         }
@@ -1938,6 +1938,7 @@ struct TintedInfoBanner: View {
     let tint: Color
     var buttonTitle: String? = nil
     var buttonAction: (() -> Void)? = nil
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
@@ -1959,10 +1960,10 @@ struct TintedInfoBanner: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Tokens.Spacing.md)
-        .background(tint.opacity(0.14))
+        .background(tint.opacity(Tokens.Opacity.fillCard))
         .overlay(
             RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
-                .stroke(tint.opacity(0.32), lineWidth: Tokens.LineWidth.thin)
+                .stroke(theme.tintedButtonStroke(tint), lineWidth: Tokens.LineWidth.thin)
         )
         .cornerRadius(Tokens.Radius.medium)
     }
@@ -2005,7 +2006,7 @@ private struct ReadyStartIcon: View {
                 .foregroundStyle(theme.accentButtonForeground)
         }
         .frame(width: 78, height: 78)
-        .shadow(color: baseColor.opacity(0.28), radius: Tokens.Radius.small, y: 2)
+        .shadow(color: baseColor.opacity(Tokens.Opacity.shadow), radius: Tokens.Radius.small, y: 2)
     }
 }
 
@@ -2039,7 +2040,7 @@ private struct SettingsCardRow: View {
                 if let value {
                     Text(value)
                         .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.7))
+                        .foregroundStyle(theme.textSecondary)
                 }
             }
 
@@ -2054,7 +2055,7 @@ private struct SettingsCardRow: View {
         .padding(.horizontal, Tokens.Spacing.xxxl)
         .padding(.vertical, Tokens.Spacing.xxxl)
         .background(
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
+            RoundedRectangle(cornerRadius: Tokens.Radius.xxxxl, style: .continuous)
                 .fill(theme.surfaceInput)
         )
     }

@@ -21,6 +21,7 @@ struct RundrApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
+                .withAppTheme()
                 .environmentObject(persistence)
                 .environmentObject(syncManager)
                 .environmentObject(ongoingWorkoutStore)

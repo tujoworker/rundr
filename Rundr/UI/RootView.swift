@@ -2,12 +2,13 @@ import SwiftUI
 
 struct AppScreenBackground: View {
     let accentColor: Color
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
         LinearGradient(
             colors: [
-                Color.black,
-                accentColor.opacity(0.18)
+                theme.screenGradientStart,
+                theme.screenGradientEnd(accent: accentColor)
             ],
             startPoint: .top,
             endPoint: .bottom
@@ -18,19 +19,20 @@ struct AppScreenBackground: View {
 
 struct AccentRoundedButtonChrome: ViewModifier {
     let accentColor: Color
-    var cornerRadius: CGFloat = 18
-    var lineWidth: CGFloat = 1.5
+    var cornerRadius: CGFloat = Tokens.Radius.xxxl
+    var lineWidth: CGFloat = Tokens.LineWidth.regular
+    @Environment(\.appTheme) private var theme
 
     func body(content: Content) -> some View {
         content
-            .foregroundStyle(.white)
+            .foregroundStyle(theme.textPrimary)
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(accentColor.opacity(0.2))
+                    .fill(theme.accentFill(accentColor))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .stroke(accentColor.opacity(0.4), lineWidth: lineWidth)
+                    .stroke(theme.accentStroke(accentColor), lineWidth: lineWidth)
             )
     }
 }
@@ -38,8 +40,8 @@ struct AccentRoundedButtonChrome: ViewModifier {
 extension View {
     func accentRoundedButtonChrome(
         accentColor: Color,
-        cornerRadius: CGFloat = 18,
-        lineWidth: CGFloat = 1.5
+        cornerRadius: CGFloat = Tokens.Radius.xxxl,
+        lineWidth: CGFloat = Tokens.LineWidth.regular
     ) -> some View {
         modifier(
             AccentRoundedButtonChrome(
@@ -55,17 +57,18 @@ struct SelectionToggleButton: View {
     let title: String
     let isSelected: Bool
     let action: () -> Void
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
         Button(action: action) {
             Text(title)
                 .font(.system(size: 14, weight: .semibold, design: .rounded))
-                .foregroundStyle(isSelected ? .black : .white)
+                .foregroundStyle(isSelected ? theme.toggleSelectedForeground : theme.textPrimary)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
+                .padding(.vertical, Tokens.Spacing.lg)
                 .background(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .fill(isSelected ? Color.white : Color.white.opacity(0.12))
+                    RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous)
+                        .fill(isSelected ? theme.toggleSelectedBackground : theme.surfaceInput)
                 )
         }
         .buttonStyle(.plain)
@@ -237,21 +240,22 @@ private struct HealthAccessPromptView: View {
     let authorizationError: String?
     let onRequestAccess: () -> Void
     let onContinueWithoutHealth: () -> Void
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
         VStack(spacing: 0) {
             Spacer()
 
-            VStack(spacing: 14) {
+            VStack(spacing: Tokens.Spacing.xxl) {
                 Text("Rundr needs:")
                     .font(.system(size: 15, weight: .medium, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.8))
+                    .foregroundStyle(theme.textBody)
                     .multilineTextAlignment(.center)
 
                 Button(action: onRequestAccess) {
                     if isRequestingAccess {
                         ProgressView()
-                            .tint(.white)
+                            .tint(theme.textPrimary)
                             .frame(maxWidth: .infinity, minHeight: 50)
                     } else {
                         Text("Health Access")
@@ -259,22 +263,22 @@ private struct HealthAccessPromptView: View {
                             .frame(maxWidth: .infinity, minHeight: 50)
                     }
                 }
-                .accentRoundedButtonChrome(accentColor: accentColor, cornerRadius: 999, lineWidth: 3)
+                .accentRoundedButtonChrome(accentColor: accentColor, cornerRadius: Tokens.Radius.pill, lineWidth: Tokens.LineWidth.thick)
                 .buttonStyle(.plain)
                 .disabled(isRequestingAccess)
 
                 Button("Not now", action: onContinueWithoutHealth)
                     .font(.footnote.weight(.semibold))
-                    .foregroundStyle(.white.opacity(0.72))
+                    .foregroundStyle(theme.textSecondary)
 
                 if let authorizationError, !authorizationError.isEmpty {
                     Text(authorizationError)
                         .font(.footnote)
-                        .foregroundStyle(.red.opacity(0.9))
+                        .foregroundStyle(theme.errorText)
                         .multilineTextAlignment(.center)
                 }
             }
-            .padding(.horizontal, 18)
+            .padding(.horizontal, Tokens.Spacing.xxxl)
 
             Spacer()
         }

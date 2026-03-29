@@ -24,13 +24,13 @@ struct OngoingWorkoutRecoveryView: View {
                     .fixedSize(horizontal: false, vertical: true)
 
                 Text(startedText)
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
+                    .font(.system(size: Tokens.FontSize.md, weight: .medium, design: .rounded))
                     .foregroundStyle(theme.textBody)
                     .multilineTextAlignment(.center)
 
                 Button(action: onContinue) {
                     Text(L10n.resumeWorkout)
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, Tokens.Spacing.lg)
                 }

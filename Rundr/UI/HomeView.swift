@@ -19,11 +19,11 @@ struct HomeView: View {
                 }
                 .accentRoundedButtonChrome(
                     accentColor: settings.primaryAccentColor,
-                    cornerRadius: 999,
-                    lineWidth: 3
+                    cornerRadius: Tokens.Radius.pill,
+                    lineWidth: Tokens.LineWidth.thick
                 )
                 .buttonStyle(.plain)
-                .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 18, trailing: 12))
+                .listRowInsets(EdgeInsets(top: Tokens.Spacing.md, leading: Tokens.Spacing.xl, bottom: Tokens.Spacing.xxxl, trailing: Tokens.Spacing.xl))
                 .listRowBackground(Color.clear)
 
                 if viewModel.recentSessions.isEmpty {
@@ -48,7 +48,7 @@ struct HomeView: View {
                                 Label(L10n.delete, systemImage: "trash")
                             }
                         }
-                        .listRowInsets(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4))
+                        .listRowInsets(EdgeInsets(top: Tokens.Spacing.xxs, leading: Tokens.Spacing.xs, bottom: Tokens.Spacing.xxs, trailing: Tokens.Spacing.xs))
                         .listRowBackground(Color.clear)
                     }
 
@@ -60,9 +60,9 @@ struct HomeView: View {
                                 .font(.footnote.weight(.semibold))
                                 .frame(maxWidth: .infinity, minHeight: 34)
                         }
-                        .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: 999)
+                        .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: Tokens.Radius.pill)
                         .buttonStyle(.plain)
-                        .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
+                        .listRowInsets(EdgeInsets(top: Tokens.Spacing.md, leading: Tokens.Spacing.xl, bottom: Tokens.Spacing.md, trailing: Tokens.Spacing.xl))
                         .listRowBackground(Color.clear)
                     }
                 }
@@ -92,8 +92,8 @@ struct SessionRowView: View {
     @Environment(\.appTheme) private var theme
 
     private let columns = [
-        GridItem(.flexible(), spacing: 12, alignment: .topLeading),
-        GridItem(.flexible(), spacing: 12, alignment: .topLeading)
+        GridItem(.flexible(), spacing: Tokens.Spacing.xl, alignment: .topLeading),
+        GridItem(.flexible(), spacing: Tokens.Spacing.xl, alignment: .topLeading)
     ]
 
     private var sessionTitle: String {
@@ -141,7 +141,7 @@ struct SessionRowView: View {
                 ForEach(sessionStats) { item in
                     VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                         Text(item.label)
-                            .font(.system(size: 13, weight: .regular, design: .rounded))
+                            .font(.system(size: Tokens.FontSize.sm, weight: .regular, design: .rounded))
                             .foregroundStyle(theme.textTertiary)
 
                         Text(item.value)

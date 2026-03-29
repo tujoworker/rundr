@@ -90,9 +90,9 @@ struct SessionDetailView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 6) {
-                HStack(alignment: .firstTextBaseline, spacing: 6) {
-                    VStack(alignment: .leading, spacing: 1) {
+            VStack(alignment: .leading, spacing: Tokens.Spacing.sm) {
+                HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.sm) {
+                    VStack(alignment: .leading, spacing: Tokens.Spacing.xxxs) {
                         Text(headerTitle.dayText)
                             .font(.caption2.weight(.semibold))
                             .foregroundStyle(theme.textPrimary)
@@ -116,7 +116,7 @@ struct SessionDetailView: View {
                                 .frame(width: 18, height: 18)
                                 .background(
                                     Circle()
-                                        .fill(settings.primaryAccentColor.opacity(0.8))
+                                        .fill(settings.primaryAccentColor.opacity(Tokens.Opacity.foregroundBody))
                                 )
                                 .accessibilityLabel(L10n.phoneSyncConfirmedTitle)
                                 .padding(Tokens.Spacing.sm)
@@ -125,16 +125,16 @@ struct SessionDetailView: View {
                         .buttonStyle(.plain)
                     }
                 }
-                .padding(.horizontal, 4)
+                .padding(.horizontal, Tokens.Spacing.xs)
 
                 if isPendingPhoneSync {
                     SessionDetailPendingPhoneSyncBanner()
-                        .padding(.horizontal, 4)
-                        .padding(.bottom, 4)
+                        .padding(.horizontal, Tokens.Spacing.xs)
+                        .padding(.bottom, Tokens.Spacing.xs)
                 } else if showConfirmedPhoneSyncMessage {
                     SessionDetailConfirmedPhoneSyncBanner(tint: settings.primaryAccentColor)
-                        .padding(.horizontal, 4)
-                        .padding(.bottom, 4)
+                        .padding(.horizontal, Tokens.Spacing.xs)
+                        .padding(.bottom, Tokens.Spacing.xs)
                         .transition(.opacity.combined(with: .move(edge: .top)))
                 }
 
@@ -151,26 +151,28 @@ struct SessionDetailView: View {
 
                 Button(action: onUseSessionSettings) {
                     Text(L10n.redoActivity)
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
+                        .padding(.vertical, Tokens.Spacing.md)
                 }
                 .buttonStyle(.bordered)
                 .tint(settings.primaryAccentColor)
-                .padding(.top, 10)
-                .padding(.horizontal, 4)
+                .padding(.top, Tokens.Spacing.lg)
+                .padding(.horizontal, Tokens.Spacing.xs)
 
                 Button(role: .destructive) {
                     isDeleteConfirmationPresented = true
                 } label: {
                     Text(L10n.deleteSession)
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
                         .frame(maxWidth: .infinity)
                 }
-                .padding(.top, 10)
-                .padding(.horizontal, 4)
+                .padding(.top, Tokens.Spacing.lg)
+                .padding(.horizontal, Tokens.Spacing.xs)
             }
-            .padding(.vertical, 4)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(Tokens.Spacing.md)
+            .padding(.vertical, Tokens.Spacing.xs)
         }
         .background(Color.clear)
         .toolbar(.visible, for: .navigationBar)
@@ -229,8 +231,8 @@ private struct SessionStatsView: View {
     @Environment(\.appTheme) private var theme
 
     private let columns = [
-        GridItem(.flexible(), spacing: 12, alignment: .topLeading),
-        GridItem(.flexible(), spacing: 12, alignment: .topLeading)
+        GridItem(.flexible(), spacing: Tokens.Spacing.xl, alignment: .topLeading),
+        GridItem(.flexible(), spacing: Tokens.Spacing.xl, alignment: .topLeading)
     ]
 
     var body: some View {
@@ -239,7 +241,7 @@ private struct SessionStatsView: View {
                 ForEach(items) { item in
                     VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                         Text(item.label)
-                            .font(.system(size: 13, weight: .regular, design: .rounded))
+                            .font(.system(size: Tokens.FontSize.sm, weight: .regular, design: .rounded))
                             .foregroundStyle(theme.textTertiary)
 
                         Text(item.value)
@@ -269,8 +271,8 @@ struct LapRowView: View {
     private let badgeOpticalLift: CGFloat = 2
 
     private let columns = [
-        GridItem(.flexible(), spacing: 12, alignment: .topLeading),
-        GridItem(.flexible(), spacing: 12, alignment: .topLeading)
+        GridItem(.flexible(), spacing: Tokens.Spacing.xl, alignment: .topLeading),
+        GridItem(.flexible(), spacing: Tokens.Spacing.xl, alignment: .topLeading)
     ]
 
     private var badgeTitle: String {
@@ -390,17 +392,17 @@ struct LapRowView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(alignment: .firstTextBaseline, spacing: 6) {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+            HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.sm) {
                 if lap.lapType == .rest {
                     Text(L10n.rest)
                         .font(.caption.bold())
                 } else {
                     Text(badgeTitle)
-                        .font(.system(size: 13, weight: .semibold, design: .rounded))
+                        .font(.system(size: Tokens.FontSize.sm, weight: .semibold, design: .rounded))
                         .foregroundStyle(theme.badgeForeground)
                         .padding(.horizontal, Tokens.Spacing.sm)
-                        .padding(.vertical, 1)
+                        .padding(.vertical, Tokens.Spacing.xxxs)
                         .background(
                             RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
                                 .fill(theme.badgeBackground)
@@ -411,21 +413,21 @@ struct LapRowView: View {
                 }
 
                 Text(headerItems.joined(separator: " • "))
-                    .font(.system(size: 15, weight: .medium))
+                    .font(.system(size: Tokens.FontSize.base, weight: .medium))
 
                 if let delta = timeDeltaText {
                     Text(delta)
-                        .font(.system(size: 13, weight: .regular, design: .rounded))
+                        .font(.system(size: Tokens.FontSize.sm, weight: .regular, design: .rounded))
                         .foregroundStyle(.secondary)
                 }
             }
 
             if !detailItems.isEmpty {
-                LazyVGrid(columns: columns, alignment: .leading, spacing: 10) {
+                LazyVGrid(columns: columns, alignment: .leading, spacing: Tokens.Spacing.lg) {
                     ForEach(detailItems) { item in
-                        VStack(alignment: .leading, spacing: 4) {
+                        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                             Text(item.label)
-                                .font(.system(size: 13, weight: .regular, design: .rounded))
+                                .font(.system(size: Tokens.FontSize.sm, weight: .regular, design: .rounded))
                                 .foregroundStyle(.secondary)
 
                             Text(item.value)
@@ -434,7 +436,7 @@ struct LapRowView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
                 }
-                .padding(.top, 4)
+                .padding(.top, Tokens.Spacing.xs)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)

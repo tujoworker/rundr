@@ -62,10 +62,10 @@ struct PreStartView: View {
     private var readyTimerView: some View {
         let s = readyElapsedSeconds
         let bigFont = Font.system(size: 26, weight: .bold, design: .rounded)
-        let smallFont = Font.system(size: 13, weight: .semibold, design: .rounded)
+        let smallFont = Font.system(size: Tokens.FontSize.sm, weight: .semibold, design: .rounded)
         let smallColor = theme.textBody
 
-        HStack(alignment: .firstTextBaseline, spacing: 2) {
+        HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.xxs) {
             if s < 60 {
                 Text("\(s)")
                     .font(bigFont)
@@ -123,7 +123,7 @@ struct PreStartView: View {
 
     @ViewBuilder
     private var intervalsSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
             Text(L10n.intervalsTitle)
                 .font(.caption.bold())
                 .foregroundStyle(theme.textSecondary)
@@ -143,9 +143,9 @@ struct PreStartView: View {
             } label: {
                 HStack(spacing: Tokens.Spacing.sm) {
                     Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: Tokens.FontSize.lg, weight: .semibold))
                     Text(L10n.addInterval)
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .font(.system(size: Tokens.FontSize.md, weight: .semibold, design: .rounded))
                 }
                 .foregroundStyle(theme.textPrimary)
                 .frame(maxWidth: .infinity)
@@ -161,12 +161,12 @@ struct PreStartView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Tokens.Spacing.xl) {
                 HStack(alignment: .top) {
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                         readyTimerView
 
                         ReadyHeartIndicator(heartRateText: readyHeartRateText)
                     }
-                    .offset(x: 6, y: 8)
+                    .offset(x: Tokens.Spacing.sm, y: Tokens.Spacing.md)
 
                     Spacer(minLength: 12)
 
@@ -184,7 +184,7 @@ struct PreStartView: View {
 
                 if supportsActionButton {
                     Text(L10n.pressActionButton)
-                        .font(.system(size: 13, weight: .medium, design: .rounded))
+                        .font(.system(size: Tokens.FontSize.sm, weight: .medium, design: .rounded))
                         .foregroundStyle(theme.textPrimary.opacity(Tokens.Opacity.foregroundMuted))
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, Tokens.Spacing.sm)
@@ -204,13 +204,13 @@ struct PreStartView: View {
                         )
                     }
                     .buttonStyle(.plain)
-                    .padding(.top, 12)
+                    .padding(.top, Tokens.Spacing.xl)
                 }
 
                 Text(L10n.settings)
                     .font(.headline.weight(.semibold))
-                    .padding(.horizontal, 6)
-                    .padding(.top, 12)
+                    .padding(.horizontal, Tokens.Spacing.sm)
+                    .padding(.top, Tokens.Spacing.xl)
 
                 Button {
                     isTrackingModeDialogPresented = true
@@ -278,8 +278,8 @@ struct PreStartView: View {
                 }
                 .buttonStyle(.plain)
             }
-            .padding(.horizontal, 8)
-            .padding(.vertical, 8)
+            .padding(.horizontal, Tokens.Spacing.md)
+            .padding(.vertical, Tokens.Spacing.md)
             .id("prestart-top")
         }
         .tint(settings.primaryAccentColor)
@@ -624,14 +624,14 @@ private struct SegmentRow: View {
             Button(action: onTap) {
                 VStack(alignment: .leading, spacing: Tokens.Spacing.sm) {
                     Text(distanceDisplay)
-                        .font(.system(size: 18, weight: .semibold, design: .rounded))
+                        .font(.system(size: Tokens.FontSize.xl, weight: .semibold, design: .rounded))
                         .foregroundStyle(.white)
                     if hasSecondaryDetails {
                         LazyVGrid(columns: detailColumns, alignment: .leading, spacing: Tokens.Spacing.md) {
                             ForEach(detailItems) { item in
                                 VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                                     Text(item.label)
-                                        .font(.system(size: 13, weight: .regular, design: .rounded))
+                                        .font(.system(size: Tokens.FontSize.sm, weight: .regular, design: .rounded))
                                         .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundQuaternary))
 
                                     Text(item.value)
@@ -658,7 +658,7 @@ private struct SegmentRow: View {
                 isDeleteConfirmationPresented = true
             } label: {
                 Image(systemName: "xmark.circle.fill")
-                    .font(.system(size: 18))
+                    .font(.system(size: Tokens.FontSize.xl))
                     .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundDisabled))
             }
             .buttonStyle(.plain)
@@ -716,7 +716,7 @@ struct IntervalLibraryView: View {
                     Text(L10n.noSavedIntervalsYet)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 24)
+                        .padding(.vertical, Tokens.Spacing.xxxxl)
                         .listRowBackground(Color.clear)
                 } else {
                     ForEach(visiblePresets) { preset in
@@ -889,9 +889,9 @@ private struct IntervalSetupView: View {
             } label: {
                 HStack(spacing: Tokens.Spacing.sm) {
                     Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: Tokens.FontSize.lg, weight: .semibold))
                     Text(L10n.addInterval)
-                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .font(.system(size: Tokens.FontSize.md, weight: .semibold, design: .rounded))
                 }
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
@@ -917,7 +917,7 @@ private struct IntervalSetupView: View {
                                 .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
                         }
                     }
-                    .padding(.horizontal, 6)
+                    .padding(.horizontal, Tokens.Spacing.sm)
                     .id("top")
 
                     if showsCustomTitle {
@@ -932,18 +932,18 @@ private struct IntervalSetupView: View {
                         continueToGetReady()
                     } label: {
                         Text(L10n.useSessionSettings)
-                            .font(.system(size: 16, weight: .semibold, design: .rounded))
+                            .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 8)
+                            .padding(.vertical, Tokens.Spacing.md)
                     }
                     .buttonStyle(.bordered)
                     .disabled(isContinueDisabled)
                     .opacity(isContinueDisabled ? 0.5 : 1)
-                    .padding(.top, 10)
-                    .padding(.horizontal, 4)
+                    .padding(.top, Tokens.Spacing.lg)
+                    .padding(.horizontal, Tokens.Spacing.xs)
                 }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 8)
+                .padding(.horizontal, Tokens.Spacing.md)
+                .padding(.vertical, Tokens.Spacing.md)
             }
         }
         .tint(settings.primaryAccentColor)
@@ -1336,14 +1336,14 @@ private struct SegmentEditSheet: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
                 Text(L10n.distanceType)
                     .font(.caption.bold())
                     .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
-                    .padding(.horizontal, 4)
-                    .padding(.top, 8)
+                    .padding(.horizontal, Tokens.Spacing.xs)
+                    .padding(.top, Tokens.Spacing.md)
 
-                HStack(spacing: 8) {
+                HStack(spacing: Tokens.Spacing.md) {
                     distanceModeButton(title: L10n.fixedDistance, isSelected: !usesOpenDistance) {
                         usesOpenDistance = false
                         onDistanceModeChanged(false)
@@ -1380,13 +1380,13 @@ private struct SegmentEditSheet: View {
                 Button(L10n.done) {
                     onDone()
                 }
-                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .font(.system(size: Tokens.FontSize.lg, weight: .bold, design: .rounded))
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .padding(.top, 4)
+                .padding(.vertical, Tokens.Spacing.xl)
+                .padding(.top, Tokens.Spacing.xs)
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 12)
+            .padding(.horizontal, Tokens.Spacing.xl)
+            .padding(.vertical, Tokens.Spacing.xl)
         }
         .onDisappear {
             if distanceText.isEmpty {
@@ -1511,17 +1511,17 @@ private struct SegmentEditSheet: View {
             Text(L10n.repeats)
                 .font(.caption.bold())
                 .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
-                .padding(.horizontal, 4)
-                .padding(.top, 4)
+                .padding(.horizontal, Tokens.Spacing.xs)
+                .padding(.top, Tokens.Spacing.xs)
 
-            HStack(spacing: 8) {
+            HStack(spacing: Tokens.Spacing.md) {
                 Button {
                     if repeatCount > 0 {
                         repeatCount -= 1
                     }
                 } label: {
                     Image(systemName: "minus")
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
                         .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                         .foregroundStyle(.white)
@@ -1541,7 +1541,7 @@ private struct SegmentEditSheet: View {
                     repeatCount += 1
                 } label: {
                     Image(systemName: "plus")
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
                         .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                         .foregroundStyle(.white)
@@ -1556,10 +1556,10 @@ private struct SegmentEditSheet: View {
             Text(L10n.rest)
                 .font(.caption.bold())
                 .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
-                .padding(.horizontal, 4)
-                .padding(.top, 4)
+                .padding(.horizontal, Tokens.Spacing.xs)
+                .padding(.top, Tokens.Spacing.xs)
 
-            HStack(spacing: 8) {
+            HStack(spacing: Tokens.Spacing.md) {
                 Button {
                     if restSeconds >= 15 {
                         restSeconds -= 15
@@ -1573,7 +1573,7 @@ private struct SegmentEditSheet: View {
                     }
                 } label: {
                     Image(systemName: "minus")
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
                         .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                         .foregroundStyle(.white)
@@ -1593,7 +1593,7 @@ private struct SegmentEditSheet: View {
                     restSeconds += 15
                 } label: {
                     Image(systemName: "plus")
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
                         .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                         .foregroundStyle(.white)
@@ -1606,14 +1606,14 @@ private struct SegmentEditSheet: View {
     @ViewBuilder
     private var lastRestSection: some View {
         if lastRestSeconds > 0 && restSeconds > 0 {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
                 Text(L10n.lastRest)
                     .font(.caption.bold())
                     .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
-                    .padding(.horizontal, 4)
-                    .padding(.top, 4)
+                    .padding(.horizontal, Tokens.Spacing.xs)
+                    .padding(.top, Tokens.Spacing.xs)
 
-                HStack(spacing: 8) {
+                HStack(spacing: Tokens.Spacing.md) {
                     Button {
                         withAnimation(.easeInOut(duration: 0.22)) {
                             if lastRestSeconds >= 15 {
@@ -1624,7 +1624,7 @@ private struct SegmentEditSheet: View {
                         }
                     } label: {
                         Image(systemName: "minus")
-                            .font(.system(size: 16, weight: .bold))
+                            .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                             .frame(width: 36, height: 36)
                             .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                             .foregroundStyle(.white)
@@ -1646,7 +1646,7 @@ private struct SegmentEditSheet: View {
                         }
                     } label: {
                         Image(systemName: "plus")
-                            .font(.system(size: 16, weight: .bold))
+                            .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                             .frame(width: 36, height: 36)
                             .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                             .foregroundStyle(.white)
@@ -1672,22 +1672,22 @@ private struct SegmentEditSheet: View {
                 lastRestSeconds = max(restSeconds, 15)
             }
         } label: {
-            HStack(spacing: 6) {
+            HStack(spacing: Tokens.Spacing.sm) {
                 Image(systemName: "plus.circle.fill")
-                    .font(.system(size: 16, weight: .semibold))
+                    .font(.system(size: Tokens.FontSize.lg, weight: .semibold))
 
                 Text(L10n.addLastRest)
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .font(.system(size: Tokens.FontSize.md, weight: .semibold, design: .rounded))
             }
             .foregroundStyle(.white.opacity(isEnabled ? 1 : 0.8))
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 10)
+            .padding(.vertical, Tokens.Spacing.lg)
             .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous)
                     .fill(Color.white.opacity(isEnabled ? 0.08 : 0.1))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .stroke(Color.white.opacity(isEnabled ? 0.12 : 0.13), lineWidth: 1)
+                        RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous)
+                            .stroke(Color.white.opacity(isEnabled ? 0.12 : 0.13), lineWidth: Tokens.LineWidth.thin)
                     )
             )
         }
@@ -1704,10 +1704,10 @@ private struct SegmentEditSheet: View {
             Text(paceFieldTitle)
                 .font(.caption.bold())
                 .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
-                .padding(.horizontal, 4)
-                .padding(.top, 8)
+                .padding(.horizontal, Tokens.Spacing.xs)
+                .padding(.top, Tokens.Spacing.md)
 
-            HStack(spacing: 8) {
+            HStack(spacing: Tokens.Spacing.md) {
                 Button {
                     if targetPace >= 15 {
                         targetPace -= 5
@@ -1717,7 +1717,7 @@ private struct SegmentEditSheet: View {
                     if targetPace > 0 { targetTime = 0 }
                 } label: {
                     Image(systemName: "minus")
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
                         .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                         .foregroundStyle(.white)
@@ -1739,7 +1739,7 @@ private struct SegmentEditSheet: View {
                     targetTime = 0
                 } label: {
                     Image(systemName: "plus")
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
                         .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                         .foregroundStyle(.white)
@@ -1754,10 +1754,10 @@ private struct SegmentEditSheet: View {
             Text(L10n.time)
                 .font(.caption.bold())
                 .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
-                .padding(.horizontal, 4)
-                .padding(.top, 4)
+                .padding(.horizontal, Tokens.Spacing.xs)
+                .padding(.top, Tokens.Spacing.xs)
 
-            HStack(spacing: 8) {
+            HStack(spacing: Tokens.Spacing.md) {
                 Button {
                     if targetTime >= 10 {
                         targetTime -= 5
@@ -1767,7 +1767,7 @@ private struct SegmentEditSheet: View {
                     if targetTime > 0 { targetPace = 0 }
                 } label: {
                     Image(systemName: "minus")
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
                         .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                         .foregroundStyle(.white)
@@ -1789,7 +1789,7 @@ private struct SegmentEditSheet: View {
                     targetPace = 0
                 } label: {
                     Image(systemName: "plus")
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
                         .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                         .foregroundStyle(.white)
@@ -1805,7 +1805,7 @@ private struct SegmentEditSheet: View {
                 .fill(Color.white.opacity(Tokens.Opacity.fillInput))
 
             Text(text)
-                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .font(.system(size: Tokens.FontSize.xl, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .foregroundStyle(.white)
         }
@@ -1940,20 +1940,20 @@ struct TintedInfoBanner: View {
     var buttonAction: (() -> Void)? = nil
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
+            VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                 Text(title)
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .font(.system(size: Tokens.FontSize.md, weight: .semibold, design: .rounded))
                     .foregroundStyle(tint)
 
                 Text(subtitle)
-                    .font(.system(size: 13, weight: .regular, design: .rounded))
+                    .font(.system(size: Tokens.FontSize.sm, weight: .regular, design: .rounded))
                     .foregroundStyle(.white)
             }
 
             if let buttonTitle, let buttonAction {
                 Button(buttonTitle, action: buttonAction)
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .font(.system(size: Tokens.FontSize.md, weight: .semibold, design: .rounded))
                     .foregroundStyle(tint)
             }
         }
@@ -1975,12 +1975,12 @@ private struct ReadyHeartIndicator: View {
     var body: some View {
         HStack(spacing: Tokens.Spacing.sm) {
             Text(heartRateText)
-                .font(.system(size: 16, weight: .bold, design: .rounded))
+                .font(.system(size: Tokens.FontSize.lg, weight: .bold, design: .rounded))
                 .foregroundStyle(theme.textPrimary)
                 .monospacedDigit()
 
             Image(systemName: "heart.fill")
-                .font(.system(size: 12, weight: .semibold))
+                .font(.system(size: Tokens.FontSize.xs, weight: .semibold))
                 .foregroundStyle(theme.textPrimary)
         }
     }
@@ -2027,18 +2027,18 @@ private struct SettingsCardRow: View {
     var body: some View {
         HStack(alignment: .center, spacing: Tokens.Spacing.xl) {
             Image(systemName: icon)
-                .font(.system(size: 18, weight: .semibold))
+                .font(.system(size: Tokens.FontSize.xl, weight: .semibold))
                 .foregroundStyle(.white)
                 .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
-                    .font(.system(size: 18, weight: .medium, design: .rounded))
+                    .font(.system(size: Tokens.FontSize.xl, weight: .medium, design: .rounded))
                     .foregroundStyle(theme.textPrimary)
 
                 if let value {
                     Text(value)
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
+                        .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
                         .foregroundStyle(.white.opacity(0.7))
                 }
             }
@@ -2047,7 +2047,7 @@ private struct SettingsCardRow: View {
 
             if showsChevron {
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(size: Tokens.FontSize.sm, weight: .semibold))
                     .foregroundStyle(theme.textDisabled)
             }
         }

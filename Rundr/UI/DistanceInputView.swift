@@ -46,7 +46,7 @@ struct DistanceInputView: View {
                     onValueChange?()
                 } label: {
                     Image(systemName: "minus")
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
                         .background(Circle().fill(theme.surfaceCard))
                         .foregroundStyle(theme.textPrimary)
@@ -62,7 +62,7 @@ struct DistanceInputView: View {
                             .fill(theme.surfaceInput)
 
                         Text(displayText)
-                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .font(.system(size: Tokens.FontSize.xxl, weight: .bold, design: .rounded))
                             .monospacedDigit()
                             .minimumScaleFactor(0.7)
                             .lineLimit(1)
@@ -78,7 +78,7 @@ struct DistanceInputView: View {
                     onValueChange?()
                 } label: {
                     Image(systemName: "plus")
-                        .font(.system(size: 16, weight: .bold))
+                        .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
                         .background(Circle().fill(theme.surfaceCard))
                         .foregroundStyle(theme.textPrimary)
@@ -259,7 +259,7 @@ private struct NumericKeypadButton: View {
     var body: some View {
         Button(action: action) {
             Text(key)
-                .font(.system(size: 20, weight: .semibold, design: .rounded))
+                .font(.system(size: Tokens.FontSize.xxl, weight: .semibold, design: .rounded))
                 .foregroundStyle(theme.textPrimary)
                 .frame(maxWidth: .infinity)
                 .frame(height: 38)

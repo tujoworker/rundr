@@ -76,6 +76,25 @@ enum Tokens {
         static let fillSubtle: Double = 0.10
     }
 
+    // MARK: Font Size
+
+    enum FontSize {
+        /// 12 pt – small icon indicators
+        static let xs: CGFloat = 12
+        /// 13 pt – stat labels, detail captions
+        static let sm: CGFloat = 13
+        /// 14 pt – banner text, secondary button labels
+        static let md: CGFloat = 14
+        /// 15 pt – inline values, lap header text
+        static let base: CGFloat = 15
+        /// 16 pt – action buttons, primary bold labels
+        static let lg: CGFloat = 16
+        /// 18 pt – section values, card content
+        static let xl: CGFloat = 18
+        /// 20 pt – numeric badges, keypad buttons
+        static let xxl: CGFloat = 20
+    }
+
     // MARK: Line Width
 
     enum LineWidth {

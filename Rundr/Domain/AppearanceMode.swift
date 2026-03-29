@@ -22,4 +22,8 @@ enum AppearanceMode: String, CaseIterable, Identifiable {
         case .dark: return .dark
         }
     }
+
+    func resolvedColorScheme(systemColorScheme: ColorScheme) -> ColorScheme {
+        colorScheme ?? systemColorScheme
+    }
 }

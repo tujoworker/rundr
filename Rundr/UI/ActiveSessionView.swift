@@ -118,17 +118,17 @@ struct ActiveSessionView: View {
     @ViewBuilder
     private var timerTopOverlay: some View {
         if showsLapCounterBadge {
-            let labelFont = Font.system(size: 15, weight: .regular, design: .rounded)
+            let labelFont = Font.system(size: Tokens.FontSize.base, weight: .regular, design: .rounded)
 
             HStack(spacing: 5) {
                 Group {
                     if let total = lapCounterTotal {
                         HStack(alignment: .firstTextBaseline, spacing: 0) {
                             Text("\(displayedLapCounter)")
-                                .font(.system(size: 20, weight: .bold, design: .rounded))
+                                .font(.system(size: Tokens.FontSize.xxl, weight: .bold, design: .rounded))
                                 .foregroundStyle(theme.badgeForeground)
                         Text("/\(total)")
-                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .font(.system(size: Tokens.FontSize.xs, weight: .semibold, design: .rounded))
                             .foregroundStyle(theme.badgeForeground)
                         }
                         .padding(.horizontal, Tokens.Spacing.xs)
@@ -139,7 +139,7 @@ struct ActiveSessionView: View {
                         )
                     } else {
                         Text("\(displayedLapCounter)")
-                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .font(.system(size: Tokens.FontSize.xxl, weight: .bold, design: .rounded))
                             .monospacedDigit()
                             .foregroundStyle(theme.badgeForeground)
                             .padding(.horizontal, Tokens.Spacing.xs)
@@ -159,7 +159,7 @@ struct ActiveSessionView: View {
             }
         } else {
             Text(timerTopLabel)
-                .font(.system(size: 15, weight: .semibold, design: .rounded))
+                .font(.system(size: Tokens.FontSize.base, weight: .semibold, design: .rounded))
                 .foregroundStyle(theme.textPrimary.opacity(Tokens.Opacity.foregroundTimerSecondary))
                 .opacity(timerTopLabel.isEmpty ? 0 : 1)
         }
@@ -239,15 +239,15 @@ struct ActiveSessionView: View {
 
             HStack(spacing: Tokens.Spacing.sm) {
                 Text(Formatters.heartRateString(bpm: workoutController.currentHeartRate))
-                    .font(.system(size: 16, weight: .bold, design: .rounded))
+                    .font(.system(size: Tokens.FontSize.lg, weight: .bold, design: .rounded))
                     .foregroundStyle(theme.textPrimary)
                     .monospacedDigit()
 
                 Image(systemName: "heart.fill")
-                    .font(.system(size: 12, weight: .semibold))
+                    .font(.system(size: Tokens.FontSize.xs, weight: .semibold))
                     .foregroundStyle(theme.textPrimary)
             }
-            .padding(.top, 2)
+            .padding(.top, Tokens.Spacing.xxs)
             .offset(y: -16)
             .frame(maxWidth: .infinity, alignment: .center)
         }
@@ -287,10 +287,10 @@ struct ActiveSessionView: View {
 
                     ScrollViewReader { proxy in
                         ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 8) {
+                            HStack(spacing: Tokens.Spacing.md) {
                                 if workoutController.completedLaps.isEmpty {
                                     PlaceholderLapCardView(accentColor: primaryColor)
-                                        .offset(x: -8)
+                                        .offset(x: -Tokens.Spacing.md)
                                 } else {
                                     ForEach(workoutController.completedLaps, id: \.id) { lap in
                                         Button {
@@ -303,8 +303,8 @@ struct ActiveSessionView: View {
                                     }
                                 }
                             }
-                            .padding(.leading, 8)
-                            .padding(.trailing, 8)
+                            .padding(.leading, Tokens.Spacing.md)
+                            .padding(.trailing, Tokens.Spacing.md)
                             .frame(minWidth: WKInterfaceDevice.current().screenBounds.width, alignment: .trailing)
                         }
                         .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
@@ -629,7 +629,7 @@ struct PlaceholderLapCardView: View {
     var body: some View {
         HStack(spacing: Tokens.Spacing.sm) {
             Text("1")
-                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .font(.system(size: Tokens.FontSize.xxl, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .foregroundStyle(theme.badgeForeground)
                 .padding(.horizontal, Tokens.Spacing.xs)
@@ -685,7 +685,7 @@ struct LapCardView: View {
             } else {
                 HStack(spacing: Tokens.Spacing.sm) {
                     Text("\(lap.index)")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .font(.system(size: Tokens.FontSize.xxl, weight: .bold, design: .rounded))
                         .monospacedDigit()
                         .foregroundStyle(theme.badgeForeground)
                         .padding(.horizontal, Tokens.Spacing.xs)
@@ -699,14 +699,14 @@ struct LapCardView: View {
                             .font(.system(size: 25, weight: .medium, design: .rounded))
                             .monospacedDigit()
                         Text(Formatters.paceString(distanceMeters: lap.distanceMeters, durationSeconds: lap.durationSeconds, unit: distanceUnit))
-                            .font(.system(size: 18, design: .rounded))
+                            .font(.system(size: Tokens.FontSize.xl, design: .rounded))
                             .monospacedDigit()
                             .foregroundStyle(.secondary)
                         if trackingMode == .dual,
                            let gpsDistanceMeters = lap.gpsDistanceMeters,
                            gpsDistanceMeters > 0 {
                             Text(L10n.gpsDistance(Formatters.distanceString(meters: gpsDistanceMeters, unit: distanceUnit)))
-                                .font(.system(size: 12, weight: .medium, design: .rounded))
+                                .font(.system(size: Tokens.FontSize.xs, weight: .medium, design: .rounded))
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -784,7 +784,7 @@ private struct LapEditorScreen: View {
                         .frame(maxWidth: .infinity)
                     } else {
                         Text(L10n.lapTreatedAsRest)
-                            .font(.system(size: 16, weight: .medium, design: .rounded))
+                            .font(.system(size: Tokens.FontSize.lg, weight: .medium, design: .rounded))
                             .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundBody))
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, Tokens.Spacing.xs)
@@ -841,7 +841,7 @@ private struct WorkoutControlIcon: View {
         }
         .overlay {
             Image(systemName: systemName)
-                .font(.system(size: 18, weight: .bold))
+                .font(.system(size: Tokens.FontSize.xl, weight: .bold))
                 .foregroundStyle(theme.textPrimary)
         }
         .frame(width: 46, height: 46)

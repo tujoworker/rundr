@@ -31,7 +31,11 @@ struct OngoingWorkoutRecoveryView: View {
                 Button(action: onContinue) {
                     Text(L10n.resumeWorkout)
                         .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
+                        .multilineTextAlignment(.center)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
                         .frame(maxWidth: .infinity)
+                        .padding(.horizontal, Tokens.Spacing.md)
                         .padding(.vertical, Tokens.Spacing.lg)
                 }
 

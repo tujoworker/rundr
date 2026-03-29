@@ -21,6 +21,27 @@
 - For dynamic strings (containing runtime values), create a `static func` that uses `String(format: String(localized: …), …)` — see `lapIndex(_:)` or `heartRateBPM(_:)` for examples.
 - Do not leave new English-only UI text in the app.
 
+## Design Tokens / Styling
+
+- **Never** use hardcoded colors, opacities, spacing, corner radii, or line widths in SwiftUI views.
+  - Forbidden: `.opacity(0.15)`, `.cornerRadius(12)`, `.padding(8)`, `.white.opacity(0.72)`, `Color(red:…)`, `lineWidth: 2`
+  - Required: Use `AppTheme` semantic tokens for colors/surfaces and `Tokens.*` constants for raw values.
+- **Colors & surfaces**: Access the theme via `@Environment(\.appTheme) var theme` and use semantic properties:
+  - Text: `theme.textPrimary`, `theme.textSecondary`, `theme.textTertiary`, `theme.textBody`, `theme.textQuaternary`, `theme.textDisabled`
+  - Surfaces: `theme.surfaceCard`, `theme.surfaceInput`, `theme.surfaceSubtle`, `theme.surfaceRestCard`
+  - Borders: `theme.borderSubtle`
+  - Accents: `theme.accentFill(_:)`, `theme.accentStroke(_:)`, `theme.accentSubtle(_:)`
+  - Toggles: `theme.toggleSelectedBackground`, `theme.toggleSelectedForeground`, `theme.toggleUnselectedBackground`
+  - Gradients: `theme.screenGradientStart`, `theme.screenGradientEnd(accent:)`
+  - Badges: `theme.badgeForeground`
+  - Errors: `theme.errorText`
+- **Spacing**: Use `Tokens.Spacing.*` (`xxxs` through `xxxxl`) for all padding, spacing, and gaps.
+- **Corner radii**: Use `Tokens.Radius.*` (`small` through `pill`).
+- **Opacities**: Use `Tokens.Opacity.*` for any opacity value.
+- **Line widths**: Use `Tokens.LineWidth.*` (`thin`, `regular`, `medium`, `thick`).
+- When a needed semantic token does not exist, **add it** to `AppTheme.swift` (for colors) or `DesignTokens.swift` (for raw values) rather than inlining a magic number.
+- Before adding a new token, check whether an existing one already covers the use case.
+
 ## Coding Style
 
 - Keep changes minimal and targeted.

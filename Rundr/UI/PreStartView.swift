@@ -199,7 +199,6 @@ struct PreStartView: View {
                     } label: {
                         SettingsCardRow(
                             icon: "square.grid.2x2",
-                            iconColor: settings.primaryAccentColor,
                             title: L10n.browse,
                             showsChevron: true
                         )
@@ -218,7 +217,6 @@ struct PreStartView: View {
                 } label: {
                     SettingsCardRow(
                         icon: "location",
-                        iconColor: settings.primaryAccentColor,
                         title: L10n.mode,
                         value: settings.trackingMode.displayName
                     )
@@ -230,7 +228,6 @@ struct PreStartView: View {
                 } label: {
                     SettingsCardRow(
                         icon: "ruler",
-                        iconColor: .yellow,
                         title: L10n.unit,
                         value: settings.distanceUnit.displayName
                     )
@@ -242,7 +239,6 @@ struct PreStartView: View {
                 } label: {
                     SettingsCardRow(
                         icon: "figure.cooldown",
-                        iconColor: .mint,
                         title: L10n.restMode,
                         value: settings.restMode.displayName
                     )
@@ -254,7 +250,6 @@ struct PreStartView: View {
                 } label: {
                     SettingsCardRow(
                         icon: "paintpalette",
-                        iconColor: settings.primaryAccentColor,
                         title: L10n.color,
                         value: settings.primaryColor.displayName
                     )
@@ -266,7 +261,6 @@ struct PreStartView: View {
                 } label: {
                     SettingsCardRow(
                         icon: "circle.lefthalf.filled",
-                        iconColor: .gray,
                         title: L10n.appearance,
                         value: settings.appearanceMode.displayName
                     )
@@ -278,7 +272,6 @@ struct PreStartView: View {
                 } label: {
                     SettingsCardRow(
                         icon: "bell.badge",
-                        iconColor: .orange,
                         title: L10n.alerts,
                         value: alertsSummary
                     )
@@ -2026,7 +2019,6 @@ private struct BounceButtonStyle: ButtonStyle {
 
 private struct SettingsCardRow: View {
     let icon: String
-    let iconColor: Color
     let title: String
     var value: String? = nil
     var showsChevron: Bool = false
@@ -2036,7 +2028,7 @@ private struct SettingsCardRow: View {
         HStack(alignment: .center, spacing: Tokens.Spacing.xl) {
             Image(systemName: icon)
                 .font(.system(size: 18, weight: .semibold))
-                .foregroundStyle(iconColor)
+                .foregroundStyle(.white)
                 .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 3) {

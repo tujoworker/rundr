@@ -15,20 +15,22 @@ import SwiftUI
 /// Use `@Environment(\.appTheme)` in views to access the active theme.
 struct AppTheme {
     let colorScheme: ColorScheme
+    private let successBaseColor = Color(red: 0, green: 0.5019608, blue: 0)
 
     var isDark: Bool { colorScheme == .dark }
 
     // MARK: - Grouped Tokens
 
-    var background: BackgroundTokens { .init(isDark: isDark) }
-    var stroke: StrokeTokens { .init(isDark: isDark) }
-    var text: TextTokens { .init(isDark: isDark) }
+    var background: BackgroundTokens { .init(isDark: isDark, successBaseColor: successBaseColor) }
+    var stroke: StrokeTokens { .init(isDark: isDark, successBaseColor: successBaseColor) }
+    var text: TextTokens { .init(isDark: isDark, successBaseColor: successBaseColor) }
     var icon: IconTokens { .init(isDark: isDark) }
 
     // MARK: Background
 
     struct BackgroundTokens {
         fileprivate let isDark: Bool
+        fileprivate let successBaseColor: Color
 
         /// Screen / view background.
         var app: Color { isDark ? .black : .white }
@@ -59,6 +61,13 @@ struct AppTheme {
             accent.opacity(Tokens.Opacity.fillAccent)
         }
 
+        /// Success surfaces, such as confirmation or guidance banners.
+        var success: Color {
+            isDark
+                ? successBaseColor.opacity(Tokens.Opacity.fillCard)
+                : successBaseColor.opacity(0.12)
+        }
+
         /// Accent-tinted surfaces (buttons, banners).
         func emphasis(_ accent: Color) -> Color {
             accent.opacity(Tokens.Opacity.fillAccent)
@@ -83,6 +92,7 @@ struct AppTheme {
 
     struct StrokeTokens {
         fileprivate let isDark: Bool
+        fileprivate let successBaseColor: Color
 
         /// Subtle card borders, dividers.
         var neutral: Color {
@@ -96,6 +106,13 @@ struct AppTheme {
             accent.opacity(Tokens.Opacity.strokeAccent)
         }
 
+        /// Success borders.
+        var success: Color {
+            isDark
+                ? successBaseColor.opacity(Tokens.Opacity.strokeAccent)
+                : successBaseColor.opacity(0.28)
+        }
+
         /// High-contrast borders.
         var bold: Color {
             isDark ? .white : .black
@@ -106,6 +123,7 @@ struct AppTheme {
 
     struct TextTokens {
         fileprivate let isDark: Bool
+        fileprivate let successBaseColor: Color
 
         /// Primary readable text.
         var neutral: Color { .white }
@@ -117,6 +135,9 @@ struct AppTheme {
 
         /// Text on emphasis (accent) surfaces.
         var emphasis: Color { .white }
+
+        /// Success-highlighted text.
+        var success: Color { successBaseColor }
 
         /// Text on bold (inverted) surfaces.
         var bold: Color { isDark ? .black : .white }

@@ -97,6 +97,32 @@ final class AppearanceModeTests: XCTestCase {
         )
     }
 
+    func testAppThemeUsesSuccessTokens() throws {
+        let darkTheme = AppTheme(colorScheme: .dark)
+        let lightTheme = AppTheme(colorScheme: .light)
+
+        assertEqualComponents(
+            try rgbaComponents(for: darkTheme.background.success),
+            [0, 0.5019608, 0, Tokens.Opacity.fillCard],
+            accuracy: 0.01
+        )
+        assertEqualComponents(
+            try rgbaComponents(for: lightTheme.background.success),
+            [0, 0.5019608, 0, 0.12],
+            accuracy: 0.01
+        )
+        assertEqualComponents(
+            try rgbaComponents(for: darkTheme.stroke.success),
+            [0, 0.5019608, 0, Tokens.Opacity.strokeAccent],
+            accuracy: 0.01
+        )
+        assertEqualComponents(
+            try rgbaComponents(for: lightTheme.stroke.success),
+            [0, 0.5019608, 0, 0.28],
+            accuracy: 0.01
+        )
+    }
+
     func testAppThemeUsesDifferentAppBackgroundColorsForDarkAndLightModes() throws {
         let darkTheme = AppTheme(colorScheme: .dark)
         let lightTheme = AppTheme(colorScheme: .light)

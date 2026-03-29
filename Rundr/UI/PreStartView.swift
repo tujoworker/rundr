@@ -1366,6 +1366,7 @@ private struct SegmentEditSheet: View {
                                 title: L10n.gpsAlsoEnabledTitle,
                                 subtitle: L10n.gpsAlsoEnabledSubtitle,
                                 tint: .green,
+                                usesSuccessTokens: true,
                                 buttonTitle: showsGPSPermissionButton ? L10n.requestLocationAccess : nil,
                                 buttonAction: showsGPSPermissionButton ? onRequestLocationAccess : nil
                             )
@@ -1943,34 +1944,55 @@ struct TintedInfoBanner: View {
     let title: String
     let subtitle: String
     let tint: Color
+    var usesSuccessTokens: Bool = false
     var buttonTitle: String? = nil
     var buttonAction: (() -> Void)? = nil
     @Environment(\.appTheme) private var theme
+
+    private var titleColor: Color {
+        usesSuccessTokens ? theme.text.success : tint
+    }
+
+    private var subtitleColor: Color {
+        theme.text.neutral
+    }
+
+    private var buttonColor: Color {
+        usesSuccessTokens ? theme.text.success : tint
+    }
+
+    private var backgroundColor: Color {
+        usesSuccessTokens ? theme.background.success : tint.opacity(Tokens.Opacity.fillCard)
+    }
+
+    private var strokeColor: Color {
+        usesSuccessTokens ? theme.stroke.success : theme.stroke.emphasis(tint)
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
             VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                 Text(title)
                     .font(.system(size: Tokens.FontSize.md, weight: .semibold, design: .rounded))
-                    .foregroundStyle(tint)
+                    .foregroundStyle(titleColor)
 
                 Text(subtitle)
                     .font(.system(size: Tokens.FontSize.sm, weight: .regular, design: .rounded))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(subtitleColor)
             }
 
             if let buttonTitle, let buttonAction {
                 Button(buttonTitle, action: buttonAction)
                     .font(.system(size: Tokens.FontSize.md, weight: .semibold, design: .rounded))
-                    .foregroundStyle(tint)
+                    .foregroundStyle(buttonColor)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Tokens.Spacing.md)
-        .background(tint.opacity(Tokens.Opacity.fillCard))
+        .background(backgroundColor)
         .overlay(
             RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
-                .stroke(theme.stroke.emphasis(tint), lineWidth: Tokens.LineWidth.thin)
+                .stroke(strokeColor, lineWidth: Tokens.LineWidth.thin)
         )
         .cornerRadius(Tokens.Radius.medium)
     }

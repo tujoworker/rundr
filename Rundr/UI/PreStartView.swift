@@ -1325,7 +1325,7 @@ private struct SegmentEditSheet: View {
             VStack(alignment: .leading, spacing: 10) {
                 Text(L10n.distanceType)
                     .font(.caption.bold())
-                    .foregroundStyle(.white.opacity(0.72))
+                    .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
                     .padding(.horizontal, 4)
                     .padding(.top, 8)
 
@@ -1496,7 +1496,7 @@ private struct SegmentEditSheet: View {
         Group {
             Text(L10n.repeats)
                 .font(.caption.bold())
-                .foregroundStyle(.white.opacity(0.72))
+                .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
                 .padding(.horizontal, 4)
                 .padding(.top, 4)
 
@@ -1541,7 +1541,7 @@ private struct SegmentEditSheet: View {
         Group {
             Text(L10n.rest)
                 .font(.caption.bold())
-                .foregroundStyle(.white.opacity(0.72))
+                .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
                 .padding(.horizontal, 4)
                 .padding(.top, 4)
 
@@ -1595,7 +1595,7 @@ private struct SegmentEditSheet: View {
             VStack(alignment: .leading, spacing: 8) {
                 Text(L10n.lastRest)
                     .font(.caption.bold())
-                    .foregroundStyle(.white.opacity(0.72))
+                    .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
                     .padding(.horizontal, 4)
                     .padding(.top, 4)
 
@@ -1689,7 +1689,7 @@ private struct SegmentEditSheet: View {
         Group {
             Text(paceFieldTitle)
                 .font(.caption.bold())
-                .foregroundStyle(.white.opacity(0.72))
+                .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
                 .padding(.horizontal, 4)
                 .padding(.top, 8)
 
@@ -1739,7 +1739,7 @@ private struct SegmentEditSheet: View {
         Group {
             Text(L10n.time)
                 .font(.caption.bold())
-                .foregroundStyle(.white.opacity(0.72))
+                .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
                 .padding(.horizontal, 4)
                 .padding(.top, 4)
 
@@ -1787,8 +1787,8 @@ private struct SegmentEditSheet: View {
 
     private func editorValueField(_ text: String) -> some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(Color.white.opacity(0.12))
+            RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous)
+                .fill(Color.white.opacity(Tokens.Opacity.fillInput))
 
             Text(text)
                 .font(.system(size: 18, weight: .bold, design: .rounded))
@@ -1944,13 +1944,13 @@ struct TintedInfoBanner: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(8)
+        .padding(Tokens.Spacing.md)
         .background(tint.opacity(0.14))
         .overlay(
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                .stroke(tint.opacity(0.32), lineWidth: 1)
+            RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
+                .stroke(tint.opacity(0.32), lineWidth: Tokens.LineWidth.thin)
         )
-        .cornerRadius(8)
+        .cornerRadius(Tokens.Radius.medium)
     }
 }
 

@@ -7,6 +7,7 @@ struct SessionDetailView: View {
     @EnvironmentObject var persistence: PersistenceManager
     @EnvironmentObject var syncManager: WatchConnectivitySyncManager
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.appTheme) private var theme
 
     @State private var showConfirmedPhoneSyncMessage = false
     @State private var isDeleteConfirmationPresented = false
@@ -94,11 +95,11 @@ struct SessionDetailView: View {
                     VStack(alignment: .leading, spacing: 1) {
                         Text(headerTitle.dayText)
                             .font(.caption2.weight(.semibold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(theme.textPrimary)
 
                         Text(headerTitle.timeText)
                             .font(.caption2.weight(.regular))
-                            .foregroundStyle(.white.opacity(0.72))
+                            .foregroundStyle(theme.textSecondary)
                     }
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -111,14 +112,14 @@ struct SessionDetailView: View {
                         } label: {
                             Image(systemName: "checkmark")
                                 .font(.system(size: 9, weight: .bold))
-                                .foregroundStyle(.white)
+                                .foregroundStyle(theme.textPrimary)
                                 .frame(width: 18, height: 18)
                                 .background(
                                     Circle()
                                         .fill(settings.primaryAccentColor.opacity(0.8))
                                 )
                                 .accessibilityLabel(L10n.phoneSyncConfirmedTitle)
-                                .padding(6)
+                                .padding(Tokens.Spacing.sm)
                                 .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
@@ -225,6 +226,7 @@ private struct SessionDetailPhoneSyncMessageBanner: View {
 
 private struct SessionStatsView: View {
     let items: [SessionStatItem]
+    @Environment(\.appTheme) private var theme
 
     private let columns = [
         GridItem(.flexible(), spacing: 12, alignment: .topLeading),
@@ -233,26 +235,26 @@ private struct SessionStatsView: View {
 
     var body: some View {
         if !items.isEmpty {
-            LazyVGrid(columns: columns, alignment: .leading, spacing: 10) {
+            LazyVGrid(columns: columns, alignment: .leading, spacing: Tokens.Spacing.lg) {
                 ForEach(items) { item in
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                         Text(item.label)
                             .font(.system(size: 13, weight: .regular, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.68))
+                            .foregroundStyle(theme.textTertiary)
 
                         Text(item.value)
                             .font(.caption2.weight(.semibold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(theme.textPrimary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(8)
-            .background(Color.white.opacity(0.12))
-            .cornerRadius(8)
-            .padding(.horizontal, 4)
-            .padding(.bottom, 6)
+            .padding(Tokens.Spacing.md)
+            .background(theme.surfaceInput)
+            .cornerRadius(Tokens.Radius.medium)
+            .padding(.horizontal, Tokens.Spacing.xs)
+            .padding(.bottom, Tokens.Spacing.sm)
         }
     }
 }
@@ -262,6 +264,7 @@ struct LapRowView: View {
     let trackingMode: TrackingMode
     var distanceUnit: DistanceUnit = .km
     var targetSegment: DistanceSegment? = nil
+    @Environment(\.appTheme) private var theme
 
     private let badgeOpticalLift: CGFloat = 2
 
@@ -395,12 +398,12 @@ struct LapRowView: View {
                 } else {
                     Text(badgeTitle)
                         .font(.system(size: 13, weight: .semibold, design: .rounded))
-                        .foregroundStyle(Color(red: 0.07, green: 0.09, blue: 0.15))
-                        .padding(.horizontal, 6)
+                        .foregroundStyle(theme.badgeForeground)
+                        .padding(.horizontal, Tokens.Spacing.sm)
                         .padding(.vertical, 1)
                         .background(
-                            RoundedRectangle(cornerRadius: 8, style: .continuous)
-                                .fill(.white)
+                            RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
+                                .fill(theme.badgeBackground)
                         )
                         .alignmentGuide(.firstTextBaseline) { dimensions in
                             dimensions[.firstTextBaseline] + badgeOpticalLift
@@ -435,11 +438,11 @@ struct LapRowView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(8)
-        .background(lap.lapType == .rest ? Color.white.opacity(0.9) : Color.white.opacity(0.15))
-        .foregroundColor(lap.lapType == .rest ? .black : .white)
-        .cornerRadius(8)
-        .padding(.horizontal, 4)
+        .padding(Tokens.Spacing.md)
+        .background(lap.lapType == .rest ? theme.surfaceRestCard : theme.surfaceCard)
+        .foregroundColor(lap.lapType == .rest ? theme.textOnRestSurface : theme.textPrimary)
+        .cornerRadius(Tokens.Radius.medium)
+        .padding(.horizontal, Tokens.Spacing.xs)
     }
 }
 

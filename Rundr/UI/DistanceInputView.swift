@@ -5,6 +5,7 @@ struct DistanceInputView: View {
     let accentColor: Color
     @Binding var text: String
     var onValueChange: (() -> Void)?
+    @Environment(\.appTheme) private var theme
 
     private let defaultDistanceText = "400"
     private let controlHeight: CGFloat = 46
@@ -31,14 +32,14 @@ struct DistanceInputView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
             Text(label)
                 .font(.caption.bold())
-                .foregroundStyle(.white.opacity(0.72))
-                .padding(.horizontal, 4)
-                .padding(.top, 8)
+                .foregroundStyle(theme.textSecondary)
+                .padding(.horizontal, Tokens.Spacing.xs)
+                .padding(.top, Tokens.Spacing.md)
 
-            HStack(spacing: 8) {
+            HStack(spacing: Tokens.Spacing.md) {
                 Button {
                     let current = max(distanceValue, stepSize)
                     text = formatDistanceValue(max(stepSize, current - stepSize))
@@ -47,8 +48,8 @@ struct DistanceInputView: View {
                     Image(systemName: "minus")
                         .font(.system(size: 16, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(0.15)))
-                        .foregroundStyle(.white)
+                        .background(Circle().fill(theme.surfaceCard))
+                        .foregroundStyle(theme.textPrimary)
                 }
                 .buttonStyle(.plain)
 
@@ -57,15 +58,15 @@ struct DistanceInputView: View {
                     isEditorPresented = true
                 } label: {
                     ZStack {
-                        RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .fill(Color.white.opacity(0.12))
+                        RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous)
+                            .fill(theme.surfaceInput)
 
                         Text(displayText)
                             .font(.system(size: 20, weight: .bold, design: .rounded))
                             .monospacedDigit()
                             .minimumScaleFactor(0.7)
                             .lineLimit(1)
-                            .foregroundStyle(.white)
+                            .foregroundStyle(theme.textPrimary)
                     }
                     .frame(maxWidth: .infinity, minHeight: controlHeight)
                 }
@@ -79,8 +80,8 @@ struct DistanceInputView: View {
                     Image(systemName: "plus")
                         .font(.system(size: 16, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(0.15)))
-                        .foregroundStyle(.white)
+                        .background(Circle().fill(theme.surfaceCard))
+                        .foregroundStyle(theme.textPrimary)
                 }
                 .buttonStyle(.plain)
             }
@@ -171,8 +172,8 @@ struct NumericKeypadEditorScreen: View {
                             .monospacedDigit()
                             .minimumScaleFactor(0.7)
                             .lineLimit(1)
-                            .padding(.horizontal, 12)
-                            .padding(.bottom, 6)
+                            .padding(.horizontal, Tokens.Spacing.xl)
+                            .padding(.bottom, Tokens.Spacing.sm)
                             .offset(y: -8)
                     }
                     .frame(maxWidth: .infinity)
@@ -184,13 +185,13 @@ struct NumericKeypadEditorScreen: View {
                     }
 
                     ScrollView {
-                        VStack(spacing: 10) {
+                        VStack(spacing: Tokens.Spacing.lg) {
                             Text(title)
                                 .font(.headline.weight(.semibold))
                                 .foregroundStyle(.white)
                                 .frame(maxWidth: .infinity, alignment: .leading)
 
-                            VStack(spacing: 6) {
+                            VStack(spacing: Tokens.Spacing.sm) {
                                 ForEach(0..<keypadRows.count, id: \.self) { rowIndex in
                                     HStack(spacing: 6) {
                                         ForEach(keypadRows[rowIndex], id: \.self) { key in
@@ -207,10 +208,10 @@ struct NumericKeypadEditorScreen: View {
                             Button(L10n.done) {
                                 onDone()
                             }
-                            .padding(.top, 4)
+                            .padding(.top, Tokens.Spacing.xs)
                         }
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 12)
+                        .padding(.horizontal, Tokens.Spacing.xl)
+                        .padding(.vertical, Tokens.Spacing.xl)
                     }
                 }
             }
@@ -253,17 +254,18 @@ private extension DistanceInputView {
 private struct NumericKeypadButton: View {
     let key: String
     let action: () -> Void
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
         Button(action: action) {
             Text(key)
                 .font(.system(size: 20, weight: .semibold, design: .rounded))
-                .foregroundStyle(.white)
+                .foregroundStyle(theme.textPrimary)
                 .frame(maxWidth: .infinity)
                 .frame(height: 38)
                 .background(
-                    RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(Color.white.opacity(0.15))
+                    RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
+                        .fill(theme.surfaceCard)
                 )
         }
         .buttonStyle(.plain)

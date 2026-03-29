@@ -5,6 +5,7 @@ struct OngoingWorkoutRecoveryView: View {
     let accentColor: Color
     let onContinue: () -> Void
     let onDiscard: () -> Void
+    @Environment(\.appTheme) private var theme
 
     private var startedText: String {
         Formatters.historySessionDateTimeString(from: snapshot.sessionStartDate)
@@ -17,21 +18,21 @@ struct OngoingWorkoutRecoveryView: View {
             VStack(spacing: 16) {
                 Text(L10n.recoverWorkoutTitle)
                     .font(.system(size: 22, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(theme.textPrimary)
                     .lineLimit(3)
                     .multilineTextAlignment(.center)
                     .fixedSize(horizontal: false, vertical: true)
 
                 Text(startedText)
                     .font(.system(size: 14, weight: .medium, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.8))
+                    .foregroundStyle(theme.textBody)
                     .multilineTextAlignment(.center)
 
                 Button(action: onContinue) {
                     Text(L10n.resumeWorkout)
                         .font(.system(size: 16, weight: .semibold, design: .rounded))
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
+                        .padding(.vertical, Tokens.Spacing.lg)
                 }
 
                 Button(role: .destructive, action: onDiscard) {
@@ -40,12 +41,12 @@ struct OngoingWorkoutRecoveryView: View {
                         .frame(maxWidth: .infinity, minHeight: 34)
                 }
                 .buttonStyle(.plain)
-                .foregroundStyle(.white.opacity(0.8))
+                .foregroundStyle(theme.textBody)
             }
             .padding(.horizontal, 16)
             .tint(accentColor)
 
-            Spacer(minLength: 12)
+            Spacer(minLength: Tokens.Spacing.xl)
         }
     }
 }

@@ -101,6 +101,7 @@ enum L10n {
     static let notNow = String(localized: "Not now", comment: "Button")
     static let healthDataNotAvailable = String(localized: "Health data not available on this device.", comment: "Error")
     static let healthAccessDenied = String(localized: "Health access was not granted.", comment: "Error shown when Health permissions remain denied")
+    static let healthAccessMissingEntitlement = String(localized: "This build is missing Apple Health permission setup.", comment: "Error shown when the app build is missing the HealthKit entitlement")
     static let recoverWorkoutTitle = String(localized: "Resume?", comment: "Recovery prompt title")
     static let recoverWorkoutMessage = String(localized: "Rundr found an unfinished activity. If you continue, it opens paused so you can choose when to resume.", comment: "Recovery prompt message")
     static let resumeWorkout = String(localized: "Continue Workout", comment: "Recovery prompt button")

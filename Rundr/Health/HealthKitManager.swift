@@ -74,9 +74,18 @@ final class HealthKitManager: ObservableObject {
         } catch {
             await MainActor.run {
                 self.isAuthorized = false
-                self.authorizationError = error.localizedDescription
+                self.authorizationError = Self.presentableAuthorizationError(from: error.localizedDescription)
             }
         }
+    }
+
+    static func presentableAuthorizationError(from message: String) -> String {
+        let normalizedMessage = message.lowercased()
+        if normalizedMessage.contains("com.apple.developer.healthkit") ||
+            normalizedMessage.contains("healthkit entitlement") {
+            return L10n.healthAccessMissingEntitlement
+        }
+        return message
     }
 
     func refreshAuthorizationState() {

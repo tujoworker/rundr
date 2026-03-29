@@ -3,6 +3,22 @@ import XCTest
 
 final class ModelTests: XCTestCase {
 
+    // MARK: - Health Access Error Messages
+
+    func testHealthAccessErrorMapsMissingEntitlementMessage() {
+        XCTAssertEqual(
+            HealthKitManager.presentableAuthorizationError(from: "Missing com.apple.developer.healthkit entitlement."),
+            L10n.healthAccessMissingEntitlement
+        )
+    }
+
+    func testHealthAccessErrorPreservesUnknownMessage() {
+        XCTAssertEqual(
+            HealthKitManager.presentableAuthorizationError(from: "Some other HealthKit failure."),
+            "Some other HealthKit failure."
+        )
+    }
+
     // MARK: - Health Access Policy
 
     func testInitialHealthPromptShowsWhenAccessIsPending() {

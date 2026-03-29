@@ -293,9 +293,12 @@ private struct HealthAccessPromptView: View {
 
                 if let authorizationError, !authorizationError.isEmpty {
                     Text(authorizationError)
-                        .font(.footnote)
+                        .font(.caption2)
                         .foregroundStyle(theme.errorText)
                         .multilineTextAlignment(.center)
+                        .lineLimit(nil)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .frame(maxWidth: .infinity)
                 }
             }
             .padding(.horizontal, Tokens.Spacing.xxxl)

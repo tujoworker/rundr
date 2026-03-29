@@ -87,6 +87,7 @@
 "Not now" = "Ikke nå";
 "Health data not available on this device." = "Helsedata er ikke tilgjengelig på denne enheten.";
 "Health access was not granted." = "Helsetilgang ble ikke gitt.";
+"This build is missing Apple Health permission setup." = "Denne builden mangler oppsett for Apple Health-tillatelser.";
 "Resume?" = "Fortsette?";
 "Rundr found an unfinished activity. If you continue, it opens paused so you can choose when to resume." = "Rundr fant en uferdig aktivitet. Hvis du fortsetter, åpnes den pauset slik at du kan velge når du vil gjenoppta.";
 "Continue Workout" = "Fortsett trening";

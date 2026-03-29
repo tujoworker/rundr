@@ -87,6 +87,7 @@
 "Not now" = "Nicht jetzt";
 "Health data not available on this device." = "Gesundheitsdaten sind auf diesem Gerät nicht verfügbar.";
 "Health access was not granted." = "Der Gesundheitszugriff wurde nicht gewährt.";
+"This build is missing Apple Health permission setup." = "In diesem Build fehlt die Apple-Health-Berechtigungskonfiguration.";
 "Resume?" = "Fortsetzen?";
 "Rundr found an unfinished activity. If you continue, it opens paused so you can choose when to resume." = "Rundr hat eine unvollständige Aktivität gefunden. Wenn du fortfährst, wird sie pausiert geöffnet, sodass du selbst entscheiden kannst, wann du weitermachst.";
 "Continue Workout" = "Training fortsetzen";

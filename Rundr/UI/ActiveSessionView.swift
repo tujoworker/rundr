@@ -78,7 +78,7 @@ struct ActiveSessionView: View {
         }
         if isResting {
             if let duration = workoutController.restDurationSeconds {
-                return timerTopLabel("Rest \(duration)s", includeLap: false)
+                return timerTopLabel(L10n.restDuration(duration), includeLap: false)
             }
             return timerTopLabel(L10n.restModeStatus, includeLap: false)
         }
@@ -753,8 +753,8 @@ private struct LapEditorScreen: View {
 
     private var label: String {
         switch distanceUnit {
-        case .km: return "Distance (m)"
-        case .miles: return "Distance (ft)"
+        case .km: return L10n.distanceMetersShort
+        case .miles: return L10n.distanceFeetShort
         }
     }
 
@@ -766,7 +766,7 @@ private struct LapEditorScreen: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text("Edit Lap")
+                    Text(L10n.editLap)
                         .font(.headline.weight(.semibold))
                         .foregroundStyle(.white)
 
@@ -783,7 +783,7 @@ private struct LapEditorScreen: View {
                         )
                         .frame(maxWidth: .infinity)
                     } else {
-                        Text("This lap will be treated as rest.")
+                        Text(L10n.lapTreatedAsRest)
                             .font(.system(size: 16, weight: .medium, design: .rounded))
                             .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundBody))
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -920,7 +920,7 @@ private struct SessionMenuButton: View {
             } label: {
                 Label(L10n.endSession, systemImage: "stop.circle")
             }
-            Button("Cancel", role: .cancel) {}
+            Button(L10n.cancel, role: .cancel) {}
         }
     }
 }

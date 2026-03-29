@@ -20,6 +20,8 @@ enum L10n {
     static let addInterval = String(localized: "Add Interval", comment: "Add interval button")
     static let distanceMeters = String(localized: "Distance (meters)", comment: "Distance input label")
     static let distanceFeet = String(localized: "Distance (feet)", comment: "Distance input label")
+    static let distanceMetersShort = String(localized: "Distance (m)", comment: "Short distance input label")
+    static let distanceFeetShort = String(localized: "Distance (ft)", comment: "Short distance input label")
     static let distanceType = String(localized: "Distance Type", comment: "Distance mode selector")
     static let fixedDistance = String(localized: "Fixed", comment: "Fixed interval distance")
     static let openDistance = String(localized: "Open", comment: "Open interval distance")
@@ -47,11 +49,16 @@ enum L10n {
     static let minutesAbbrev = String(localized: "m", comment: "Minutes unit")
 
     // MARK: - Active Session
+    static let editLap = String(localized: "Edit Lap", comment: "Edit lap sheet title")
+    static let lapTreatedAsRest = String(localized: "This lap will be treated as rest.", comment: "Edit lap rest explanation")
     static let deleteLap = String(localized: "Delete Lap", comment: "Dialog title")
     static func lapIndex(_ index: Int) -> String {
         String(format: String(localized: "Lap %d", comment: "Lap label"), index)
     }
     static let restModeStatus = String(localized: "Rest Mode", comment: "Timer label when resting")
+    static func restDuration(_ seconds: Int) -> String {
+        String(format: String(localized: "Rest %ds", comment: "Timer label with rest countdown"), seconds)
+    }
     static let endRest = String(localized: "End Rest", comment: "Button")
     static let pause = String(localized: "Pause", comment: "Button")
     static let resume = String(localized: "Resume", comment: "Button")
@@ -106,6 +113,8 @@ enum L10n {
     static let rest = String(localized: "Rest", comment: "Rest lap label")
     static let laps = String(localized: "Laps", comment: "Laps label")
     static let duration = String(localized: "Duration", comment: "Session duration label")
+    static let ended = String(localized: "Ended", comment: "Session ended label")
+    static let summary = String(localized: "Summary", comment: "Summary section title")
     static let manualDistance = String(localized: "Manual Distance", comment: "Manual distance label")
     static let gpsDistanceLabel = String(localized: "GPS Distance", comment: "GPS distance label")
     static let manualLabel = String(localized: "Manual", comment: "Manual lap metric label")
@@ -190,4 +199,17 @@ enum L10n {
 
     // MARK: - Companion
     static let waitingForWatch = String(localized: "Waiting for Watch…", comment: "Companion live state when watch connection is stale")
+    static let liveOnAppleWatch = String(localized: "Live on Apple Watch", comment: "Companion section title for live workout")
+    static let syncedSessions = String(localized: "Synced Sessions", comment: "Companion section title for synced sessions")
+    static let noSyncedSessionsYet = String(localized: "No synced sessions yet", comment: "Companion empty state for synced sessions")
+    static func heartRateBPM(_ bpm: Int) -> String {
+        String(format: String(localized: "Heart Rate %d bpm", comment: "Heart rate with value"), bpm)
+    }
+    static let runStateIdle = String(localized: "Idle", comment: "Live workout state")
+    static let runStateReady = String(localized: "Ready", comment: "Live workout state")
+    static let runStateActive = String(localized: "Active", comment: "Live workout state label")
+    static let runStateRest = String(localized: "Rest", comment: "Live workout state label")
+    static let runStatePaused = String(localized: "Paused", comment: "Live workout state label")
+    static let runStateEnding = String(localized: "Ending", comment: "Live workout state")
+    static let runStateEnded = String(localized: "Ended", comment: "Live workout state")
 }

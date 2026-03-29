@@ -7,6 +7,7 @@ struct PreStartView: View {
     @EnvironmentObject var healthKitManager: HealthKitManager
     @EnvironmentObject var settings: SettingsStore
     @EnvironmentObject var coordinator: NavigationCoordinator
+    @Environment(\.appTheme) private var theme
     var onStart: () -> Void
 
     @State private var segments: [DistanceSegment] = []
@@ -42,8 +43,8 @@ struct PreStartView: View {
 
     private var distanceLabel: String {
         switch settings.distanceUnit {
-        case .km: return "Distance (m)"
-        case .miles: return "Distance (ft)"
+        case .km: return L10n.distanceMetersShort
+        case .miles: return L10n.distanceFeetShort
         }
     }
 
@@ -61,15 +62,15 @@ struct PreStartView: View {
         let s = readyElapsedSeconds
         let bigFont = Font.system(size: 26, weight: .bold, design: .rounded)
         let smallFont = Font.system(size: 13, weight: .semibold, design: .rounded)
-        let smallColor = Color.white.opacity(0.78)
+        let smallColor = theme.textBody
 
         HStack(alignment: .firstTextBaseline, spacing: 2) {
             if s < 60 {
                 Text("\(s)")
                     .font(bigFont)
                     .monospacedDigit()
-                    .foregroundStyle(.white)
-                Text("s")
+                    .foregroundStyle(theme.textPrimary)
+                Text(L10n.secondsAbbrev)
                     .font(smallFont)
                     .foregroundStyle(smallColor)
             } else {
@@ -79,23 +80,23 @@ struct PreStartView: View {
                     Text("\(m)")
                         .font(bigFont)
                         .monospacedDigit()
-                        .foregroundStyle(.white)
-                    Text("m")
+                        .foregroundStyle(theme.textPrimary)
+                    Text(L10n.minutesAbbrev)
                         .font(smallFont)
                         .foregroundStyle(smallColor)
                 } else {
                     Text("\(m)")
                         .font(bigFont)
                         .monospacedDigit()
-                        .foregroundStyle(.white)
-                    Text("m")
+                        .foregroundStyle(theme.textPrimary)
+                    Text(L10n.minutesAbbrev)
                         .font(smallFont)
                         .foregroundStyle(smallColor)
                     Text("\(secs)")
                         .font(bigFont)
                         .monospacedDigit()
-                        .foregroundStyle(.white)
-                    Text("s")
+                        .foregroundStyle(theme.textPrimary)
+                    Text(L10n.secondsAbbrev)
                         .font(smallFont)
                         .foregroundStyle(smallColor)
                 }
@@ -124,8 +125,8 @@ struct PreStartView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(L10n.intervalsTitle)
                 .font(.caption.bold())
-                .foregroundStyle(.white.opacity(0.72))
-                .padding(.horizontal, 8)
+                .foregroundStyle(theme.textSecondary)
+                .padding(.horizontal, Tokens.Spacing.md)
 
             ForEach(segments) { segment in
                 SegmentRow(
@@ -139,16 +140,16 @@ struct PreStartView: View {
             Button {
                 addSegment()
             } label: {
-                HStack(spacing: 6) {
+                HStack(spacing: Tokens.Spacing.sm) {
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: 16, weight: .semibold))
                     Text(L10n.addInterval)
                         .font(.system(size: 14, weight: .semibold, design: .rounded))
                 }
-                .foregroundStyle(.white)
+                .foregroundStyle(theme.textPrimary)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: 16)
+                .padding(.vertical, Tokens.Spacing.lg)
+                .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: Tokens.Radius.xxl)
             }
             .buttonStyle(.plain)
         }
@@ -157,7 +158,7 @@ struct PreStartView: View {
     var body: some View {
         ScrollViewReader { proxy in
         ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: Tokens.Spacing.xl) {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: 4) {
                         readyTimerView
@@ -181,12 +182,12 @@ struct PreStartView: View {
                     .frame(height: 6)
 
                 if supportsActionButton {
-                    Text("Press the Action Button")
+                    Text(L10n.pressActionButton)
                         .font(.system(size: 13, weight: .medium, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.84))
+                        .foregroundStyle(theme.textPrimary.opacity(Tokens.Opacity.foregroundMuted))
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 6)
-                        .padding(.bottom, 2)
+                        .padding(.horizontal, Tokens.Spacing.sm)
+                        .padding(.bottom, Tokens.Spacing.xxs)
                 }
 
                 if settings.trackingMode.usesManualIntervals {
@@ -326,7 +327,7 @@ struct PreStartView: View {
                     settings.trackingMode = mode
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(L10n.cancel, role: .cancel) {}
         }
         .confirmationDialog(L10n.distanceUnit, isPresented: $isDistanceUnitDialogPresented) {
             ForEach(DistanceUnit.allCases) { unit in
@@ -334,7 +335,7 @@ struct PreStartView: View {
                     settings.distanceUnit = unit
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(L10n.cancel, role: .cancel) {}
         }
         .confirmationDialog(L10n.restMode, isPresented: $isRestModeDialogPresented) {
             ForEach(RestMode.allCases) { mode in
@@ -342,7 +343,7 @@ struct PreStartView: View {
                     settings.restMode = mode
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(L10n.cancel, role: .cancel) {}
         }
         .confirmationDialog(L10n.primaryColor, isPresented: $isPrimaryColorDialogPresented) {
             ForEach(PrimaryColorOption.allCases) { color in
@@ -350,7 +351,7 @@ struct PreStartView: View {
                     settings.primaryColor = color
                 }
             }
-            Button("Cancel", role: .cancel) {}
+            Button(L10n.cancel, role: .cancel) {}
         }
         .sheet(isPresented: $isAlertsDialogPresented) {
             AlertsSettingsSheet(settings: settings)
@@ -607,17 +608,17 @@ private struct SegmentRow: View {
     var body: some View {
         ZStack(alignment: .topTrailing) {
             Button(action: onTap) {
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: Tokens.Spacing.sm) {
                     Text(distanceDisplay)
                         .font(.system(size: 18, weight: .semibold, design: .rounded))
                         .foregroundStyle(.white)
                     if hasSecondaryDetails {
-                        LazyVGrid(columns: detailColumns, alignment: .leading, spacing: 8) {
+                        LazyVGrid(columns: detailColumns, alignment: .leading, spacing: Tokens.Spacing.md) {
                             ForEach(detailItems) { item in
-                                VStack(alignment: .leading, spacing: 4) {
+                                VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                                     Text(item.label)
                                         .font(.system(size: 13, weight: .regular, design: .rounded))
-                                        .foregroundStyle(.white.opacity(0.55))
+                                        .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundQuaternary))
 
                                     Text(item.value)
                                         .font(.caption2)
@@ -629,13 +630,13 @@ private struct SegmentRow: View {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 12)
+                .padding(.horizontal, Tokens.Spacing.xxl)
+                .padding(.vertical, Tokens.Spacing.xl)
                 .background(
-                    RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .fill(Color.white.opacity(0.12))
+                    RoundedRectangle(cornerRadius: Tokens.Radius.xxxl, style: .continuous)
+                        .fill(Color.white.opacity(Tokens.Opacity.fillInput))
                 )
-                .contentShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .contentShape(RoundedRectangle(cornerRadius: Tokens.Radius.xxxl, style: .continuous))
             }
             .buttonStyle(.plain)
 
@@ -644,11 +645,11 @@ private struct SegmentRow: View {
             } label: {
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: 18))
-                    .foregroundStyle(.white.opacity(0.45))
+                    .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundDisabled))
             }
             .buttonStyle(.plain)
-            .padding(.top, 12)
-            .padding(.trailing, 14)
+            .padding(.top, Tokens.Spacing.xl)
+            .padding(.trailing, Tokens.Spacing.xxl)
         }
         .alert(distanceDisplay, isPresented: $isDeleteConfirmationPresented) {
             Button(L10n.delete, role: .destructive, action: onDelete)
@@ -840,8 +841,8 @@ private struct IntervalSetupView: View {
 
     private var distanceLabel: String {
         switch settings.distanceUnit {
-        case .km: return "Distance (m)"
-        case .miles: return "Distance (ft)"
+        case .km: return L10n.distanceMetersShort
+        case .miles: return L10n.distanceFeetShort
         }
     }
 
@@ -854,11 +855,11 @@ private struct IntervalSetupView: View {
 
     @ViewBuilder
     private var intervalsSection: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
             Text(L10n.intervalsTitle)
                 .font(.caption.bold())
-                .foregroundStyle(.white.opacity(0.72))
-                .padding(.horizontal, 8)
+                .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
+                .padding(.horizontal, Tokens.Spacing.md)
 
             ForEach(segments) { segment in
                 SegmentRow(
@@ -872,7 +873,7 @@ private struct IntervalSetupView: View {
             Button {
                 addSegment()
             } label: {
-                HStack(spacing: 6) {
+                HStack(spacing: Tokens.Spacing.sm) {
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: 16, weight: .semibold))
                     Text(L10n.addInterval)
@@ -880,8 +881,8 @@ private struct IntervalSetupView: View {
                 }
                 .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
-                .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: 16)
+                .padding(.vertical, Tokens.Spacing.lg)
+                .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: Tokens.Radius.xxl)
             }
             .buttonStyle(.plain)
         }
@@ -890,8 +891,8 @@ private struct IntervalSetupView: View {
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
-                VStack(alignment: .leading, spacing: 12) {
-                    VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: Tokens.Spacing.xl) {
+                    VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                         Text(headerTitle)
                             .font(.headline.weight(.semibold))
                             .foregroundStyle(.white)
@@ -899,7 +900,7 @@ private struct IntervalSetupView: View {
                         if let subtitle, !subtitle.isEmpty {
                             Text(subtitle)
                                 .font(.footnote.weight(.medium))
-                                .foregroundStyle(.white.opacity(0.72))
+                                .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
                         }
                     }
                     .padding(.horizontal, 6)
@@ -1141,13 +1142,14 @@ private struct IntervalLibraryRowView: View {
     let title: String
     let subtitle: String
     var usageCount: Int = 0
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.xxs) {
             HStack {
                 Text(title)
                     .font(.headline.weight(.semibold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(theme.textPrimary)
                 Spacer()
                 if usageCount > 0 {
                     PresetUsageBadge(count: usageCount)
@@ -1155,12 +1157,12 @@ private struct IntervalLibraryRowView: View {
             }
             Text(subtitle)
                 .font(.caption)
-                .foregroundStyle(.white.opacity(0.72))
+                .foregroundStyle(theme.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(8)
-        .background(Color.white.opacity(0.15))
-        .cornerRadius(8)
+        .padding(Tokens.Spacing.md)
+        .background(theme.surfaceCard)
+        .cornerRadius(Tokens.Radius.medium)
     }
 }
 
@@ -1179,31 +1181,33 @@ private struct AlertsSettingsSheet: View {
 
 private struct PresetUsageBadge: View {
     let count: Int
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
         Text(L10n.usedCount(count))
             .font(.system(size: 11, weight: .semibold, design: .rounded))
-            .foregroundStyle(.white.opacity(0.72))
-            .padding(.horizontal, 6)
-            .padding(.vertical, 2)
-            .background(.white.opacity(0.12))
+            .foregroundStyle(theme.textSecondary)
+            .padding(.horizontal, Tokens.Spacing.sm)
+            .padding(.vertical, Tokens.Spacing.xxs)
+            .background(theme.surfaceInput)
             .clipShape(Capsule(style: .continuous))
     }
 }
 
 private struct IntervalTitleField: View {
     @Binding var text: String
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
             Text(L10n.title)
                 .font(.caption.bold())
-                .foregroundStyle(.white.opacity(0.72))
-                .padding(.horizontal, 8)
+                .foregroundStyle(theme.textSecondary)
+                .padding(.horizontal, Tokens.Spacing.md)
 
             TextField(L10n.optionalTitlePlaceholder, text: $text)
                 .textInputAutocapitalization(.words)
-                .padding(.horizontal, 8)
+                .padding(.horizontal, Tokens.Spacing.md)
         }
     }
 }
@@ -1505,7 +1509,7 @@ private struct SegmentEditSheet: View {
                     Image(systemName: "minus")
                         .font(.system(size: 16, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(0.15)))
+                        .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                         .foregroundStyle(.white)
                 }
                 .buttonStyle(.plain)
@@ -1525,7 +1529,7 @@ private struct SegmentEditSheet: View {
                     Image(systemName: "plus")
                         .font(.system(size: 16, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(0.15)))
+                        .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                         .foregroundStyle(.white)
                 }
                 .buttonStyle(.plain)
@@ -1557,7 +1561,7 @@ private struct SegmentEditSheet: View {
                     Image(systemName: "minus")
                         .font(.system(size: 16, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(0.15)))
+                        .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                         .foregroundStyle(.white)
                 }
                 .buttonStyle(.plain)
@@ -1577,7 +1581,7 @@ private struct SegmentEditSheet: View {
                     Image(systemName: "plus")
                         .font(.system(size: 16, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(0.15)))
+                        .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                         .foregroundStyle(.white)
                 }
                 .buttonStyle(.plain)
@@ -1608,7 +1612,7 @@ private struct SegmentEditSheet: View {
                         Image(systemName: "minus")
                             .font(.system(size: 16, weight: .bold))
                             .frame(width: 36, height: 36)
-                            .background(Circle().fill(Color.white.opacity(0.15)))
+                            .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                             .foregroundStyle(.white)
                     }
                     .buttonStyle(.plain)
@@ -1630,7 +1634,7 @@ private struct SegmentEditSheet: View {
                         Image(systemName: "plus")
                             .font(.system(size: 16, weight: .bold))
                             .frame(width: 36, height: 36)
-                            .background(Circle().fill(Color.white.opacity(0.15)))
+                            .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                             .foregroundStyle(.white)
                     }
                     .buttonStyle(.plain)
@@ -1701,7 +1705,7 @@ private struct SegmentEditSheet: View {
                     Image(systemName: "minus")
                         .font(.system(size: 16, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(0.15)))
+                        .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                         .foregroundStyle(.white)
                 }
                 .buttonStyle(.plain)
@@ -1723,7 +1727,7 @@ private struct SegmentEditSheet: View {
                     Image(systemName: "plus")
                         .font(.system(size: 16, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(0.15)))
+                        .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                         .foregroundStyle(.white)
                 }
                 .buttonStyle(.plain)
@@ -1751,7 +1755,7 @@ private struct SegmentEditSheet: View {
                     Image(systemName: "minus")
                         .font(.system(size: 16, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(0.15)))
+                        .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                         .foregroundStyle(.white)
                 }
                 .buttonStyle(.plain)
@@ -1773,7 +1777,7 @@ private struct SegmentEditSheet: View {
                     Image(systemName: "plus")
                         .font(.system(size: 16, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(0.15)))
+                        .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
                         .foregroundStyle(.white)
                 }
                 .buttonStyle(.plain)
@@ -1952,40 +1956,42 @@ struct TintedInfoBanner: View {
 
 private struct ReadyHeartIndicator: View {
     let heartRateText: String
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
-        HStack(spacing: 6) {
+        HStack(spacing: Tokens.Spacing.sm) {
             Text(heartRateText)
                 .font(.system(size: 16, weight: .bold, design: .rounded))
-                .foregroundStyle(.white)
+                .foregroundStyle(theme.textPrimary)
                 .monospacedDigit()
 
             Image(systemName: "heart.fill")
                 .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(.white)
+                .foregroundStyle(theme.textPrimary)
         }
     }
 }
 
 private struct ReadyStartIcon: View {
     let baseColor: Color
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
         ZStack {
             Circle()
-                .fill(baseColor.opacity(0.2))
+                .fill(theme.accentFill(baseColor))
 
             Circle()
-                .stroke(baseColor.opacity(0.4), lineWidth: 3)
-                .padding(1.5)
+                .stroke(theme.accentStroke(baseColor), lineWidth: Tokens.LineWidth.thick)
+                .padding(Tokens.LineWidth.regular)
         }
         .overlay {
             Image(systemName: "figure.run")
                 .font(.system(size: 34, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(theme.textPrimary)
         }
         .frame(width: 78, height: 78)
-        .shadow(color: baseColor.opacity(0.28), radius: 6, y: 2)
+        .shadow(color: baseColor.opacity(0.28), radius: Tokens.Radius.small, y: 2)
     }
 }
 
@@ -2003,9 +2009,10 @@ private struct SettingsCardRow: View {
     let title: String
     var value: String? = nil
     var showsChevron: Bool = false
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
-        HStack(alignment: .center, spacing: 12) {
+        HStack(alignment: .center, spacing: Tokens.Spacing.xl) {
             Image(systemName: icon)
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundStyle(iconColor)
@@ -2014,7 +2021,7 @@ private struct SettingsCardRow: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
                     .font(.system(size: 18, weight: .medium, design: .rounded))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(theme.textPrimary)
 
                 if let value {
                     Text(value)
@@ -2023,19 +2030,19 @@ private struct SettingsCardRow: View {
                 }
             }
 
-            Spacer(minLength: 10)
+            Spacer(minLength: Tokens.Spacing.lg)
 
             if showsChevron {
                 Image(systemName: "chevron.right")
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.45))
+                    .foregroundStyle(theme.textDisabled)
             }
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 18)
+        .padding(.horizontal, Tokens.Spacing.xxxl)
+        .padding(.vertical, Tokens.Spacing.xxxl)
         .background(
             RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(Color.white.opacity(0.12))
+                .fill(theme.surfaceInput)
         )
     }
 }

@@ -13,7 +13,7 @@ struct HomeView: View {
         List {
             Section {
                 Button(action: onGetReady) {
-                    Text("Get Ready")
+                    Text(L10n.getReady)
                         .font(.title3.bold())
                         .frame(maxWidth: .infinity, minHeight: 50)
                 }
@@ -27,10 +27,10 @@ struct HomeView: View {
                 .listRowBackground(Color.clear)
 
                 if viewModel.recentSessions.isEmpty {
-                    Text("No sessions yet")
+                    Text(L10n.noSessionsYet)
                         .foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 24)
+                        .padding(.vertical, Tokens.Spacing.xxxxl)
                         .listRowBackground(Color.clear)
                 } else {
                     ForEach(viewModel.recentSessions, id: \.id) { session in
@@ -45,7 +45,7 @@ struct HomeView: View {
                                 persistence.deleteSession(session)
                                 viewModel.loadRecent(persistence: persistence)
                             } label: {
-                                Label("Delete", systemImage: "trash")
+                                Label(L10n.delete, systemImage: "trash")
                             }
                         }
                         .listRowInsets(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4))
@@ -56,7 +56,7 @@ struct HomeView: View {
                         Button {
                             viewModel.loadMore(persistence: persistence)
                         } label: {
-                            Text("Load More")
+                            Text(L10n.loadMore)
                                 .font(.footnote.weight(.semibold))
                                 .frame(maxWidth: .infinity, minHeight: 34)
                         }
@@ -89,6 +89,7 @@ struct HomeView: View {
 struct SessionRowView: View {
     let session: Session
     @EnvironmentObject var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
 
     private let columns = [
         GridItem(.flexible(), spacing: 12, alignment: .topLeading),
@@ -130,31 +131,31 @@ struct SessionRowView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
             Text(sessionTitle)
                 .font(.caption2.weight(.semibold))
-                .foregroundStyle(.white)
-            .padding(.bottom, 4)
+                .foregroundStyle(theme.textPrimary)
+            .padding(.bottom, Tokens.Spacing.xs)
 
-            LazyVGrid(columns: columns, alignment: .leading, spacing: 10) {
+            LazyVGrid(columns: columns, alignment: .leading, spacing: Tokens.Spacing.lg) {
                 ForEach(sessionStats) { item in
-                    VStack(alignment: .leading, spacing: 4) {
+                    VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                         Text(item.label)
                             .font(.system(size: 13, weight: .regular, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.68))
+                            .foregroundStyle(theme.textTertiary)
 
                         Text(item.value)
                             .font(.caption2.weight(.semibold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(theme.textPrimary)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(8)
-        .background(Color.white.opacity(0.15))
-        .cornerRadius(8)
+        .padding(Tokens.Spacing.md)
+        .background(theme.surfaceCard)
+        .cornerRadius(Tokens.Radius.medium)
     }
 }
 

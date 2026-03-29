@@ -148,7 +148,7 @@ struct RootView: View {
                                     }
                                 )
                             } else {
-                                Text("Session not found")
+                                Text(L10n.sessionNotFound)
                             }
                         case .historySetup(let sessionID):
                             if let session = persistence.fetchSession(id: sessionID) {
@@ -161,7 +161,7 @@ struct RootView: View {
                                     }
                                 )
                             } else {
-                                Text("Session not found")
+                                Text(L10n.sessionNotFound)
                             }
                         case .home:
                             EmptyView()
@@ -247,7 +247,7 @@ private struct HealthAccessPromptView: View {
             Spacer()
 
             VStack(spacing: Tokens.Spacing.xxl) {
-                Text("Rundr needs:")
+                Text(L10n.rundrNeeds)
                     .font(.system(size: 15, weight: .medium, design: .rounded))
                     .foregroundStyle(theme.textBody)
                     .multilineTextAlignment(.center)
@@ -258,7 +258,7 @@ private struct HealthAccessPromptView: View {
                             .tint(theme.textPrimary)
                             .frame(maxWidth: .infinity, minHeight: 50)
                     } else {
-                        Text("Health Access")
+                        Text(L10n.healthAccess)
                             .font(.title3.bold())
                             .frame(maxWidth: .infinity, minHeight: 50)
                     }
@@ -267,7 +267,7 @@ private struct HealthAccessPromptView: View {
                 .buttonStyle(.plain)
                 .disabled(isRequestingAccess)
 
-                Button("Not now", action: onContinueWithoutHealth)
+                Button(L10n.notNow, action: onContinueWithoutHealth)
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(theme.textSecondary)
 

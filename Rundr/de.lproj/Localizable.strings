@@ -16,6 +16,8 @@
 "Add Interval" = "Intervall hinzufügen";
 "Distance (meters)" = "Distanz (Meter)";
 "Distance (feet)" = "Distanz (Fuß)";
+"Distance (m)" = "Distanz (m)";
+"Distance (ft)" = "Distanz (ft)";
 "Distance Type" = "Distanztyp";
 "Fixed" = "Fest";
 "Open" = "Offen";
@@ -44,8 +46,11 @@
 "m" = "m";
 
 /* Active Session */
+"Edit Lap" = "Runde bearbeiten";
+"This lap will be treated as rest." = "Diese Runde wird als Pause behandelt.";
 "Delete Lap" = "Runde löschen";
 "Lap %d" = "Runde %d";
+"Rest %ds" = "Pause %ds";
 "End Rest" = "Pause beenden";
 "Pause" = "Pausieren";
 "Resume" = "Fortsetzen";
@@ -86,6 +91,8 @@
 "Session" = "Training";
 "Rest" = "Pause";
 "Duration" = "Dauer";
+"Ended" = "Beendet";
+"Summary" = "Zusammenfassung";
 "Still sending to iPhone" = "Wird noch ans iPhone übertragen";
 "This workout is saved on your Watch. It will appear in Rundr on your phone when your watch and phone connect." = "Dieses Training ist auf deiner Apple Watch gespeichert. Es erscheint in Rundr auf dem iPhone, sobald sich Apple Watch und iPhone verbinden.";
 "On your iPhone" = "Auf dem iPhone";
@@ -146,3 +153,10 @@
 
 /* Companion */
 "Waiting for Watch\U2026" = "Warte auf Watch\U2026";
+"Live on Apple Watch" = "Live auf Apple Watch";
+"Synced Sessions" = "Synchronisierte Trainings";
+"No synced sessions yet" = "Noch keine synchronisierten Trainings";
+"Heart Rate %d bpm" = "Herzfrequenz %d bpm";
+"Idle" = "Bereit";
+"Ready" = "Bereit";
+"Ending" = "Wird beendet";

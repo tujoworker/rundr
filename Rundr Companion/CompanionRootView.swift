@@ -19,14 +19,14 @@ struct CompanionRootView: View {
         NavigationStack {
             List {
                 if let liveWorkoutState = visibleLiveWorkoutState {
-                    Section("Live on Apple Watch") {
+                    Section(L10n.liveOnAppleWatch) {
                         CompanionLiveWorkoutCard(state: liveWorkoutState)
                     }
                 }
 
-                Section("Synced Sessions") {
+                Section(L10n.syncedSessions) {
                     if sessions.isEmpty {
-                        Text("No synced sessions yet")
+                        Text(L10n.noSyncedSessionsYet)
                             .foregroundStyle(.secondary)
                     } else {
                         ForEach(sessions, id: \.id) { session in
@@ -78,7 +78,7 @@ private struct CompanionLiveWorkoutCard: View {
 
     private var primaryDistanceLabel: String {
         if isOpenActivity {
-            return hasGPSDistance ? L10n.gpsDistanceLabel : "Distance"
+            return hasGPSDistance ? L10n.gpsDistanceLabel : L10n.distance
         }
 
         if state.trackingMode.usesManualIntervals {
@@ -89,7 +89,7 @@ private struct CompanionLiveWorkoutCard: View {
             return L10n.gpsDistanceLabel
         }
 
-        return "Distance"
+        return L10n.distance
     }
 
     private var primaryDistanceMeters: Double {
@@ -120,7 +120,7 @@ private struct CompanionLiveWorkoutCard: View {
 
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Laps")
+                    Text(L10n.laps)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     Text("\(state.completedLapCount)")
@@ -151,7 +151,7 @@ private struct CompanionLiveWorkoutCard: View {
             }
 
             if let heartRate = state.currentHeartRate {
-                Text("Heart Rate \(Int(heartRate)) bpm")
+                Text(L10n.heartRateBPM(Int(heartRate)))
                     .font(.subheadline)
             }
         }
@@ -177,11 +177,11 @@ private struct CompanionSessionRow: View {
                 }
             }
 
-            Text("Laps: \(session.activeLapCount) • Avg: \(Formatters.speedString(metersPerSecond: session.averageSpeedMetersPerSecond))")
+            Text(L10n.lapsSummary(session.activeLapCount, Formatters.speedString(metersPerSecond: session.averageSpeedMetersPerSecond)))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
 
-            Text("Time: \(Formatters.timeString(from: session.activeDurationSeconds)) • Dist: \(Formatters.distanceString(meters: session.totalDistanceMeters, unit: .km))")
+            Text(L10n.timeSummary(Formatters.timeString(from: session.activeDurationSeconds), Formatters.distanceString(meters: session.totalDistanceMeters, unit: .km)))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
         }
@@ -202,29 +202,29 @@ private struct CompanionSessionDetailView: View {
                 CompanionImportStatusCard(session: session)
             }
 
-            Section("Summary") {
-                LabeledContent("Started", value: Formatters.historySessionDateTimeString(from: session.startedAt))
-                LabeledContent("Ended", value: Formatters.historySessionDateTimeString(from: session.endedAt))
+            Section(L10n.summary) {
+                LabeledContent(L10n.started, value: Formatters.historySessionDateTimeString(from: session.startedAt))
+                LabeledContent(L10n.ended, value: Formatters.historySessionDateTimeString(from: session.endedAt))
                 LabeledContent(L10n.source, value: session.companionSourceDisplayName)
                 LabeledContent(L10n.importStatus, value: L10n.importComplete)
                 LabeledContent(L10n.mode, value: session.mode.displayName)
-                LabeledContent("Time", value: Formatters.timeString(from: session.activeDurationSeconds))
-                LabeledContent("Distance", value: Formatters.distanceString(meters: session.totalDistanceMeters, unit: .km))
+                LabeledContent(L10n.time, value: Formatters.timeString(from: session.activeDurationSeconds))
+                LabeledContent(L10n.distance, value: Formatters.distanceString(meters: session.totalDistanceMeters, unit: .km))
                 if let gpsDistance = session.totalGPSDistanceMeters {
-                    LabeledContent("GPS Distance", value: Formatters.distanceString(meters: gpsDistance, unit: .km))
+                    LabeledContent(L10n.gpsDistanceLabel, value: Formatters.distanceString(meters: gpsDistance, unit: .km))
                 }
             }
 
-            Section("Laps") {
+            Section(L10n.laps) {
                 ForEach(sortedLaps, id: \.id) { lap in
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(lap.lapType == .rest ? "Rest" : "Lap \(lap.index)")
+                        Text(lap.lapType == .rest ? L10n.rest : L10n.lapIndex(lap.index))
                             .font(.headline)
                         Text(Formatters.lapSummaryString(lap: lap, trackingMode: session.mode, unit: .km))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                         if let heartRate = lap.averageHeartRateBPM {
-                            Text("Heart Rate \(Int(heartRate)) bpm")
+                            Text(L10n.heartRateBPM(Int(heartRate)))
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -233,7 +233,7 @@ private struct CompanionSessionDetailView: View {
                 }
             }
         }
-        .navigationTitle("Session")
+        .navigationTitle(L10n.session)
     }
 }
 
@@ -284,19 +284,19 @@ private extension LiveWorkoutStateRecord {
     var runStateLabel: String {
         switch runState {
         case .idle:
-            return "Idle"
+            return L10n.runStateIdle
         case .ready:
-            return "Ready"
+            return L10n.runStateReady
         case .active:
-            return "Active"
+            return L10n.runStateActive
         case .rest:
-            return "Rest"
+            return L10n.runStateRest
         case .paused:
-            return "Paused"
+            return L10n.runStatePaused
         case .ending:
-            return "Ending"
+            return L10n.runStateEnding
         case .ended:
-            return "Ended"
+            return L10n.runStateEnded
         }
     }
 }

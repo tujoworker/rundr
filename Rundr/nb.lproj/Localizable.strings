@@ -16,6 +16,8 @@
 "Add Interval" = "Legg til intervall";
 "Distance (meters)" = "Distanse (meter)";
 "Distance (feet)" = "Distanse (fot)";
+"Distance (m)" = "Distanse (m)";
+"Distance (ft)" = "Distanse (fot)";
 "Distance Type" = "Distansetype";
 "Fixed" = "Fast";
 "Open" = "Åpen";
@@ -44,8 +46,11 @@
 "m" = "m";
 
 /* Active Session */
+"Edit Lap" = "Rediger runde";
+"This lap will be treated as rest." = "Denne runden vil bli behandlet som hvile.";
 "Delete Lap" = "Slett runde";
 "Lap %d" = "Runde %d";
+"Rest %ds" = "Hvile %ds";
 "End Rest" = "Avslutt hvile";
 "Pause" = "Pause";
 "Resume" = "Fortsett";
@@ -86,6 +91,8 @@
 "Session" = "Økt";
 "Rest" = "Hvile";
 "Duration" = "Varighet";
+"Ended" = "Avsluttet";
+"Summary" = "Sammendrag";
 "Still sending to iPhone" = "Sender fortsatt til iPhone";
 "This workout is saved on your Watch. It will appear in Rundr on your phone when your watch and phone connect." = "Denne økta er lagret på Apple Watch. Den vises i Rundr på telefonen når klokken og telefonen er koblet sammen.";
 "On your iPhone" = "På telefonen";
@@ -146,3 +153,10 @@
 
 /* Companion */
 "Waiting for Watch\U2026" = "Venter p\U00e5 klokka\U2026";
+"Live on Apple Watch" = "Live på Apple Watch";
+"Synced Sessions" = "Synkroniserte økter";
+"No synced sessions yet" = "Ingen synkroniserte økter ennå";
+"Heart Rate %d bpm" = "Puls %d bpm";
+"Idle" = "Klar";
+"Ready" = "Klar";
+"Ending" = "Avslutter";

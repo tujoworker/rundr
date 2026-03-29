@@ -198,6 +198,10 @@ enum L10n {
     static let ftSuffix = String(localized: "ft", comment: "Feet unit")
 
     // MARK: - Companion
+    static let appearance = String(localized: "Appearance", comment: "Appearance setting")
+    static let appearanceSystem = String(localized: "System", comment: "Appearance mode: follow system")
+    static let appearanceLight = String(localized: "Light", comment: "Appearance mode: light")
+    static let appearanceDark = String(localized: "Dark Mode", comment: "Appearance mode: dark")
     static let waitingForWatch = String(localized: "Waiting for Watch…", comment: "Companion live state when watch connection is stale")
     static let liveOnAppleWatch = String(localized: "Live on Apple Watch", comment: "Companion section title for live workout")
     static let syncedSessions = String(localized: "Synced Sessions", comment: "Companion section title for synced sessions")

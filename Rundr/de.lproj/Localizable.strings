@@ -175,3 +175,9 @@
 "Idle" = "Bereit";
 "Ready" = "Bereit";
 "Ending" = "Wird beendet";
+
+/* Appearance */
+"Appearance" = "Erscheinungsbild";
+"System" = "System";
+"Light" = "Hell";
+"Dark Mode" = "Dunkel";

@@ -186,11 +186,17 @@ extension EnvironmentValues {
 
 /// Attach at the root of the app to keep the theme in sync with the system color scheme.
 struct ThemeProvider: ViewModifier {
-    @Environment(\.colorScheme) private var colorScheme
+    @Environment(\.colorScheme) private var systemColorScheme
+    @EnvironmentObject private var settings: SettingsStore
+
+    private var effectiveColorScheme: ColorScheme {
+        settings.appearanceMode.colorScheme ?? systemColorScheme
+    }
 
     func body(content: Content) -> some View {
         content
-            .environment(\.appTheme, AppTheme(colorScheme: colorScheme))
+            .environment(\.appTheme, AppTheme(colorScheme: effectiveColorScheme))
+            .preferredColorScheme(settings.appearanceMode.colorScheme)
     }
 }
 

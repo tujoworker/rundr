@@ -148,6 +148,12 @@ final class SettingsStore: ObservableObject {
     @AppStorage("pauseMode") private var legacyRestModeRaw: String = RestMode.manual.rawValue
     @AppStorage("lapAlerts") var lapAlerts: Bool = true
     @AppStorage("restAlerts") var restAlerts: Bool = true
+    @AppStorage("appearanceMode") private var appearanceModeRaw: String = AppearanceMode.system.rawValue
+
+    var appearanceMode: AppearanceMode {
+        get { AppearanceMode(rawValue: appearanceModeRaw) ?? .system }
+        set { appearanceModeRaw = newValue.rawValue }
+    }
 
     var primaryColor: PrimaryColorOption {
         get { PrimaryColorOption(rawValue: primaryColorRaw) ?? .blue }

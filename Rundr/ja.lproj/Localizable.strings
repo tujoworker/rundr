@@ -173,3 +173,9 @@
 "Idle" = "待機中";
 "Ready" = "準備完了";
 "Ending" = "終了中";
+
+/* Appearance */
+"Appearance" = "外観";
+"System" = "システム";
+"Light" = "ライト";
+"Dark Mode" = "ダーク";

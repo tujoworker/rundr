@@ -175,3 +175,9 @@
 "Idle" = "Klar";
 "Ready" = "Klar";
 "Ending" = "Avslutter";
+
+/* Appearance */
+"Appearance" = "Utseende";
+"System" = "System";
+"Light" = "Lys";
+"Dark Mode" = "Mørk";

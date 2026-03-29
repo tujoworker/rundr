@@ -19,6 +19,7 @@ struct PreStartView: View {
     @State private var isDistanceUnitDialogPresented = false
     @State private var isRestModeDialogPresented = false
     @State private var isPrimaryColorDialogPresented = false
+    @State private var isAppearanceModeDialogPresented = false
     @State private var isAlertsDialogPresented = false
     @State private var editingSegmentID: UUID?
     @State private var editingSegmentDistanceText: String = ""
@@ -261,6 +262,18 @@ struct PreStartView: View {
                 .buttonStyle(.plain)
 
                 Button {
+                    isAppearanceModeDialogPresented = true
+                } label: {
+                    SettingsCardRow(
+                        icon: "circle.lefthalf.filled",
+                        iconColor: .gray,
+                        title: L10n.appearance,
+                        value: settings.appearanceMode.displayName
+                    )
+                }
+                .buttonStyle(.plain)
+
+                Button {
                     isAlertsDialogPresented = true
                 } label: {
                     SettingsCardRow(
@@ -349,6 +362,14 @@ struct PreStartView: View {
             ForEach(PrimaryColorOption.allCases) { color in
                 Button(color.displayName) {
                     settings.primaryColor = color
+                }
+            }
+            Button(L10n.cancel, role: .cancel) {}
+        }
+        .confirmationDialog(L10n.appearance, isPresented: $isAppearanceModeDialogPresented) {
+            ForEach(AppearanceMode.allCases) { mode in
+                Button(mode.displayName) {
+                    settings.appearanceMode = mode
                 }
             }
             Button(L10n.cancel, role: .cancel) {}

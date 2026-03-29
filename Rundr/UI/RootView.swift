@@ -28,7 +28,7 @@ struct AccentRoundedButtonChrome: ViewModifier {
             .foregroundStyle(theme.text.emphasis)
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(theme.background.emphasis(accentColor))
+                    .fill(theme.background.emphasisAction(accentColor))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
@@ -48,7 +48,7 @@ struct TintedSurfaceButtonChrome: ViewModifier {
             .foregroundStyle(tintColor)
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .fill(theme.background.bold)
+                    .fill(theme.background.boldAction)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
@@ -116,7 +116,7 @@ struct SelectionToggleButton: View {
                 .padding(.vertical, Tokens.Spacing.lg)
                 .background(
                     RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous)
-                        .fill(isSelected ? theme.background.bold : theme.background.neutralAction)
+                        .fill(isSelected ? theme.background.boldAction : theme.background.neutralAction)
                 )
         }
         .buttonStyle(.plain)

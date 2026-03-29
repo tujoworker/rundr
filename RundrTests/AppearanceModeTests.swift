@@ -20,6 +20,16 @@ final class AppearanceModeTests: XCTestCase {
         XCTAssertFalse(AppTheme(colorScheme: .light).isDark)
     }
 
+    func testAppThemeUsesOriginalSettingsIconsInDarkModeAndNeutralIconsInLightMode() {
+        let darkTheme = AppTheme(colorScheme: .dark)
+        let lightTheme = AppTheme(colorScheme: .light)
+
+        XCTAssertEqual(darkTheme.icon.original, .original)
+        XCTAssertEqual(lightTheme.icon.neutral, .neutral)
+        XCTAssertEqual(darkTheme.icon.settingsRow, darkTheme.icon.original)
+        XCTAssertEqual(lightTheme.icon.settingsRow, lightTheme.icon.neutral)
+    }
+
     func testAppThemeUsesWhiteNeutralTextColorsForDarkAndLightModes() throws {
         let darkTheme = AppTheme(colorScheme: .dark)
         let lightTheme = AppTheme(colorScheme: .light)
@@ -40,6 +50,49 @@ final class AppearanceModeTests: XCTestCase {
         assertEqualComponents(
             try rgbaComponents(for: lightTheme.background.neutral),
             [0, 0, 0, 0.08],
+            accuracy: 0.001
+        )
+    }
+
+    func testAppThemeUsesDifferentNeutralInteractionBackgroundColorsForDarkAndLightModes() throws {
+        let darkTheme = AppTheme(colorScheme: .dark)
+        let lightTheme = AppTheme(colorScheme: .light)
+
+        assertEqualComponents(
+            try rgbaComponents(for: darkTheme.background.neutralInteraction),
+            [1, 1, 1, Tokens.Opacity.fillInput],
+            accuracy: 0.001
+        )
+        assertEqualComponents(
+            try rgbaComponents(for: lightTheme.background.neutralInteraction),
+            [0, 0, 0, 0.06],
+            accuracy: 0.001
+        )
+    }
+
+    func testAppThemeUsesButtonSpecificBackgroundTokens() throws {
+        let accent = Color(red: 0.8, green: 0.4, blue: 0.2)
+        let darkTheme = AppTheme(colorScheme: .dark)
+        let lightTheme = AppTheme(colorScheme: .light)
+
+        assertEqualComponents(
+            try rgbaComponents(for: darkTheme.background.emphasisAction(accent)),
+            [0.8, 0.4, 0.2, Tokens.Opacity.fillAccent],
+            accuracy: 0.001
+        )
+        assertEqualComponents(
+            try rgbaComponents(for: lightTheme.background.emphasisAction(accent)),
+            [0.8, 0.4, 0.2, Tokens.Opacity.fillAccent],
+            accuracy: 0.001
+        )
+        assertEqualComponents(
+            try rgbaComponents(for: darkTheme.background.boldAction),
+            [1, 1, 1, Tokens.Opacity.foregroundRest],
+            accuracy: 0.001
+        )
+        assertEqualComponents(
+            try rgbaComponents(for: lightTheme.background.boldAction),
+            [0, 0, 0, 0.85],
             accuracy: 0.001
         )
     }

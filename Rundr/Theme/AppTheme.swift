@@ -23,6 +23,7 @@ struct AppTheme {
     var background: BackgroundTokens { .init(isDark: isDark) }
     var stroke: StrokeTokens { .init(isDark: isDark) }
     var text: TextTokens { .init(isDark: isDark) }
+    var icon: IconTokens { .init(isDark: isDark) }
 
     // MARK: Background
 
@@ -46,6 +47,18 @@ struct AppTheme {
                 : .black.opacity(0.08)
         }
 
+        /// Interactive rows and cards with embedded controls.
+        var neutralInteraction: Color {
+            isDark
+                ? .white.opacity(Tokens.Opacity.fillInput)
+                : .black.opacity(0.06)
+        }
+
+        /// Accent-tinted buttons and primary actions.
+        func emphasisAction(_ accent: Color) -> Color {
+            accent.opacity(Tokens.Opacity.fillAccent)
+        }
+
         /// Accent-tinted surfaces (buttons, banners).
         func emphasis(_ accent: Color) -> Color {
             accent.opacity(Tokens.Opacity.fillAccent)
@@ -53,6 +66,13 @@ struct AppTheme {
 
         /// High-contrast inverted surfaces (rest cards, badges, selected toggles).
         var bold: Color {
+            isDark
+                ? .white.opacity(Tokens.Opacity.foregroundRest)
+                : .black.opacity(0.85)
+        }
+
+        /// High-contrast button surfaces.
+        var boldAction: Color {
             isDark
                 ? .white.opacity(Tokens.Opacity.foregroundRest)
                 : .black.opacity(0.85)
@@ -105,6 +125,27 @@ struct AppTheme {
         var error: Color { .red.opacity(0.9) }
     }
 
+    // MARK: Icon
+
+    struct IconTokens {
+        fileprivate let isDark: Bool
+
+        /// Monochrome primary icon tint.
+        var neutral: AppIconStyleToken { .neutral }
+
+        /// Monochrome secondary icon tint.
+        var subtle: AppIconStyleToken { .subtle }
+
+        /// Use the symbol's built-in colours.
+        var original: AppIconStyleToken { .original }
+
+        /// Settings row icons use original symbol colours in dark mode
+        /// and a monochrome neutral tint in light mode.
+        var settingsRow: AppIconStyleToken {
+            isDark ? original : neutral
+        }
+    }
+
     // MARK: - Screen Gradient Helpers
 
     /// Start colour of the full-screen app gradient.
@@ -115,6 +156,31 @@ struct AppTheme {
     /// End colour of the full-screen app gradient.
     func appGradientEnd(accent: Color) -> Color {
         isDark ? accent.opacity(Tokens.Opacity.fillGradientEnd) : accent
+    }
+}
+
+enum AppIconStyleToken: Equatable {
+    case neutral
+    case subtle
+    case original
+}
+
+extension View {
+    @ViewBuilder
+    func appIconStyle(_ style: AppIconStyleToken, theme: AppTheme) -> some View {
+        switch style {
+        case .neutral:
+            self
+                .symbolRenderingMode(.monochrome)
+                .foregroundStyle(theme.text.neutral)
+        case .subtle:
+            self
+                .symbolRenderingMode(.monochrome)
+                .foregroundStyle(theme.text.subtle)
+        case .original:
+            self
+                .symbolRenderingMode(.multicolor)
+        }
     }
 }
 

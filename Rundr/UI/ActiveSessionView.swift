@@ -183,7 +183,7 @@ struct ActiveSessionView: View {
                 .padding(.horizontal, 22)
                 .padding(.vertical, Tokens.Spacing.sm)
                 .frame(maxHeight: 120)
-                .background(Capsule().fill(theme.background.emphasis(primaryColor)))
+                .background(Capsule().fill(theme.background.emphasisAction(primaryColor)))
                 .overlay(timerBorderOverlay)
                 .overlay(lapGlowOverlay)
                 .overlay(alignment: .top) {
@@ -833,7 +833,7 @@ private struct WorkoutControlIcon: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(theme.background.emphasis(baseColor))
+                .fill(theme.background.emphasisAction(baseColor))
 
             Circle()
                 .stroke(theme.stroke.emphasis(baseColor), lineWidth: Tokens.LineWidth.thick)

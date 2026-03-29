@@ -200,6 +200,7 @@ struct PreStartView: View {
                         SettingsCardRow(
                             icon: "square.grid.2x2",
                             title: L10n.browse,
+                            usesActionBackground: false,
                             showsChevron: true
                         )
                     }
@@ -535,6 +536,7 @@ private struct SegmentRow: View {
     let onTap: () -> Void
     let onDelete: () -> Void
     @State private var isDeleteConfirmationPresented = false
+    @Environment(\.appTheme) private var theme
 
     private let detailColumns = [
         GridItem(.flexible(), spacing: 10, alignment: .topLeading),
@@ -625,7 +627,7 @@ private struct SegmentRow: View {
                 VStack(alignment: .leading, spacing: Tokens.Spacing.sm) {
                     Text(distanceDisplay)
                         .font(.system(size: Tokens.FontSize.xl, weight: .semibold, design: .rounded))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(theme.text.neutral)
                     if hasSecondaryDetails {
                         LazyVGrid(columns: detailColumns, alignment: .leading, spacing: Tokens.Spacing.md) {
                             ForEach(detailItems) { item in
@@ -636,7 +638,7 @@ private struct SegmentRow: View {
 
                                     Text(item.value)
                                         .font(.caption2)
-                                        .foregroundStyle(.white)
+                                        .foregroundStyle(theme.text.neutral)
                                 }
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             }
@@ -648,7 +650,7 @@ private struct SegmentRow: View {
                 .padding(.vertical, Tokens.Spacing.xl)
                 .background(
                     RoundedRectangle(cornerRadius: Tokens.Radius.xxxl, style: .continuous)
-                        .fill(Color.white.opacity(Tokens.Opacity.fillInput))
+                        .fill(theme.background.neutralInteraction)
                 )
                 .contentShape(RoundedRectangle(cornerRadius: Tokens.Radius.xxxl, style: .continuous))
             }
@@ -1258,6 +1260,7 @@ private struct SegmentEditSheet: View {
     let onRequestLocationAccess: () -> Void
     let onDistanceModeChanged: (Bool) -> Void
     let onDone: () -> Void
+    @Environment(\.appTheme) private var theme
 
     private let defaultDistanceText = "400"
     private let durationKeypadRows: [[String]] = [
@@ -1335,58 +1338,62 @@ private struct SegmentEditSheet: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
-                Text(L10n.distanceType)
-                    .font(.caption.bold())
-                    .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
-                    .padding(.horizontal, Tokens.Spacing.xs)
-                    .padding(.top, Tokens.Spacing.md)
+        ZStack {
+            AppScreenBackground(accentColor: accentColor)
 
-                HStack(spacing: Tokens.Spacing.md) {
-                    distanceModeButton(title: L10n.fixedDistance, isSelected: !usesOpenDistance) {
-                        usesOpenDistance = false
-                        onDistanceModeChanged(false)
-                    }
-                    distanceModeButton(title: L10n.openDistance, isSelected: usesOpenDistance) {
-                        usesOpenDistance = true
-                        onDistanceModeChanged(true)
-                    }
-                }
+            ScrollView {
+                VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
+                    Text(L10n.distanceType)
+                        .font(.caption.bold())
+                        .foregroundStyle(theme.text.subtle)
+                        .padding(.horizontal, Tokens.Spacing.xs)
+                        .padding(.top, Tokens.Spacing.md)
 
-                if usesOpenDistance {
-                    if showsGPSInfoBanner {
-                        TintedInfoBanner(
-                            title: L10n.gpsAlsoEnabledTitle,
-                            subtitle: L10n.gpsAlsoEnabledSubtitle,
-                            tint: .green,
-                            buttonTitle: showsGPSPermissionButton ? L10n.requestLocationAccess : nil,
-                            buttonAction: showsGPSPermissionButton ? onRequestLocationAccess : nil
+                    HStack(spacing: Tokens.Spacing.md) {
+                        distanceModeButton(title: L10n.fixedDistance, isSelected: !usesOpenDistance) {
+                            usesOpenDistance = false
+                            onDistanceModeChanged(false)
+                        }
+                        distanceModeButton(title: L10n.openDistance, isSelected: usesOpenDistance) {
+                            usesOpenDistance = true
+                            onDistanceModeChanged(true)
+                        }
+                    }
+
+                    if usesOpenDistance {
+                        if showsGPSInfoBanner {
+                            TintedInfoBanner(
+                                title: L10n.gpsAlsoEnabledTitle,
+                                subtitle: L10n.gpsAlsoEnabledSubtitle,
+                                tint: .green,
+                                buttonTitle: showsGPSPermissionButton ? L10n.requestLocationAccess : nil,
+                                buttonAction: showsGPSPermissionButton ? onRequestLocationAccess : nil
+                            )
+                            .transition(.move(edge: .top).combined(with: .opacity))
+                        }
+                    } else {
+                        DistanceInputView(
+                            label: distanceLabel,
+                            accentColor: accentColor,
+                            text: $distanceText
                         )
-                        .transition(.move(edge: .top).combined(with: .opacity))
                     }
-                } else {
-                    DistanceInputView(
-                        label: distanceLabel,
-                        accentColor: accentColor,
-                        text: $distanceText
-                    )
-                }
 
-                ForEach(orderedSections, id: \.self) { section in
-                    sectionView(section)
-                }
+                    ForEach(orderedSections, id: \.self) { section in
+                        sectionView(section)
+                    }
 
-                Button(L10n.done) {
-                    onDone()
+                    Button(L10n.done) {
+                        onDone()
+                    }
+                    .font(.system(size: Tokens.FontSize.lg, weight: .bold, design: .rounded))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, Tokens.Spacing.xl)
+                    .padding(.top, Tokens.Spacing.xs)
                 }
-                .font(.system(size: Tokens.FontSize.lg, weight: .bold, design: .rounded))
-                .frame(maxWidth: .infinity)
+                .padding(.horizontal, Tokens.Spacing.xl)
                 .padding(.vertical, Tokens.Spacing.xl)
-                .padding(.top, Tokens.Spacing.xs)
             }
-            .padding(.horizontal, Tokens.Spacing.xl)
-            .padding(.vertical, Tokens.Spacing.xl)
         }
         .onDisappear {
             if distanceText.isEmpty {
@@ -1510,7 +1517,7 @@ private struct SegmentEditSheet: View {
         Group {
             Text(L10n.repeats)
                 .font(.caption.bold())
-                .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
+                .foregroundStyle(theme.text.subtle)
                 .padding(.horizontal, Tokens.Spacing.xs)
                 .padding(.top, Tokens.Spacing.xs)
 
@@ -1523,8 +1530,8 @@ private struct SegmentEditSheet: View {
                     Image(systemName: "minus")
                         .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
-                        .foregroundStyle(.white)
+                        .background(Circle().fill(theme.background.neutralAction))
+                        .foregroundStyle(theme.text.neutral)
                 }
                 .buttonStyle(.plain)
 
@@ -1543,8 +1550,8 @@ private struct SegmentEditSheet: View {
                     Image(systemName: "plus")
                         .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
-                        .foregroundStyle(.white)
+                        .background(Circle().fill(theme.background.neutralAction))
+                        .foregroundStyle(theme.text.neutral)
                 }
                 .buttonStyle(.plain)
             }
@@ -1555,7 +1562,7 @@ private struct SegmentEditSheet: View {
         Group {
             Text(L10n.rest)
                 .font(.caption.bold())
-                .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
+                .foregroundStyle(theme.text.subtle)
                 .padding(.horizontal, Tokens.Spacing.xs)
                 .padding(.top, Tokens.Spacing.xs)
 
@@ -1575,8 +1582,8 @@ private struct SegmentEditSheet: View {
                     Image(systemName: "minus")
                         .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
-                        .foregroundStyle(.white)
+                        .background(Circle().fill(theme.background.neutralAction))
+                        .foregroundStyle(theme.text.neutral)
                 }
                 .buttonStyle(.plain)
 
@@ -1595,8 +1602,8 @@ private struct SegmentEditSheet: View {
                     Image(systemName: "plus")
                         .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
-                        .foregroundStyle(.white)
+                        .background(Circle().fill(theme.background.neutralAction))
+                        .foregroundStyle(theme.text.neutral)
                 }
                 .buttonStyle(.plain)
             }
@@ -1609,7 +1616,7 @@ private struct SegmentEditSheet: View {
             VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
                 Text(L10n.lastRest)
                     .font(.caption.bold())
-                    .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
+                    .foregroundStyle(theme.text.subtle)
                     .padding(.horizontal, Tokens.Spacing.xs)
                     .padding(.top, Tokens.Spacing.xs)
 
@@ -1626,8 +1633,8 @@ private struct SegmentEditSheet: View {
                         Image(systemName: "minus")
                             .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                             .frame(width: 36, height: 36)
-                            .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
-                            .foregroundStyle(.white)
+                            .background(Circle().fill(theme.background.neutralAction))
+                            .foregroundStyle(theme.text.neutral)
                     }
                     .buttonStyle(.plain)
 
@@ -1648,8 +1655,8 @@ private struct SegmentEditSheet: View {
                         Image(systemName: "plus")
                             .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                             .frame(width: 36, height: 36)
-                            .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
-                            .foregroundStyle(.white)
+                            .background(Circle().fill(theme.background.neutralAction))
+                            .foregroundStyle(theme.text.neutral)
                     }
                     .buttonStyle(.plain)
                 }
@@ -1679,15 +1686,15 @@ private struct SegmentEditSheet: View {
                 Text(L10n.addLastRest)
                     .font(.system(size: Tokens.FontSize.md, weight: .semibold, design: .rounded))
             }
-            .foregroundStyle(.white.opacity(isEnabled ? 1 : 0.8))
+            .foregroundStyle(theme.text.neutral.opacity(isEnabled ? 1 : 0.8))
             .frame(maxWidth: .infinity)
             .padding(.vertical, Tokens.Spacing.lg)
             .background(
                 RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous)
-                    .fill(Color.white.opacity(Tokens.Opacity.fillSubtle))
+                    .fill(theme.background.neutralAction)
                     .overlay(
                         RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous)
-                            .stroke(Color.white.opacity(Tokens.Opacity.fillInput), lineWidth: Tokens.LineWidth.thin)
+                            .stroke(theme.stroke.neutral, lineWidth: Tokens.LineWidth.thin)
                     )
             )
         }
@@ -1703,7 +1710,7 @@ private struct SegmentEditSheet: View {
         Group {
             Text(paceFieldTitle)
                 .font(.caption.bold())
-                .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
+                .foregroundStyle(theme.text.subtle)
                 .padding(.horizontal, Tokens.Spacing.xs)
                 .padding(.top, Tokens.Spacing.md)
 
@@ -1719,8 +1726,8 @@ private struct SegmentEditSheet: View {
                     Image(systemName: "minus")
                         .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
-                        .foregroundStyle(.white)
+                        .background(Circle().fill(theme.background.neutralAction))
+                        .foregroundStyle(theme.text.neutral)
                 }
                 .buttonStyle(.plain)
 
@@ -1741,8 +1748,8 @@ private struct SegmentEditSheet: View {
                     Image(systemName: "plus")
                         .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
-                        .foregroundStyle(.white)
+                        .background(Circle().fill(theme.background.neutralAction))
+                        .foregroundStyle(theme.text.neutral)
                 }
                 .buttonStyle(.plain)
             }
@@ -1753,7 +1760,7 @@ private struct SegmentEditSheet: View {
         Group {
             Text(L10n.time)
                 .font(.caption.bold())
-                .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
+                .foregroundStyle(theme.text.subtle)
                 .padding(.horizontal, Tokens.Spacing.xs)
                 .padding(.top, Tokens.Spacing.xs)
 
@@ -1769,8 +1776,8 @@ private struct SegmentEditSheet: View {
                     Image(systemName: "minus")
                         .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
-                        .foregroundStyle(.white)
+                        .background(Circle().fill(theme.background.neutralAction))
+                        .foregroundStyle(theme.text.neutral)
                 }
                 .buttonStyle(.plain)
 
@@ -1791,8 +1798,8 @@ private struct SegmentEditSheet: View {
                     Image(systemName: "plus")
                         .font(.system(size: Tokens.FontSize.lg, weight: .bold))
                         .frame(width: 36, height: 36)
-                        .background(Circle().fill(Color.white.opacity(Tokens.Opacity.fillCard)))
-                        .foregroundStyle(.white)
+                        .background(Circle().fill(theme.background.neutralAction))
+                        .foregroundStyle(theme.text.neutral)
                 }
                 .buttonStyle(.plain)
             }
@@ -1802,12 +1809,12 @@ private struct SegmentEditSheet: View {
     private func editorValueField(_ text: String) -> some View {
         ZStack {
             RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous)
-                .fill(Color.white.opacity(Tokens.Opacity.fillInput))
+                .fill(theme.background.neutralAction)
 
             Text(text)
                 .font(.system(size: Tokens.FontSize.xl, weight: .bold, design: .rounded))
                 .monospacedDigit()
-                .foregroundStyle(.white)
+                .foregroundStyle(theme.text.neutral)
         }
         .frame(maxWidth: .infinity, minHeight: 46)
     }
@@ -1994,7 +2001,7 @@ private struct ReadyStartIcon: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(theme.background.emphasis(baseColor))
+                .fill(theme.background.emphasisAction(baseColor))
 
             Circle()
                 .stroke(theme.stroke.emphasis(baseColor), lineWidth: Tokens.LineWidth.thick)
@@ -2022,6 +2029,7 @@ private struct SettingsCardRow: View {
     let icon: String
     let title: String
     var value: String? = nil
+    var usesActionBackground: Bool = true
     var showsChevron: Bool = false
     @Environment(\.appTheme) private var theme
 
@@ -2029,7 +2037,7 @@ private struct SettingsCardRow: View {
         HStack(alignment: .center, spacing: Tokens.Spacing.xl) {
             Image(systemName: icon)
                 .font(.system(size: Tokens.FontSize.xl, weight: .semibold))
-                .foregroundStyle(.white)
+                .appIconStyle(theme.icon.settingsRow, theme: theme)
                 .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 3) {
@@ -2049,8 +2057,8 @@ private struct SettingsCardRow: View {
                         .allowsTightening(true)
                 }
             }
-
             .layoutPriority(1)
+
             Spacer(minLength: Tokens.Spacing.lg)
 
             if showsChevron {
@@ -2063,7 +2071,7 @@ private struct SettingsCardRow: View {
         .padding(.vertical, Tokens.Spacing.xxxl)
         .background(
             RoundedRectangle(cornerRadius: Tokens.Radius.xxxxl, style: .continuous)
-                .fill(theme.background.neutralAction)
+                .fill(usesActionBackground ? theme.background.neutralAction : theme.background.neutral)
         )
     }
 }

@@ -12,6 +12,10 @@ final class HealthKitManager: ObservableObject {
     @Published var isAuthorized = false
     @Published var authorizationError: String?
 
+    init() {
+        refreshAuthorizationState()
+    }
+
     var supportsLiveWorkoutSessions: Bool {
         !Self.isRunningTests && HKHealthStore.isHealthDataAvailable()
     }
@@ -56,6 +60,7 @@ final class HealthKitManager: ObservableObject {
         guard HKHealthStore.isHealthDataAvailable() else {
             await MainActor.run {
                 self.authorizationError = L10n.healthDataNotAvailable
+                self.isAuthorized = false
             }
             return
         }
@@ -63,13 +68,25 @@ final class HealthKitManager: ObservableObject {
         do {
             try await healthStore.requestAuthorization(toShare: writeTypes, read: readTypes)
             await MainActor.run {
-                self.isAuthorized = true
+                self.refreshAuthorizationState()
+                self.authorizationError = self.isAuthorized ? nil : L10n.healthAccessDenied
             }
         } catch {
             await MainActor.run {
+                self.isAuthorized = false
                 self.authorizationError = error.localizedDescription
             }
         }
+    }
+
+    func refreshAuthorizationState() {
+        guard HKHealthStore.isHealthDataAvailable() else {
+            isAuthorized = false
+            return
+        }
+
+        let workoutAuthorization = healthStore.authorizationStatus(for: HKObjectType.workoutType())
+        isAuthorized = workoutAuthorization == .sharingAuthorized
     }
 
     /// Fetches the most recent body mass (weight) in kg for calorie estimation.

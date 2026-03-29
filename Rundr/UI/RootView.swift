@@ -53,6 +53,20 @@ extension View {
     }
 }
 
+enum HealthAccessPolicy {
+    static func shouldShowInitialPrompt(
+        hasCompletedInitialPrompt: Bool,
+        hasDismissedPromptThisLaunch: Bool,
+        isAuthorized: Bool
+    ) -> Bool {
+        !isAuthorized && !hasCompletedInitialPrompt && !hasDismissedPromptThisLaunch
+    }
+
+    static func shouldCompleteInitialPromptAfterRequest(isAuthorized: Bool) -> Bool {
+        isAuthorized
+    }
+}
+
 struct SelectionToggleButton: View {
     let title: String
     let isSelected: Bool
@@ -181,7 +195,11 @@ struct RootView: View {
     }
 
     private var shouldShowInitialHealthAccess: Bool {
-        !hasCompletedInitialHealthAccessPrompt && !hasDismissedHealthAccessPromptThisLaunch
+        HealthAccessPolicy.shouldShowInitialPrompt(
+            hasCompletedInitialPrompt: hasCompletedInitialHealthAccessPrompt,
+            hasDismissedPromptThisLaunch: hasDismissedHealthAccessPromptThisLaunch,
+            isAuthorized: healthKitManager.isAuthorized
+        )
     }
 
     private var recoverySnapshotToOffer: OngoingWorkoutSnapshot? {
@@ -198,7 +216,9 @@ struct RootView: View {
             await MainActor.run {
                 withAnimation(.easeInOut(duration: 0.28)) {
                     isRequestingHealthAccess = false
-                    hasCompletedInitialHealthAccessPrompt = true
+                    hasCompletedInitialHealthAccessPrompt = HealthAccessPolicy.shouldCompleteInitialPromptAfterRequest(
+                        isAuthorized: healthKitManager.isAuthorized
+                    )
                 }
             }
         }

@@ -123,6 +123,9 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private var lastHealthKitCumulativeDistanceMeters: Double = 0
     private var lastPersistedElapsedSecond: Int = -1
 
+    var healthAuthorizationStatusProvider: (() -> Bool)?
+    var healthAuthorizationRequester: (() async -> Void)?
+
     var autoRestDetectionDelay: Duration = .seconds(10)
 
     // HealthKit workout session
@@ -236,6 +239,14 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         runState = .active
 
         startTimer()
+        if let healthKitManager,
+           !(healthAuthorizationStatusProvider?() ?? healthKitManager.isAuthorized) {
+            if let healthAuthorizationRequester {
+                await healthAuthorizationRequester()
+            } else {
+                await healthKitManager.requestAuthorization()
+            }
+        }
         await startHealthKitWorkout()
         if usesGPSDistance {
             startLocationUpdates()

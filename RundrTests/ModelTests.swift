@@ -3,6 +3,40 @@ import XCTest
 
 final class ModelTests: XCTestCase {
 
+    // MARK: - Health Access Policy
+
+    func testInitialHealthPromptShowsWhenAccessIsPending() {
+        XCTAssertTrue(
+            HealthAccessPolicy.shouldShowInitialPrompt(
+                hasCompletedInitialPrompt: false,
+                hasDismissedPromptThisLaunch: false,
+                isAuthorized: false
+            )
+        )
+    }
+
+    func testInitialHealthPromptStaysHiddenWhenAlreadyAuthorized() {
+        XCTAssertFalse(
+            HealthAccessPolicy.shouldShowInitialPrompt(
+                hasCompletedInitialPrompt: false,
+                hasDismissedPromptThisLaunch: false,
+                isAuthorized: true
+            )
+        )
+    }
+
+    func testInitialHealthPromptStaysIncompleteWhenAuthorizationIsNotGranted() {
+        XCTAssertFalse(
+            HealthAccessPolicy.shouldCompleteInitialPromptAfterRequest(isAuthorized: false)
+        )
+    }
+
+    func testInitialHealthPromptCompletesWhenAuthorizationIsGranted() {
+        XCTAssertTrue(
+            HealthAccessPolicy.shouldCompleteInitialPromptAfterRequest(isAuthorized: true)
+        )
+    }
+
     // MARK: - TrackingMode
 
     func testTrackingModeDisplayNames() {

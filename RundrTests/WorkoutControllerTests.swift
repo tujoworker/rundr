@@ -438,6 +438,48 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertFalse(manager.supportsLiveWorkoutSessions)
     }
 
+    func testStartRequestsAuthorizationWhenHealthKitIsNotAuthorized() async {
+        let controller = makeController()
+        let healthKitManager = HealthKitManager()
+        var requestAuthorizationCallCount = 0
+
+        controller.configure(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [.default],
+            healthKitManager: healthKitManager
+        )
+        controller.healthAuthorizationStatusProvider = { false }
+        controller.healthAuthorizationRequester = {
+            requestAuthorizationCallCount += 1
+        }
+
+        await controller.start()
+
+        XCTAssertEqual(requestAuthorizationCallCount, 1)
+    }
+
+    func testStartSkipsAuthorizationWhenHealthKitIsAlreadyAuthorized() async {
+        let controller = makeController()
+        let healthKitManager = HealthKitManager()
+        var requestAuthorizationCallCount = 0
+
+        controller.configure(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [.default],
+            healthKitManager: healthKitManager
+        )
+        controller.healthAuthorizationStatusProvider = { true }
+        controller.healthAuthorizationRequester = {
+            requestAuthorizationCallCount += 1
+        }
+
+        await controller.start()
+
+        XCTAssertEqual(requestAuthorizationCallCount, 0)
+    }
+
     func testAutoDetectRestEntersRestAfterDelay() async {
         let controller = makeController()
         controller.configure(

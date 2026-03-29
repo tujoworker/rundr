@@ -7,14 +7,18 @@
 
 ## Translation Rules
 
-- Always localize user-facing strings.
-- Prefer `L10n` constants over inline string literals in SwiftUI and model/UI code.
-- When adding a new user-facing string, update all three places together:
-  - `Rundr/Helpers/L10n.swift`
-  - `Rundr/de.lproj/Localizable.strings`
-  - `Rundr/nb.lproj/Localizable.strings`
+- **Never** write a bare string literal in any SwiftUI view or view-model that is displayed to the user.
+  - Forbidden: `Text("Get Ready")`, `Button("Cancel", ...)`, `Section("Summary")`, `.navigationTitle("Session")`, `Label("Delete", ...)`, `LabeledContent("Time", ...)`
+  - Required: `Text(L10n.getReady)`, `Button(L10n.cancel, ...)`, `Section(L10n.summary)`, `.navigationTitle(L10n.session)`, `Label(L10n.delete, ...)`, `LabeledContent(L10n.time, ...)`
+  - Interpolated strings must also use L10n: use `L10n.heartRateBPM(value)` instead of `"Heart Rate \(value) bpm"`.
+  - Exceptions that may stay as bare literals: SF Symbol names (`"figure.run"`), brand names (`"Rundr"`, `"Apple Watch"`), format specifiers, empty strings, and non-displayed identifiers.
+- Before adding a new string, **search `L10n.swift`** for an existing constant with the same or equivalent wording. Reuse it if it fits.
+- When a new user-facing string is needed, update **all three files together in the same change**:
+  1. `Rundr/Helpers/L10n.swift` — add or update the `static let` / `static func`.
+  2. `Rundr/de.lproj/Localizable.strings` — add the German translation.
+  3. `Rundr/nb.lproj/Localizable.strings` — add the Norwegian (Bokmål) translation.
+- For dynamic strings (containing runtime values), create a `static func` that uses `String(format: String(localized: …), …)` — see `lapIndex(_:)` or `heartRateBPM(_:)` for examples.
 - Do not leave new English-only UI text in the app.
-- Reuse existing localized labels when the wording already exists.
 
 ## Coding Style
 

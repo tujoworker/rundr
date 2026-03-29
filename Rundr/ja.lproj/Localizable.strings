@@ -1,0 +1,175 @@
+/* Japanese translations for Rundr */
+
+/* PreStart */
+"Press the Action Button" = "アクションボタンを押す";
+"Settings" = "設定";
+"Adjust Interval" = "インターバルを調整";
+"Browse" = "ブラウズ";
+"Intervals" = "インターバル";
+"My intervals" = "マイインターバル";
+"Predefined" = "プリセット";
+"Title" = "タイトル";
+"Title (optional)" = "タイトル（任意）";
+"No saved intervals yet" = "保存済みインターバルなし";
+"Tracking Mode" = "トラッキングモード";
+"Distance" = "距離";
+"Add Interval" = "インターバルを追加";
+"Distance (meters)" = "距離（メートル）";
+"Distance (feet)" = "距離（フィート）";
+"Distance (m)" = "距離 (m)";
+"Distance (ft)" = "距離 (ft)";
+"Distance Type" = "距離タイプ";
+"Fixed" = "固定";
+"Open" = "オープン";
+"Repeats" = "リピート";
+"Rest" = "レスト";
+"Last Rest" = "ラストレスト";
+"Add Last Rest" = "ラストレストを追加";
+"GPS Also Enabled" = "GPSも有効";
+"Open intervals use GPS distance, so this workout switched to Dual." = "オープンインターバルはGPS距離を使用するため、デュアルモードに切り替わりました。";
+"Enable GPS Access" = "GPSアクセスを有効にする";
+"Unit" = "単位";
+"Color" = "カラー";
+"Rest Mode" = "レストモード";
+"Manual" = "手動";
+"Auto-detect" = "自動検出";
+"e.g. 400" = "例: 400";
+"e.g. 1320" = "例: 1320";
+"Location Required" = "位置情報が必要です";
+"OK" = "OK";
+"GPS-based modes need location access. The mode was switched back to Distance." = "GPSモードには位置情報へのアクセスが必要です。モードは距離に戻されました。";
+"Cancel" = "キャンセル";
+"Distance Unit" = "距離の単位";
+"Primary Color" = "メインカラー";
+"Done" = "完了";
+"s" = "秒";
+"m" = "分";
+
+/* Active Session */
+"Edit Lap" = "ラップを編集";
+"This lap will be treated as rest." = "このラップはレストとして扱われます。";
+"Delete Lap" = "ラップを削除";
+"Lap %d" = "ラップ %d";
+"Rest %ds" = "レスト %d秒";
+"End Rest" = "レスト終了";
+"Pause" = "一時停止";
+"Resume" = "再開";
+"Paused" = "一時停止中";
+"End" = "終了";
+"Delete" = "削除";
+"Active" = "アクティブ";
+
+/* Pace / Units */
+"/km" = "/km";
+"/mi" = "/mi";
+"—" = "—";
+
+/* Home */
+"Get Ready" = "準備する";
+"No sessions yet" = "セッションなし";
+"Load More" = "もっと読み込む";
+"Continue" = "続ける";
+"Laps: %d • %@" = "ラップ: %d • %@";
+"Time: %@ • %@" = "タイム: %@ • %@";
+"From Apple Watch" = "Apple Watchから";
+"Imported Session" = "インポート済みセッション";
+"Delivered from Apple Watch and saved on iPhone." = "Apple Watchから受信し、iPhoneに保存しました。";
+"Source" = "ソース";
+"Import Status" = "インポート状況";
+"Import Complete" = "インポート完了";
+"Unknown Source" = "不明なソース";
+"Imported from %@" = "%@からインポート";
+
+/* Root / Health */
+"Session not found" = "セッションが見つかりません";
+"Rundr needs:" = "Rundrに必要なもの:";
+"Health Access" = "ヘルスケアへのアクセス";
+"Not now" = "あとで";
+"Health data not available on this device." = "このデバイスではヘルスケアデータを利用できません.";
+"Resume?" = "再開しますか？";
+"Rundr found an unfinished activity. If you continue, it opens paused so you can choose when to resume." = "Rundrが未完了のアクティビティを検出しました。続行すると、一時停止状態で開くので再開タイミングを選べます。";
+"Continue Workout" = "ワークアウトを続ける";
+"Discard Workout" = "ワークアウトを破棄";
+"Status" = "ステータス";
+"Started" = "開始";
+
+/* Session Detail */
+"Session" = "セッション";
+"Stats" = "統計";
+"Rest" = "レスト";
+"Laps" = "ラップ";
+"Duration" = "時間";
+"Ended" = "終了";
+"Summary" = "サマリー";
+"Manual Distance" = "手動距離";
+"GPS Distance" = "GPS距離";
+"GPS Pace" = "GPSペース";
+"Heart Rate" = "心拍数";
+"Target Time" = "目標タイム";
+"Target Pace" = "目標ペース";
+"Still sending to iPhone" = "iPhoneに送信中";
+"This workout is saved on your Watch. It will appear in Rundr on your phone when your watch and phone connect." = "このワークアウトはApple Watchに保存されています。WatchとiPhoneが接続されると、iPhone上のRundrに表示されます。";
+"On your iPhone" = "iPhoneに保存済み";
+"Rundr on your iPhone already has this workout." = "iPhone上のRundrにはこのワークアウトがすでに保存されています。";
+"Use Activity" = "アクティビティを使用";
+"Redo Activity" = "アクティビティをやり直す";
+"Delete Session" = "セッションを削除";
+"This session will be permanently deleted." = "このセッションは完全に削除されます。";
+"Loaded from %@" = "%@から読み込み";
+"%d saved" = "%d件保存済み";
+
+/* Tracking Mode */
+"GPS" = "GPS";
+"Dual" = "デュアル";
+"GPS: %@" = "GPS: %@";
+
+/* Distance Unit */
+"Kilometers" = "キロメートル";
+"Miles" = "マイル";
+
+/* Primary Color */
+"Blue" = "ブルー";
+"Green" = "グリーン";
+"Yellow" = "イエロー";
+"Orange" = "オレンジ";
+"Pink" = "ピンク";
+"White" = "ホワイト";
+"Dark" = "ダーク";
+
+/* Lap Type */
+"Activity" = "アクティビティ";
+
+/* Intents */
+"Start Intervals" = "インターバルを開始";
+"Start a intervals workout." = "インターバルワークアウトを開始します。";
+"Workout" = "ワークアウト";
+"Lap" = "ラップ";
+
+/* Target */
+"Target" = "ターゲット";
+"Pace" = "ペース";
+"Time" = "タイム";
+"Off" = "オフ";
+"On" = "オン";
+"Alerts" = "アラート";
+"%@ in %@" = "%@を%@で";
+
+/* Preset usage */
+"%dx" = "%d回";
+"%@ \U2022 %@" = "%@ \U2022 %@";
+
+/* Distance/Unit suffixes - "m" is used for both minutes and meters */
+"km" = "km";
+"m" = "m";
+"mi" = "mi";
+"ft" = "ft";
+
+/* Companion */
+"Waiting for Watch\U2026" = "Watchに接続中\U2026";
+"Live on Apple Watch" = "Apple Watchでライブ";
+"Synced Sessions" = "同期済みセッション";
+"No synced sessions yet" = "同期済みセッションなし";
+"Heart Rate %d bpm" = "心拍数 %d bpm";
+"Idle" = "待機中";
+"Ready" = "準備完了";
+"Ending" = "終了中";

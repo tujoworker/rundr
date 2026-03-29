@@ -86,13 +86,27 @@
 "Health Access" = "Gesundheitszugriff";
 "Not now" = "Nicht jetzt";
 "Health data not available on this device." = "Gesundheitsdaten sind auf diesem Gerät nicht verfügbar.";
+"Resume?" = "Fortsetzen?";
+"Rundr found an unfinished activity. If you continue, it opens paused so you can choose when to resume." = "Rundr hat eine unvollständige Aktivität gefunden. Wenn du fortfährst, wird sie pausiert geöffnet, sodass du selbst entscheiden kannst, wann du weitermachst.";
+"Continue Workout" = "Training fortsetzen";
+"Discard Workout" = "Training verwerfen";
+"Status" = "Status";
+"Started" = "Gestartet";
 
 /* Session Detail */
 "Session" = "Training";
+"Stats" = "Statistiken";
 "Rest" = "Pause";
+"Laps" = "Runden";
 "Duration" = "Dauer";
 "Ended" = "Beendet";
 "Summary" = "Zusammenfassung";
+"Manual Distance" = "Manuelle Distanz";
+"GPS Distance" = "GPS-Distanz";
+"GPS Pace" = "GPS-Tempo";
+"Heart Rate" = "Herzfrequenz";
+"Target Time" = "Zielzeit";
+"Target Pace" = "Zieltempo";
 "Still sending to iPhone" = "Wird noch ans iPhone übertragen";
 "This workout is saved on your Watch. It will appear in Rundr on your phone when your watch and phone connect." = "Dieses Training ist auf deiner Apple Watch gespeichert. Es erscheint in Rundr auf dem iPhone, sobald sich Apple Watch und iPhone verbinden.";
 "On your iPhone" = "Auf dem iPhone";
@@ -144,6 +158,7 @@
 
 /* Preset usage */
 "%dx" = "%dx";
+"%@ \U2022 %@" = "%@ \U2022 %@";
 
 /* Distance/Unit suffixes - "m" is used for both minutes and meters */
 "km" = "km";

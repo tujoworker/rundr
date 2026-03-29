@@ -86,13 +86,27 @@
 "Health Access" = "Helsetilgang";
 "Not now" = "Ikke nå";
 "Health data not available on this device." = "Helsedata er ikke tilgjengelig på denne enheten.";
+"Resume?" = "Fortsette?";
+"Rundr found an unfinished activity. If you continue, it opens paused so you can choose when to resume." = "Rundr fant en uferdig aktivitet. Hvis du fortsetter, åpnes den pauset slik at du kan velge når du vil gjenoppta.";
+"Continue Workout" = "Fortsett trening";
+"Discard Workout" = "Forkast trening";
+"Status" = "Status";
+"Started" = "Startet";
 
 /* Session Detail */
 "Session" = "Økt";
+"Stats" = "Statistikk";
 "Rest" = "Hvile";
+"Laps" = "Runder";
 "Duration" = "Varighet";
 "Ended" = "Avsluttet";
 "Summary" = "Sammendrag";
+"Manual Distance" = "Manuell distanse";
+"GPS Distance" = "GPS-distanse";
+"GPS Pace" = "GPS-tempo";
+"Heart Rate" = "Puls";
+"Target Time" = "Måltid";
+"Target Pace" = "Måltempo";
 "Still sending to iPhone" = "Sender fortsatt til iPhone";
 "This workout is saved on your Watch. It will appear in Rundr on your phone when your watch and phone connect." = "Denne økta er lagret på Apple Watch. Den vises i Rundr på telefonen når klokken og telefonen er koblet sammen.";
 "On your iPhone" = "På telefonen";
@@ -144,6 +158,7 @@
 
 /* Preset usage */
 "%dx" = "%dx";
+"%@ \U2022 %@" = "%@ \U2022 %@";
 
 /* Distance/Unit suffixes - "m" is used for both minutes and meters */
 "km" = "km";

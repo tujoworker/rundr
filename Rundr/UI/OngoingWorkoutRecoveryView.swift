@@ -34,17 +34,19 @@ struct OngoingWorkoutRecoveryView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, Tokens.Spacing.lg)
                 }
+                .accentRoundedButtonChrome(accentColor: accentColor)
+                .buttonStyle(.plain)
 
                 Button(role: .destructive, action: onDiscard) {
                     Text(L10n.discardWorkout)
-                        .font(.footnote.weight(.semibold))
-                        .frame(maxWidth: .infinity, minHeight: 34)
+                        .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, Tokens.Spacing.md)
                 }
+                .tintedSurfaceButtonChrome(tintColor: .red)
                 .buttonStyle(.plain)
-                .foregroundStyle(theme.text.subtle)
             }
             .padding(.horizontal, 16)
-            .tint(accentColor)
 
             Spacer(minLength: Tokens.Spacing.xl)
         }

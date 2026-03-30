@@ -43,11 +43,7 @@ struct OngoingWorkoutRecoveryView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, Tokens.Spacing.md)
                 }
-                .foregroundStyle(.red)
-                .background(
-                    RoundedRectangle(cornerRadius: Tokens.Radius.pill, style: .continuous)
-                        .fill(theme.background.destructiveAction(.red))
-                )
+                .destructiveFillButtonChrome(tintColor: .red)
                 .buttonStyle(.plain)
             }
             .padding(.horizontal, 16)

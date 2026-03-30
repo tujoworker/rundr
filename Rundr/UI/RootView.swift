@@ -25,6 +25,9 @@ struct AccentRoundedButtonChrome: ViewModifier {
 
     func body(content: Content) -> some View {
         content
+            .multilineTextAlignment(.center)
+            .lineLimit(nil)
+            .fixedSize(horizontal: false, vertical: true)
             .foregroundStyle(theme.text.emphasis)
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
@@ -45,6 +48,9 @@ struct TintedSurfaceButtonChrome: ViewModifier {
 
     func body(content: Content) -> some View {
         content
+            .multilineTextAlignment(.center)
+            .lineLimit(nil)
+            .fixedSize(horizontal: false, vertical: true)
             .foregroundStyle(tintColor)
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
@@ -53,6 +59,24 @@ struct TintedSurfaceButtonChrome: ViewModifier {
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
                     .stroke(theme.stroke.emphasis(tintColor), lineWidth: lineWidth)
+            )
+    }
+}
+
+struct DestructiveFillButtonChrome: ViewModifier {
+    let tintColor: Color
+    var cornerRadius: CGFloat = Tokens.Radius.pill
+    @Environment(\.appTheme) private var theme
+
+    func body(content: Content) -> some View {
+        content
+            .multilineTextAlignment(.center)
+            .lineLimit(nil)
+            .fixedSize(horizontal: false, vertical: true)
+            .foregroundStyle(tintColor)
+            .background(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .fill(theme.background.destructiveAction(tintColor))
             )
     }
 }
@@ -82,6 +106,18 @@ extension View {
                 tintColor: tintColor,
                 cornerRadius: cornerRadius,
                 lineWidth: lineWidth
+            )
+        )
+    }
+
+    func destructiveFillButtonChrome(
+        tintColor: Color,
+        cornerRadius: CGFloat = Tokens.Radius.pill
+    ) -> some View {
+        modifier(
+            DestructiveFillButtonChrome(
+                tintColor: tintColor,
+                cornerRadius: cornerRadius
             )
         )
     }

@@ -56,8 +56,8 @@ enum Tokens {
         static let foregroundBody: Double = 0.80
         /// 0.78 – pre-start small detail color
         static let foregroundDetail: Double = 0.78
-        /// 0.72 – secondary text, hints, captions
-        static let foregroundSecondary: Double = 0.72
+        /// 0.78 – secondary text, hints, captions
+        static let foregroundSecondary: Double = 0.78
         /// 0.68 – sidebar text in session detail
         static let foregroundTertiary: Double = 0.68
         /// 0.55 – de-emphasized counts, inactive labels

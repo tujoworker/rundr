@@ -25,8 +25,8 @@
 "Rest" = "Hvile";
 "Last Rest" = "Siste hvile";
 "Add Last Rest" = "Legg til siste hvile";
-"GPS Also Enabled" = "GPS er også aktivert";
-"Open intervals use GPS distance, so this workout switched to Dual." = "Åpne intervaller bruker GPS-distanse, så denne økta ble byttet til Dual.";
+"GPS Required" = "GPS påkrevd";
+"Open intervals uses GPS to meassure distance. This activity has switched to Dual Mode." = "Åpne intervaller bruker GPS til å måle distanse. Denne aktiviteten har byttet til Dual-modus.";
 "Enable GPS Access" = "Aktiver GPS-tilgang";
 "Unit" = "Enhet";
 "Color" = "Farge";
@@ -134,8 +134,9 @@
 "Blue" = "Blå";
 "Green" = "Grønn";
 "Yellow" = "Gul";
-"Orange" = "Oransje";
+"Red" = "Rød";
 "Pink" = "Rosa";
+"Violet" = "Fiolett";
 "White" = "Hvit";
 "Dark" = "Mørk";
 

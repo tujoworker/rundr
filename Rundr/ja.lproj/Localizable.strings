@@ -25,8 +25,8 @@
 "Rest" = "レスト";
 "Last Rest" = "ラストレスト";
 "Add Last Rest" = "ラストレストを追加";
-"GPS Also Enabled" = "GPSも有効";
-"Open intervals use GPS distance, so this workout switched to Dual." = "オープンインターバルはGPS距離を使用するため、デュアルモードに切り替わりました。";
+"GPS Required" = "GPS必須";
+"Open intervals uses GPS to meassure distance. This activity has switched to Dual Mode." = "オープンインターバルはGPSを使用して距離を測定します。このアクティビティはデュアルモードに切り替わりました。";
 "Enable GPS Access" = "GPSアクセスを有効にする";
 "Unit" = "単位";
 "Color" = "カラー";
@@ -133,8 +133,9 @@
 "Blue" = "ブルー";
 "Green" = "グリーン";
 "Yellow" = "イエロー";
-"Orange" = "オレンジ";
+"Red" = "レッド";
 "Pink" = "ピンク";
+"Violet" = "バイオレット";
 "White" = "ホワイト";
 "Dark" = "ダーク";
 

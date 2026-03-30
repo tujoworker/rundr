@@ -25,8 +25,8 @@
 "Rest" = "Pause";
 "Last Rest" = "Letzte Pause";
 "Add Last Rest" = "Letzte Pause hinzufügen";
-"GPS Also Enabled" = "GPS ebenfalls aktiviert";
-"Open intervals use GPS distance, so this workout switched to Dual." = "Offene Intervalle nutzen GPS-Distanz, daher wurde dieses Training auf Dual umgestellt.";
+"GPS Required" = "GPS erforderlich";
+"Open intervals uses GPS to meassure distance. This activity has switched to Dual Mode." = "Offene Intervalle verwenden GPS zur Distanzmessung. Diese Aktivität wurde auf Dual-Modus umgestellt.";
 "Enable GPS Access" = "GPS-Zugriff aktivieren";
 "Unit" = "Einheit";
 "Color" = "Farbe";
@@ -134,8 +134,9 @@
 "Blue" = "Blau";
 "Green" = "Grün";
 "Yellow" = "Gelb";
-"Orange" = "Orange";
+"Red" = "Rot";
 "Pink" = "Rosa";
+"Violet" = "Violett";
 "White" = "Weiß";
 "Dark" = "Dunkel";
 

@@ -150,6 +150,12 @@ final class AppearanceModeTests: XCTestCase {
             accuracy: 0.001
         )
         assertEqualComponents(
+            try rgbaComponents(for: darkTheme.stroke.headerDivider(accent)),
+            [0.8, 0.4, 0.2, Tokens.Opacity.strokeAccentStrong],
+            accuracy: 0.001
+        )
+        XCTAssertEqual(try rgbaComponents(for: lightTheme.stroke.headerDivider(accent)), [1, 1, 1, 1])
+        assertEqualComponents(
             try rgbaComponents(for: darkTheme.background.swipeAction(accent)),
             [0.8, 0.4, 0.2, 1],
             accuracy: 0.001

@@ -66,6 +66,8 @@ enum Tokens {
         static let foregroundDisabled: Double = 0.45
         /// 0.40 – accent button stroke
         static let strokeAccent: Double = 0.40
+        /// 0.60 – strong accent divider stroke
+        static let strokeAccentStrong: Double = 0.60
         /// 0.20 – accent button fill
         static let fillAccent: Double = 0.20
         /// 0.18 – screen gradient end, dark overlay base

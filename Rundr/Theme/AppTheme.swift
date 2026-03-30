@@ -148,6 +148,12 @@ struct AppTheme {
                 : .white.opacity(Tokens.Opacity.strokeAccent)
         }
 
+        /// Keypad header divider keeps the original accent stroke in dark mode
+        /// and uses a white separator in light mode.
+        func headerDivider(_ accent: Color) -> Color {
+            isDark ? accent.opacity(Tokens.Opacity.strokeAccentStrong) : .white
+        }
+
         /// Success borders.
         var success: Color {
             isDark

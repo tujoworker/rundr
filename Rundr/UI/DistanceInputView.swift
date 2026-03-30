@@ -147,6 +147,7 @@ struct NumericKeypadEditorScreen: View {
     @Binding var text: String
     let onTapKey: (String, inout String) -> Void
     let onDone: () -> Void
+    @Environment(\.appTheme) private var theme
 
     private let headerContentHeight: CGFloat = 8
 
@@ -178,10 +179,11 @@ struct NumericKeypadEditorScreen: View {
                     }
                     .frame(maxWidth: .infinity)
                     .frame(height: topInset + headerContentHeight)
+                    .ignoresSafeArea(edges: [.top, .horizontal])
                     .overlay(alignment: .bottom) {
                         Rectangle()
-                            .fill(accentColor.opacity(0.6))
-                            .frame(height: 2)
+                            .fill(theme.stroke.headerDivider(accentColor))
+                            .frame(height: Tokens.LineWidth.thin)
                     }
 
                     ScrollView {

@@ -75,6 +75,13 @@ struct AppTheme {
                 : .white.opacity(Tokens.Opacity.fillAccent)
         }
 
+        /// Destructive action backgrounds.
+        func destructiveAction(_ accent: Color) -> Color {
+            isDark
+                ? accent.opacity(Tokens.Opacity.fillAccent)
+                : .black.opacity(Tokens.Opacity.fillAccent)
+        }
+
         /// Success surfaces, such as confirmation or guidance banners.
         var success: Color {
             isDark

@@ -19,7 +19,7 @@ struct AppScreenBackground: View {
 
 struct AccentRoundedButtonChrome: ViewModifier {
     let accentColor: Color
-    var cornerRadius: CGFloat = Tokens.Radius.xxxl
+    var cornerRadius: CGFloat = Tokens.Radius.pill
     var lineWidth: CGFloat = Tokens.LineWidth.regular
     @Environment(\.appTheme) private var theme
 
@@ -39,7 +39,7 @@ struct AccentRoundedButtonChrome: ViewModifier {
 
 struct TintedSurfaceButtonChrome: ViewModifier {
     let tintColor: Color
-    var cornerRadius: CGFloat = Tokens.Radius.xxxl
+    var cornerRadius: CGFloat = Tokens.Radius.pill
     var lineWidth: CGFloat = Tokens.LineWidth.regular
     @Environment(\.appTheme) private var theme
 
@@ -60,7 +60,7 @@ struct TintedSurfaceButtonChrome: ViewModifier {
 extension View {
     func accentRoundedButtonChrome(
         accentColor: Color,
-        cornerRadius: CGFloat = Tokens.Radius.xxxl,
+        cornerRadius: CGFloat = Tokens.Radius.pill,
         lineWidth: CGFloat = Tokens.LineWidth.regular
     ) -> some View {
         modifier(
@@ -74,7 +74,7 @@ extension View {
 
     func tintedSurfaceButtonChrome(
         tintColor: Color,
-        cornerRadius: CGFloat = Tokens.Radius.xxxl,
+        cornerRadius: CGFloat = Tokens.Radius.pill,
         lineWidth: CGFloat = Tokens.LineWidth.regular
     ) -> some View {
         modifier(
@@ -229,6 +229,9 @@ struct RootView: View {
             ActiveSessionView(onSessionEnded: {
                 coordinator.sessionEnded()
             })
+            .onAppear {
+                finalizeRecoveredWorkoutPresentationIfNeeded()
+            }
         }
     }
 
@@ -274,20 +277,25 @@ struct RootView: View {
     private func continueRecoveredWorkout() {
         guard let snapshot = ongoingWorkoutStore.startupSnapshot else { return }
 
-        ongoingWorkoutStore.consumeStartupSnapshot()
         workoutController.restore(snapshot: snapshot, healthKitManager: healthKitManager)
         workoutController.lapAlertsEnabled = settings.lapAlerts
         workoutController.restAlertsEnabled = settings.restAlerts
         coordinator.goToActiveSession()
+    }
+
+    private func discardRecoveredWorkout() {
+        ongoingWorkoutStore.clear()
+        workoutController.resetForNextSession()
 
         withAnimation(.easeInOut(duration: 0.28)) {
             hasHandledWorkoutRecoveryPromptThisLaunch = true
         }
     }
 
-    private func discardRecoveredWorkout() {
-        ongoingWorkoutStore.clear()
-        workoutController.resetForNextSession()
+    private func finalizeRecoveredWorkoutPresentationIfNeeded() {
+        guard recoverySnapshotToOffer != nil else { return }
+
+        ongoingWorkoutStore.consumeStartupSnapshot()
 
         withAnimation(.easeInOut(duration: 0.28)) {
             hasHandledWorkoutRecoveryPromptThisLaunch = true

@@ -43,7 +43,11 @@ struct OngoingWorkoutRecoveryView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, Tokens.Spacing.md)
                 }
-                .tintedSurfaceButtonChrome(tintColor: .red)
+                .foregroundStyle(.red)
+                .background(
+                    RoundedRectangle(cornerRadius: Tokens.Radius.pill, style: .continuous)
+                        .fill(theme.background.destructiveAction(.red))
+                )
                 .buttonStyle(.plain)
             }
             .padding(.horizontal, 16)

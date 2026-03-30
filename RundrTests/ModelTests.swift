@@ -41,6 +41,16 @@ final class ModelTests: XCTestCase {
         )
     }
 
+    func testInitialHealthPromptStaysHiddenAfterLaunchDismissal() {
+        XCTAssertFalse(
+            HealthAccessPolicy.shouldShowInitialPrompt(
+                hasCompletedInitialPrompt: false,
+                hasDismissedPromptThisLaunch: true,
+                isAuthorized: false
+            )
+        )
+    }
+
     func testInitialHealthPromptStaysIncompleteWhenAuthorizationIsNotGranted() {
         XCTAssertFalse(
             HealthAccessPolicy.shouldCompleteInitialPromptAfterRequest(isAuthorized: false)
@@ -50,6 +60,18 @@ final class ModelTests: XCTestCase {
     func testInitialHealthPromptCompletesWhenAuthorizationIsGranted() {
         XCTAssertTrue(
             HealthAccessPolicy.shouldCompleteInitialPromptAfterRequest(isAuthorized: true)
+        )
+    }
+
+    func testInitialHealthPromptDismissesForCurrentLaunchWhenAuthorizationIsNotGranted() {
+        XCTAssertTrue(
+            HealthAccessPolicy.shouldDismissInitialPromptForCurrentLaunchAfterRequest(isAuthorized: false)
+        )
+    }
+
+    func testInitialHealthPromptDoesNotDismissForCurrentLaunchWhenAuthorizationIsGranted() {
+        XCTAssertFalse(
+            HealthAccessPolicy.shouldDismissInitialPromptForCurrentLaunchAfterRequest(isAuthorized: true)
         )
     }
 

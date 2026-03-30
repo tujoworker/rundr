@@ -99,6 +99,10 @@ enum HealthAccessPolicy {
     static func shouldCompleteInitialPromptAfterRequest(isAuthorized: Bool) -> Bool {
         isAuthorized
     }
+
+    static func shouldDismissInitialPromptForCurrentLaunchAfterRequest(isAuthorized: Bool) -> Bool {
+        !isAuthorized
+    }
 }
 
 struct SelectionToggleButton: View {
@@ -251,6 +255,9 @@ struct RootView: View {
                 withAnimation(.easeInOut(duration: 0.28)) {
                     isRequestingHealthAccess = false
                     hasCompletedInitialHealthAccessPrompt = HealthAccessPolicy.shouldCompleteInitialPromptAfterRequest(
+                        isAuthorized: healthKitManager.isAuthorized
+                    )
+                    hasDismissedHealthAccessPromptThisLaunch = HealthAccessPolicy.shouldDismissInitialPromptForCurrentLaunchAfterRequest(
                         isAuthorized: healthKitManager.isAuthorized
                     )
                 }

@@ -620,8 +620,6 @@ private let lapCardTopPadding: CGFloat = 10
 private let lapCardLeadingPadding: CGFloat = 8
 private let lapCardBottomPadding: CGFloat = 10
 private let lapCardTrailingPadding: CGFloat = 14
-private let standardLapCardBackground = Color.white.opacity(Tokens.Opacity.fillCard)
-
 struct PlaceholderLapCardView: View {
     var accentColor: Color = .blue
     @Environment(\.appTheme) private var theme
@@ -648,7 +646,7 @@ struct PlaceholderLapCardView: View {
         .padding(.bottom, lapCardBottomPadding)
         .padding(.trailing, lapCardTrailingPadding)
         .frame(height: latestCardHeight)
-        .background(theme.background.emphasis(accentColor))
+        .background(theme.background.emphasisCard(accentColor))
         .cornerRadius(Tokens.Radius.xl)
         .overlay(
             RoundedRectangle(cornerRadius: Tokens.Radius.xl)
@@ -673,7 +671,7 @@ struct LapCardView: View {
             return theme.background.bold
         }
 
-        return theme.background.emphasis(accentColor)
+        return theme.background.emphasisCard(accentColor)
     }
 
     var body: some View {

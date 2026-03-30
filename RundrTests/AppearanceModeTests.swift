@@ -151,6 +151,23 @@ final class AppearanceModeTests: XCTestCase {
         )
     }
 
+    func testAppThemeUsesWhiteActiveCardBackgroundInLightMode() throws {
+        let accent = Color(red: 0.8, green: 0.4, blue: 0.2)
+        let darkTheme = AppTheme(colorScheme: .dark)
+        let lightTheme = AppTheme(colorScheme: .light)
+
+        assertEqualComponents(
+            try rgbaComponents(for: darkTheme.background.emphasisCard(accent)),
+            [0.8, 0.4, 0.2, Tokens.Opacity.fillAccent],
+            accuracy: 0.001
+        )
+        assertEqualComponents(
+            try rgbaComponents(for: lightTheme.background.emphasisCard(accent)),
+            [1, 1, 1, Tokens.Opacity.fillAccent],
+            accuracy: 0.001
+        )
+    }
+
     func testAppThemeUsesWhiteBoldSurfacesAndBlackBoldTextInLightMode() throws {
         let darkTheme = AppTheme(colorScheme: .dark)
         let lightTheme = AppTheme(colorScheme: .light)

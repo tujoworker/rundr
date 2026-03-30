@@ -87,6 +87,13 @@ struct AppTheme {
             accent.opacity(Tokens.Opacity.fillAccent)
         }
 
+        /// Active-session lap cards.
+        func emphasisCard(_ accent: Color) -> Color {
+            isDark
+                ? accent.opacity(Tokens.Opacity.fillAccent)
+                : .white.opacity(Tokens.Opacity.fillAccent)
+        }
+
         /// Swipe action backgrounds.
         func swipeAction(_ accent: Color) -> Color {
             isDark

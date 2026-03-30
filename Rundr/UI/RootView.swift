@@ -32,7 +32,7 @@ struct AccentRoundedButtonChrome: ViewModifier {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .stroke(theme.stroke.emphasis(accentColor), lineWidth: lineWidth)
+                    .stroke(theme.stroke.emphasisAction(accentColor), lineWidth: lineWidth)
             )
     }
 }

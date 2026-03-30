@@ -701,6 +701,7 @@ struct HistorySessionSetupView: View {
 struct IntervalLibraryView: View {
     @EnvironmentObject var settings: SettingsStore
     @EnvironmentObject var coordinator: NavigationCoordinator
+    @Environment(\.appTheme) private var theme
     @State private var displayedPresetCount = 10
 
     private var visiblePresets: [IntervalPreset] {
@@ -755,6 +756,7 @@ struct IntervalLibraryView: View {
                             } label: {
                                 Label(L10n.delete, systemImage: "trash")
                             }
+                            .tint(theme.background.swipeAction(settings.primaryAccentColor))
                         }
                         .listRowInsets(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4))
                         .listRowBackground(Color.clear)
@@ -2026,7 +2028,7 @@ private struct ReadyStartIcon: View {
                 .fill(theme.background.emphasisAction(baseColor))
 
             Circle()
-                .stroke(theme.stroke.emphasis(baseColor), lineWidth: Tokens.LineWidth.thick)
+                .stroke(theme.stroke.emphasisAction(baseColor), lineWidth: Tokens.LineWidth.thick)
                 .padding(Tokens.LineWidth.regular)
         }
         .overlay {

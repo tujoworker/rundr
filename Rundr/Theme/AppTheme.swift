@@ -42,6 +42,18 @@ struct AppTheme {
                 : .black.opacity(0.08)
         }
 
+        /// History cards and session detail containers.
+        var history: Color {
+            isDark
+                ? .white.opacity(Tokens.Opacity.fillCard)
+                : .white.opacity(Tokens.Opacity.fillCard)
+        }
+
+        /// Rest rows within history surfaces.
+        var historyRest: Color {
+            .white
+        }
+
         /// Interactive controls: buttons, toggles, tappable fields.
         var neutralAction: Color {
             isDark
@@ -58,7 +70,9 @@ struct AppTheme {
 
         /// Accent-tinted buttons and primary actions.
         func emphasisAction(_ accent: Color) -> Color {
-            accent.opacity(Tokens.Opacity.fillAccent)
+            isDark
+                ? accent.opacity(Tokens.Opacity.fillAccent)
+                : .white.opacity(Tokens.Opacity.fillAccent)
         }
 
         /// Success surfaces, such as confirmation or guidance banners.
@@ -73,18 +87,25 @@ struct AppTheme {
             accent.opacity(Tokens.Opacity.fillAccent)
         }
 
+        /// Swipe action backgrounds.
+        func swipeAction(_ accent: Color) -> Color {
+            isDark
+                ? accent
+                : .white.opacity(Tokens.Opacity.fillAccent)
+        }
+
         /// High-contrast inverted surfaces (rest cards, badges, selected toggles).
         var bold: Color {
             isDark
                 ? .white.opacity(Tokens.Opacity.foregroundRest)
-                : .black.opacity(0.85)
+                    : .white
         }
 
         /// High-contrast button surfaces.
         var boldAction: Color {
             isDark
                 ? .white.opacity(Tokens.Opacity.foregroundRest)
-                : .black.opacity(0.85)
+                    : .white
         }
     }
 
@@ -104,6 +125,13 @@ struct AppTheme {
         /// Accent-tinted borders.
         func emphasis(_ accent: Color) -> Color {
             accent.opacity(Tokens.Opacity.strokeAccent)
+        }
+
+        /// Borders for accent-tinted buttons and primary actions.
+        func emphasisAction(_ accent: Color) -> Color {
+            isDark
+                ? accent.opacity(Tokens.Opacity.strokeAccent)
+                : .white.opacity(Tokens.Opacity.strokeAccent)
         }
 
         /// Success borders.
@@ -140,7 +168,10 @@ struct AppTheme {
         var success: Color { successBaseColor }
 
         /// Text on bold (inverted) surfaces.
-        var bold: Color { isDark ? .black : .white }
+            var bold: Color { isDark ? .black : .black }
+
+        /// Text on rest rows within history surfaces.
+        var historyRest: Color { .black }
 
         /// Error text.
         var error: Color { .red.opacity(0.9) }

@@ -256,7 +256,7 @@ private struct SessionStatsView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(Tokens.Spacing.md)
-            .background(theme.background.neutral)
+            .background(theme.background.history)
             .cornerRadius(Tokens.Radius.medium)
             .padding(.horizontal, Tokens.Spacing.xs)
             .padding(.bottom, Tokens.Spacing.sm)
@@ -444,8 +444,8 @@ struct LapRowView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Tokens.Spacing.md)
-        .background(lap.lapType == .rest ? theme.background.bold : theme.background.neutral)
-        .foregroundColor(lap.lapType == .rest ? theme.text.bold : theme.text.neutral)
+        .background(lap.lapType == .rest ? theme.background.historyRest : theme.background.history)
+        .foregroundColor(lap.lapType == .rest ? theme.text.historyRest : theme.text.neutral)
         .cornerRadius(Tokens.Radius.medium)
         .padding(.horizontal, Tokens.Spacing.xs)
     }

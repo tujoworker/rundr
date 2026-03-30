@@ -4,6 +4,7 @@ struct HomeView: View {
     @EnvironmentObject var persistence: PersistenceManager
     @EnvironmentObject var settings: SettingsStore
     @EnvironmentObject var coordinator: NavigationCoordinator
+    @Environment(\.appTheme) private var theme
     @StateObject private var viewModel = HomeViewModel()
 
     var onGetReady: () -> Void
@@ -47,6 +48,7 @@ struct HomeView: View {
                             } label: {
                                 Label(L10n.delete, systemImage: "trash")
                             }
+                            .tint(theme.background.swipeAction(settings.primaryAccentColor))
                         }
                         .listRowInsets(EdgeInsets(top: Tokens.Spacing.xxs, leading: Tokens.Spacing.xs, bottom: Tokens.Spacing.xxs, trailing: Tokens.Spacing.xs))
                         .listRowBackground(Color.clear)
@@ -154,7 +156,7 @@ struct SessionRowView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Tokens.Spacing.md)
-        .background(theme.background.neutral)
+        .background(theme.background.history)
         .cornerRadius(Tokens.Radius.medium)
     }
 }

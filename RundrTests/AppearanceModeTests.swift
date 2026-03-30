@@ -54,6 +54,40 @@ final class AppearanceModeTests: XCTestCase {
         )
     }
 
+    func testAppThemeUsesWhiteHistoryBackgroundInLightMode() throws {
+        let darkTheme = AppTheme(colorScheme: .dark)
+        let lightTheme = AppTheme(colorScheme: .light)
+
+        assertEqualComponents(
+            try rgbaComponents(for: darkTheme.background.history),
+            [1, 1, 1, Tokens.Opacity.fillCard],
+            accuracy: 0.001
+        )
+        assertEqualComponents(
+            try rgbaComponents(for: lightTheme.background.history),
+            [1, 1, 1, Tokens.Opacity.fillCard],
+            accuracy: 0.001
+        )
+    }
+
+    func testAppThemeUsesHistoryRestTokens() throws {
+        let darkTheme = AppTheme(colorScheme: .dark)
+        let lightTheme = AppTheme(colorScheme: .light)
+
+        assertEqualComponents(
+            try rgbaComponents(for: darkTheme.background.historyRest),
+            [1, 1, 1, 1],
+            accuracy: 0.001
+        )
+        assertEqualComponents(
+            try rgbaComponents(for: lightTheme.background.historyRest),
+            [1, 1, 1, 1],
+            accuracy: 0.001
+        )
+        XCTAssertEqual(try rgbaComponents(for: darkTheme.text.historyRest), [0, 0, 0, 1])
+        XCTAssertEqual(try rgbaComponents(for: lightTheme.text.historyRest), [0, 0, 0, 1])
+    }
+
     func testAppThemeUsesDifferentNeutralInteractionBackgroundColorsForDarkAndLightModes() throws {
         let darkTheme = AppTheme(colorScheme: .dark)
         let lightTheme = AppTheme(colorScheme: .light)
@@ -82,7 +116,7 @@ final class AppearanceModeTests: XCTestCase {
         )
         assertEqualComponents(
             try rgbaComponents(for: lightTheme.background.emphasisAction(accent)),
-            [0.8, 0.4, 0.2, Tokens.Opacity.fillAccent],
+            [1, 1, 1, Tokens.Opacity.fillAccent],
             accuracy: 0.001
         )
         assertEqualComponents(
@@ -92,9 +126,47 @@ final class AppearanceModeTests: XCTestCase {
         )
         assertEqualComponents(
             try rgbaComponents(for: lightTheme.background.boldAction),
-            [0, 0, 0, 0.85],
+            [1, 1, 1, 1],
             accuracy: 0.001
         )
+        assertEqualComponents(
+            try rgbaComponents(for: darkTheme.stroke.emphasisAction(accent)),
+            [0.8, 0.4, 0.2, Tokens.Opacity.strokeAccent],
+            accuracy: 0.001
+        )
+        assertEqualComponents(
+            try rgbaComponents(for: lightTheme.stroke.emphasisAction(accent)),
+            [1, 1, 1, Tokens.Opacity.strokeAccent],
+            accuracy: 0.001
+        )
+        assertEqualComponents(
+            try rgbaComponents(for: darkTheme.background.swipeAction(accent)),
+            [0.8, 0.4, 0.2, 1],
+            accuracy: 0.001
+        )
+        assertEqualComponents(
+            try rgbaComponents(for: lightTheme.background.swipeAction(accent)),
+            [1, 1, 1, Tokens.Opacity.fillAccent],
+            accuracy: 0.001
+        )
+    }
+
+    func testAppThemeUsesWhiteBoldSurfacesAndBlackBoldTextInLightMode() throws {
+        let darkTheme = AppTheme(colorScheme: .dark)
+        let lightTheme = AppTheme(colorScheme: .light)
+
+        assertEqualComponents(
+            try rgbaComponents(for: darkTheme.background.bold),
+            [1, 1, 1, Tokens.Opacity.foregroundRest],
+            accuracy: 0.001
+        )
+        assertEqualComponents(
+            try rgbaComponents(for: lightTheme.background.bold),
+            [1, 1, 1, 1],
+            accuracy: 0.001
+        )
+        XCTAssertEqual(try rgbaComponents(for: darkTheme.text.bold), [0, 0, 0, 1])
+        XCTAssertEqual(try rgbaComponents(for: lightTheme.text.bold), [0, 0, 0, 1])
     }
 
     func testAppThemeUsesSuccessTokens() throws {

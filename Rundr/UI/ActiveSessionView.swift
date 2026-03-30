@@ -102,7 +102,7 @@ struct ActiveSessionView: View {
 
     private var timerBorderOverlay: some View {
         Capsule()
-            .strokeBorder(theme.stroke.emphasis(primaryColor), lineWidth: Tokens.LineWidth.thick)
+            .strokeBorder(theme.stroke.emphasisAction(primaryColor), lineWidth: Tokens.LineWidth.thick)
     }
 
     private var lapGlowOverlay: some View {
@@ -836,7 +836,7 @@ private struct WorkoutControlIcon: View {
                 .fill(theme.background.emphasisAction(baseColor))
 
             Circle()
-                .stroke(theme.stroke.emphasis(baseColor), lineWidth: Tokens.LineWidth.thick)
+                .stroke(theme.stroke.emphasisAction(baseColor), lineWidth: Tokens.LineWidth.thick)
                 .padding(Tokens.LineWidth.regular)
         }
         .overlay {

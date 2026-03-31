@@ -2059,7 +2059,7 @@ private struct ReadyStartIcon: View {
                 .padding(Tokens.LineWidth.regular)
         }
         .overlay {
-            Image(systemName: "figure.run")
+            Image(systemName: "play.fill")
                 .font(.system(size: 34, weight: .bold))
                 .foregroundStyle(theme.text.emphasis)
         }

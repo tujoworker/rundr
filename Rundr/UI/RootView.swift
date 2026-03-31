@@ -136,8 +136,11 @@ enum HealthAccessPolicy {
         isAuthorized
     }
 
-    static func shouldDismissInitialPromptForCurrentLaunchAfterRequest(isAuthorized: Bool) -> Bool {
-        !isAuthorized
+    static func shouldDismissInitialPromptForCurrentLaunchAfterRequest(
+        isAuthorized: Bool,
+        authorizationError: String?
+    ) -> Bool {
+        !isAuthorized && authorizationError == nil
     }
 }
 
@@ -297,7 +300,8 @@ struct RootView: View {
                         isAuthorized: healthKitManager.isAuthorized
                     )
                     hasDismissedHealthAccessPromptThisLaunch = HealthAccessPolicy.shouldDismissInitialPromptForCurrentLaunchAfterRequest(
-                        isAuthorized: healthKitManager.isAuthorized
+                        isAuthorized: healthKitManager.isAuthorized,
+                        authorizationError: healthKitManager.authorizationError
                     )
                 }
             }

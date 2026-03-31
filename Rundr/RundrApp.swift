@@ -54,9 +54,6 @@ struct RundrApp: App {
                 .onChange(of: workoutController.runState) { _, _ in
                     processPendingActionButtonCommand()
                 }
-                .onReceive(ActionButtonCommandStore.commandQueued) { _ in
-                    processPendingActionButtonCommand()
-                }
         }
     }
 

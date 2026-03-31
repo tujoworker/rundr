@@ -103,11 +103,15 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         return trackingMode
     }
 
+    /// Weak reference for direct access from AppIntents running in-process.
+    static weak var current: WorkoutSessionController?
+
     // MARK: - Internal
 
     private var sessionStartDate: Date?
     private var currentSessionID: UUID?
     private var currentLapStartDate: Date?
+    private var lastActionButtonLapDate: Date?
     private var currentLapHeartRateSamples: [Double] = []
     private var pauseStartedAt: Date?
     private var pausedRunState: WorkoutRunState?
@@ -236,6 +240,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         lastLocation = nil
         clearPauseState()
         cancelPendingAutoRestDetection()
+        Self.current = self
         runState = .active
 
         startTimer()
@@ -277,6 +282,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         lastLocation = nil
         clearPauseState()
         cancelPendingAutoRestDetection()
+        Self.current = self
         runState = .active
         startTimer()
         lastPersistedElapsedSecond = 0
@@ -295,6 +301,12 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     func markLap(source: LapSource = .distanceTap) {
         guard runState == .active || runState == .rest || runState == .ending else { return }
+        // Debounce rapid action-button triggers (HK segment event + intent may both fire)
+        if source == .actionButton {
+            let now = Date()
+            if let last = lastActionButtonLapDate, now.timeIntervalSince(last) < 1.0 { return }
+            lastActionButtonLapDate = now
+        }
         let wasResting = (runState == .rest)
         clearTimeGoalWarning()
         // Capture rest config before commit (which may advance the segment)
@@ -508,6 +520,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     }
 
     func resetForNextSession() {
+        Self.current = nil
         runState = .idle
         elapsedSeconds = 0
         lapElapsedSeconds = 0
@@ -1088,11 +1101,14 @@ extension WorkoutSessionController: HKWorkoutSessionDelegate {
     ) {
         let eventType = event.type
         Task { @MainActor in
-            guard self.restMode == .autoDetect else { return }
             switch eventType {
+            case .segment:
+                self.markLap(source: .actionButton)
             case .motionPaused:
+                guard self.restMode == .autoDetect else { return }
                 self.handleAutoRestMotionPause()
             case .motionResumed:
+                guard self.restMode == .autoDetect else { return }
                 self.handleAutoRestMotionResume()
             default:
                 break

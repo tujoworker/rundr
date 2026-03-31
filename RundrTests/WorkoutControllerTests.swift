@@ -106,6 +106,29 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.completedLaps.count, 1)
     }
 
+    func testActionButtonLapDebouncesRapidPresses() {
+        let controller = makeStartedController()
+
+        controller.markLap(source: .actionButton)
+        controller.markLap(source: .actionButton)
+
+        XCTAssertEqual(controller.completedLaps.count, 1,
+                       "Second action-button lap within 1 s should be ignored")
+    }
+
+    func testStartSetsCurrent() {
+        let controller = makeStartedController()
+
+        XCTAssertTrue(WorkoutSessionController.current === controller)
+    }
+
+    func testResetClearsCurrent() {
+        let controller = makeStartedController()
+        controller.resetForNextSession()
+
+        XCTAssertNil(WorkoutSessionController.current)
+    }
+
     func testDistanceTapLapStillHonorsMinimumLapDurationGuard() {
         let controller = makeStartedController()
         controller.minimumLapDuration = 2

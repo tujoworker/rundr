@@ -169,13 +169,13 @@ struct ActiveSessionView: View {
                 if let timerStatusBadgeText {
                     Text(timerStatusBadgeText)
                         .font(StatusBadgeStyle.font)
-                        .foregroundStyle(theme.text.neutral)
+                        .foregroundStyle(primaryColor)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                         .fixedSize(horizontal: true, vertical: false)
                         .padding(.horizontal, StatusBadgeStyle.horizontalPadding)
                         .padding(.vertical, StatusBadgeStyle.verticalPadding)
-                        .background(StatusBadgeStyle.background(theme, accent: primaryColor))
+                        .background(StatusBadgeStyle.background(theme))
                         .offset(y: -Tokens.Spacing.badgeLift)
                 }
             }
@@ -759,9 +759,9 @@ private enum StatusBadgeStyle {
     static let horizontalPadding: CGFloat = Tokens.Spacing.sm
     static let verticalPadding: CGFloat = Tokens.Spacing.xxxs
 
-    static func background(_ theme: AppTheme, accent: Color) -> some View {
+    static func background(_ theme: AppTheme) -> some View {
         Capsule(style: .continuous)
-            .fill(theme.background.statusBadge(accent))
+            .fill(theme.background.statusBadge)
     }
 }
 

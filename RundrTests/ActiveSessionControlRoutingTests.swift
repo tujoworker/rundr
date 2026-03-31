@@ -24,4 +24,9 @@ final class ActiveSessionControlRoutingTests: XCTestCase {
     func testPageTransitionDelayMatchesCurrentControlsTiming() {
         XCTAssertEqual(ActiveSessionControlRouting.pageTransitionDelay, .milliseconds(140))
     }
+
+    func testPauseResumeActionTreatsEndingStatesAsPause() {
+        XCTAssertEqual(ActiveSessionControlRouting.pauseResumeAction(for: .ending), .pause)
+        XCTAssertEqual(ActiveSessionControlRouting.pauseResumeAction(for: .ended), .pause)
+    }
 }

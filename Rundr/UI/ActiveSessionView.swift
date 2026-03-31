@@ -290,7 +290,7 @@ struct ActiveSessionView: View {
                         case .pause:
                             workoutController.pauseSession()
                         }
-                        selectedPage = 1
+                        animateControlPageReturn()
                     } label: {
                         VStack(spacing: Tokens.Spacing.sm) {
                             WorkoutControlIcon(
@@ -585,7 +585,7 @@ struct ActiveSessionView: View {
             workoutController.toggleRestWhilePaused()
         }
 
-        animateRestButtonForPageTransition()
+        animateControlPageReturn()
     }
 
     private func presentLapEditor(for lap: Lap) {
@@ -686,7 +686,7 @@ struct ActiveSessionView: View {
         }
     }
 
-    private func animateRestButtonForPageTransition() {
+    private func animateControlPageReturn() {
         restTransitionTask?.cancel()
         restTransitionTask = Task {
             try? await Task.sleep(for: ActiveSessionControlRouting.pageTransitionDelay)

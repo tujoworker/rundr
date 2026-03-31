@@ -779,7 +779,7 @@ struct PlaceholderLapCardView: View {
                     RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous)
                         .fill(theme.background.bold)
                 )
-            Text("—:——")
+            Text(L10n.lapCardPlaceholder)
                 .font(.system(size: 25, weight: .medium, design: .rounded))
                 .monospacedDigit()
                 .foregroundColor(theme.text.neutral)

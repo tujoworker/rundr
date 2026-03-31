@@ -77,6 +77,7 @@ enum L10n {
     static let pacePerKm = String(localized: "/km", comment: "Pace unit")
     static let pacePerMi = String(localized: "/mi", comment: "Pace unit")
     static let dash = String(localized: "—", comment: "Placeholder for missing value")
+    static let lapCardPlaceholder = String(localized: "--", comment: "Placeholder for empty lap card value")
 
     // MARK: - Home
     static let getReady = String(localized: "Get Ready", comment: "Button")

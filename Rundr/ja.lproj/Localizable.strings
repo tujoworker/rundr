@@ -58,6 +58,8 @@
 "Resume" = "再開";
 "Paused" = "一時停止中";
 "End" = "終了";
+"End Workout" = "ワークアウトを終了";
+"Are you sure?" = "よろしいですか？";
 "Delete" = "削除";
 "Active" = "アクティブ";
 

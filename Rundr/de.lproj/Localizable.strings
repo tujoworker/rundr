@@ -58,6 +58,8 @@
 "Resume" = "Fortsetzen";
 "Paused" = "Pausiert";
 "End" = "Beenden";
+"End Workout" = "Workout beenden";
+"Are you sure?" = "Bist du sicher?";
 "Delete" = "Löschen";
 "Active" = "Aktiv";
 

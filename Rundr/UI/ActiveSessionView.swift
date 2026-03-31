@@ -266,8 +266,8 @@ struct ActiveSessionView: View {
                         }
                     }
                     .buttonStyle(.plain)
-                    .confirmationDialog(L10n.endSession, isPresented: $isShowingEndConfirmation, titleVisibility: .visible) {
-                        Button(L10n.endSession, role: .destructive) {
+                    .confirmationDialog(L10n.areYouSure, isPresented: $isShowingEndConfirmation, titleVisibility: .visible) {
+                        Button(L10n.endWorkout, role: .destructive) {
                             finishSession()
                         }
                         Button(L10n.cancel, role: .cancel) {}
@@ -297,8 +297,7 @@ struct ActiveSessionView: View {
                     .buttonStyle(.plain)
                 }
             }
-            .frame(maxWidth: .infinity)
-            .padding(.top, 40)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, Tokens.Spacing.xl)
         }
     }

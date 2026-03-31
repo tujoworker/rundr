@@ -18,13 +18,9 @@ struct ActiveSessionView: View {
     @State private var isRestPulseOn = false
     @State private var isPausePulseOn = false
     @State private var isTimeGoalPulseOn = false
-    @State private var isRestButtonBounceActive = false
-    @State private var isRestButtonGlowActive = false
     @State private var flashTask: Task<Void, Never>?
     @State private var bounceTask: Task<Void, Never>?
     @State private var glowTask: Task<Void, Never>?
-    @State private var restBounceTask: Task<Void, Never>?
-    @State private var restGlowTask: Task<Void, Never>?
     @State private var restTransitionTask: Task<Void, Never>?
     @State private var isShowingSessionComplete = false
     @State private var isEndingSession = false
@@ -264,28 +260,9 @@ struct ActiveSessionView: View {
                     .padding(.horizontal, Tokens.Spacing.xl)
                     .padding(.vertical, Tokens.Spacing.lg)
                     .background(Capsule().fill(theme.background.emphasisAction(primaryColor)))
-                    .overlay(
-                        Capsule()
-                            .strokeBorder(
-                                theme.stroke.emphasisAction(primaryColor),
-                                style: StrokeStyle(
-                                    lineWidth: Tokens.LineWidth.thick,
-                                    dash: restButtonShowsEndRest ? [6, 4] : []
-                                )
-                            )
-                    )
-                    .overlay {
-                        Capsule()
-                            .stroke(Color.white.opacity(isRestButtonGlowActive ? 0.6 : 0), lineWidth: Tokens.LineWidth.thick)
-                            .blur(radius: isRestButtonGlowActive ? 3 : 0)
-                    }
-                    .scaleEffect(isRestButtonBounceActive ? 1.08 : 1)
-                    .brightness(isRestButtonGlowActive ? 0.18 : 0)
-                    .shadow(color: Color.white.opacity(isRestButtonGlowActive ? 0.35 : 0), radius: 12)
-                    .shadow(color: primaryColor.opacity(isRestButtonGlowActive ? 0.45 : 0), radius: 18)
                     .contentShape(Capsule())
                 }
-                .buttonStyle(TimerPressStyle())
+                .buttonStyle(RestPressStyle())
 
                 HStack(spacing: Tokens.Spacing.xxxxl) {
                     Button {
@@ -527,8 +504,6 @@ struct ActiveSessionView: View {
         }
         .onDisappear {
             completedSessionDismissTask?.cancel()
-            restBounceTask?.cancel()
-            restGlowTask?.cancel()
             restTransitionTask?.cancel()
         }
         .toolbar(.hidden, for: .navigationBar)
@@ -612,7 +587,6 @@ struct ActiveSessionView: View {
             workoutController.startRest()
         }
 
-        flashTapBorder()
         animateRestButtonForPageTransition()
     }
 
@@ -715,37 +689,9 @@ struct ActiveSessionView: View {
     }
 
     private func animateRestButtonForPageTransition() {
-        restBounceTask?.cancel()
-        restGlowTask?.cancel()
         restTransitionTask?.cancel()
-
-        withAnimation(.easeOut(duration: 0.08)) {
-            isRestButtonBounceActive = true
-            isRestButtonGlowActive = true
-        }
-
-        restBounceTask = Task {
-            try? await Task.sleep(for: .milliseconds(120))
-            guard !Task.isCancelled else { return }
-            await MainActor.run {
-                withAnimation(.easeOut(duration: 0.6)) {
-                    isRestButtonBounceActive = false
-                }
-            }
-        }
-
-        restGlowTask = Task {
-            try? await Task.sleep(for: .milliseconds(180))
-            guard !Task.isCancelled else { return }
-            await MainActor.run {
-                withAnimation(.easeOut(duration: 0.9)) {
-                    isRestButtonGlowActive = false
-                }
-            }
-        }
-
         restTransitionTask = Task {
-            try? await Task.sleep(for: .milliseconds(220))
+            try? await Task.sleep(for: .milliseconds(140))
             guard !Task.isCancelled else { return }
             await MainActor.run {
                 selectedPage = 1
@@ -1054,6 +1000,14 @@ private struct TimerPressStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .opacity(configuration.isPressed ? 0.7 : 1)
+            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
+private struct RestPressStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.92 : 1)
             .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
 }

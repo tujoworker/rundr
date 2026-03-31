@@ -48,7 +48,6 @@ private struct CompanionAppBackground: View {
 }
 
 private struct CompanionWorkoutsView: View {
-    @EnvironmentObject private var settings: SettingsStore
     @EnvironmentObject private var syncManager: WatchConnectivitySyncManager
     @Environment(\.appTheme) private var theme
     @Query(sort: [SortDescriptor(\Session.startedAt, order: .reverse)]) private var sessions: [Session]
@@ -66,27 +65,6 @@ private struct CompanionWorkoutsView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section {
-                    NavigationLink {
-                        CompanionWorkoutEditorView(
-                            headerTitle: L10n.workoutPlan,
-                            subtitle: L10n.usedWhenStartingOnAppleWatch,
-                            initialWorkoutPlan: settings.currentWorkoutPlan,
-                            initialCustomTitle: nil,
-                            initialStoredPresetID: nil,
-                            showsCustomTitle: false,
-                            autoSaveOnSegmentDone: false
-                        ) { workoutPlan, _, _ in
-                            settings.apply(workoutPlan: workoutPlan)
-                        }
-                    } label: {
-                        CompanionCurrentWorkoutCard()
-                    }
-                    .buttonStyle(.plain)
-                    .listRowInsets(EdgeInsets(top: Tokens.Spacing.md, leading: Tokens.Spacing.xl, bottom: Tokens.Spacing.md, trailing: Tokens.Spacing.xl))
-                    .listRowBackground(Color.clear)
-                }
-
                 if let liveWorkoutState = visibleLiveWorkoutState {
                     Section(L10n.liveOnAppleWatch) {
                         CompanionLiveWorkoutCard(state: liveWorkoutState)
@@ -272,48 +250,6 @@ private struct CompanionSettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .themedCompanionList()
         }
-    }
-}
-
-private struct CompanionCurrentWorkoutCard: View {
-    @EnvironmentObject private var settings: SettingsStore
-    @Environment(\.appTheme) private var theme
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
-            HStack(alignment: .top, spacing: Tokens.Spacing.md) {
-                VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
-                    Text(L10n.currentWorkout)
-                        .font(.headline.weight(.semibold))
-                        .foregroundStyle(theme.text.neutral)
-
-                    Text(L10n.usedWhenStartingOnAppleWatch)
-                        .font(.subheadline)
-                        .foregroundStyle(theme.text.subtle)
-                }
-
-                Spacer(minLength: Tokens.Spacing.md)
-
-                Image(systemName: "chevron.right")
-                    .font(.system(size: Tokens.FontSize.md, weight: .semibold))
-                    .foregroundStyle(theme.text.subtle)
-            }
-
-            Text(settings.currentWorkoutPlan.displayTitle(unit: settings.distanceUnit))
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(theme.text.neutral)
-
-            Text(settings.currentWorkoutPlan.displayDetail(unit: settings.distanceUnit))
-                .font(.subheadline)
-                .foregroundStyle(theme.text.subtle)
-
-            HStack(spacing: Tokens.Spacing.xl) {
-                CompanionMetricPill(title: L10n.mode, value: settings.trackingMode.displayName)
-                CompanionMetricPill(title: L10n.restMode, value: settings.restMode.displayName)
-                CompanionMetricPill(title: L10n.unit, value: settings.distanceUnit.displayName)
-            }
-        }
-        .companionCardChrome()
     }
 }
 

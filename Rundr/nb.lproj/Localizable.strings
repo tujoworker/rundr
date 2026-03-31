@@ -180,8 +180,8 @@
 /* Companion */
 "Waiting for Watch\U2026" = "Venter p\U00e5 klokka\U2026";
 "Live on Apple Watch" = "Live på Apple Watch";
-"Synced Sessions" = "Synkroniserte økter";
-"No synced sessions yet" = "Ingen synkroniserte økter ennå";
+"Sessions" = "Økter";
+"Start an intervals session on Apple Watch." = "Start en intervalløkt på Apple Watch.";
 "Heart Rate %d bpm" = "Puls %d bpm";
 "Idle" = "Klar";
 "Ready" = "Klar";
@@ -194,7 +194,6 @@
 "Dark Mode" = "Mørk";
 "Workouts" = "Økter";
 "Browse" = "Bla gjennom";
-"Current Workout" = "Aktuell økt";
 "Workout Plan" = "Øktplan";
 "Used when you start on Apple Watch." = "Brukes når du starter på Apple Watch.";
 "Edit Interval" = "Rediger intervall";

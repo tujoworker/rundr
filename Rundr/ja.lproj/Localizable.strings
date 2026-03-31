@@ -178,8 +178,8 @@
 /* Companion */
 "Waiting for Watch\U2026" = "Watchに接続中\U2026";
 "Live on Apple Watch" = "Apple Watchでライブ";
-"Synced Sessions" = "同期済みセッション";
-"No synced sessions yet" = "同期済みセッションなし";
+"Sessions" = "セッション";
+"Start an intervals session on Apple Watch." = "Apple Watchでインターバルセッションを開始してください。";
 "Heart Rate %d bpm" = "心拍数 %d bpm";
 "Idle" = "待機中";
 "Ready" = "準備完了";
@@ -192,7 +192,6 @@
 "Dark Mode" = "ダーク";
 "Workouts" = "ワークアウト";
 "Browse" = "ブラウズ";
-"Current Workout" = "現在のワークアウト";
 "Workout Plan" = "ワークアウトプラン";
 "Used when you start on Apple Watch." = "Apple Watchで開始するときに使われます。";
 "Edit Interval" = "インターバルを編集";

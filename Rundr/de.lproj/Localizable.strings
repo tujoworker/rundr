@@ -180,8 +180,8 @@
 /* Companion */
 "Waiting for Watch\U2026" = "Warte auf Watch\U2026";
 "Live on Apple Watch" = "Live auf Apple Watch";
-"Synced Sessions" = "Synchronisierte Trainings";
-"No synced sessions yet" = "Noch keine synchronisierten Trainings";
+"Sessions" = "Trainings";
+"Start an intervals session on Apple Watch." = "Starte ein Intervalltraining auf der Apple Watch.";
 "Heart Rate %d bpm" = "Herzfrequenz %d bpm";
 "Idle" = "Bereit";
 "Ready" = "Bereit";
@@ -194,7 +194,6 @@
 "Dark Mode" = "Dunkel";
 "Workouts" = "Workouts";
 "Browse" = "Browse";
-"Current Workout" = "Aktueller Workout";
 "Workout Plan" = "Workoutplan";
 "Used when you start on Apple Watch." = "Wird verwendet, wenn du auf der Apple Watch startest.";
 "Edit Interval" = "Intervall bearbeiten";

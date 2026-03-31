@@ -11,7 +11,6 @@ enum L10n {
     static let browser = String(localized: "Browse", comment: "Companion tab title")
     static let adjustSettings = String(localized: "Adjust Interval", comment: "History setup title")
     static let browse = String(localized: "Browse", comment: "Browse saved intervals")
-    static let currentWorkout = String(localized: "Current Workout", comment: "Companion current workout section")
     static let workoutPlan = String(localized: "Workout Plan", comment: "Companion workout editor title")
     static let usedWhenStartingOnAppleWatch = String(localized: "Used when you start on Apple Watch.", comment: "Companion current workout summary")
     static let intervalsTitle = String(localized: "Intervals", comment: "Intervals section title")
@@ -226,8 +225,8 @@ enum L10n {
     static let appearanceDark = String(localized: "Dark Mode", comment: "Appearance mode: dark")
     static let waitingForWatch = String(localized: "Waiting for Watch…", comment: "Companion live state when watch connection is stale")
     static let liveOnAppleWatch = String(localized: "Live on Apple Watch", comment: "Companion section title for live workout")
-    static let syncedSessions = String(localized: "Synced Sessions", comment: "Companion section title for synced sessions")
-    static let noSyncedSessionsYet = String(localized: "No synced sessions yet", comment: "Companion empty state for synced sessions")
+    static let syncedSessions = String(localized: "Sessions", comment: "Companion section title for synced sessions")
+    static let noSyncedSessionsYet = String(localized: "Start an intervals session on Apple Watch.", comment: "Companion empty state for synced sessions")
     static func heartRateBPM(_ bpm: Int) -> String {
         String(format: String(localized: "Heart Rate %d bpm", comment: "Heart rate with value"), bpm)
     }

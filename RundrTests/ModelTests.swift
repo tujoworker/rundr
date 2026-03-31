@@ -19,6 +19,36 @@ final class ModelTests: XCTestCase {
         )
     }
 
+    func testWorkoutAuthorizationRetryWaitsForDelayedGrant() async {
+        var callCount = 0
+
+        let isAuthorized = await HealthKitManager.waitForWorkoutAuthorization(
+            maxAttempts: 3,
+            retryDelay: .milliseconds(1)
+        ) {
+            callCount += 1
+            return callCount >= 3 ? .sharingAuthorized : .notDetermined
+        }
+
+        XCTAssertTrue(isAuthorized)
+        XCTAssertEqual(callCount, 3)
+    }
+
+    func testWorkoutAuthorizationRetryReturnsFalseWhenGrantNeverArrives() async {
+        var callCount = 0
+
+        let isAuthorized = await HealthKitManager.waitForWorkoutAuthorization(
+            maxAttempts: 2,
+            retryDelay: .milliseconds(1)
+        ) {
+            callCount += 1
+            return .notDetermined
+        }
+
+        XCTAssertFalse(isAuthorized)
+        XCTAssertEqual(callCount, 2)
+    }
+
     // MARK: - Health Access Policy
 
     func testInitialHealthPromptShowsWhenAccessIsPending() {

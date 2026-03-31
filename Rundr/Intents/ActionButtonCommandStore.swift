@@ -6,11 +6,16 @@ enum ActionButtonCommand: String {
 }
 
 enum ActionButtonCommandStore {
+    private static let sharedDefaultsSuiteName = "group.com.rundr.watchapp"
     private static let pendingCommandKey = "action_button.pending_command"
     private static let notificationName = "com.rundr.watchapp.action-button-command"
 
+    private static var defaults: UserDefaults {
+        UserDefaults(suiteName: sharedDefaultsSuiteName) ?? .standard
+    }
+
     static func queue(_ command: ActionButtonCommand) {
-        UserDefaults.standard.set(command.rawValue, forKey: pendingCommandKey)
+        defaults.set(command.rawValue, forKey: pendingCommandKey)
         CFNotificationCenterPostNotification(
             CFNotificationCenterGetDarwinNotifyCenter(),
             CFNotificationName(notificationName as CFString),
@@ -21,7 +26,7 @@ enum ActionButtonCommandStore {
     }
 
     static func pendingCommand() -> ActionButtonCommand? {
-        guard let rawValue = UserDefaults.standard.string(forKey: pendingCommandKey),
+        guard let rawValue = defaults.string(forKey: pendingCommandKey),
               let command = ActionButtonCommand(rawValue: rawValue) else {
             return nil
         }
@@ -32,12 +37,12 @@ enum ActionButtonCommandStore {
     static func consumePendingCommand() -> ActionButtonCommand? {
         let command = pendingCommand()
         guard command != nil else { return nil }
-        UserDefaults.standard.removeObject(forKey: pendingCommandKey)
+        defaults.removeObject(forKey: pendingCommandKey)
         return command
     }
 
     static func clearPendingCommand() {
-        UserDefaults.standard.removeObject(forKey: pendingCommandKey)
+        defaults.removeObject(forKey: pendingCommandKey)
     }
 
     static var darwinNotificationName: CFNotificationName {

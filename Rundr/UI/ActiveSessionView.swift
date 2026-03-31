@@ -176,29 +176,30 @@ struct ActiveSessionView: View {
         Button {
             handleLapTap()
         } label: {
-            VStack(spacing: Tokens.Spacing.xs) {
-                Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
-                    .font(.system(size: timerFontSize, weight: .medium, design: .rounded))
-                    .monospacedDigit()
-                    .minimumScaleFactor(0.45)
-                    .lineLimit(1)
-                    .foregroundStyle(theme.text.neutral)
-
-                if let timerStatusBadgeText {
-                    Text(timerStatusBadgeText)
-                        .font(.system(size: Tokens.FontSize.md, weight: .semibold, design: .rounded))
-                        .foregroundStyle(theme.text.bold)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                        .frame(maxWidth: .infinity)
-                        .padding(.horizontal, Tokens.Spacing.md)
-                        .padding(.vertical, Tokens.Spacing.xs)
-                        .background(
-                            Capsule(style: .continuous)
-                                .fill(theme.background.bold)
-                        )
+            Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
+                .font(.system(size: timerFontSize, weight: .medium, design: .rounded))
+                .monospacedDigit()
+                .minimumScaleFactor(0.45)
+                .lineLimit(1)
+                .foregroundStyle(theme.text.neutral)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .overlay(alignment: .bottom) {
+                    if let timerStatusBadgeText {
+                        Text(timerStatusBadgeText)
+                            .font(.system(size: Tokens.FontSize.md, weight: .semibold, design: .rounded))
+                            .foregroundStyle(theme.text.bold)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                            .fixedSize(horizontal: true, vertical: false)
+                            .padding(.horizontal, Tokens.Spacing.md)
+                            .padding(.vertical, Tokens.Spacing.xs)
+                            .background(
+                                Capsule(style: .continuous)
+                                    .fill(theme.background.bold)
+                            )
+                            .padding(.bottom, Tokens.Spacing.xs)
+                    }
                 }
-            }
             .frame(maxWidth: .infinity)
             .padding(.horizontal, Tokens.Spacing.md)
             .padding(.vertical, Tokens.Spacing.sm)

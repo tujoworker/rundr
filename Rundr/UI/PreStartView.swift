@@ -1247,8 +1247,21 @@ enum SegmentEditSheetSection: Hashable {
 }
 
 enum SegmentEditSheetRules {
+    enum AddLastRestAction {
+        case addValue
+        case showRepeatsInfo
+    }
+
     static func canConfigureLastRest(repeatCount: Int, restSeconds: Int) -> Bool {
         repeatCount > 0
+    }
+
+    static func shouldShowAddLastRestButton(lastRestSeconds: Int) -> Bool {
+        lastRestSeconds <= 0
+    }
+
+    static func addLastRestAction(repeatCount: Int) -> AddLastRestAction {
+        canConfigureLastRest(repeatCount: repeatCount, restSeconds: 0) ? .addValue : .showRepeatsInfo
     }
 
     static func normalizedLastRestSeconds(_ lastRestSeconds: Int, repeatCount: Int) -> Int {
@@ -1292,6 +1305,7 @@ private struct SegmentEditSheet: View {
     @State private var isPaceEditorPresented = false
     @State private var isRestEditorPresented = false
     @State private var isLastRestEditorPresented = false
+    @State private var isLastRestInfoPresented = false
     @State private var isTimeEditorPresented = false
     @State private var repeatEditorText = ""
     @State private var paceEditorText = ""
@@ -1422,6 +1436,11 @@ private struct SegmentEditSheet: View {
         }
         .onChange(of: repeatCount) { _, _ in
             syncLastRestWithRepeatCount()
+        }
+        .alert(L10n.lastRestNeedsRepeatsTitle, isPresented: $isLastRestInfoPresented) {
+            Button(L10n.ok, role: .cancel) {}
+        } message: {
+            Text(L10n.lastRestNeedsRepeatsMessage)
         }
         .scrollContentBackground(.hidden)
         .sheet(isPresented: Binding(
@@ -1689,12 +1708,17 @@ private struct SegmentEditSheet: View {
     }
 
     private var addLastRestButton: some View {
-        let isActive = canConfigureLastRest && lastRestSeconds <= 0
-        let isEnabled = isActive
+        let isActive = SegmentEditSheetRules.shouldShowAddLastRestButton(lastRestSeconds: lastRestSeconds)
+        let isEnabled = canConfigureLastRest && isActive
 
         return Button {
-            withAnimation(.easeInOut(duration: 0.22)) {
-                lastRestSeconds = max(restSeconds, 15)
+            switch SegmentEditSheetRules.addLastRestAction(repeatCount: repeatCount) {
+            case .addValue:
+                withAnimation(.easeInOut(duration: 0.22)) {
+                    lastRestSeconds = max(restSeconds, 15)
+                }
+            case .showRepeatsInfo:
+                isLastRestInfoPresented = true
             }
         } label: {
             HStack(spacing: Tokens.Spacing.sm) {
@@ -1717,7 +1741,6 @@ private struct SegmentEditSheet: View {
             )
         }
         .buttonStyle(.plain)
-        .disabled(!isEnabled)
         .frame(height: isActive ? nil : 0, alignment: .top)
         .clipped()
         .opacity(isActive ? 1 : 0)

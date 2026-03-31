@@ -205,6 +205,26 @@ final class ModelTests: XCTestCase {
         )
     }
 
+    func testAddLastRestButtonVisibilityDependsOnLastRestValue() {
+        XCTAssertTrue(
+            SegmentEditSheetRules.shouldShowAddLastRestButton(lastRestSeconds: 0)
+        )
+        XCTAssertFalse(
+            SegmentEditSheetRules.shouldShowAddLastRestButton(lastRestSeconds: 45)
+        )
+    }
+
+    func testAddLastRestTapActionShowsInfoWhenRepeatsAreMissing() {
+        XCTAssertEqual(
+            SegmentEditSheetRules.addLastRestAction(repeatCount: 0),
+            .showRepeatsInfo
+        )
+        XCTAssertEqual(
+            SegmentEditSheetRules.addLastRestAction(repeatCount: 3),
+            .addValue
+        )
+    }
+
     func testLastRestNormalizationClearsValueWhenRepeatsBecomeOpenEnded() {
         XCTAssertEqual(
             SegmentEditSheetRules.normalizedLastRestSeconds(60, repeatCount: 3),

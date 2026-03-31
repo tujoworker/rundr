@@ -25,6 +25,8 @@
 "Rest" = "Hvile";
 "Last Rest" = "Siste hvile";
 "Add Last Rest" = "Legg til siste hvile";
+"Repeats Required" = "Repetisjoner kreves";
+"Add repeats to this interval before adding a last rest." = "Legg til repetisjoner for dette intervallet før du legger til en siste hvile.";
 "GPS Required" = "GPS påkrevd";
 "Open intervals uses GPS to meassure distance. This activity has switched to Dual Mode." = "Åpne intervaller bruker GPS til å måle distanse. Denne aktiviteten har byttet til Dual-modus.";
 "Enable GPS Access" = "Aktiver GPS-tilgang";

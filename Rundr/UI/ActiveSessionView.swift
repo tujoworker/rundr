@@ -398,8 +398,8 @@ struct ActiveSessionView: View {
         .overlay(alignment: .topLeading) {
             let screenWidth = WKInterfaceDevice.current().screenBounds.width
             heartRateOverlay
-                .padding(.leading, screenWidth * 0.07)
-                .offset(y: -40)
+                .padding(.leading, screenWidth * 0.07 + 4)
+                .offset(y: -44)
         }
         .overlay {
             ZStack {

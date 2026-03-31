@@ -39,8 +39,8 @@ enum Tokens {
         static let lg: CGFloat = 10
         static let xl: CGFloat = 12
         static let xxl: CGFloat = 14
-        /// 15 pt - floating status badge lift
-        static let badgeLift: CGFloat = 15
+        /// 25 pt - floating status badge lift
+        static let badgeLift: CGFloat = 25
         static let xxxl: CGFloat = 18
         static let xxxxl: CGFloat = 24
     }

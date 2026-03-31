@@ -170,7 +170,7 @@ struct ActiveSessionView: View {
                         .fixedSize(horizontal: true, vertical: false)
                         .padding(.horizontal, StatusBadgeStyle.horizontalPadding)
                         .padding(.vertical, StatusBadgeStyle.verticalPadding)
-                        .background(StatusBadgeStyle.background(theme))
+                        .background(StatusBadgeStyle.background(theme, accent: primaryColor))
                         .offset(y: -Tokens.Spacing.badgeLift)
                 }
             }
@@ -683,9 +683,9 @@ private enum StatusBadgeStyle {
     static let horizontalPadding: CGFloat = Tokens.Spacing.sm
     static let verticalPadding: CGFloat = Tokens.Spacing.xxxs
 
-    static func background(_ theme: AppTheme) -> some View {
+    static func background(_ theme: AppTheme, accent: Color) -> some View {
         Capsule(style: .continuous)
-            .fill(theme.background.statusBadge)
+            .fill(theme.background.statusBadge(accent))
     }
 }
 

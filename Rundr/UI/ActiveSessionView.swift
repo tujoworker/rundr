@@ -275,8 +275,10 @@ struct ActiveSessionView: View {
                         } else {
                             workoutController.pauseSession()
                         }
-                        withAnimation {
-                            selectedPage = 1
+                        Task { @MainActor in
+                            withAnimation {
+                                selectedPage = 1
+                            }
                         }
                     } label: {
                         VStack(spacing: Tokens.Spacing.sm) {

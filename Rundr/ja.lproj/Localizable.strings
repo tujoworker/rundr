@@ -32,7 +32,8 @@
 "Enable GPS Access" = "GPSアクセスを有効にする";
 "Unit" = "単位";
 "Color" = "カラー";
-"Rest (Auto)" = "レスト（自動）";
+"Mark as Rest" = "レストとしてマーク";
+"Mark as Rest (Auto)" = "レストとしてマーク（自動）";
 "Resting" = "レスト中";
 "%@ (%@)" = "%@ (%@)";
 "Manual" = "手動";

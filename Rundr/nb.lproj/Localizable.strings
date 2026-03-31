@@ -32,7 +32,8 @@
 "Enable GPS Access" = "Aktiver GPS-tilgang";
 "Unit" = "Enhet";
 "Color" = "Farge";
-"Rest (Auto)" = "Hvile (Auto)";
+"Mark as Rest" = "Marker som hvile";
+"Mark as Rest (Auto)" = "Marker som hvile (Auto)";
 "Resting" = "Hviler";
 "%@ (%@)" = "%@ (%@)";
 "Manual" = "Manuell";

@@ -270,7 +270,7 @@ struct ActiveSessionView: View {
                             isDashed: restButtonShowsEndRest,
                             iconFontSizeOverride: 34
                         )
-                        Text(restButtonShowsEndRest ? L10n.endRest : (settings.restMode == .autoDetect ? L10n.restModeAuto : L10n.restMode))
+                        Text(restButtonShowsEndRest ? L10n.endRest : (settings.restMode == .autoDetect ? L10n.restModeAuto : L10n.markAsRest))
                             .font(.system(size: Tokens.FontSize.sm, weight: .medium, design: .rounded))
                             .foregroundStyle(theme.text.subtle)
                     }

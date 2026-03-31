@@ -194,7 +194,7 @@ struct ActiveSessionView: View {
                             .padding(.horizontal, StatusBadgeStyle.horizontalPadding)
                             .padding(.vertical, StatusBadgeStyle.verticalPadding)
                             .background(StatusBadgeStyle.background(theme))
-                            .padding(.bottom, StatusBadgeStyle.bottomPadding)
+                            .offset(y: StatusBadgeStyle.borderOverlap)
                     }
                 }
             .frame(maxWidth: .infinity)
@@ -682,7 +682,7 @@ private enum StatusBadgeStyle {
     static let font = Font.system(size: Tokens.FontSize.md, weight: .regular, design: .rounded)
     static let horizontalPadding: CGFloat = Tokens.Spacing.sm
     static let verticalPadding: CGFloat = Tokens.Spacing.xxxs
-    static let bottomPadding: CGFloat = Tokens.Spacing.xxs
+    static let borderOverlap: CGFloat = Tokens.Spacing.md
 
     static func background(_ theme: AppTheme) -> some View {
         Capsule(style: .continuous)

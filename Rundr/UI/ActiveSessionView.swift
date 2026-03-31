@@ -263,8 +263,9 @@ struct ActiveSessionView: View {
                     }
                     .padding(.horizontal, Tokens.Spacing.xl)
                     .padding(.vertical, Tokens.Spacing.lg)
-                    .overlay {
-                        RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous)
+                    .background(Capsule().fill(theme.background.emphasisAction(primaryColor)))
+                    .overlay(
+                        Capsule()
                             .strokeBorder(
                                 theme.stroke.emphasisAction(primaryColor),
                                 style: StrokeStyle(
@@ -272,12 +273,17 @@ struct ActiveSessionView: View {
                                     dash: restButtonShowsEndRest ? [6, 4] : []
                                 )
                             )
-                            .opacity((isRestButtonBounceActive || isRestButtonGlowActive) ? 1 : 0)
+                    )
+                    .overlay {
+                        Capsule()
+                            .stroke(Color.white.opacity(isRestButtonGlowActive ? 0.6 : 0), lineWidth: Tokens.LineWidth.thick)
+                            .blur(radius: isRestButtonGlowActive ? 3 : 0)
                     }
                     .scaleEffect(isRestButtonBounceActive ? 1.08 : 1)
                     .brightness(isRestButtonGlowActive ? 0.18 : 0)
                     .shadow(color: Color.white.opacity(isRestButtonGlowActive ? 0.35 : 0), radius: 12)
                     .shadow(color: primaryColor.opacity(isRestButtonGlowActive ? 0.45 : 0), radius: 18)
+                    .contentShape(Capsule())
                 }
                 .buttonStyle(TimerPressStyle())
 

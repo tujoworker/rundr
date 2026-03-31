@@ -20,6 +20,7 @@ struct CompanionRootView: View {
                 }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
         .toolbarBackground(.hidden, for: .tabBar)
         .toolbarBackground(.hidden, for: .navigationBar)
     }
@@ -94,6 +95,8 @@ private struct CompanionWorkoutsView: View {
                 .themedCompanionList()
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 }
 
@@ -199,6 +202,8 @@ private struct CompanionBrowserView: View {
                 .themedCompanionList()
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 }
 
@@ -239,6 +244,8 @@ private struct CompanionSettingsView: View {
                 .themedCompanionSettingsList()
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .ignoresSafeArea()
     }
 }
 
@@ -1032,6 +1039,7 @@ private extension View {
             .scrollContentBackground(.hidden)
             .background(Color.clear)
             .toolbarBackground(.hidden, for: .navigationBar)
+            .toolbarBackground(.hidden, for: .tabBar)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
@@ -1041,6 +1049,7 @@ private extension View {
             .scrollContentBackground(.hidden)
             .background(Color.clear)
             .toolbarBackground(.hidden, for: .navigationBar)
+            .toolbarBackground(.hidden, for: .tabBar)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 

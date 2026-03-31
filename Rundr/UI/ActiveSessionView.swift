@@ -23,6 +23,7 @@ struct ActiveSessionView: View {
     @State private var hasDismissedCompletedSession = false
     @State private var completedSessionDismissTask: Task<Void, Never>?
     @State private var selectedPage: Int = 1
+    @State private var isShowingEndConfirmation = false
 
     private let defaultLapDistanceText = "400"
 
@@ -251,7 +252,7 @@ struct ActiveSessionView: View {
 
                 HStack(spacing: Tokens.Spacing.xxxxl) {
                     Button {
-                        finishSession()
+                        isShowingEndConfirmation = true
                     } label: {
                         VStack(spacing: Tokens.Spacing.sm) {
                             WorkoutControlIcon(
@@ -265,12 +266,21 @@ struct ActiveSessionView: View {
                         }
                     }
                     .buttonStyle(.plain)
+                    .confirmationDialog(L10n.endSession, isPresented: $isShowingEndConfirmation, titleVisibility: .visible) {
+                        Button(L10n.endSession, role: .destructive) {
+                            finishSession()
+                        }
+                        Button(L10n.cancel, role: .cancel) {}
+                    }
 
                     Button {
                         if isWorkoutPaused {
                             workoutController.resumeSession()
                         } else {
                             workoutController.pauseSession()
+                        }
+                        withAnimation {
+                            selectedPage = 1
                         }
                     } label: {
                         VStack(spacing: Tokens.Spacing.sm) {

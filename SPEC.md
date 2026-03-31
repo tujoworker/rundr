@@ -335,8 +335,8 @@ The active session uses a horizontal **paged TabView** with two pages and page i
 - Scrollable vertically
 - **Rest toggle button** (primary style, larger): shows a cooldown icon and "Rest" label in active state; shows a running icon and "End Rest" label in rest state. Tapping toggles rest mode and auto-swipes back to the tracking page.
 - **Second row** with two secondary-style buttons side by side:
-  - **End** button (`stop.fill` icon) — ends the session
-  - **Pause / Resume** button (`pause.fill` / `play.fill` icon) — toggles workout pause
+  - **End** button (`stop.fill` icon) — shows a confirmation dialog before ending the session
+  - **Pause / Resume** button (`pause.fill` / `play.fill` icon) — toggles workout pause and auto-swipes back to the tracking page
 
 **Page 1 — Tracking page (right, default on launch):**
 

@@ -239,6 +239,23 @@ struct ActiveSessionView: View {
     }
 
     @ViewBuilder
+    private var pageIndicatorView: some View {
+        HStack(spacing: Tokens.Spacing.xs) {
+            ForEach(0..<2, id: \.self) { page in
+                Circle()
+                    .fill(page == selectedPage ? theme.background.bold : theme.background.neutralAction)
+                    .frame(
+                        width: page == selectedPage ? Tokens.Spacing.sm : Tokens.Spacing.xs,
+                        height: page == selectedPage ? Tokens.Spacing.sm : Tokens.Spacing.xs
+                    )
+            }
+        }
+        .padding(.horizontal, Tokens.Spacing.sm)
+        .padding(.vertical, Tokens.Spacing.xs)
+        .accessibilityHidden(true)
+    }
+
+    @ViewBuilder
     private var controlsPage: some View {
         ScrollView {
             VStack(spacing: Tokens.Spacing.xxl) {
@@ -406,13 +423,17 @@ struct ActiveSessionView: View {
                 controlsPage.tag(0)
                 trackingPage.tag(1)
             }
-            .tabViewStyle(.page(indexDisplayMode: .automatic))
+            .tabViewStyle(.page(indexDisplayMode: .never))
             .animation(.easeInOut(duration: 0.3), value: selectedPage)
         }
         .overlay(alignment: .topLeading) {
             let screenWidth = WKInterfaceDevice.current().screenBounds.width
             heartRateOverlay
                 .padding(.leading, screenWidth * 0.07 + 4)
+                .offset(y: -44)
+        }
+        .overlay(alignment: .top) {
+            pageIndicatorView
                 .offset(y: -44)
         }
         .overlay {

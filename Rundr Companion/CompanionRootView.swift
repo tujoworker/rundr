@@ -2,31 +2,26 @@ import SwiftData
 import SwiftUI
 
 struct CompanionRootView: View {
-    @EnvironmentObject private var settings: SettingsStore
-
     var body: some View {
-        ZStack {
-            CompanionAppBackground(accentColor: settings.primaryAccentColor)
+        TabView {
+            CompanionWorkoutsView()
+                .tabItem {
+                    Label(L10n.workouts, systemImage: "figure.run")
+                }
 
-            TabView {
-                CompanionWorkoutsView()
-                    .tabItem {
-                        Label(L10n.workouts, systemImage: "figure.run")
-                    }
+            CompanionBrowserView()
+                .tabItem {
+                    Label(L10n.browser, systemImage: "square.grid.2x2")
+                }
 
-                CompanionBrowserView()
-                    .tabItem {
-                        Label(L10n.browser, systemImage: "square.grid.2x2")
-                    }
-
-                CompanionSettingsView()
-                    .tabItem {
-                        Label(L10n.settings, systemImage: "paintpalette")
-                    }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .toolbarBackground(.hidden, for: .tabBar)
+            CompanionSettingsView()
+                .tabItem {
+                    Label(L10n.settings, systemImage: "paintpalette")
+                }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .toolbarBackground(.hidden, for: .tabBar)
+        .toolbarBackground(.hidden, for: .navigationBar)
     }
 }
 
@@ -49,6 +44,7 @@ private struct CompanionAppBackground: View {
 
 private struct CompanionWorkoutsView: View {
     @EnvironmentObject private var syncManager: WatchConnectivitySyncManager
+    @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
     @Query(sort: [SortDescriptor(\Session.startedAt, order: .reverse)]) private var sessions: [Session]
 
@@ -63,36 +59,40 @@ private struct CompanionWorkoutsView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            List {
-                if let liveWorkoutState = visibleLiveWorkoutState {
-                    Section(L10n.liveOnAppleWatch) {
-                        CompanionLiveWorkoutCard(state: liveWorkoutState)
-                            .listRowCardChrome()
-                    }
-                }
+        ZStack {
+            CompanionAppBackground(accentColor: settings.primaryAccentColor)
 
-                Section(L10n.syncedSessions) {
-                    if sessions.isEmpty {
-                        Text(L10n.noSyncedSessionsYet)
-                            .foregroundStyle(theme.text.subtle)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .listRowCardChrome()
-                    } else {
-                        ForEach(sessions, id: \.id) { session in
-                            NavigationLink {
-                                CompanionSessionDetailView(session: session)
-                            } label: {
-                                CompanionSessionRow(session: session)
+            NavigationStack {
+                List {
+                    if let liveWorkoutState = visibleLiveWorkoutState {
+                        Section(L10n.liveOnAppleWatch) {
+                            CompanionLiveWorkoutCard(state: liveWorkoutState)
+                                .listRowCardChrome()
+                        }
+                    }
+
+                    Section(L10n.syncedSessions) {
+                        if sessions.isEmpty {
+                            Text(L10n.noSyncedSessionsYet)
+                                .foregroundStyle(theme.text.subtle)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .listRowCardChrome()
+                        } else {
+                            ForEach(sessions, id: \.id) { session in
+                                NavigationLink {
+                                    CompanionSessionDetailView(session: session)
+                                } label: {
+                                    CompanionSessionRow(session: session)
+                                }
+                                .buttonStyle(.plain)
+                                .listRowCardChrome()
                             }
-                            .buttonStyle(.plain)
-                            .listRowCardChrome()
                         }
                     }
                 }
+                .navigationBarTitleDisplayMode(.inline)
+                .themedCompanionList()
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .themedCompanionList()
         }
     }
 }
@@ -102,98 +102,102 @@ private struct CompanionBrowserView: View {
     @Environment(\.appTheme) private var theme
 
     var body: some View {
-        NavigationStack {
-            List {
-                Section(L10n.myIntervals) {
-                    if settings.intervalPresets.isEmpty {
-                        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
-                            Text(L10n.noSavedIntervalsYet)
-                                .font(.headline.weight(.semibold))
-                                .foregroundStyle(theme.text.neutral)
+        ZStack {
+            CompanionAppBackground(accentColor: settings.primaryAccentColor)
 
-                            Text(L10n.savedIntervalsPlaceholderDetail)
-                                .font(.subheadline)
-                                .foregroundStyle(theme.text.subtle)
+            NavigationStack {
+                List {
+                    Section(L10n.myIntervals) {
+                        if settings.intervalPresets.isEmpty {
+                            VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+                                Text(L10n.noSavedIntervalsYet)
+                                    .font(.headline.weight(.semibold))
+                                    .foregroundStyle(theme.text.neutral)
+
+                                Text(L10n.savedIntervalsPlaceholderDetail)
+                                    .font(.subheadline)
+                                    .foregroundStyle(theme.text.subtle)
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                                .listRowCardChrome()
+                        } else {
+                            ForEach(settings.intervalPresets) { preset in
+                                NavigationLink {
+                                    CompanionWorkoutEditorView(
+                                        headerTitle: L10n.adjustSettings,
+                                        subtitle: preset.trimmedCustomTitle ?? L10n.presetCountSummary(preset.workoutPlan.distanceSegments.count),
+                                        initialWorkoutPlan: preset.workoutPlan,
+                                        initialCustomTitle: preset.customTitle,
+                                        initialStoredPresetID: preset.id,
+                                        showsCustomTitle: true,
+                                        autoSaveOnSegmentDone: true
+                                    ) { workoutPlan, customTitle, storedPresetID in
+                                        _ = settings.saveIntervalPreset(
+                                            workoutPlan,
+                                            customTitle: customTitle,
+                                            existingPresetID: storedPresetID ?? preset.id
+                                        )
+                                        settings.apply(workoutPlan: workoutPlan)
+                                    }
+                                } label: {
+                                    CompanionPresetRowView(
+                                        title: preset.displayTitle(unit: settings.distanceUnit),
+                                        subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
+                                        usageCount: settings.presetUsageCount(for: preset.workoutPlan)
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        settings.deleteIntervalPreset(id: preset.id)
+                                    } label: {
+                                        Label(L10n.delete, systemImage: "trash")
+                                    }
+                                    .tint(theme.background.swipeAction(settings.primaryAccentColor))
+                                }
+                                .listRowCardChrome()
+                            }
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                            .listRowCardChrome()
-                    } else {
-                        ForEach(settings.intervalPresets) { preset in
+                    }
+
+                    Section(L10n.predefined) {
+                        ForEach(SettingsStore.predefinedIntervalPresets) { preset in
                             NavigationLink {
                                 CompanionWorkoutEditorView(
                                     headerTitle: L10n.adjustSettings,
-                                    subtitle: preset.trimmedCustomTitle ?? L10n.presetCountSummary(preset.workoutPlan.distanceSegments.count),
+                                    subtitle: preset.title,
                                     initialWorkoutPlan: preset.workoutPlan,
-                                    initialCustomTitle: preset.customTitle,
-                                    initialStoredPresetID: preset.id,
+                                    initialCustomTitle: preset.title,
+                                    initialStoredPresetID: nil,
                                     showsCustomTitle: true,
                                     autoSaveOnSegmentDone: true
                                 ) { workoutPlan, customTitle, storedPresetID in
-                                    _ = settings.saveIntervalPreset(
-                                        workoutPlan,
-                                        customTitle: customTitle,
-                                        existingPresetID: storedPresetID ?? preset.id
-                                    )
+                                    let normalizedTitle = IntervalPreset.sanitizeTitle(customTitle)
+                                    if IntervalPresetSignature(workoutPlan: workoutPlan) != preset.signature || normalizedTitle != nil {
+                                        _ = settings.saveIntervalPreset(
+                                            workoutPlan,
+                                            customTitle: normalizedTitle,
+                                            existingPresetID: storedPresetID
+                                        )
+                                    }
                                     settings.apply(workoutPlan: workoutPlan)
                                 }
                             } label: {
                                 CompanionPresetRowView(
-                                    title: preset.displayTitle(unit: settings.distanceUnit),
+                                    title: preset.title,
                                     subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
                                     usageCount: settings.presetUsageCount(for: preset.workoutPlan)
                                 )
                             }
                             .buttonStyle(.plain)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    settings.deleteIntervalPreset(id: preset.id)
-                                } label: {
-                                    Label(L10n.delete, systemImage: "trash")
-                                }
-                                .tint(theme.background.swipeAction(settings.primaryAccentColor))
-                            }
                             .listRowCardChrome()
                         }
                     }
                 }
-
-                Section(L10n.predefined) {
-                    ForEach(SettingsStore.predefinedIntervalPresets) { preset in
-                        NavigationLink {
-                            CompanionWorkoutEditorView(
-                                headerTitle: L10n.adjustSettings,
-                                subtitle: preset.title,
-                                initialWorkoutPlan: preset.workoutPlan,
-                                initialCustomTitle: preset.title,
-                                initialStoredPresetID: nil,
-                                showsCustomTitle: true,
-                                autoSaveOnSegmentDone: true
-                            ) { workoutPlan, customTitle, storedPresetID in
-                                let normalizedTitle = IntervalPreset.sanitizeTitle(customTitle)
-                                if IntervalPresetSignature(workoutPlan: workoutPlan) != preset.signature || normalizedTitle != nil {
-                                    _ = settings.saveIntervalPreset(
-                                        workoutPlan,
-                                        customTitle: normalizedTitle,
-                                        existingPresetID: storedPresetID
-                                    )
-                                }
-                                settings.apply(workoutPlan: workoutPlan)
-                            }
-                        } label: {
-                            CompanionPresetRowView(
-                                title: preset.title,
-                                subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
-                                usageCount: settings.presetUsageCount(for: preset.workoutPlan)
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        .listRowCardChrome()
-                    }
-                }
+                .navigationTitle(L10n.browser)
+                .navigationBarTitleDisplayMode(.inline)
+                .themedCompanionList()
             }
-            .navigationTitle(L10n.browser)
-            .navigationBarTitleDisplayMode(.inline)
-            .themedCompanionList()
         }
     }
 }
@@ -202,34 +206,38 @@ private struct CompanionSettingsView: View {
     @EnvironmentObject private var settings: SettingsStore
 
     var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    NavigationLink {
-                        CompanionAppearanceSettingsDetailView()
-                    } label: {
-                        CompanionSettingsNavigationRow(
-                            title: L10n.appearance,
-                            value: settings.appearanceMode.displayName,
-                            systemImage: "circle.lefthalf.filled"
-                        )
-                    }
+        ZStack {
+            CompanionAppBackground(accentColor: settings.primaryAccentColor)
 
-                    NavigationLink {
-                        CompanionColorSettingsDetailView()
-                    } label: {
-                        CompanionSettingsNavigationRow(
-                            title: L10n.color,
-                            value: settings.primaryColor.displayName,
-                            tintColor: settings.primaryColor.color,
-                            systemImage: "paintpalette.fill"
-                        )
+            NavigationStack {
+                List {
+                    Section {
+                        NavigationLink {
+                            CompanionAppearanceSettingsDetailView()
+                        } label: {
+                            CompanionSettingsNavigationRow(
+                                title: L10n.appearance,
+                                value: settings.appearanceMode.displayName,
+                                systemImage: "circle.lefthalf.filled"
+                            )
+                        }
+
+                        NavigationLink {
+                            CompanionColorSettingsDetailView()
+                        } label: {
+                            CompanionSettingsNavigationRow(
+                                title: L10n.color,
+                                value: settings.primaryColor.displayName,
+                                tintColor: settings.primaryColor.color,
+                                systemImage: "paintpalette.fill"
+                            )
+                        }
                     }
                 }
+                .navigationTitle(L10n.settings)
+                .navigationBarTitleDisplayMode(.inline)
+                .themedCompanionSettingsList()
             }
-            .navigationTitle(L10n.settings)
-            .navigationBarTitleDisplayMode(.inline)
-            .themedCompanionSettingsList()
         }
     }
 }
@@ -1023,14 +1031,17 @@ private extension View {
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
             .background(Color.clear)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
     func themedCompanionSettingsList() -> some View {
         self
-            .listStyle(.insetGrouped)
+            .listStyle(.plain)
             .scrollContentBackground(.hidden)
             .background(Color.clear)
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
     func listRowCardChrome() -> some View {

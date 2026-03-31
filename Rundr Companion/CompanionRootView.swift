@@ -19,27 +19,7 @@ struct CompanionRootView: View {
                     Label(L10n.settings, systemImage: "paintpalette")
                 }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea()
-        .toolbarBackground(.hidden, for: .tabBar)
-        .toolbarBackground(.hidden, for: .navigationBar)
-    }
-}
-
-private struct CompanionAppBackground: View {
-    let accentColor: Color
-    @Environment(\.appTheme) private var theme
-
-    var body: some View {
-        LinearGradient(
-            colors: [
-                theme.appGradientStart(accent: accentColor),
-                theme.appGradientEnd(accent: accentColor)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .ignoresSafeArea()
+        .tint(.white)
     }
 }
 
@@ -60,43 +40,37 @@ private struct CompanionWorkoutsView: View {
     }
 
     var body: some View {
-        ZStack {
-            CompanionAppBackground(accentColor: settings.primaryAccentColor)
-
-            NavigationStack {
-                List {
-                    if let liveWorkoutState = visibleLiveWorkoutState {
-                        Section(L10n.liveOnAppleWatch) {
-                            CompanionLiveWorkoutCard(state: liveWorkoutState)
-                                .listRowCardChrome()
-                        }
+        NavigationStack {
+            List {
+                if let liveWorkoutState = visibleLiveWorkoutState {
+                    Section(L10n.liveOnAppleWatch) {
+                        CompanionLiveWorkoutCard(state: liveWorkoutState)
+                            .listRowCardChrome()
                     }
+                }
 
-                    Section(L10n.syncedSessions) {
-                        if sessions.isEmpty {
-                            Text(L10n.noSyncedSessionsYet)
-                                .foregroundStyle(theme.text.subtle)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .listRowCardChrome()
-                        } else {
-                            ForEach(sessions, id: \.id) { session in
-                                NavigationLink {
-                                    CompanionSessionDetailView(session: session)
-                                } label: {
-                                    CompanionSessionRow(session: session)
-                                }
-                                .buttonStyle(.plain)
-                                .listRowCardChrome()
+                Section(L10n.syncedSessions) {
+                    if sessions.isEmpty {
+                        Text(L10n.noSyncedSessionsYet)
+                            .foregroundStyle(theme.text.subtle)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .listRowCardChrome()
+                    } else {
+                        ForEach(sessions, id: \.id) { session in
+                            NavigationLink {
+                                CompanionSessionDetailView(session: session)
+                            } label: {
+                                CompanionSessionRow(session: session)
                             }
+                            .buttonStyle(.plain)
+                            .listRowCardChrome()
                         }
                     }
                 }
-                .navigationBarTitleDisplayMode(.inline)
-                .themedCompanionList()
             }
+            .navigationBarTitleDisplayMode(.inline)
+            .themedCompanionList()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea()
     }
 }
 
@@ -105,12 +79,9 @@ private struct CompanionBrowserView: View {
     @Environment(\.appTheme) private var theme
 
     var body: some View {
-        ZStack {
-            CompanionAppBackground(accentColor: settings.primaryAccentColor)
-
-            NavigationStack {
-                List {
-                    Section(L10n.myIntervals) {
+        NavigationStack {
+            List {
+                Section(L10n.myIntervals) {
                         if settings.intervalPresets.isEmpty {
                             VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                                 Text(L10n.noSavedIntervalsYet)
@@ -197,13 +168,10 @@ private struct CompanionBrowserView: View {
                         }
                     }
                 }
-                .navigationTitle(L10n.browser)
-                .navigationBarTitleDisplayMode(.inline)
-                .themedCompanionList()
-            }
+            .navigationTitle(L10n.browser)
+            .navigationBarTitleDisplayMode(.inline)
+            .themedCompanionList()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea()
     }
 }
 
@@ -211,14 +179,11 @@ private struct CompanionSettingsView: View {
     @EnvironmentObject private var settings: SettingsStore
 
     var body: some View {
-        ZStack {
-            CompanionAppBackground(accentColor: settings.primaryAccentColor)
-
-            NavigationStack {
-                List {
-                    Section {
-                        NavigationLink {
-                            CompanionAppearanceSettingsDetailView()
+        NavigationStack {
+            List {
+                Section {
+                    NavigationLink {
+                        CompanionAppearanceSettingsDetailView()
                         } label: {
                             CompanionSettingsNavigationRow(
                                 title: L10n.appearance,
@@ -239,13 +204,10 @@ private struct CompanionSettingsView: View {
                         }
                     }
                 }
-                .navigationTitle(L10n.settings)
-                .navigationBarTitleDisplayMode(.inline)
-                .themedCompanionSettingsList()
-            }
+            .navigationTitle(L10n.settings)
+            .navigationBarTitleDisplayMode(.inline)
+            .themedCompanionSettingsList()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .ignoresSafeArea()
     }
 }
 
@@ -984,6 +946,7 @@ private struct CompanionSessionDetailView: View {
             }
         }
         .navigationTitle(L10n.session)
+        .themedCompanionList()
     }
 }
 
@@ -1033,24 +996,23 @@ private struct CompanionImportStatusCard: View {
 }
 
 private extension View {
-    func themedCompanionList() -> some View {
+    @ViewBuilder
+    func companionListBackground() -> some View {
         self
             .listStyle(.plain)
             .scrollContentBackground(.hidden)
-            .background(Color.clear)
-            .toolbarBackground(.hidden, for: .navigationBar)
-            .toolbarBackground(.hidden, for: .tabBar)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .background {
+                CompanionListBackgroundView()
+                    .ignoresSafeArea()
+            }
+    }
+
+    func themedCompanionList() -> some View {
+        self.companionListBackground()
     }
 
     func themedCompanionSettingsList() -> some View {
-        self
-            .listStyle(.plain)
-            .scrollContentBackground(.hidden)
-            .background(Color.clear)
-            .toolbarBackground(.hidden, for: .navigationBar)
-            .toolbarBackground(.hidden, for: .tabBar)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        self.companionListBackground()
     }
 
     func listRowCardChrome() -> some View {
@@ -1079,6 +1041,15 @@ private struct CompanionCardChrome: ViewModifier {
                 RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
                     .stroke(theme.stroke.neutral, lineWidth: Tokens.LineWidth.thin)
             )
+    }
+}
+
+private struct CompanionListBackgroundView: View {
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        theme.background.app(settings.primaryAccentColor)
     }
 }
 

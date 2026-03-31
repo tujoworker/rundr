@@ -6,15 +6,16 @@ struct RundrCompanionApp: App {
     @StateObject private var syncManager = WatchConnectivitySyncManager()
     @StateObject private var settings = SettingsStore()
 
+    init() {
+        let tabBarAppearance = UITabBarAppearance()
+        tabBarAppearance.configureWithTransparentBackground()
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+    }
+
     var body: some Scene {
         WindowGroup {
-            ZStack {
-                CompanionSceneBackground(accentColor: settings.primaryAccentColor)
-
-                CompanionRootView()
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .ignoresSafeArea()
+            CompanionRootView()
             .withAppTheme()
             .environmentObject(persistence)
             .environmentObject(syncManager)
@@ -47,15 +48,5 @@ struct RundrCompanionApp: App {
                 syncManager.publishSettingsSnapshot()
             }
         }
-    }
-}
-
-private struct CompanionSceneBackground: View {
-    let accentColor: Color
-    @Environment(\.appTheme) private var theme
-
-    var body: some View {
-        theme.background.app(accentColor)
-            .ignoresSafeArea()
     }
 }

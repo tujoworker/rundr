@@ -18,6 +18,7 @@ struct ActiveSessionView: View {
     @State private var isRestPulseOn = false
     @State private var isPausePulseOn = false
     @State private var isTimeGoalPulseOn = false
+    @State private var flashTask: Task<Void, Never>?
     @State private var bounceTask: Task<Void, Never>?
     @State private var glowTask: Task<Void, Never>?
     @State private var isShowingSessionComplete = false
@@ -63,7 +64,7 @@ struct ActiveSessionView: View {
         }
     }
 
-    private func timerTopLabel(_ detail: String? = nil, includeLap: Bool = true, includeRemaining: Bool? = nil) -> String {
+    private func timerTopLabel(_ detail: String? = nil, includeLap: Bool = true) -> String {
         var components: [String] = []
         if includeLap && !showsLapCounterBadge {
             components.append(L10n.lapIndex(currentLapNumber))
@@ -77,15 +78,6 @@ struct ActiveSessionView: View {
     }
 
     private var timerTopLabel: String {
-        if isWorkoutPaused {
-            return timerTopLabel(L10n.workoutPaused, includeLap: false)
-        }
-        if isResting {
-            if let duration = workoutController.restDurationSeconds {
-                return timerTopLabel(L10n.restDuration(duration), includeLap: false)
-            }
-            return timerTopLabel(L10n.restModeStatus, includeLap: false)
-        }
         if workoutController.trackingMode.usesManualIntervals {
             let distanceStr = workoutController.currentTargetDistanceMeters.map {
                 Formatters.distanceString(meters: $0, unit: settings.distanceUnit)
@@ -100,6 +92,13 @@ struct ActiveSessionView: View {
             return timerTopLabel(distanceStr)
         }
         return timerTopLabel()
+    }
+
+    private var timerStatusBadgeText: String? {
+        ActiveSessionTimerBadgeContent.statusText(
+            runState: workoutController.runState,
+            restDurationSeconds: workoutController.restDurationSeconds
+        )
     }
 
     @Environment(\.appTheme) private var theme
@@ -177,29 +176,46 @@ struct ActiveSessionView: View {
         Button {
             handleLapTap()
         } label: {
-            Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
-                .font(.system(size: timerFontSize, weight: .medium, design: .rounded))
-                .monospacedDigit()
-                .minimumScaleFactor(0.45)
-                .lineLimit(1)
-                .foregroundStyle(theme.text.neutral)
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, Tokens.Spacing.md)
-                .padding(.vertical, Tokens.Spacing.sm)
-                .frame(maxHeight: 120)
-                .background(Capsule().fill(theme.background.emphasisAction(primaryColor)))
-                .overlay(timerBorderOverlay)
-                .overlay(lapGlowOverlay)
-                .overlay(alignment: .top) {
-                    timerTopOverlay
-                        .offset(y: -31)
+            VStack(spacing: Tokens.Spacing.xs) {
+                Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
+                    .font(.system(size: timerFontSize, weight: .medium, design: .rounded))
+                    .monospacedDigit()
+                    .minimumScaleFactor(0.45)
+                    .lineLimit(1)
+                    .foregroundStyle(theme.text.neutral)
+
+                if let timerStatusBadgeText {
+                    Text(timerStatusBadgeText)
+                        .font(.system(size: Tokens.FontSize.md, weight: .semibold, design: .rounded))
+                        .foregroundStyle(theme.text.bold)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, Tokens.Spacing.md)
+                        .padding(.vertical, Tokens.Spacing.xs)
+                        .background(
+                            Capsule(style: .continuous)
+                                .fill(theme.background.bold)
+                        )
                 }
-                .scaleEffect(isTimerBounceActive ? 1.11 : 1)
-                .brightness(isTimerGlowActive ? 0.3 : 0)
-                .shadow(color: Color.white.opacity(isTimerGlowActive ? 0.5 : 0), radius: 18)
-                .shadow(color: primaryColor.opacity(isTimerGlowActive ? 0.72 : 0), radius: 24)
-                .padding(.horizontal, Tokens.Spacing.xs)
-                .contentShape(Capsule())
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.horizontal, Tokens.Spacing.md)
+            .padding(.vertical, Tokens.Spacing.sm)
+            .frame(maxHeight: 120)
+            .background(Capsule().fill(theme.background.emphasisAction(primaryColor)))
+            .overlay(timerBorderOverlay)
+            .overlay(lapGlowOverlay)
+            .overlay(alignment: .top) {
+                timerTopOverlay
+                    .offset(y: -31)
+            }
+            .scaleEffect(isTimerBounceActive ? 1.11 : 1)
+            .brightness(isTimerGlowActive ? 0.3 : 0)
+            .shadow(color: Color.white.opacity(isTimerGlowActive ? 0.5 : 0), radius: 18)
+            .shadow(color: primaryColor.opacity(isTimerGlowActive ? 0.72 : 0), radius: 24)
+            .padding(.horizontal, Tokens.Spacing.xs)
+            .contentShape(Capsule())
         }
         .buttonStyle(TimerPressStyle())
     }
@@ -613,12 +629,15 @@ struct ActiveSessionView: View {
     }
 
     private func flashTapBorder() {
+        flashTask?.cancel()
+
         withAnimation(.easeOut(duration: 0.08)) {
             isTapFlashVisible = true
         }
 
-        Task {
+        flashTask = Task {
             try? await Task.sleep(for: .milliseconds(180))
+            guard !Task.isCancelled else { return }
             await MainActor.run {
                 withAnimation(.easeIn(duration: 0.18)) {
                     isTapFlashVisible = false
@@ -657,6 +676,22 @@ struct ActiveSessionView: View {
                     isTimerGlowActive = false
                 }
             }
+        }
+    }
+}
+
+enum ActiveSessionTimerBadgeContent {
+    static func statusText(runState: WorkoutRunState, restDurationSeconds: Int?) -> String? {
+        switch runState {
+        case .paused:
+            return L10n.workoutPaused
+        case .rest:
+            if let restDurationSeconds {
+                return L10n.restDuration(restDurationSeconds)
+            }
+            return L10n.restModeStatus
+        case .idle, .ready, .active, .ending, .ended:
+            return nil
         }
     }
 }

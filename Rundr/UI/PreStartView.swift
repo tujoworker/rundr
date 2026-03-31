@@ -1246,6 +1246,16 @@ enum SegmentEditSheetSection: Hashable {
     }
 }
 
+enum SegmentEditSheetRules {
+    static func canConfigureLastRest(repeatCount: Int, restSeconds: Int) -> Bool {
+        repeatCount > 0
+    }
+
+    static func normalizedLastRestSeconds(_ lastRestSeconds: Int, repeatCount: Int) -> Int {
+        repeatCount > 0 ? lastRestSeconds : 0
+    }
+}
+
 private struct SegmentEditSheet: View {
     @Binding var distanceText: String
     @Binding var usesOpenDistance: Bool
@@ -1317,6 +1327,10 @@ private struct SegmentEditSheet: View {
 
     private var timeLabel: String {
         targetTime > 0 ? Formatters.compactTimeString(from: Double(targetTime)) : L10n.off
+    }
+
+    private var canConfigureLastRest: Bool {
+        SegmentEditSheetRules.canConfigureLastRest(repeatCount: repeatCount, restSeconds: restSeconds)
     }
 
     private var orderedSections: [SegmentEditSheetSection] {
@@ -1402,6 +1416,12 @@ private struct SegmentEditSheet: View {
             if distanceText.isEmpty {
                 distanceText = defaultDistanceText
             }
+        }
+        .onAppear {
+            syncLastRestWithRepeatCount(animated: false)
+        }
+        .onChange(of: repeatCount) { _, _ in
+            syncLastRestWithRepeatCount()
         }
         .scrollContentBackground(.hidden)
         .sheet(isPresented: Binding(
@@ -1576,11 +1596,6 @@ private struct SegmentEditSheet: View {
                     } else {
                         restSeconds = 0
                     }
-                    if restSeconds <= 0 {
-                        withAnimation(.easeInOut(duration: 0.22)) {
-                            lastRestSeconds = 0
-                        }
-                    }
                 } label: {
                     Image(systemName: "minus")
                         .font(.system(size: Tokens.FontSize.lg, weight: .bold))
@@ -1615,7 +1630,7 @@ private struct SegmentEditSheet: View {
 
     @ViewBuilder
     private var lastRestSection: some View {
-        if lastRestSeconds > 0 && restSeconds > 0 {
+        if lastRestSeconds > 0 && canConfigureLastRest {
             VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
                 Text(L10n.lastRest)
                     .font(.caption.bold())
@@ -1674,8 +1689,8 @@ private struct SegmentEditSheet: View {
     }
 
     private var addLastRestButton: some View {
-        let isActive = lastRestSeconds <= 0 || restSeconds <= 0
-        let isEnabled = restSeconds > 0 && lastRestSeconds <= 0
+        let isActive = canConfigureLastRest && lastRestSeconds <= 0
+        let isEnabled = isActive
 
         return Button {
             withAnimation(.easeInOut(duration: 0.22)) {
@@ -1837,17 +1852,29 @@ private struct SegmentEditSheet: View {
 
     private func commitRestEditorText() {
         restSeconds = SegmentEditInputParser.parseDurationSeconds(from: restEditorText)
-        if restSeconds <= 0 {
-            withAnimation(.easeInOut(duration: 0.22)) {
-                lastRestSeconds = 0
-            }
-        }
         isRestEditorPresented = false
     }
 
     private func commitLastRestEditorText() {
         lastRestSeconds = SegmentEditInputParser.parseDurationSeconds(from: lastRestEditorText)
         isLastRestEditorPresented = false
+    }
+
+    private func syncLastRestWithRepeatCount(animated: Bool = true) {
+        let normalizedLastRest = SegmentEditSheetRules.normalizedLastRestSeconds(
+            lastRestSeconds,
+            repeatCount: repeatCount
+        )
+
+        guard normalizedLastRest != lastRestSeconds else { return }
+
+        if animated {
+            withAnimation(.easeInOut(duration: 0.22)) {
+                lastRestSeconds = normalizedLastRest
+            }
+        } else {
+            lastRestSeconds = normalizedLastRest
+        }
     }
 
     private func commitTimeEditorText() {

@@ -196,6 +196,26 @@ final class ModelTests: XCTestCase {
         )
     }
 
+    func testLastRestAvailabilityDependsOnRepeatCountNotRest() {
+        XCTAssertTrue(
+            SegmentEditSheetRules.canConfigureLastRest(repeatCount: 3, restSeconds: 0)
+        )
+        XCTAssertFalse(
+            SegmentEditSheetRules.canConfigureLastRest(repeatCount: 0, restSeconds: 45)
+        )
+    }
+
+    func testLastRestNormalizationClearsValueWhenRepeatsBecomeOpenEnded() {
+        XCTAssertEqual(
+            SegmentEditSheetRules.normalizedLastRestSeconds(60, repeatCount: 3),
+            60
+        )
+        XCTAssertEqual(
+            SegmentEditSheetRules.normalizedLastRestSeconds(60, repeatCount: 0),
+            0
+        )
+    }
+
     func testSegmentEditInputParserParsesDurationFormats() {
         XCTAssertEqual(SegmentEditInputParser.parseDurationSeconds(from: "75"), 75)
         XCTAssertEqual(SegmentEditInputParser.parseDurationSeconds(from: "1:15"), 75)

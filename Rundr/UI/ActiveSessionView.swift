@@ -39,6 +39,10 @@ struct ActiveSessionView: View {
         workoutController.runState == .paused
     }
 
+    private var restButtonShowsEndRest: Bool {
+        isResting || workoutController.willResumeIntoRest
+    }
+
     private var currentLapNumber: Int {
         workoutController.completedLaps.filter { $0.lapType == .active }.count + 1
     }
@@ -100,7 +104,7 @@ struct ActiveSessionView: View {
 
     private var timerBorderOverlay: some View {
         Capsule()
-            .strokeBorder(theme.stroke.emphasisAction(primaryColor), style: StrokeStyle(lineWidth: Tokens.LineWidth.thick, dash: isResting ? [6, 4] : []))
+            .strokeBorder(theme.stroke.emphasisAction(primaryColor), style: StrokeStyle(lineWidth: Tokens.LineWidth.thick, dash: restButtonShowsEndRest ? [6, 4] : []))
     }
 
     private var lapGlowOverlay: some View {
@@ -178,7 +182,7 @@ struct ActiveSessionView: View {
                 .lineLimit(1)
                 .foregroundStyle(theme.text.neutral)
                 .frame(maxWidth: .infinity)
-                .padding(.horizontal, 22)
+                .padding(.horizontal, Tokens.Spacing.md)
                 .padding(.vertical, Tokens.Spacing.sm)
                 .frame(maxHeight: 120)
                 .background(Capsule().fill(theme.background.emphasisAction(primaryColor)))
@@ -222,24 +226,24 @@ struct ActiveSessionView: View {
         ScrollView {
             VStack(spacing: Tokens.Spacing.xxl) {
                 Button {
-                    if isResting {
+                    if isWorkoutPaused {
+                        workoutController.toggleRestWhilePaused()
+                    } else if isResting {
                         workoutController.cancelRest()
                     } else {
                         workoutController.startRest()
                     }
-                    withAnimation {
-                        selectedPage = 1
-                    }
+                    selectedPage = 1
                 } label: {
                     VStack(spacing: Tokens.Spacing.sm) {
                         WorkoutControlIcon(
-                            systemName: isResting ? "figure.run" : "figure.cooldown",
+                            systemName: restButtonShowsEndRest ? "figure.run" : "figure.cooldown",
                             baseColor: primaryColor,
                             size: 78,
-                            isDashed: isResting,
+                            isDashed: restButtonShowsEndRest,
                             iconFontSizeOverride: 34
                         )
-                        Text(isResting ? L10n.endRest : (settings.restMode == .autoDetect ? L10n.restModeAuto : L10n.restMode))
+                        Text(restButtonShowsEndRest ? L10n.endRest : (settings.restMode == .autoDetect ? L10n.restModeAuto : L10n.restMode))
                             .font(.system(size: Tokens.FontSize.sm, weight: .medium, design: .rounded))
                             .foregroundStyle(theme.text.subtle)
                     }
@@ -275,11 +279,7 @@ struct ActiveSessionView: View {
                         } else {
                             workoutController.pauseSession()
                         }
-                        Task { @MainActor in
-                            withAnimation {
-                                selectedPage = 1
-                            }
-                        }
+                        selectedPage = 1
                     } label: {
                         VStack(spacing: Tokens.Spacing.sm) {
                             WorkoutControlIcon(
@@ -303,6 +303,22 @@ struct ActiveSessionView: View {
     @ViewBuilder
     private var trackingPage: some View {
         ZStack {
+            // Keep pause/rest pulses behind content so labels remain readable.
+            // Always present in the view tree (opacity-only hiding) to avoid
+            // changing the ZStack child count during layout, which can trigger
+            // an infinite PUICCarouselCollectionViewLayout invalidation loop.
+            Color.white
+                .opacity(isResting && isPausePulseOn ? 0.1 : 0)
+                .ignoresSafeArea()
+
+            Color.white
+                .opacity(isResting && isRestPulseOn ? 0.3 : 0)
+                .ignoresSafeArea()
+
+            Color.white
+                .opacity(workoutController.isTimeGoalWarningActive && isTimeGoalPulseOn ? 0.15 : 0)
+                .ignoresSafeArea()
+
             VStack(spacing: 0) {
                 Color.clear
                     .frame(height: topHeaderHeight + 16)
@@ -375,27 +391,12 @@ struct ActiveSessionView: View {
         ZStack {
             AppScreenBackground(accentColor: primaryColor)
 
-            // Keep pause/rest pulses behind content so labels remain readable.
-            // Always present in the view tree (opacity-only hiding) to avoid
-            // changing the ZStack child count during layout, which can trigger
-            // an infinite PUICCarouselCollectionViewLayout invalidation loop.
-            Color.white
-                .opacity(isResting && isPausePulseOn ? 0.1 : 0)
-                .ignoresSafeArea()
-
-            Color.white
-                .opacity(isResting && isRestPulseOn ? 0.3 : 0)
-                .ignoresSafeArea()
-
-            Color.white
-                .opacity(workoutController.isTimeGoalWarningActive && isTimeGoalPulseOn ? 0.15 : 0)
-                .ignoresSafeArea()
-
             TabView(selection: $selectedPage) {
                 controlsPage.tag(0)
                 trackingPage.tag(1)
             }
             .tabViewStyle(.page(indexDisplayMode: .automatic))
+            .animation(.easeInOut(duration: 0.3), value: selectedPage)
         }
         .overlay(alignment: .topLeading) {
             let screenWidth = WKInterfaceDevice.current().screenBounds.width

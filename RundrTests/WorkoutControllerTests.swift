@@ -1033,4 +1033,75 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertTrue(controller.lapAlertsEnabled)
         XCTAssertTrue(controller.restAlertsEnabled)
     }
+
+    // MARK: - Toggle Rest While Paused
+
+    func testToggleRestWhilePausedFromActive() {
+        let controller = makeStartedController()
+
+        controller.pauseSession()
+        XCTAssertEqual(controller.runState, .paused)
+        XCTAssertFalse(controller.willResumeIntoRest)
+
+        controller.toggleRestWhilePaused()
+        XCTAssertTrue(controller.willResumeIntoRest)
+        XCTAssertEqual(controller.runState, .paused)
+    }
+
+    func testToggleRestWhilePausedBackToActive() {
+        let controller = makeStartedController()
+
+        controller.pauseSession()
+        controller.toggleRestWhilePaused()
+        XCTAssertTrue(controller.willResumeIntoRest)
+
+        controller.toggleRestWhilePaused()
+        XCTAssertFalse(controller.willResumeIntoRest)
+        XCTAssertEqual(controller.runState, .paused)
+    }
+
+    func testToggleRestWhilePausedIgnoredWhenNotPaused() {
+        let controller = makeStartedController()
+        XCTAssertEqual(controller.runState, .active)
+
+        controller.toggleRestWhilePaused()
+        XCTAssertEqual(controller.runState, .active)
+        XCTAssertFalse(controller.willResumeIntoRest)
+    }
+
+    func testToggleRestWhilePausedFromRestClearsRestState() {
+        let segments = [
+            DistanceSegment(distanceMeters: 400, repeatCount: nil, restSeconds: 60)
+        ]
+        let controller = makeStartedController(segments: segments)
+
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .rest)
+
+        controller.pauseSession()
+        XCTAssertEqual(controller.runState, .paused)
+        XCTAssertTrue(controller.willResumeIntoRest)
+
+        controller.toggleRestWhilePaused()
+        XCTAssertFalse(controller.willResumeIntoRest)
+    }
+
+    func testResumeAfterToggleRestResumesIntoRest() {
+        let controller = makeStartedController()
+
+        controller.pauseSession()
+        controller.toggleRestWhilePaused()
+        XCTAssertTrue(controller.willResumeIntoRest)
+
+        controller.resumeSession()
+        XCTAssertEqual(controller.runState, .rest)
+    }
+
+    func testWillResumeIntoRestFalseWhenNotPaused() {
+        let controller = makeStartedController()
+        XCTAssertFalse(controller.willResumeIntoRest)
+
+        controller.startRest()
+        XCTAssertFalse(controller.willResumeIntoRest)
+    }
 }

@@ -360,6 +360,24 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         publishLiveWorkoutStateIfNeeded()
     }
 
+    func toggleRestWhilePaused() {
+        guard runState == .paused else { return }
+        if pausedRunState == .rest {
+            pausedRunState = .active
+            pausedRestElapsedSeconds = nil
+            pausedRestDurationSeconds = nil
+        } else {
+            pausedRunState = .rest
+        }
+        playHaptic(.click)
+        persistRecoverySnapshotIfNeeded()
+        publishLiveWorkoutStateIfNeeded()
+    }
+
+    var willResumeIntoRest: Bool {
+        runState == .paused && pausedRunState == .rest
+    }
+
     func pauseSession() {
         guard runState == .active || runState == .rest else { return }
 

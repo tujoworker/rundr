@@ -56,7 +56,7 @@
 "Delete Lap" = "ラップを削除";
 "Lap %d" = "ラップ %d";
 "Rest %ds" = "レスト %d秒";
-"End Rest" = "レスト終了";
+"Undo \"Mark as Rest\"" = "「レストとしてマーク」を元に戻す";
 "Pause" = "一時停止";
 "Resume" = "再開";
 "Paused" = "一時停止中";

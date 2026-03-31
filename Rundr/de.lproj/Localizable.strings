@@ -56,7 +56,7 @@
 "Delete Lap" = "Runde löschen";
 "Lap %d" = "Runde %d";
 "Rest %ds" = "Pause %ds";
-"End Rest" = "Pause beenden";
+"Undo \"Mark as Rest\"" = "\"Als Pause markieren\" rückgängig";
 "Pause" = "Pausieren";
 "Resume" = "Fortsetzen";
 "Paused" = "Pausiert";

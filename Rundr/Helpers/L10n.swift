@@ -64,7 +64,7 @@ enum L10n {
     static func restDuration(_ seconds: Int) -> String {
         String(format: String(localized: "Rest %ds", comment: "Timer label with rest countdown"), seconds)
     }
-    static let endRest = String(localized: "End Rest", comment: "Button")
+    static let endRest = String(localized: "Undo \"Mark as Rest\"", comment: "Active session rest button label when ending rest")
     static let pause = String(localized: "Pause", comment: "Button")
     static let resume = String(localized: "Resume", comment: "Button")
     static let workoutPaused = String(localized: "Paused", comment: "Timer label when workout is fully paused")

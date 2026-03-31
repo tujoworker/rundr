@@ -56,7 +56,7 @@
 "Delete Lap" = "Slett runde";
 "Lap %d" = "Runde %d";
 "Rest %ds" = "Hvile %ds";
-"End Rest" = "Avslutt hvile";
+"Undo \"Mark as Rest\"" = "Angre \"Marker som hvile\"";
 "Pause" = "Pause";
 "Resume" = "Fortsett";
 "Paused" = "Pauset";

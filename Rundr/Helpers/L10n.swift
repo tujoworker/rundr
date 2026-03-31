@@ -8,7 +8,7 @@ enum L10n {
     static let pressActionButton = String(localized: "Press the Action Button", comment: "PreStart hint")
     static let settings = String(localized: "Settings", comment: "Settings section")
     static let workouts = String(localized: "Workouts", comment: "Companion tab title")
-    static let browser = String(localized: "Browser", comment: "Companion tab title")
+    static let browser = String(localized: "Browse", comment: "Companion tab title")
     static let adjustSettings = String(localized: "Adjust Interval", comment: "History setup title")
     static let browse = String(localized: "Browse", comment: "Browse saved intervals")
     static let currentWorkout = String(localized: "Current Workout", comment: "Companion current workout section")

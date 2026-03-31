@@ -1,7 +1,7 @@
 import Foundation
 
 enum ActionButtonCommandRoute {
-    case startWorkoutFromPreStart
+    case startWorkout
     case markLap
     case resumeSession
     case deferUntilReady
@@ -11,17 +11,18 @@ enum ActionButtonCommandRoute {
 enum ActionButtonCommandRouter {
     static func route(
         command: ActionButtonCommand?,
-        runState: WorkoutRunState,
-        currentScreen: AppScreenState,
-        isShowingActiveSession: Bool
+        runState: WorkoutRunState
     ) -> ActionButtonCommandRoute {
         switch command {
         case .startWorkout:
             switch runState {
             case .idle, .ready:
-                guard currentScreen == .preStart else { return .noOp }
-                return .startWorkoutFromPreStart
-            case .active, .rest, .paused, .ending, .ended:
+                return .startWorkout
+            case .active, .rest:
+                return .markLap
+            case .paused:
+                return .resumeSession
+            case .ending, .ended:
                 return .noOp
             }
         case .markLap:

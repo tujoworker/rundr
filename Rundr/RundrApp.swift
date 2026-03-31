@@ -69,13 +69,11 @@ struct RundrApp: App {
 
         switch ActionButtonCommandRouter.route(
             command: pendingCommand,
-            runState: workoutController.runState,
-            currentScreen: coordinator.currentScreen,
-            isShowingActiveSession: coordinator.isShowingActiveSession
+            runState: workoutController.runState
         ) {
-        case .startWorkoutFromPreStart:
+        case .startWorkout:
             ActionButtonCommandStore.clearPendingCommand()
-            startWorkoutFromPreStart()
+            startWorkoutFromActionButton()
         case .markLap:
             ActionButtonCommandStore.clearPendingCommand()
             handleMarkLapCommand()
@@ -96,13 +94,27 @@ struct RundrApp: App {
             workoutController.markLap(source: .actionButton)
         case .paused:
             workoutController.resumeSession()
-        case .idle, .ready:
-            if coordinator.currentScreen == .preStart {
-                startWorkoutFromPreStart()
-            }
         case .ending, .ended:
             break
+        case .idle, .ready:
+            break
         }
+    }
+
+    private func startWorkoutFromActionButton() {
+        workoutController.configure(
+            trackingMode: settings.trackingMode,
+            distanceLapDistanceMeters: settings.distanceDistanceMeters,
+            distanceSegments: settings.distanceSegments,
+            restMode: settings.restMode,
+            healthKitManager: healthKitManager
+        )
+        workoutController.lapAlertsEnabled = settings.lapAlerts
+        workoutController.restAlertsEnabled = settings.restAlerts
+        Task {
+            await workoutController.start()
+        }
+        coordinator.goToActiveSession()
     }
 
     private func startWorkoutFromPreStart() {

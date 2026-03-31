@@ -11,6 +11,7 @@
 "Title" = "Titel";
 "Title (optional)" = "Titel (optional)";
 "No saved intervals yet" = "Noch keine gespeicherten Intervalle";
+"Open a predefined interval to save your own version." = "Öffne ein vordefiniertes Intervall, um deine eigene Version zu speichern.";
 "Tracking Mode" = "Tracking-Modus";
 "Distance" = "Distanz";
 "Add Interval" = "Intervall hinzufügen";

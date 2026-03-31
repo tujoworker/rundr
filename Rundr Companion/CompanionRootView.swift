@@ -106,9 +106,16 @@ private struct CompanionBrowserView: View {
             List {
                 Section(L10n.myIntervals) {
                     if settings.intervalPresets.isEmpty {
-                        Text(L10n.noSavedIntervalsYet)
-                            .foregroundStyle(theme.text.subtle)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+                            Text(L10n.noSavedIntervalsYet)
+                                .font(.headline.weight(.semibold))
+                                .foregroundStyle(theme.text.neutral)
+
+                            Text(L10n.savedIntervalsPlaceholderDetail)
+                                .font(.subheadline)
+                                .foregroundStyle(theme.text.subtle)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
                             .listRowCardChrome()
                     } else {
                         ForEach(settings.intervalPresets) { preset in

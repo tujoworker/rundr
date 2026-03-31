@@ -11,6 +11,7 @@
 "Title" = "タイトル";
 "Title (optional)" = "タイトル（任意）";
 "No saved intervals yet" = "保存済みインターバルなし";
+"Open a predefined interval to save your own version." = "プリセットのインターバルを開いて、自分用のバージョンを保存してください。";
 "Tracking Mode" = "トラッキングモード";
 "Distance" = "距離";
 "Add Interval" = "インターバルを追加";

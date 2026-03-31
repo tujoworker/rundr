@@ -19,6 +19,7 @@ enum L10n {
     static let title = String(localized: "Title", comment: "Preset title label")
     static let optionalTitlePlaceholder = String(localized: "Title (optional)", comment: "Optional preset title placeholder")
     static let noSavedIntervalsYet = String(localized: "No saved intervals yet", comment: "Empty saved intervals state")
+    static let savedIntervalsPlaceholderDetail = String(localized: "Open a predefined interval to save your own version.", comment: "Browse empty state guidance for saved intervals")
     static let mode = String(localized: "Tracking Mode", comment: "Tracking mode setting")
     static let distance = String(localized: "Distance", comment: "Distance setting")
     static let addInterval = String(localized: "Add Interval", comment: "Add interval button")

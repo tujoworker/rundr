@@ -11,6 +11,7 @@
 "Title" = "Tittel";
 "Title (optional)" = "Tittel (valgfri)";
 "No saved intervals yet" = "Ingen lagrede intervaller ennå";
+"Open a predefined interval to save your own version." = "Åpne et forhåndsdefinert intervall for å lagre din egen versjon.";
 "Tracking Mode" = "Sporingsmodus";
 "Distance" = "Distanse";
 "Add Interval" = "Legg til intervall";

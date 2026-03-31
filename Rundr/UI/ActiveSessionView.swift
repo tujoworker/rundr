@@ -242,9 +242,10 @@ struct ActiveSessionView: View {
                             systemName: isResting ? "figure.run" : "figure.cooldown",
                             baseColor: primaryColor,
                             size: 78,
+                            isDashed: settings.restMode == .autoDetect,
                             iconFontSizeOverride: 34
                         )
-                        Text(isResting ? L10n.endRest : L10n.rest)
+                        Text(isResting ? L10n.endRest : L10n.restMode)
                             .font(.system(size: Tokens.FontSize.sm, weight: .medium, design: .rounded))
                             .foregroundStyle(theme.text.subtle)
                     }
@@ -872,6 +873,7 @@ private struct WorkoutControlIcon: View {
     let baseColor: Color
     var size: CGFloat = 46
     var isSecondary: Bool = false
+    var isDashed: Bool = false
     var iconFontSizeOverride: CGFloat? = nil
     @Environment(\.appTheme) private var theme
 
@@ -886,7 +888,7 @@ private struct WorkoutControlIcon: View {
 
             if !isSecondary {
                 Circle()
-                    .stroke(theme.stroke.emphasisAction(baseColor), lineWidth: Tokens.LineWidth.thick)
+                    .stroke(theme.stroke.emphasisAction(baseColor), style: StrokeStyle(lineWidth: Tokens.LineWidth.thick, dash: isDashed ? [6, 4] : []))
                     .padding(Tokens.LineWidth.regular)
             }
         }

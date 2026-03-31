@@ -264,7 +264,7 @@ struct ActiveSessionView: View {
                 } label: {
                     VStack(spacing: Tokens.Spacing.sm) {
                         WorkoutControlIcon(
-                            systemName: restButtonShowsEndRest ? "arrow.uturn.backward.circle" : "figure.cooldown",
+                            systemName: restButtonShowsEndRest ? "arrow.counterclockwise" : "figure.cooldown",
                             baseColor: primaryColor,
                             size: 78,
                             isDashed: restButtonShowsEndRest,
@@ -327,7 +327,7 @@ struct ActiveSessionView: View {
                 .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.horizontal, Tokens.Spacing.xl)
+            .padding(.horizontal, Tokens.Spacing.xxxl)
         }
     }
 

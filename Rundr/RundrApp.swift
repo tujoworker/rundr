@@ -32,6 +32,7 @@ struct RundrApp: App {
                 .modelContainer(persistence.modelContainer)
                 .task {
                     syncManager.attachPersistence(persistence)
+                    syncManager.attachSettings(settings)
                     syncManager.activate()
                     workoutController.attachOngoingWorkoutStore(ongoingWorkoutStore)
                     workoutController.attachSyncManager(syncManager)
@@ -53,6 +54,27 @@ struct RundrApp: App {
                 }
                 .onChange(of: workoutController.runState) { _, _ in
                     processPendingActionButtonCommand()
+                }
+                .onChange(of: settings.currentWorkoutPlan) { _, _ in
+                    syncManager.publishSettingsSnapshot()
+                }
+                .onChange(of: settings.distanceUnit) { _, _ in
+                    syncManager.publishSettingsSnapshot()
+                }
+                .onChange(of: settings.primaryColor) { _, _ in
+                    syncManager.publishSettingsSnapshot()
+                }
+                .onChange(of: settings.appearanceMode) { _, _ in
+                    syncManager.publishSettingsSnapshot()
+                }
+                .onChange(of: settings.lapAlerts) { _, _ in
+                    syncManager.publishSettingsSnapshot()
+                }
+                .onChange(of: settings.restAlerts) { _, _ in
+                    syncManager.publishSettingsSnapshot()
+                }
+                .onChange(of: settings.intervalPresets) { _, _ in
+                    syncManager.publishSettingsSnapshot()
                 }
         }
     }

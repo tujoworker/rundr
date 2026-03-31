@@ -190,3 +190,12 @@
 "System" = "システム";
 "Light" = "ライト";
 "Dark Mode" = "ダーク";
+"Workouts" = "ワークアウト";
+"Browser" = "ブラウザ";
+"Current Workout" = "現在のワークアウト";
+"Workout Plan" = "ワークアウトプラン";
+"Used when you start on Apple Watch." = "Apple Watchで開始するときに使われます。";
+"Edit Interval" = "インターバルを編集";
+"Manual" = "手動";
+"%d segments" = "%dセグメント";
+"Unlimited" = "無制限";

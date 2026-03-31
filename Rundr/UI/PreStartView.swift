@@ -2150,46 +2150,6 @@ private struct SettingsCardRow: View {
     }
 }
 
-private extension IntervalPreset {
-    func displayTitle(unit: DistanceUnit) -> String {
-        trimmedCustomTitle ?? workoutPlan.displayTitle(unit: unit)
-    }
-}
-
-private extension WorkoutPlanSnapshot {
-    func displayTitle(unit: DistanceUnit) -> String {
-        let normalizedSegments = distanceSegments.isEmpty ? [DistanceSegment.default] : distanceSegments
-        guard let firstSegment = normalizedSegments.first else { return Formatters.distanceString(meters: 400, unit: unit) }
-
-        let distance = firstSegment.usesOpenDistance
-            ? L10n.openDistance
-            : Formatters.distanceString(meters: firstSegment.distanceMeters, unit: unit)
-        if normalizedSegments.count == 1, let repeatCount = firstSegment.repeatCount {
-            return "\(repeatCount) × \(distance)"
-        }
-        if normalizedSegments.count == 1 {
-            return distance
-        }
-        return "\(normalizedSegments.count) segments"
-    }
-
-    func displayDetail(unit: DistanceUnit) -> String {
-        let normalizedSegments = distanceSegments.isEmpty ? [DistanceSegment.default] : distanceSegments
-        let distanceSummary = normalizedSegments.map {
-            let distance = $0.usesOpenDistance
-                ? L10n.openDistance
-                : Formatters.distanceString(meters: $0.distanceMeters, unit: unit)
-            if let repeatCount = $0.repeatCount {
-                return "\(repeatCount) × \(distance)"
-            }
-            return distance
-        }
-        .joined(separator: " • ")
-
-        return distanceSummary
-    }
-}
-
 private final class LocationPermissionRequester: NSObject, ObservableObject {
     private let manager = CLLocationManager()
     private var continuation: CheckedContinuation<Bool, Never>?

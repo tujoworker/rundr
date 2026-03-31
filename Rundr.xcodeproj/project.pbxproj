@@ -56,6 +56,12 @@
 		B1000000000000000000000E /* DistanceUnit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6DEE2BD2F65FC180005ABAA /* DistanceUnit.swift */; };
 		B1000000000000000000000F /* WorkoutRunState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF7B588DE96AFFC30AE7ABBA /* WorkoutRunState.swift */; };
 		B10000000000000000000010 /* SessionSyncModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* SessionSyncModels.swift */; };
+		B10000000000000000000011 /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 803A3A092975B9BAB810BAB2 /* SettingsStore.swift */; };
+		B10000000000000000000012 /* PrimaryColorOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3522748D3D40B521A48CBEA2 /* PrimaryColorOption.swift */; };
+		B10000000000000000000013 /* AppearanceMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA00000000000000000AM002 /* AppearanceMode.swift */; };
+		B10000000000000000000014 /* DesignTokens.swift in Sources */ = {isa = PBXBuildFile; fileRef = THEME001FileRef /* DesignTokens.swift */; };
+		B10000000000000000000015 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = THEME002FileRef /* AppTheme.swift */; };
+		B10000000000000000000017 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = LocalizableStringsGroupRef /* Localizable.strings */; };
 		C49E8373AE1A8ED3EC6A2880 /* ModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB9EDEF7841220E7F36CEFF /* ModelTests.swift */; };
 		CFBC8671050DDED6391381E7 /* AppScreenState.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BDE8B1656261C1E67BD361 /* AppScreenState.swift */; };
 		D5B5E557FB187878AF5A836B /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 803A3A092975B9BAB810BAB2 /* SettingsStore.swift */; };
@@ -462,6 +468,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				90A0B0C0D0E0F00112233445 /* Assets.xcassets in Resources */,
+				B10000000000000000000017 /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -533,6 +540,11 @@
 				B1000000000000000000000F /* WorkoutRunState.swift in Sources */,
 				B10000000000000000000007 /* DistanceSegment.swift in Sources */,
 				B10000000000000000000010 /* SessionSyncModels.swift in Sources */,
+				B10000000000000000000011 /* SettingsStore.swift in Sources */,
+				B10000000000000000000012 /* PrimaryColorOption.swift in Sources */,
+				B10000000000000000000013 /* AppearanceMode.swift in Sources */,
+				B10000000000000000000014 /* DesignTokens.swift in Sources */,
+				B10000000000000000000015 /* AppTheme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

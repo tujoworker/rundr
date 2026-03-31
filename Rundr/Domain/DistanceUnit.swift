@@ -1,6 +1,6 @@
 import Foundation
 
-enum DistanceUnit: String, CaseIterable, Identifiable {
+enum DistanceUnit: String, CaseIterable, Identifiable, Codable {
     case km
     case miles
 

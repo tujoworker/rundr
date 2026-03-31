@@ -32,9 +32,12 @@ struct IntervalPreset: Codable, Identifiable, Equatable {
     }
 
     static func normalizedWorkoutPlan(_ workoutPlan: WorkoutPlanSnapshot) -> WorkoutPlanSnapshot {
-        let normalizedSegments = normalizeSegments(workoutPlan.distanceSegments)
+        let normalizedSegments = WorkoutPlanSupport.normalizedSegments(workoutPlan.distanceSegments)
         return WorkoutPlanSnapshot(
-            trackingMode: resolvedTrackingMode(for: workoutPlan.trackingMode, segments: normalizedSegments),
+            trackingMode: WorkoutPlanSupport.resolvedTrackingMode(
+                requestedTrackingMode: workoutPlan.trackingMode,
+                segments: normalizedSegments
+            ),
             distanceLapDistanceMeters: normalizedSegments.first?.distanceMeters ?? workoutPlan.distanceLapDistanceMeters,
             distanceSegments: normalizedSegments,
             restMode: .manual
@@ -74,24 +77,6 @@ struct IntervalPreset: Codable, Identifiable, Equatable {
             return distanceText
         }
         return "\(segments.count) segments"
-    }
-
-    private static func normalizeSegments(_ segments: [DistanceSegment]) -> [DistanceSegment] {
-        let fallbackSegments = segments.isEmpty ? [DistanceSegment.default] : segments
-        guard fallbackSegments.count > 1 else { return fallbackSegments }
-
-        var normalized = fallbackSegments
-        for index in normalized.indices.dropLast() where normalized[index].repeatCount == nil {
-            normalized[index].repeatCount = 1
-        }
-        return normalized
-    }
-
-    private static func resolvedTrackingMode(for trackingMode: TrackingMode, segments: [DistanceSegment]) -> TrackingMode {
-        if trackingMode == .distanceDistance, segments.contains(where: \.usesOpenDistance) {
-            return .dual
-        }
-        return trackingMode
     }
 }
 
@@ -269,7 +254,11 @@ final class SettingsStore: ObservableObject {
     }
 
     func apply(workoutPlan: WorkoutPlanSnapshot) {
-        trackingMode = resolvedTrackingMode(for: workoutPlan)
+        trackingMode = WorkoutPlanSupport.resolvedTrackingMode(
+            requestedTrackingMode: workoutPlan.trackingMode,
+            segments: workoutPlan.distanceSegments,
+            currentTrackingMode: trackingMode
+        )
         restMode = workoutPlan.restMode
 
         let segments = workoutPlan.distanceSegments.isEmpty ? [.default] : workoutPlan.distanceSegments
@@ -280,16 +269,34 @@ final class SettingsStore: ObservableObject {
         }
     }
 
-    private func resolvedTrackingMode(for workoutPlan: WorkoutPlanSnapshot) -> TrackingMode {
-        if workoutPlan.trackingMode == .distanceDistance,
-           workoutPlan.distanceSegments.contains(where: \.usesOpenDistance) {
-            return .dual
-        }
-        guard trackingMode == .gps, workoutPlan.trackingMode.usesManualIntervals else {
-            return workoutPlan.trackingMode
-        }
+    func makeSettingsSyncRecord(updatedAt: Date, deviceSource: String) -> SettingsSyncRecord {
+        SettingsSyncRecord(
+            trackingMode: trackingMode,
+            distanceDistanceMeters: distanceDistanceMeters,
+            distanceUnit: distanceUnit,
+            primaryColor: primaryColor,
+            restMode: restMode,
+            lapAlerts: lapAlerts,
+            restAlerts: restAlerts,
+            appearanceMode: appearanceMode,
+            distanceSegments: distanceSegments,
+            intervalPresets: intervalPresets,
+            updatedAt: updatedAt,
+            deviceSource: deviceSource
+        )
+    }
 
-        return .dual
+    func apply(settingsSyncRecord: SettingsSyncRecord) {
+        trackingMode = settingsSyncRecord.trackingMode
+        distanceDistanceMeters = settingsSyncRecord.distanceDistanceMeters
+        distanceUnit = settingsSyncRecord.distanceUnit
+        primaryColor = settingsSyncRecord.primaryColor
+        restMode = settingsSyncRecord.restMode
+        lapAlerts = settingsSyncRecord.lapAlerts
+        restAlerts = settingsSyncRecord.restAlerts
+        appearanceMode = settingsSyncRecord.appearanceMode
+        distanceSegments = settingsSyncRecord.distanceSegments
+        persistIntervalPresets(settingsSyncRecord.intervalPresets)
     }
 
     func intervalPreset(id: UUID) -> IntervalPreset? {

@@ -1133,6 +1133,69 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(store.title(for: workoutPlan), "Track Tens")
     }
 
+    func testWorkoutPlanSupportUpgradesOpenIntervalsToDual() {
+        let workoutPlan = WorkoutPlanSupport.makeWorkoutPlan(
+            requestedTrackingMode: .distanceDistance,
+            segments: [DistanceSegment(distanceMeters: 400, distanceGoalMode: .open)],
+            restMode: .manual
+        )
+
+        XCTAssertEqual(workoutPlan.trackingMode, .dual)
+    }
+
+    func testSettingsStoreApplySettingsSyncRecordUpdatesEditableCompanionState() {
+        let keys = [
+            "trackingMode",
+            "distanceDistanceMeters",
+            "distanceSegmentsJSON",
+            "intervalPresetsJSON",
+            "primaryColor",
+            "restMode",
+            "pauseMode",
+            "appearanceMode",
+            "distanceUnit",
+            "lapAlerts",
+            "restAlerts"
+        ]
+        keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
+        defer { keys.forEach { UserDefaults.standard.removeObject(forKey: $0) } }
+
+        let store = SettingsStore()
+        let presetPlan = WorkoutPlanSnapshot(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 300,
+            distanceSegments: [DistanceSegment(distanceMeters: 300, repeatCount: 8, restSeconds: 30)],
+            restMode: .manual
+        )
+        let record = SettingsSyncRecord(
+            trackingMode: .dual,
+            distanceDistanceMeters: 300,
+            distanceUnit: .miles,
+            primaryColor: .pink,
+            restMode: .autoDetect,
+            lapAlerts: false,
+            restAlerts: true,
+            appearanceMode: .light,
+            distanceSegments: presetPlan.distanceSegments,
+            intervalPresets: [IntervalPreset(customTitle: "Track", workoutPlan: presetPlan)],
+            updatedAt: Date(),
+            deviceSource: "iphone"
+        )
+
+        store.apply(settingsSyncRecord: record)
+
+        XCTAssertEqual(store.trackingMode, .dual)
+        XCTAssertEqual(store.distanceDistanceMeters, 300)
+        XCTAssertEqual(store.distanceUnit, .miles)
+        XCTAssertEqual(store.primaryColor, .pink)
+        XCTAssertEqual(store.restMode, .autoDetect)
+        XCTAssertFalse(store.lapAlerts)
+        XCTAssertTrue(store.restAlerts)
+        XCTAssertEqual(store.appearanceMode, .light)
+        XCTAssertEqual(store.distanceSegments, presetPlan.distanceSegments)
+        XCTAssertEqual(store.intervalPresets.first?.trimmedCustomTitle, "Track")
+    }
+
     func testSettingsStoreSaveIntervalPresetIgnoresGPSPlan() {
         UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON")
         defer { UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON") }

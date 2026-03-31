@@ -7,8 +7,13 @@ enum L10n {
     // MARK: - PreStart
     static let pressActionButton = String(localized: "Press the Action Button", comment: "PreStart hint")
     static let settings = String(localized: "Settings", comment: "Settings section")
+    static let workouts = String(localized: "Workouts", comment: "Companion tab title")
+    static let browser = String(localized: "Browser", comment: "Companion tab title")
     static let adjustSettings = String(localized: "Adjust Interval", comment: "History setup title")
     static let browse = String(localized: "Browse", comment: "Browse saved intervals")
+    static let currentWorkout = String(localized: "Current Workout", comment: "Companion current workout section")
+    static let workoutPlan = String(localized: "Workout Plan", comment: "Companion workout editor title")
+    static let usedWhenStartingOnAppleWatch = String(localized: "Used when you start on Apple Watch.", comment: "Companion current workout summary")
     static let intervalsTitle = String(localized: "Intervals", comment: "Intervals section title")
     static let myIntervals = String(localized: "My intervals", comment: "Interval library title")
     static let predefined = String(localized: "Predefined", comment: "Predefined interval section")
@@ -18,6 +23,7 @@ enum L10n {
     static let mode = String(localized: "Tracking Mode", comment: "Tracking mode setting")
     static let distance = String(localized: "Distance", comment: "Distance setting")
     static let addInterval = String(localized: "Add Interval", comment: "Add interval button")
+    static let editInterval = String(localized: "Edit Interval", comment: "Companion segment editor title")
     static let distanceMeters = String(localized: "Distance (meters)", comment: "Distance input label")
     static let distanceFeet = String(localized: "Distance (feet)", comment: "Distance input label")
     static let distanceMetersShort = String(localized: "Distance (m)", comment: "Short distance input label")
@@ -39,6 +45,7 @@ enum L10n {
     static let markAsRest = String(localized: "Mark as Rest", comment: "Active session rest button label")
     static let restModeAuto = String(localized: "Mark as Rest (Auto)", comment: "Active session rest button label when auto-detect is on")
     static let restManual = String(localized: "Manual", comment: "Rest mode: manual")
+    static let manual = String(localized: "Manual", comment: "Generic manual label")
     static let restAutoDetect = String(localized: "Auto-detect", comment: "Rest mode: auto detect")
     static let distancePlaceholderKm = String(localized: "e.g. 400", comment: "Distance placeholder")
     static let distancePlaceholderMiles = String(localized: "e.g. 1320", comment: "Distance placeholder")
@@ -147,6 +154,9 @@ enum L10n {
     static func presetCountSummary(_ count: Int) -> String {
         String(format: String(localized: "%d saved", comment: "Saved interval count summary"), count)
     }
+    static func segmentCount(_ count: Int) -> String {
+        String(format: String(localized: "%d segments", comment: "Workout plan segment count"), count)
+    }
 
     // MARK: - Tracking Mode
     static let gps = String(localized: "GPS", comment: "Tracking mode")
@@ -190,6 +200,7 @@ enum L10n {
     static let alerts = String(localized: "Alerts", comment: "Alerts setting")
     static let lapAlerts = String(localized: "Lap", comment: "Lap alerts setting")
     static let restAlerts = String(localized: "Rest", comment: "Rest alerts setting")
+    static let unlimited = String(localized: "Unlimited", comment: "Unlimited repeat count label")
     static func targetDisplay(_ distance: String, _ time: String) -> String {
         String(format: String(localized: "%@ in %@", comment: "Target display: distance in time"), distance, time)
     }

@@ -192,3 +192,12 @@
 "System" = "System";
 "Light" = "Hell";
 "Dark Mode" = "Dunkel";
+"Workouts" = "Workouts";
+"Browser" = "Browser";
+"Current Workout" = "Aktueller Workout";
+"Workout Plan" = "Workoutplan";
+"Used when you start on Apple Watch." = "Wird verwendet, wenn du auf der Apple Watch startest.";
+"Edit Interval" = "Intervall bearbeiten";
+"Manual" = "Manuell";
+"%d segments" = "%d Segmente";
+"Unlimited" = "Unbegrenzt";

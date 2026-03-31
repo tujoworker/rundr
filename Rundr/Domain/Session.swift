@@ -27,6 +27,107 @@ struct WorkoutPlanSnapshot: Codable, Equatable {
     }
 }
 
+enum WorkoutPlanSupport {
+    static func normalizedSegments(_ input: [DistanceSegment]) -> [DistanceSegment] {
+        let segments = input.isEmpty ? [.default] : input
+        guard segments.count > 1 else { return segments }
+
+        var normalized = segments
+        for index in normalized.indices.dropLast() where normalized[index].repeatCount == nil {
+            normalized[index].repeatCount = 1
+        }
+        return normalized
+    }
+
+    static func resolvedTrackingMode(
+        requestedTrackingMode: TrackingMode,
+        segments: [DistanceSegment],
+        currentTrackingMode: TrackingMode? = nil
+    ) -> TrackingMode {
+        if requestedTrackingMode == .distanceDistance,
+           segments.contains(where: \.usesOpenDistance) {
+            return .dual
+        }
+
+        guard let currentTrackingMode,
+              currentTrackingMode == .gps,
+              requestedTrackingMode.usesManualIntervals else {
+            return requestedTrackingMode
+        }
+
+        return .dual
+    }
+
+    static func makeWorkoutPlan(
+        requestedTrackingMode: TrackingMode,
+        currentTrackingMode: TrackingMode? = nil,
+        fallbackDistance: Double? = nil,
+        segments: [DistanceSegment],
+        restMode: RestMode
+    ) -> WorkoutPlanSnapshot {
+        let normalizedSegments = normalizedSegments(segments)
+        let trackingMode = resolvedTrackingMode(
+            requestedTrackingMode: requestedTrackingMode,
+            segments: normalizedSegments,
+            currentTrackingMode: currentTrackingMode
+        )
+        let distance = normalizedSegments.first?.distanceMeters ?? fallbackDistance
+
+        return WorkoutPlanSnapshot(
+            trackingMode: trackingMode,
+            distanceLapDistanceMeters: distance,
+            distanceSegments: normalizedSegments,
+            restMode: restMode
+        )
+    }
+}
+
+extension IntervalPreset {
+    func displayTitle(unit: DistanceUnit) -> String {
+        trimmedCustomTitle ?? workoutPlan.displayTitle(unit: unit)
+    }
+}
+
+extension WorkoutPlanSnapshot {
+    func displayTitle(unit: DistanceUnit) -> String {
+        let normalizedSegments = WorkoutPlanSupport.normalizedSegments(distanceSegments)
+        guard let firstSegment = normalizedSegments.first else {
+            return Formatters.distanceString(meters: DistanceSegment.default.distanceMeters, unit: unit)
+        }
+
+        let distance = firstSegment.usesOpenDistance
+            ? L10n.openDistance
+            : Formatters.distanceString(meters: firstSegment.distanceMeters, unit: unit)
+
+        if normalizedSegments.count == 1, let repeatCount = firstSegment.repeatCount {
+            return "\(repeatCount) × \(distance)"
+        }
+
+        if normalizedSegments.count == 1 {
+            return distance
+        }
+
+        return L10n.segmentCount(normalizedSegments.count)
+    }
+
+    func displayDetail(unit: DistanceUnit) -> String {
+        WorkoutPlanSupport
+            .normalizedSegments(distanceSegments)
+            .map { segment in
+                let distance = segment.usesOpenDistance
+                    ? L10n.openDistance
+                    : Formatters.distanceString(meters: segment.distanceMeters, unit: unit)
+
+                if let repeatCount = segment.repeatCount {
+                    return "\(repeatCount) × \(distance)"
+                }
+
+                return distance
+            }
+            .joined(separator: " • ")
+    }
+}
+
 @Model
 final class Session {
     @Attribute(.unique) var id: UUID

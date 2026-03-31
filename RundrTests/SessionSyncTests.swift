@@ -56,6 +56,24 @@ final class SessionSyncTests: XCTestCase {
         XCTAssertFalse(incoming.shouldReplace(existingSession: existing))
     }
 
+    func testSettingsSyncRecordPrefersNewerUpdatedAt() {
+        let earlier = Date().addingTimeInterval(-30)
+        let later = Date()
+        let existing = makeSettingsSyncRecord(updatedAt: earlier, deviceSource: "watch")
+        let incoming = makeSettingsSyncRecord(updatedAt: later, deviceSource: "iphone")
+
+        XCTAssertTrue(incoming.shouldReplace(existingRecord: existing))
+    }
+
+    func testSettingsSyncRecordUsesDeviceSourceTieBreakWhenUpdatedAtEqual() {
+        let timestamp = Date()
+        let existing = makeSettingsSyncRecord(updatedAt: timestamp, deviceSource: "iphone")
+        let incoming = makeSettingsSyncRecord(updatedAt: timestamp, deviceSource: "watch")
+
+        XCTAssertTrue(incoming.shouldReplace(existingRecord: existing))
+        XCTAssertFalse(existing.shouldReplace(existingRecord: incoming))
+    }
+
     // MARK: - Persistence upsert + apply (lap merge)
 
     @MainActor
@@ -256,6 +274,23 @@ final class SessionSyncTests: XCTestCase {
             createdAt: startedAt,
             updatedAt: updatedAt,
             snapshotWorkoutPlan: WorkoutPlanSnapshot(trackingMode: .gps)
+        )
+    }
+
+    private func makeSettingsSyncRecord(updatedAt: Date, deviceSource: String) -> SettingsSyncRecord {
+        SettingsSyncRecord(
+            trackingMode: .distanceDistance,
+            distanceDistanceMeters: 400,
+            distanceUnit: .km,
+            primaryColor: .blue,
+            restMode: .manual,
+            lapAlerts: true,
+            restAlerts: false,
+            appearanceMode: .dark,
+            distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+            intervalPresets: [],
+            updatedAt: updatedAt,
+            deviceSource: deviceSource
         )
     }
 }

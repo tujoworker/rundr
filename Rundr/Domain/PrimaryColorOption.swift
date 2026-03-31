@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum PrimaryColorOption: String, CaseIterable, Identifiable {
+enum PrimaryColorOption: String, CaseIterable, Identifiable, Codable {
     case blue
     case green
     case yellow

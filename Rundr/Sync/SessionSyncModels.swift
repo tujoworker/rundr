@@ -263,12 +263,40 @@ struct CompletedSessionAcknowledgementManifest: Codable, Equatable {
     var acknowledgedSessionIDs: [UUID] = []
 }
 
+struct SettingsSyncRecord: Codable, Equatable {
+    var trackingMode: TrackingMode
+    var distanceDistanceMeters: Double
+    var distanceUnit: DistanceUnit
+    var primaryColor: PrimaryColorOption
+    var restMode: RestMode
+    var lapAlerts: Bool
+    var restAlerts: Bool
+    var appearanceMode: AppearanceMode
+    var distanceSegments: [DistanceSegment]
+    var intervalPresets: [IntervalPreset]
+    var updatedAt: Date
+    var deviceSource: String
+
+    func shouldReplace(existingRecord: SettingsSyncRecord) -> Bool {
+        if updatedAt != existingRecord.updatedAt {
+            return updatedAt > existingRecord.updatedAt
+        }
+
+        if deviceSource != existingRecord.deviceSource {
+            return deviceSource.lexicographicallyPrecedes(existingRecord.deviceSource) == false
+        }
+
+        return false
+    }
+}
+
 #if canImport(WatchConnectivity)
 private enum WatchConnectivitySyncKeys {
     static let liveStateContext = "liveWorkoutState"
     static let completedSessionAcknowledgement = "completedSessionAcknowledgement"
     static let completedSessionAcknowledgementsContext = "completedSessionAcknowledgements"
     static let completedSessionEnvelope = "completedSessionEnvelope"
+    static let settingsContext = "settingsSyncRecord"
 }
 #endif
 
@@ -373,6 +401,45 @@ final class CompletedSessionAcknowledgementStore {
     }
 }
 
+final class SettingsSyncMetadataStore {
+    private let userDefaults: UserDefaults
+    private let recordKey: String
+    private let encoder = JSONEncoder()
+    private let decoder = JSONDecoder()
+
+    init(
+        userDefaults: UserDefaults = .standard,
+        recordKey: String = "latestSettingsSyncRecordJSON"
+    ) {
+        self.userDefaults = userDefaults
+        self.recordKey = recordKey
+    }
+
+    var latestRecord: SettingsSyncRecord? {
+        get {
+            guard let json = userDefaults.string(forKey: recordKey),
+                  let data = json.data(using: .utf8) else {
+                return nil
+            }
+
+            return try? decoder.decode(SettingsSyncRecord.self, from: data)
+        }
+        set {
+            guard let newValue else {
+                userDefaults.removeObject(forKey: recordKey)
+                return
+            }
+
+            guard let data = try? encoder.encode(newValue),
+                  let json = String(data: data, encoding: .utf8) else {
+                return
+            }
+
+            userDefaults.set(json, forKey: recordKey)
+        }
+    }
+}
+
 @MainActor
 final class WatchConnectivitySyncManager: NSObject, ObservableObject {
     @Published private(set) var liveWorkoutState: LiveWorkoutStateRecord?
@@ -381,11 +448,16 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
     private static let logger = Logger(subsystem: "Rundr", category: "WatchConnectivitySync")
 
     private weak var persistence: PersistenceManager?
+    private weak var settings: SettingsStore?
     private let fileManager: FileManager
     private let transferStore: CompletedSessionTransferStore
     private let acknowledgementStore: CompletedSessionAcknowledgementStore
+    private let settingsMetadataStore: SettingsSyncMetadataStore
     private let encoder = JSONEncoder()
     private let decoder = JSONDecoder()
+    private var isApplyingIncomingSettings = false
+    private var latestLiveWorkoutStateData: Data?
+    private var latestSettingsData: Data?
 
     #if canImport(WatchConnectivity)
     private let wcSession: WCSession?
@@ -395,12 +467,14 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
         persistence: PersistenceManager? = nil,
         fileManager: FileManager = .default,
         transferStore: CompletedSessionTransferStore = CompletedSessionTransferStore(),
-        acknowledgementStore: CompletedSessionAcknowledgementStore = CompletedSessionAcknowledgementStore()
+        acknowledgementStore: CompletedSessionAcknowledgementStore = CompletedSessionAcknowledgementStore(),
+        settingsMetadataStore: SettingsSyncMetadataStore = SettingsSyncMetadataStore()
     ) {
         self.persistence = persistence
         self.fileManager = fileManager
         self.transferStore = transferStore
         self.acknowledgementStore = acknowledgementStore
+        self.settingsMetadataStore = settingsMetadataStore
         self.pendingCompletedSessionIDs = Set(transferStore.pendingSessionIDs)
         #if canImport(WatchConnectivity)
         if WCSession.isSupported() {
@@ -419,6 +493,10 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
         self.persistence = persistence
     }
 
+    func attachSettings(_ settings: SettingsStore) {
+        self.settings = settings
+    }
+
     func activate() {
         #if canImport(WatchConnectivity)
         Self.logger.log("Activating WatchConnectivity session. Pending IDs: \(self.pendingCompletedSessionIDs.count)")
@@ -427,8 +505,30 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
             Self.logger.log("Processing cached application context during activate. Keys: \(applicationContext.keys.sorted().joined(separator: ","))")
             handleApplicationContext(applicationContext)
         }
+        publishSettingsSnapshot()
         publishCompletedSessionAcknowledgementsIfNeeded()
         retryPendingCompletedSessions()
+        #endif
+    }
+
+    func publishSettingsSnapshot(updatedAt: Date = Date()) {
+        #if canImport(WatchConnectivity)
+        guard !isApplyingIncomingSettings,
+              let settings else {
+            return
+        }
+
+        let record = settings.makeSettingsSyncRecord(
+            updatedAt: updatedAt,
+            deviceSource: localSettingsDeviceSource
+        )
+        settingsMetadataStore.latestRecord = record
+
+        guard let data = try? encoder.encode(record) else {
+            return
+        }
+        latestSettingsData = data
+        publishApplicationContext()
         #endif
     }
 
@@ -439,7 +539,9 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
               let data = try? encoder.encode(state) else {
             return
         }
-        try? wcSession.updateApplicationContext([WatchConnectivitySyncKeys.liveStateContext: data])
+        _ = wcSession
+        latestLiveWorkoutStateData = data
+        publishApplicationContext()
         #endif
     }
 
@@ -570,15 +672,11 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
 
     private func publishCompletedSessionAcknowledgementsIfNeeded() {
         #if os(iOS)
-        guard let wcSession else { return }
-
         let sessionIDStrings = acknowledgementStore.acknowledgedSessionIDs.map(\.uuidString)
         guard !sessionIDStrings.isEmpty else { return }
 
         Self.logger.log("Publishing acknowledged completed sessions in application context: \(sessionIDStrings.joined(separator: ","), privacy: .public)")
-        try? wcSession.updateApplicationContext([
-            WatchConnectivitySyncKeys.completedSessionAcknowledgementsContext: sessionIDStrings
-        ])
+        publishApplicationContext()
         #endif
     }
 
@@ -601,6 +699,7 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
     private func handleApplicationContext(_ applicationContext: [String: Any]) {
         Self.logger.log("Handling application context. Keys: \(applicationContext.keys.sorted().joined(separator: ","), privacy: .public)")
         handleLiveWorkoutStateContext(applicationContext)
+        handleSettingsContext(applicationContext)
         handleCompletedSessionAcknowledgementsContext(applicationContext)
     }
 
@@ -610,7 +709,29 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
             return
         }
 
+        latestLiveWorkoutStateData = data
         liveWorkoutState = state
+    }
+
+    private func handleSettingsContext(_ applicationContext: [String: Any]) {
+        guard let data = applicationContext[WatchConnectivitySyncKeys.settingsContext] as? Data,
+              let record = try? decoder.decode(SettingsSyncRecord.self, from: data) else {
+            return
+        }
+
+        if let existingRecord = settingsMetadataStore.latestRecord,
+           !record.shouldReplace(existingRecord: existingRecord) {
+            return
+        }
+
+        settingsMetadataStore.latestRecord = record
+        latestSettingsData = data
+
+        guard let settings else { return }
+
+        isApplyingIncomingSettings = true
+        settings.apply(settingsSyncRecord: record)
+        isApplyingIncomingSettings = false
     }
 
     private func handleCompletedSessionAcknowledgementsContext(_ applicationContext: [String: Any]) {
@@ -648,6 +769,30 @@ final class WatchConnectivitySyncManager: NSObject, ObservableObject {
 
         importCompletedSessionFileData(data)
     }
+
+    private func publishApplicationContext() {
+        guard let wcSession else { return }
+
+        var context: [String: Any] = [:]
+
+        if let latestLiveWorkoutStateData {
+            context[WatchConnectivitySyncKeys.liveStateContext] = latestLiveWorkoutStateData
+        }
+
+        if let latestSettingsData {
+            context[WatchConnectivitySyncKeys.settingsContext] = latestSettingsData
+        }
+
+        #if os(iOS)
+        let sessionIDStrings = acknowledgementStore.acknowledgedSessionIDs.map(\.uuidString)
+        if !sessionIDStrings.isEmpty {
+            context[WatchConnectivitySyncKeys.completedSessionAcknowledgementsContext] = sessionIDStrings
+        }
+        #endif
+
+        guard !context.isEmpty else { return }
+        try? wcSession.updateApplicationContext(context)
+    }
     #endif
 }
 
@@ -664,6 +809,7 @@ extension WatchConnectivitySyncManager: WCSessionDelegate {
             Self.logger.log("WatchConnectivity activation completed. State: \(String(describing: activationState.rawValue), privacy: .public)")
             self.publishCompletedSessionAcknowledgementsIfNeeded()
             self.handleApplicationContext(session.receivedApplicationContext)
+            self.publishSettingsSnapshot()
             self.retryPendingCompletedSessions()
         }
     }
@@ -733,3 +879,13 @@ extension WatchConnectivitySyncManager: WCSessionDelegate {
     }
 }
 #endif
+
+private extension WatchConnectivitySyncManager {
+    var localSettingsDeviceSource: String {
+        #if os(iOS)
+        return "iphone"
+        #else
+        return "watch"
+        #endif
+    }
+}

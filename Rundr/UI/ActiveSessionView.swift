@@ -327,7 +327,7 @@ struct ActiveSessionView: View {
                 .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .padding(.horizontal, Tokens.Spacing.xxxl)
+            .padding(.horizontal, Tokens.Spacing.xxxl + Tokens.Spacing.lg)
         }
     }
 

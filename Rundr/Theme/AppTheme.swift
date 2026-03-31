@@ -51,9 +51,7 @@ struct AppTheme {
 
         /// Floating status badges and small callouts.
         func statusBadge(_ accent: Color) -> Color {
-            isDark
-                ? accent
-                : .white.opacity(Tokens.Opacity.fillCard)
+            accent
         }
 
         /// Rest rows within history surfaces.

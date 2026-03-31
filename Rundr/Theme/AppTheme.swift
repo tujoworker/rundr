@@ -75,6 +75,11 @@ struct AppTheme {
                 : .white.opacity(Tokens.Opacity.fillAccent)
         }
 
+        /// Solid accent surfaces with no opacity.
+        func emphasisSolid(_ accent: Color) -> Color {
+            accent
+        }
+
         /// Destructive action backgrounds.
         func destructiveAction(_ accent: Color) -> Color {
             isDark

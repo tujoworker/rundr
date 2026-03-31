@@ -116,6 +116,17 @@ final class WorkoutControllerTests: XCTestCase {
                        "Second action-button lap within 1 s should be ignored")
     }
 
+    func testActionButtonIntentResumesPausedWorkout() async throws {
+        let controller = makeStartedController()
+        controller.pauseSession()
+
+        XCTAssertEqual(controller.runState, .paused)
+
+        _ = try await MarkLapIntent().perform()
+
+        XCTAssertEqual(controller.runState, .active)
+    }
+
     func testStartSetsCurrent() {
         let controller = makeStartedController()
 

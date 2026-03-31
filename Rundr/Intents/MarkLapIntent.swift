@@ -7,7 +7,14 @@ struct MarkLapIntent: AppIntent {
     @MainActor
     func perform() async throws -> some IntentResult {
         if let controller = WorkoutSessionController.current {
-            controller.markLap(source: .actionButton)
+            switch ActionButtonCommandRouter.route(command: .markLap, runState: controller.runState) {
+            case .markLap:
+                controller.markLap(source: .actionButton)
+            case .resumeSession:
+                controller.resumeSession()
+            case .deferUntilReady, .noOp, .startWorkout:
+                ActionButtonCommandStore.queue(.markLap)
+            }
         } else {
             // Fallback: queue for processing when the app finishes launching
             ActionButtonCommandStore.queue(.markLap)

@@ -62,20 +62,20 @@ struct RundrApp: App {
             coordinator.goHome()
         }
 
-        switch command {
-        case .startWorkout:
-            handleStartWorkoutCommand()
+        switch ActionButtonCommandRouter.route(
+            command: command,
+            runState: workoutController.runState,
+            currentScreen: coordinator.currentScreen,
+            isShowingActiveSession: coordinator.isShowingActiveSession
+        ) {
+        case .startWorkoutFromPreStart:
+            startWorkoutFromPreStart()
         case .markLap:
             handleMarkLapCommand()
-        }
-    }
-
-    private func handleStartWorkoutCommand() {
-        switch coordinator.currentScreen {
-        case .home, .intervalLibrary, .sessionDetail, .historySetup:
+        case .resumeSession:
+            workoutController.resumeSession()
+        case .noOp:
             break
-        case .preStart:
-            startWorkoutFromPreStart()
         }
     }
 

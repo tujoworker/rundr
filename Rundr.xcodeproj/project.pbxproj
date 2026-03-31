@@ -17,6 +17,7 @@
 		437A1B72867C5867B354E553 /* FormattersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17AFAC5870B80DC3E8E64B00 /* FormattersTests.swift */; };
 		4400B362EFED68F5CCBD88CF /* SessionDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC5AEA32CF41F4A95EA655A2 /* SessionDetailView.swift */; };
 		45B7D4110A16858C07A6357E /* ActionButtonCommandStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B2F9EBC2633B3C17127B2A8 /* ActionButtonCommandStore.swift */; };
+		45B7D4110A16858C07A6357F /* ActionButtonCommandRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45B7D4110A16858C07A63580 /* ActionButtonCommandRouter.swift */; };
 		4631A319E31F7DD1259C594B /* MarkLapIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F786B38610A7C830AC765F1 /* MarkLapIntent.swift */; };
 		472DD6F47869F929F51C29B0 /* StartRunningWorkoutIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8912F0A720200E8D9538C4D5 /* StartRunningWorkoutIntent.swift */; };
 		4F356F5E44F096D44C41E43B /* ActionButtonCommandObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9C66FDE63E4D65F194A3975 /* ActionButtonCommandObserver.swift */; };
@@ -35,6 +36,7 @@
 		90A0B0C0D0E0F00112233445 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 90A0B0C0D0E0F00112233446 /* Assets.xcassets */; };
 		90A0B0C0D0E0F00112233450 /* Rundr.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 8BEFD367C4AB92E0F59B0B1F /* Rundr.app */; };
 		A1B2C3D4E5F6011122334455 /* SessionSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6011122334456 /* SessionSyncTests.swift */; };
+		A1B2C3D4E5F6011122334457 /* ActionButtonCommandRouterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6011122334458 /* ActionButtonCommandRouterTests.swift */; };
 		A1B2C3D4E5F607080910ABCD /* DistanceSegment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F607080910ABCE /* DistanceSegment.swift */; };
 		A6AC58E35DDE8D4C3006B265 /* LapSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4087CA1ACDF79F69B6F2FBEC /* LapSource.swift */; };
 		ADF3C560149CC9D36C370A06 /* RundrApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2ABF59CD03172874BEADEA0 /* RundrApp.swift */; };
@@ -114,6 +116,7 @@
 		AA00000000000000000AT002 /* AppearanceModeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceModeTests.swift; sourceTree = "<group>"; };
 		4087CA1ACDF79F69B6F2FBEC /* LapSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapSource.swift; sourceTree = "<group>"; };
 		4F786B38610A7C830AC765F1 /* MarkLapIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkLapIntent.swift; sourceTree = "<group>"; };
+		45B7D4110A16858C07A63580 /* ActionButtonCommandRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonCommandRouter.swift; sourceTree = "<group>"; };
 		586AE861C21CF4145AD81D08 /* LapType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LapType.swift; sourceTree = "<group>"; };
 		58B56B88EBFA89F92A11A0E1 /* NavigationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationCoordinator.swift; sourceTree = "<group>"; };
 		5E613F59ADF522B5282AC2A3 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
@@ -129,6 +132,7 @@
 		90A0B0C0D0E0F00112233446 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		90A0B0C0D0E0F00112233447 /* Rundr Companion.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Rundr Companion.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1B2C3D4E5F6011122334456 /* SessionSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSyncTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F6011122334458 /* ActionButtonCommandRouterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonCommandRouterTests.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F607080910ABCE /* DistanceSegment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceSegment.swift; sourceTree = "<group>"; };
 		A52D079F75CFBF9BB2BA7C41 /* HealthKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitManager.swift; sourceTree = "<group>"; };
 		A88263B0A43413879ABF4DB7 /* Lap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lap.swift; sourceTree = "<group>"; };
@@ -190,6 +194,7 @@
 		0DB76932C055B50DE5275514 /* RundrTests */ = {
 			isa = PBXGroup;
 			children = (
+				A1B2C3D4E5F6011122334458 /* ActionButtonCommandRouterTests.swift */,
 				AA00000000000000000AT002 /* AppearanceModeTests.swift */,
 				17AFAC5870B80DC3E8E64B00 /* FormattersTests.swift */,
 				EFB9EDEF7841220E7F36CEFF /* ModelTests.swift */,
@@ -256,6 +261,7 @@
 		382EA684D1D74C7A2B0D30AC /* Intents */ = {
 			isa = PBXGroup;
 			children = (
+				45B7D4110A16858C07A63580 /* ActionButtonCommandRouter.swift */,
 				C9C66FDE63E4D65F194A3975 /* ActionButtonCommandObserver.swift */,
 				8B2F9EBC2633B3C17127B2A8 /* ActionButtonCommandStore.swift */,
 				F1D1123CC9D14257B8A27313 /* RundrShortcutsProvider.swift */,
@@ -495,6 +501,7 @@
 				1C5FBAD9B17FA11B1506817D /* ActiveSessionView.swift in Sources */,
 				4F356F5E44F096D44C41E43B /* ActionButtonCommandObserver.swift in Sources */,
 				45B7D4110A16858C07A6357E /* ActionButtonCommandStore.swift in Sources */,
+				45B7D4110A16858C07A6357F /* ActionButtonCommandRouter.swift in Sources */,
 				51E4D39D4B5D45B68ED4C11A /* RundrShortcutsProvider.swift in Sources */,
 				4631A319E31F7DD1259C594B /* MarkLapIntent.swift in Sources */,
 				472DD6F47869F929F51C29B0 /* StartRunningWorkoutIntent.swift in Sources */,
@@ -533,6 +540,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1B2C3D4E5F6011122334457 /* ActionButtonCommandRouterTests.swift in Sources */,
 				AA00000000000000000AT001 /* AppearanceModeTests.swift in Sources */,
 				437A1B72867C5867B354E553 /* FormattersTests.swift in Sources */,
 				C49E8373AE1A8ED3EC6A2880 /* ModelTests.swift in Sources */,

@@ -168,7 +168,7 @@ struct SessionDetailView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, Tokens.Spacing.md)
                 }
-                .tintedSurfaceButtonChrome(tintColor: .red)
+                .destructiveFillButtonChrome(tintColor: .red)
                 .buttonStyle(.plain)
                 .padding(.top, Tokens.Spacing.lg)
                 .padding(.horizontal, Tokens.Spacing.xs)

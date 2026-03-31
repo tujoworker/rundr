@@ -70,6 +70,8 @@ enum Tokens {
         static let strokeAccentStrong: Double = 0.60
         /// 0.20 – accent button fill
         static let fillAccent: Double = 0.20
+        /// 0.10 – destructive action backgrounds (delete, discard)
+        static let fillDestructive: Double = 0.10
         /// 0.18 – screen gradient end, dark overlay base
         static let fillGradientEnd: Double = 0.18
         /// 0.15 – card background, circle fills

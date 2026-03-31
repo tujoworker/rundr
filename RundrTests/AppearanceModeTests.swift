@@ -121,12 +121,12 @@ final class AppearanceModeTests: XCTestCase {
         )
         assertEqualComponents(
             try rgbaComponents(for: darkTheme.background.destructiveAction(accent)),
-            [0.8, 0.4, 0.2, Tokens.Opacity.fillAccent],
+            [0.8, 0.4, 0.2, Tokens.Opacity.fillDestructive],
             accuracy: 0.001
         )
         assertEqualComponents(
             try rgbaComponents(for: lightTheme.background.destructiveAction(accent)),
-            [0, 0, 0, Tokens.Opacity.fillAccent],
+            [0, 0, 0, Tokens.Opacity.fillDestructive],
             accuracy: 0.001
         )
         assertEqualComponents(

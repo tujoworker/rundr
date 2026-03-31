@@ -22,6 +22,7 @@ struct ActiveSessionView: View {
     @State private var isEndingSession = false
     @State private var hasDismissedCompletedSession = false
     @State private var completedSessionDismissTask: Task<Void, Never>?
+    @State private var selectedPage: Int = 1
 
     private let defaultLapDistanceText = "400"
 
@@ -35,10 +36,6 @@ struct ActiveSessionView: View {
 
     private var isWorkoutPaused: Bool {
         workoutController.runState == .paused
-    }
-
-    private var showsSessionMenu: Bool {
-        isResting || isWorkoutPaused
     }
 
     private var currentLapNumber: Int {
@@ -200,82 +197,105 @@ struct ActiveSessionView: View {
         .buttonStyle(TimerPressStyle())
     }
 
-    private let topControlOffset: CGFloat = -8
     private let topHeaderHeight: CGFloat = 66
     private let contentVerticalOffset: CGFloat = -4
-    private let menuButtonExtraOffset: CGFloat = 0
-    private let pauseButtonExtraOffset: CGFloat = 0
     private let lapHistoryContainerTrailingPadding: CGFloat = 12
     private let timerCardsSpacing: CGFloat = 6
 
     @ViewBuilder
     private var topHeaderView: some View {
-        ZStack(alignment: .top) {
-            HStack(alignment: .top) {
-                if showsSessionMenu {
-                    SessionMenuButton(
-                        isResting: isResting,
-                        isWorkoutPaused: isWorkoutPaused,
-                        primaryColor: primaryColor,
-                        onCancelRest: { workoutController.cancelRest() },
-                        onResume: { workoutController.resumeSession() },
-                        onPause: { workoutController.pauseSession() },
-                        onEnd: {
-                            finishSession()
-                        }
-                    )
-                    .offset(y: topControlOffset + menuButtonExtraOffset)
-                } else {
-                    pauseButton
-                        .offset(y: topControlOffset + pauseButtonExtraOffset)
-                }
+        HStack(spacing: Tokens.Spacing.sm) {
+            Text(Formatters.heartRateString(bpm: workoutController.currentHeartRate))
+                .font(.system(size: Tokens.FontSize.lg, weight: .bold, design: .rounded))
+                .foregroundStyle(theme.text.neutral)
+                .monospacedDigit()
 
-                Spacer()
-
-                Color.clear
-                    .frame(width: 48, height: 48)
-            }
-            .padding(.top, -10)
-
-            HStack(spacing: Tokens.Spacing.sm) {
-                Text(Formatters.heartRateString(bpm: workoutController.currentHeartRate))
-                    .font(.system(size: Tokens.FontSize.lg, weight: .bold, design: .rounded))
-                    .foregroundStyle(theme.text.neutral)
-                    .monospacedDigit()
-
-                Image(systemName: "heart.fill")
-                    .font(.system(size: Tokens.FontSize.xs, weight: .semibold))
-                    .foregroundStyle(theme.text.neutral)
-            }
-            .padding(.top, Tokens.Spacing.xxs)
-            .offset(y: -16)
-            .frame(maxWidth: .infinity, alignment: .center)
+            Image(systemName: "heart.fill")
+                .font(.system(size: Tokens.FontSize.xs, weight: .semibold))
+                .foregroundStyle(theme.text.neutral)
         }
+        .padding(.top, Tokens.Spacing.xxs)
+        .offset(y: -16)
+        .frame(maxWidth: .infinity, alignment: .center)
         .padding(.horizontal, Tokens.Spacing.xxl)
         .padding(.top, 5)
         .frame(height: topHeaderHeight, alignment: .top)
     }
 
-    var body: some View {
+    @ViewBuilder
+    private var controlsPage: some View {
+        ScrollView {
+            VStack(spacing: Tokens.Spacing.xxl) {
+                Button {
+                    if isResting {
+                        workoutController.cancelRest()
+                    } else {
+                        workoutController.startRest()
+                    }
+                    withAnimation {
+                        selectedPage = 1
+                    }
+                } label: {
+                    VStack(spacing: Tokens.Spacing.sm) {
+                        WorkoutControlIcon(
+                            systemName: isResting ? "figure.run" : "figure.cooldown",
+                            baseColor: primaryColor,
+                            size: 56
+                        )
+                        Text(isResting ? L10n.endRest : L10n.rest)
+                            .font(.system(size: Tokens.FontSize.sm, weight: .medium, design: .rounded))
+                            .foregroundStyle(theme.text.subtle)
+                    }
+                }
+                .buttonStyle(.plain)
+
+                HStack(spacing: Tokens.Spacing.xxxxl) {
+                    Button {
+                        finishSession()
+                    } label: {
+                        VStack(spacing: Tokens.Spacing.sm) {
+                            WorkoutControlIcon(
+                                systemName: "stop.fill",
+                                baseColor: primaryColor,
+                                isSecondary: true
+                            )
+                            Text(L10n.endSession)
+                                .font(.system(size: Tokens.FontSize.sm, weight: .medium, design: .rounded))
+                                .foregroundStyle(theme.text.subtle)
+                        }
+                    }
+                    .buttonStyle(.plain)
+
+                    Button {
+                        if isWorkoutPaused {
+                            workoutController.resumeSession()
+                        } else {
+                            workoutController.pauseSession()
+                        }
+                    } label: {
+                        VStack(spacing: Tokens.Spacing.sm) {
+                            WorkoutControlIcon(
+                                systemName: isWorkoutPaused ? "play.fill" : "pause.fill",
+                                baseColor: primaryColor,
+                                isSecondary: true
+                            )
+                            Text(isWorkoutPaused ? L10n.resume : L10n.pause)
+                                .font(.system(size: Tokens.FontSize.sm, weight: .medium, design: .rounded))
+                                .foregroundStyle(theme.text.subtle)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.top, 40)
+            .padding(.horizontal, Tokens.Spacing.xl)
+        }
+    }
+
+    @ViewBuilder
+    private var trackingPage: some View {
         ZStack {
-            AppScreenBackground(accentColor: primaryColor)
-
-            // Keep pause/rest pulses behind content so labels remain readable.
-            // Always present in the view tree (opacity-only hiding) to avoid
-            // changing the ZStack child count during layout, which can trigger
-            // an infinite PUICCarouselCollectionViewLayout invalidation loop.
-            Color.white
-                .opacity(isResting && isPausePulseOn ? 0.1 : 0)
-                .ignoresSafeArea()
-
-            Color.white
-                .opacity(isResting && isRestPulseOn ? 0.3 : 0)
-                .ignoresSafeArea()
-
-            Color.white
-                .opacity(workoutController.isTimeGoalWarningActive && isTimeGoalPulseOn ? 0.15 : 0)
-                .ignoresSafeArea()
-
             VStack(spacing: 0) {
                 Color.clear
                     .frame(height: topHeaderHeight + 16)
@@ -346,6 +366,34 @@ struct ActiveSessionView: View {
                 topHeaderView
                 Spacer(minLength: 0)
             }
+        }
+    }
+
+    var body: some View {
+        ZStack {
+            AppScreenBackground(accentColor: primaryColor)
+
+            // Keep pause/rest pulses behind content so labels remain readable.
+            // Always present in the view tree (opacity-only hiding) to avoid
+            // changing the ZStack child count during layout, which can trigger
+            // an infinite PUICCarouselCollectionViewLayout invalidation loop.
+            Color.white
+                .opacity(isResting && isPausePulseOn ? 0.1 : 0)
+                .ignoresSafeArea()
+
+            Color.white
+                .opacity(isResting && isRestPulseOn ? 0.3 : 0)
+                .ignoresSafeArea()
+
+            Color.white
+                .opacity(workoutController.isTimeGoalWarningActive && isTimeGoalPulseOn ? 0.15 : 0)
+                .ignoresSafeArea()
+
+            TabView(selection: $selectedPage) {
+                controlsPage.tag(0)
+                trackingPage.tag(1)
+            }
+            .tabViewStyle(.page(indexDisplayMode: .automatic))
         }
         .overlay {
             ZStack {
@@ -593,20 +641,6 @@ struct ActiveSessionView: View {
             }
         }
     }
-
-    private var pauseButton: some View {
-        Button {
-            guard !showsSessionMenu else { return }
-            workoutController.startRest()
-        } label: {
-            WorkoutControlIcon(
-                systemName: "pause.fill",
-                baseColor: primaryColor
-            )
-        }
-        .buttonStyle(.plain)
-        .opacity(showsSessionMenu ? 0.72 : 1)
-    }
 }
 
 private struct LapEditorState: Identifiable {
@@ -826,24 +860,30 @@ private struct LapEditorScreen: View {
 private struct WorkoutControlIcon: View {
     let systemName: String
     let baseColor: Color
+    var size: CGFloat = 46
+    var isSecondary: Bool = false
     @Environment(\.appTheme) private var theme
+
+    private var iconFontSize: CGFloat {
+        Tokens.FontSize.xl * (size / 46)
+    }
 
     var body: some View {
         ZStack {
             Circle()
-                .fill(theme.background.emphasisAction(baseColor))
+                .fill(isSecondary ? theme.background.neutral : theme.background.emphasisAction(baseColor))
 
             Circle()
-                .stroke(theme.stroke.emphasisAction(baseColor), lineWidth: Tokens.LineWidth.thick)
+                .stroke(isSecondary ? theme.stroke.neutral : theme.stroke.emphasisAction(baseColor), lineWidth: Tokens.LineWidth.thick)
                 .padding(Tokens.LineWidth.regular)
         }
         .overlay {
             Image(systemName: systemName)
-                .font(.system(size: Tokens.FontSize.xl, weight: .bold))
+                .font(.system(size: iconFontSize, weight: .bold))
                 .foregroundStyle(theme.text.neutral)
         }
-        .frame(width: 46, height: 46)
-        .shadow(color: baseColor.opacity(Tokens.Opacity.shadow), radius: Tokens.Radius.small, y: 2)
+        .frame(width: size, height: size)
+        .shadow(color: (isSecondary ? Color.gray : baseColor).opacity(Tokens.Opacity.shadow), radius: Tokens.Radius.small, y: 2)
     }
 }
 
@@ -866,60 +906,6 @@ private struct SessionCompleteView: View {
             .buttonStyle(.plain)
         }
         .ignoresSafeArea()
-    }
-}
-
-/// Isolated view so the confirmationDialog is not re-evaluated
-/// when the parent redraws due to timer or animation updates.
-private struct SessionMenuButton: View {
-    let isResting: Bool
-    let isWorkoutPaused: Bool
-    let primaryColor: Color
-    let onCancelRest: () -> Void
-    let onResume: () -> Void
-    let onPause: () -> Void
-    let onEnd: () -> Void
-
-    @State private var isPresented = false
-
-    var body: some View {
-        Button {
-            isPresented = true
-        } label: {
-            WorkoutControlIcon(
-                systemName: "ellipsis",
-                baseColor: primaryColor
-            )
-        }
-        .buttonStyle(.plain)
-        .confirmationDialog("", isPresented: $isPresented, titleVisibility: .hidden) {
-            if isResting {
-                Button {
-                    onCancelRest()
-                } label: {
-                    Label(L10n.endRest, systemImage: "play.circle")
-                }
-            }
-            if isWorkoutPaused {
-                Button {
-                    onResume()
-                } label: {
-                    Label(L10n.resume, systemImage: "play.circle")
-                }
-            } else if isResting {
-                Button {
-                    onPause()
-                } label: {
-                    Label(L10n.pause, systemImage: "pause.circle")
-                }
-            }
-            Button(role: .destructive) {
-                onEnd()
-            } label: {
-                Label(L10n.endSession, systemImage: "stop.circle")
-            }
-            Button(L10n.cancel, role: .cancel) {}
-        }
     }
 }
 

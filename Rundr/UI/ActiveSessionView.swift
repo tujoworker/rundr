@@ -397,7 +397,8 @@ struct ActiveSessionView: View {
         }
         .overlay(alignment: .topLeading) {
             heartRateOverlay
-                .padding(.leading, Tokens.Spacing.md)
+                .padding(.leading, Tokens.Spacing.xxl)
+                .offset(y: -20)
         }
         .overlay {
             ZStack {

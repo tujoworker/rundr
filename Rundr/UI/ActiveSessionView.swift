@@ -124,18 +124,6 @@ struct ActiveSessionView: View {
             let labelFont = Font.system(size: Tokens.FontSize.base, weight: .regular, design: .rounded)
 
             VStack(spacing: Tokens.Spacing.xxs) {
-                if let timerStatusBadgeText {
-                    Text(timerStatusBadgeText)
-                        .font(StatusBadgeStyle.font)
-                        .foregroundStyle(theme.text.bold)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                        .fixedSize(horizontal: true, vertical: false)
-                        .padding(.horizontal, StatusBadgeStyle.horizontalPadding)
-                        .padding(.vertical, StatusBadgeStyle.verticalPadding)
-                        .background(StatusBadgeStyle.background(theme))
-                }
-
                 HStack(spacing: 5) {
                     if let total = lapCounterTotal {
                         HStack(alignment: .firstTextBaseline, spacing: 0) {
@@ -170,6 +158,20 @@ struct ActiveSessionView: View {
                             .font(labelFont)
                             .foregroundStyle(theme.text.neutral)
                     }
+                }
+            }
+            .overlay(alignment: .top) {
+                if let timerStatusBadgeText {
+                    Text(timerStatusBadgeText)
+                        .font(StatusBadgeStyle.font)
+                        .foregroundStyle(theme.text.bold)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .padding(.horizontal, StatusBadgeStyle.horizontalPadding)
+                        .padding(.vertical, StatusBadgeStyle.verticalPadding)
+                        .background(StatusBadgeStyle.background(theme))
+                        .offset(y: -Tokens.Spacing.xxs)
                 }
             }
         } else {

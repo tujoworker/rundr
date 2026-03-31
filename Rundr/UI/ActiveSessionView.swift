@@ -186,18 +186,15 @@ struct ActiveSessionView: View {
                 .overlay(alignment: .bottom) {
                     if let timerStatusBadgeText {
                         Text(timerStatusBadgeText)
-                            .font(.system(size: Tokens.FontSize.md, weight: .semibold, design: .rounded))
-                            .foregroundStyle(theme.text.bold)
+                            .font(StatusBadgeStyle.font)
+                            .foregroundStyle(primaryColor)
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                             .fixedSize(horizontal: true, vertical: false)
-                            .padding(.horizontal, Tokens.Spacing.md)
-                            .padding(.vertical, Tokens.Spacing.xs)
-                            .background(
-                                Capsule(style: .continuous)
-                                    .fill(theme.background.bold)
-                            )
-                            .padding(.bottom, Tokens.Spacing.xs)
+                            .padding(.horizontal, StatusBadgeStyle.horizontalPadding)
+                            .padding(.vertical, StatusBadgeStyle.verticalPadding)
+                            .background(StatusBadgeStyle.background(theme))
+                            .padding(.bottom, StatusBadgeStyle.bottomPadding)
                     }
                 }
             .frame(maxWidth: .infinity)
@@ -678,6 +675,18 @@ struct ActiveSessionView: View {
                 }
             }
         }
+    }
+}
+
+private enum StatusBadgeStyle {
+    static let font = Font.system(size: Tokens.FontSize.md, weight: .regular, design: .rounded)
+    static let horizontalPadding: CGFloat = Tokens.Spacing.sm
+    static let verticalPadding: CGFloat = Tokens.Spacing.xxxs
+    static let bottomPadding: CGFloat = Tokens.Spacing.xxs
+
+    static func background(_ theme: AppTheme) -> some View {
+        Capsule(style: .continuous)
+            .fill(theme.background.bold)
     }
 }
 

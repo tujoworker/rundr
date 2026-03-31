@@ -2,23 +2,48 @@ import SwiftData
 import SwiftUI
 
 struct CompanionRootView: View {
+    @EnvironmentObject private var settings: SettingsStore
+
     var body: some View {
-        TabView {
-            CompanionWorkoutsView()
-                .tabItem {
-                    Label(L10n.workouts, systemImage: "figure.run")
-                }
+        ZStack {
+            CompanionAppBackground(accentColor: settings.primaryAccentColor)
 
-            CompanionBrowserView()
-                .tabItem {
-                    Label(L10n.browser, systemImage: "square.grid.2x2")
-                }
+            TabView {
+                CompanionWorkoutsView()
+                    .tabItem {
+                        Label(L10n.workouts, systemImage: "figure.run")
+                    }
 
-            CompanionSettingsView()
-                .tabItem {
-                    Label(L10n.settings, systemImage: "paintpalette")
-                }
+                CompanionBrowserView()
+                    .tabItem {
+                        Label(L10n.browser, systemImage: "square.grid.2x2")
+                    }
+
+                CompanionSettingsView()
+                    .tabItem {
+                        Label(L10n.settings, systemImage: "paintpalette")
+                    }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .toolbarBackground(.hidden, for: .tabBar)
         }
+    }
+}
+
+private struct CompanionAppBackground: View {
+    let accentColor: Color
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        LinearGradient(
+            colors: [
+                theme.appGradientStart(accent: accentColor),
+                theme.appGradientEnd(accent: accentColor)
+            ],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .ignoresSafeArea()
     }
 }
 
@@ -88,7 +113,7 @@ private struct CompanionWorkoutsView: View {
                     }
                 }
             }
-            .navigationTitle("Rundr")
+            .navigationBarTitleDisplayMode(.inline)
             .themedCompanionList()
         }
     }
@@ -182,6 +207,7 @@ private struct CompanionBrowserView: View {
                 }
             }
             .navigationTitle(L10n.browser)
+            .navigationBarTitleDisplayMode(.inline)
             .themedCompanionList()
         }
     }
@@ -243,6 +269,7 @@ private struct CompanionSettingsView: View {
                 }
             }
             .navigationTitle(L10n.settings)
+            .navigationBarTitleDisplayMode(.inline)
             .themedCompanionList()
         }
     }
@@ -974,9 +1001,10 @@ private struct CompanionImportStatusCard: View {
 private extension View {
     func themedCompanionList() -> some View {
         self
-            .listStyle(.insetGrouped)
+            .listStyle(.plain)
             .scrollContentBackground(.hidden)
             .background(Color.clear)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
     }
 
     func listRowCardChrome() -> some View {

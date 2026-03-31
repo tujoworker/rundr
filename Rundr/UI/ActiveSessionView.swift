@@ -204,7 +204,7 @@ struct ActiveSessionView: View {
     private let timerCardsSpacing: CGFloat = 6
 
     @ViewBuilder
-    private var heartRateOverlay: some View {
+    private var heartRateToolbarContent: some View {
         HStack(spacing: Tokens.Spacing.xs) {
             Image(systemName: "heart.fill")
                 .font(.system(size: Tokens.FontSize.xs, weight: .semibold))
@@ -215,9 +215,6 @@ struct ActiveSessionView: View {
                 .foregroundStyle(theme.text.neutral)
                 .monospacedDigit()
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.leading, Tokens.Spacing.xl)
-        .padding(.top, Tokens.Spacing.xxs)
     }
 
     @ViewBuilder
@@ -398,9 +395,10 @@ struct ActiveSessionView: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .automatic))
         }
-        .overlay(alignment: .top) {
-            heartRateOverlay
-                .ignoresSafeArea(edges: .top)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                heartRateToolbarContent
+            }
         }
         .overlay {
             ZStack {
@@ -489,8 +487,8 @@ struct ActiveSessionView: View {
         .onDisappear {
             completedSessionDismissTask?.cancel()
         }
-        .toolbar(.hidden, for: .navigationBar)
-        .navigationBarHidden(true)
+        .toolbar(.visible, for: .navigationBar)
+        .navigationBarHidden(false)
     }
 
     private func finishSession() {

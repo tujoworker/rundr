@@ -284,9 +284,10 @@ struct ActiveSessionView: View {
                     }
 
                     Button {
-                        if isWorkoutPaused {
+                        switch ActiveSessionControlRouting.pauseResumeAction(for: workoutController.runState) {
+                        case .resume:
                             workoutController.resumeSession()
-                        } else {
+                        case .pause:
                             workoutController.pauseSession()
                         }
                         selectedPage = 1
@@ -575,12 +576,13 @@ struct ActiveSessionView: View {
     }
 
     private func handleRestButtonTap() {
-        if isWorkoutPaused {
-            workoutController.toggleRestWhilePaused()
-        } else if isResting {
-            workoutController.cancelRest()
-        } else {
+        switch ActiveSessionControlRouting.restButtonAction(for: workoutController.runState) {
+        case .startRest:
             workoutController.startRest()
+        case .cancelRest:
+            workoutController.cancelRest()
+        case .toggleRestWhilePaused:
+            workoutController.toggleRestWhilePaused()
         }
 
         animateRestButtonForPageTransition()
@@ -687,12 +689,42 @@ struct ActiveSessionView: View {
     private func animateRestButtonForPageTransition() {
         restTransitionTask?.cancel()
         restTransitionTask = Task {
-            try? await Task.sleep(for: .milliseconds(140))
+            try? await Task.sleep(for: ActiveSessionControlRouting.pageTransitionDelay)
             guard !Task.isCancelled else { return }
             await MainActor.run {
                 selectedPage = 1
             }
         }
+    }
+}
+
+enum ActiveSessionControlRouting {
+    enum RestButtonAction {
+        case startRest
+        case cancelRest
+        case toggleRestWhilePaused
+    }
+
+    enum PauseResumeAction {
+        case pause
+        case resume
+    }
+
+    static let pageTransitionDelay = Duration.milliseconds(140)
+
+    static func restButtonAction(for runState: WorkoutRunState) -> RestButtonAction {
+        switch runState {
+        case .paused:
+            return .toggleRestWhilePaused
+        case .rest:
+            return .cancelRest
+        case .idle, .ready, .active, .ending, .ended:
+            return .startRest
+        }
+    }
+
+    static func pauseResumeAction(for runState: WorkoutRunState) -> PauseResumeAction {
+        runState == .paused ? .resume : .pause
     }
 }
 

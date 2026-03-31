@@ -623,14 +623,16 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     // MARK: - Lap Commit
 
-    /// Minimum lap duration to prevent accidental double-taps. Can be reduced for tests.
+    /// Minimum lap duration to prevent accidental double-taps from the on-screen lap button.
     var minimumLapDuration: TimeInterval = 0.5
 
     private func commitCurrentLap(source: LapSource) {
         guard let lapStart = currentLapStartDate else { return }
         let lapEnd = Date()
         let duration = lapEnd.timeIntervalSince(lapStart)
-        guard duration > minimumLapDuration else { return }
+        if source == .distanceTap {
+            guard duration > minimumLapDuration else { return }
+        }
 
         let isRest = (runState == .rest || runState == .ending)
         var distance: Double

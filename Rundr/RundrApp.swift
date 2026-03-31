@@ -51,52 +51,57 @@ struct RundrApp: App {
                     }
                     processPendingActionButtonCommand()
                 }
+                .onChange(of: workoutController.runState) { _, _ in
+                    processPendingActionButtonCommand()
+                }
         }
     }
 
     private func processPendingActionButtonCommand() {
-        guard let command = ActionButtonCommandStore.consumePendingCommand() else { return }
+        guard let pendingCommand = ActionButtonCommandStore.pendingCommand() else { return }
 
         if workoutController.runState == .ended {
             workoutController.resetForNextSession()
             coordinator.goHome()
+            ActionButtonCommandStore.clearPendingCommand()
+            return
         }
 
         switch ActionButtonCommandRouter.route(
-            command: command,
+            command: pendingCommand,
             runState: workoutController.runState,
             currentScreen: coordinator.currentScreen,
             isShowingActiveSession: coordinator.isShowingActiveSession
         ) {
         case .startWorkoutFromPreStart:
+            ActionButtonCommandStore.clearPendingCommand()
             startWorkoutFromPreStart()
         case .markLap:
+            ActionButtonCommandStore.clearPendingCommand()
             handleMarkLapCommand()
         case .resumeSession:
+            ActionButtonCommandStore.clearPendingCommand()
             workoutController.resumeSession()
+        case .deferUntilReady:
+            break
         case .noOp:
+            ActionButtonCommandStore.clearPendingCommand()
             break
         }
     }
 
     private func handleMarkLapCommand() {
-        if coordinator.isShowingActiveSession {
-            switch workoutController.runState {
-            case .active, .rest:
-                workoutController.markLap(source: .actionButton)
-            case .paused:
-                workoutController.resumeSession()
-            default:
-                break
+        switch workoutController.runState {
+        case .active, .rest:
+            workoutController.markLap(source: .actionButton)
+        case .paused:
+            workoutController.resumeSession()
+        case .idle, .ready:
+            if coordinator.currentScreen == .preStart {
+                startWorkoutFromPreStart()
             }
-            return
-        }
-
-        switch coordinator.currentScreen {
-        case .home, .intervalLibrary, .sessionDetail, .historySetup:
+        case .ending, .ended:
             break
-        case .preStart:
-            startWorkoutFromPreStart()
         }
     }
 

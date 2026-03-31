@@ -12,5 +12,14 @@ struct RundrShortcutsProvider: AppShortcutsProvider {
             shortTitle: "Start Workout",
             systemImageName: "figure.run"
         )
+        AppShortcut(
+            intent: MarkLapIntent(),
+            phrases: [
+                "Mark lap in \(.applicationName)",
+                "Log lap in \(.applicationName)"
+            ],
+            shortTitle: "Lap",
+            systemImageName: "flag.checkered"
+        )
     }
 }

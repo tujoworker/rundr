@@ -97,6 +97,24 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertTrue(controller.completedLaps.isEmpty)
     }
 
+    func testActionButtonLapIgnoresMinimumLapDurationGuard() {
+        let controller = makeStartedController()
+        controller.minimumLapDuration = 2
+
+        controller.markLap(source: .actionButton)
+
+        XCTAssertEqual(controller.completedLaps.count, 1)
+    }
+
+    func testDistanceTapLapStillHonorsMinimumLapDurationGuard() {
+        let controller = makeStartedController()
+        controller.minimumLapDuration = 2
+
+        controller.markLap(source: .distanceTap)
+
+        XCTAssertTrue(controller.completedLaps.isEmpty)
+    }
+
     // MARK: - Distance Segments
 
     func testDefaultSegment() {

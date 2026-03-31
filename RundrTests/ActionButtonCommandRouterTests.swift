@@ -3,34 +3,34 @@ import XCTest
 
 final class ActionButtonCommandRouterTests: XCTestCase {
 
-    func testStartWorkoutCommandRoutesToLapWhileActiveSessionIsShowing() {
+    func testMarkLapCommandRoutesToLapWhileActiveSessionIsShowing() {
         XCTAssertEqual(
             ActionButtonCommandRouter.route(
-                command: .startWorkout,
+                command: .markLap,
                 runState: .active,
-                currentScreen: .preStart,
-                isShowingActiveSession: true
+                currentScreen: .home,
+                isShowingActiveSession: false
             ),
             .markLap
         )
     }
 
-    func testStartWorkoutCommandRoutesToResumeWhilePausedActiveSessionIsShowing() {
+    func testMarkLapCommandRoutesToResumeWhilePausedActiveSessionIsShowing() {
         XCTAssertEqual(
             ActionButtonCommandRouter.route(
-                command: .startWorkout,
+                command: .markLap,
                 runState: .paused,
-                currentScreen: .preStart,
-                isShowingActiveSession: true
+                currentScreen: .home,
+                isShowingActiveSession: false
             ),
             .resumeSession
         )
     }
 
-    func testMarkLapCommandStillStartsWorkoutFromPreStart() {
+    func testStartWorkoutCommandStartsWorkoutFromPreStart() {
         XCTAssertEqual(
             ActionButtonCommandRouter.route(
-                command: .markLap,
+                command: .startWorkout,
                 runState: .ready,
                 currentScreen: .preStart,
                 isShowingActiveSession: false
@@ -44,14 +44,26 @@ final class ActionButtonCommandRouterTests: XCTestCase {
             ActionButtonCommandRouter.route(
                 command: .markLap,
                 runState: .paused,
-                currentScreen: .preStart,
-                isShowingActiveSession: true
+                currentScreen: .home,
+                isShowingActiveSession: false
             ),
             .resumeSession
         )
     }
 
-    func testCommandsAreIgnoredOutsidePreStartWhenSessionIsNotShowing() {
+    func testMarkLapCommandDefersWhileWorkoutIsStarting() {
+        XCTAssertEqual(
+            ActionButtonCommandRouter.route(
+                command: .markLap,
+                runState: .ready,
+                currentScreen: .preStart,
+                isShowingActiveSession: true
+            ),
+            .deferUntilReady
+        )
+    }
+
+    func testStartWorkoutCommandIsIgnoredOutsidePreStartWhenSessionIsNotShowing() {
         XCTAssertEqual(
             ActionButtonCommandRouter.route(
                 command: .startWorkout,

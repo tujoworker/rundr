@@ -20,14 +20,24 @@ enum ActionButtonCommandStore {
         )
     }
 
-    static func consumePendingCommand() -> ActionButtonCommand? {
+    static func pendingCommand() -> ActionButtonCommand? {
         guard let rawValue = UserDefaults.standard.string(forKey: pendingCommandKey),
               let command = ActionButtonCommand(rawValue: rawValue) else {
             return nil
         }
 
+        return command
+    }
+
+    static func consumePendingCommand() -> ActionButtonCommand? {
+        let command = pendingCommand()
+        guard command != nil else { return nil }
         UserDefaults.standard.removeObject(forKey: pendingCommandKey)
         return command
+    }
+
+    static func clearPendingCommand() {
+        UserDefaults.standard.removeObject(forKey: pendingCommandKey)
     }
 
     static var darwinNotificationName: CFNotificationName {

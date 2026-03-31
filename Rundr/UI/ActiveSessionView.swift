@@ -171,7 +171,7 @@ struct ActiveSessionView: View {
                         .padding(.horizontal, StatusBadgeStyle.horizontalPadding)
                         .padding(.vertical, StatusBadgeStyle.verticalPadding)
                         .background(StatusBadgeStyle.background(theme))
-                        .offset(y: -Tokens.Spacing.xxs)
+                        .offset(y: -Tokens.Spacing.badgeLift)
                 }
             }
         } else {

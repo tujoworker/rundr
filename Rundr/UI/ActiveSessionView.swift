@@ -204,23 +204,19 @@ struct ActiveSessionView: View {
     private let timerCardsSpacing: CGFloat = 6
 
     @ViewBuilder
-    private var topHeaderView: some View {
-        HStack(spacing: Tokens.Spacing.sm) {
-            Text(Formatters.heartRateString(bpm: workoutController.currentHeartRate))
-                .font(.system(size: Tokens.FontSize.lg, weight: .bold, design: .rounded))
-                .foregroundStyle(theme.text.neutral)
-                .monospacedDigit()
-
+    private var heartRateOverlay: some View {
+        HStack(spacing: Tokens.Spacing.xs) {
             Image(systemName: "heart.fill")
                 .font(.system(size: Tokens.FontSize.xs, weight: .semibold))
                 .foregroundStyle(theme.text.neutral)
+
+            Text(Formatters.heartRateString(bpm: workoutController.currentHeartRate))
+                .font(.system(size: Tokens.FontSize.sm, weight: .bold, design: .rounded))
+                .foregroundStyle(theme.text.neutral)
+                .monospacedDigit()
         }
-        .padding(.top, Tokens.Spacing.xxs)
-        .offset(y: -16)
-        .frame(maxWidth: .infinity, alignment: .center)
-        .padding(.horizontal, Tokens.Spacing.xxl)
-        .padding(.top, 5)
-        .frame(height: topHeaderHeight, alignment: .top)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.leading, Tokens.Spacing.xl)
     }
 
     @ViewBuilder
@@ -372,11 +368,6 @@ struct ActiveSessionView: View {
                 .padding(.bottom, 4)
             }
             .offset(y: contentVerticalOffset)
-
-            VStack(spacing: 0) {
-                topHeaderView
-                Spacer(minLength: 0)
-            }
         }
     }
 
@@ -405,6 +396,9 @@ struct ActiveSessionView: View {
                 trackingPage.tag(1)
             }
             .tabViewStyle(.page(indexDisplayMode: .automatic))
+        }
+        .overlay(alignment: .top) {
+            heartRateOverlay
         }
         .overlay {
             ZStack {

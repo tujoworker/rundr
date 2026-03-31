@@ -193,62 +193,138 @@ private struct CompanionBrowserView: View {
 
 private struct CompanionSettingsView: View {
     @EnvironmentObject private var settings: SettingsStore
-    @Environment(\.appTheme) private var theme
 
     var body: some View {
         NavigationStack {
             List {
-                Section(L10n.color) {
-                    ForEach(PrimaryColorOption.allCases) { color in
-                        Button {
-                            settings.primaryColor = color
-                        } label: {
-                            HStack(spacing: Tokens.Spacing.md) {
-                                Circle()
-                                    .fill(color.color)
-                                    .frame(width: 18, height: 18)
-
-                                Text(color.displayName)
-                                    .foregroundStyle(theme.text.neutral)
-
-                                Spacer()
-
-                                if settings.primaryColor == color {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundStyle(settings.primaryAccentColor)
-                                }
-                            }
-                        }
-                        .buttonStyle(.plain)
-                        .listRowCardChrome()
+                Section {
+                    NavigationLink {
+                        CompanionAppearanceSettingsDetailView()
+                    } label: {
+                        CompanionSettingsNavigationRow(
+                            title: L10n.appearance,
+                            value: settings.appearanceMode.displayName,
+                            systemImage: "circle.lefthalf.filled"
+                        )
                     }
-                }
 
-                Section(L10n.appearance) {
-                    ForEach(AppearanceMode.allCases) { mode in
-                        Button {
-                            settings.appearanceMode = mode
-                        } label: {
-                            HStack {
-                                Text(mode.displayName)
-                                    .foregroundStyle(theme.text.neutral)
-
-                                Spacer()
-
-                                if settings.appearanceMode == mode {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundStyle(settings.primaryAccentColor)
-                                }
-                            }
-                        }
-                        .buttonStyle(.plain)
-                        .listRowCardChrome()
+                    NavigationLink {
+                        CompanionColorSettingsDetailView()
+                    } label: {
+                        CompanionSettingsNavigationRow(
+                            title: L10n.color,
+                            value: settings.primaryColor.displayName,
+                            tintColor: settings.primaryColor.color,
+                            systemImage: "paintpalette.fill"
+                        )
                     }
                 }
             }
             .navigationTitle(L10n.settings)
             .navigationBarTitleDisplayMode(.inline)
-            .themedCompanionList()
+            .themedCompanionSettingsList()
+        }
+    }
+}
+
+private struct CompanionAppearanceSettingsDetailView: View {
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        List {
+            Section {
+                ForEach(AppearanceMode.allCases) { mode in
+                    Button {
+                        settings.appearanceMode = mode
+                    } label: {
+                        HStack(spacing: Tokens.Spacing.md) {
+                            Text(mode.displayName)
+                                .foregroundStyle(theme.text.neutral)
+
+                            Spacer()
+
+                            if settings.appearanceMode == mode {
+                                Image(systemName: "checkmark")
+                                    .font(.body.weight(.semibold))
+                                    .foregroundStyle(settings.primaryAccentColor)
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .navigationTitle(L10n.appearance)
+        .navigationBarTitleDisplayMode(.inline)
+        .themedCompanionSettingsList()
+    }
+}
+
+private struct CompanionColorSettingsDetailView: View {
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        List {
+            Section {
+                ForEach(PrimaryColorOption.allCases) { color in
+                    Button {
+                        settings.primaryColor = color
+                    } label: {
+                        HStack(spacing: Tokens.Spacing.md) {
+                            Circle()
+                                .fill(color.color)
+                                .frame(width: 18, height: 18)
+
+                            Text(color.displayName)
+                                .foregroundStyle(theme.text.neutral)
+
+                            Spacer()
+
+                            if settings.primaryColor == color {
+                                Image(systemName: "checkmark")
+                                    .font(.body.weight(.semibold))
+                                    .foregroundStyle(settings.primaryAccentColor)
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .navigationTitle(L10n.color)
+        .navigationBarTitleDisplayMode(.inline)
+        .themedCompanionSettingsList()
+    }
+}
+
+private struct CompanionSettingsNavigationRow: View {
+    let title: String
+    let value: String
+    var tintColor: Color? = nil
+    let systemImage: String
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        HStack(spacing: Tokens.Spacing.md) {
+            ZStack {
+                RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
+                    .fill((tintColor ?? theme.background.boldAction).opacity(Tokens.Opacity.fillAccent))
+                    .frame(width: 28, height: 28)
+
+                Image(systemName: systemImage)
+                    .font(.system(size: Tokens.FontSize.md, weight: .semibold))
+                    .foregroundStyle(theme.text.emphasis)
+            }
+
+            Text(title)
+                .foregroundStyle(theme.text.neutral)
+
+            Spacer()
+
+            Text(value)
+                .foregroundStyle(theme.text.subtle)
         }
     }
 }
@@ -941,6 +1017,13 @@ private extension View {
             .scrollContentBackground(.hidden)
             .background(Color.clear)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+
+    func themedCompanionSettingsList() -> some View {
+        self
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background(Color.clear)
     }
 
     func listRowCardChrome() -> some View {

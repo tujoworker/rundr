@@ -328,10 +328,21 @@ Purpose: live workout UI while running.
 
 #### Required layout
 
+The active session uses a horizontal **paged TabView** with two pages and page indicators at the bottom:
+
+**Page 0 — Controls page (left, swipe-to):**
+
+- Scrollable vertically
+- **Rest toggle button** (primary style, larger): shows a cooldown icon and "Rest" label in active state; shows a running icon and "End Rest" label in rest state. Tapping toggles rest mode and auto-swipes back to the tracking page.
+- **Second row** with two secondary-style buttons side by side:
+  - **End** button (`stop.fill` icon) — ends the session
+  - **Pause / Resume** button (`pause.fill` / `play.fill` icon) — toggles workout pause
+
+**Page 1 — Tracking page (right, default on launch):**
+
 - Center/main focus: elapsed seconds counting upward, **large and bold**
 - A visible lap counter badge must remain visible across `active`, `rest`, `paused`, and `ending` states
-- Top left / session controls support rest, pause/resume, and end-session flow
-- Top right: live heart rate
+- Top center: live heart rate
 - Below main timer: horizontally scrollable lap cards
 - Newest lap card appears on the **right**
 - The lap cards area must always occupy its fixed height (60pt), even when no laps exist yet, to prevent layout shifts when the first card appears
@@ -378,8 +389,8 @@ Current states during an active workout:
 
 - `Rest` enters rest mode without stopping the workout clock
 - a pause control can move the workout into a full `paused` state; paused time should not count toward workout elapsed time
-- rest and paused states expose resume actions
-- the end-session flow still uses explicit confirmation before saving and exiting
+- rest and paused states expose resume actions via the controls page
+- the end-session flow is triggered from the controls page End button
 
 Important interpretation:
 

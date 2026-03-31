@@ -302,7 +302,7 @@ struct ActiveSessionView: View {
                                 .foregroundStyle(theme.text.subtle)
                         }
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(RestPressStyle())
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

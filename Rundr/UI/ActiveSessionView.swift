@@ -237,17 +237,19 @@ struct ActiveSessionView: View {
                         selectedPage = 1
                     }
                 } label: {
-                    VStack(spacing: Tokens.Spacing.sm) {
-                        WorkoutControlIcon(
-                            systemName: isResting ? "figure.run" : "figure.cooldown",
-                            baseColor: primaryColor,
-                            size: 56
-                        )
+                    Label {
                         Text(isResting ? L10n.endRest : L10n.rest)
-                            .font(.system(size: Tokens.FontSize.sm, weight: .medium, design: .rounded))
-                            .foregroundStyle(theme.text.subtle)
+                    } icon: {
+                        Image(systemName: isResting ? "figure.run" : "figure.cooldown")
                     }
+                    .font(.title3.bold())
+                    .frame(maxWidth: .infinity, minHeight: 50)
                 }
+                .accentRoundedButtonChrome(
+                    accentColor: primaryColor,
+                    cornerRadius: Tokens.Radius.pill,
+                    lineWidth: Tokens.LineWidth.thick
+                )
                 .buttonStyle(.plain)
 
                 HStack(spacing: Tokens.Spacing.xxxxl) {
@@ -880,11 +882,13 @@ private struct WorkoutControlIcon: View {
     var body: some View {
         ZStack {
             Circle()
-                .fill(isSecondary ? theme.background.neutral : theme.background.emphasisAction(baseColor))
+                .fill(isSecondary ? theme.background.emphasisAction(baseColor) : theme.background.emphasisAction(baseColor))
 
-            Circle()
-                .stroke(isSecondary ? theme.stroke.neutral : theme.stroke.emphasisAction(baseColor), lineWidth: Tokens.LineWidth.thick)
-                .padding(Tokens.LineWidth.regular)
+            if !isSecondary {
+                Circle()
+                    .stroke(theme.stroke.emphasisAction(baseColor), lineWidth: Tokens.LineWidth.thick)
+                    .padding(Tokens.LineWidth.regular)
+            }
         }
         .overlay {
             Image(systemName: systemName)

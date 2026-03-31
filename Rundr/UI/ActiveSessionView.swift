@@ -164,7 +164,7 @@ struct ActiveSessionView: View {
                 if let timerStatusBadgeText {
                     Text(timerStatusBadgeText)
                         .font(StatusBadgeStyle.font)
-                        .foregroundStyle(theme.text.bold)
+                        .foregroundStyle(theme.text.neutral)
                         .lineLimit(1)
                         .minimumScaleFactor(0.8)
                         .fixedSize(horizontal: true, vertical: false)

@@ -426,7 +426,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
         persistRecoverySnapshotIfNeeded()
         publishLiveWorkoutStateIfNeeded()
-        playHaptic(.click)
+        playHaptic(.notification)
     }
 
     func prepareForSessionEnd() {

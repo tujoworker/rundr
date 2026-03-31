@@ -1104,4 +1104,37 @@ final class WorkoutControllerTests: XCTestCase {
         controller.startRest()
         XCTAssertFalse(controller.willResumeIntoRest)
     }
+
+    // MARK: - Pause / Resume
+
+    func testResumeFromPausedRestoresActiveState() {
+        let controller = makeStartedController()
+        XCTAssertEqual(controller.runState, .active)
+
+        controller.pauseSession()
+        XCTAssertEqual(controller.runState, .paused)
+
+        controller.resumeSession()
+        XCTAssertEqual(controller.runState, .active)
+    }
+
+    func testResumeFromPausedRestRestoresRestState() {
+        let controller = makeStartedController()
+        controller.startRest()
+        XCTAssertEqual(controller.runState, .rest)
+
+        controller.pauseSession()
+        XCTAssertEqual(controller.runState, .paused)
+
+        controller.resumeSession()
+        XCTAssertEqual(controller.runState, .rest)
+    }
+
+    func testResumeSessionIgnoredWhenNotPaused() {
+        let controller = makeStartedController()
+        XCTAssertEqual(controller.runState, .active)
+
+        controller.resumeSession()
+        XCTAssertEqual(controller.runState, .active)
+    }
 }

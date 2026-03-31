@@ -18,6 +18,8 @@ struct ActiveSessionView: View {
     @State private var isRestPulseOn = false
     @State private var isPausePulseOn = false
     @State private var isTimeGoalPulseOn = false
+    @State private var bounceTask: Task<Void, Never>?
+    @State private var glowTask: Task<Void, Never>?
     @State private var isShowingSessionComplete = false
     @State private var isEndingSession = false
     @State private var hasDismissedCompletedSession = false
@@ -555,6 +557,8 @@ struct ActiveSessionView: View {
     private func handleLapTap() {
         if isWorkoutPaused {
             workoutController.resumeSession()
+            flashTapBorder()
+            animateTimerForNewLap()
             return
         }
         flashTapBorder()
@@ -624,27 +628,32 @@ struct ActiveSessionView: View {
     }
 
     private func animateTimerForNewLap() {
+        bounceTask?.cancel()
+        glowTask?.cancel()
+
         withAnimation(.easeOut(duration: 0.08)) {
             isTimerGlowActive = true
         }
 
-        withAnimation(.spring(response: 0.18, dampingFraction: 0.5)) {
+        withAnimation(.easeOut(duration: 0.1)) {
             isTimerBounceActive = true
         }
 
-        Task {
-            try? await Task.sleep(for: .milliseconds(140))
+        bounceTask = Task {
+            try? await Task.sleep(for: .milliseconds(120))
+            guard !Task.isCancelled else { return }
             await MainActor.run {
-                withAnimation(.spring(response: 0.46, dampingFraction: 0.72)) {
+                withAnimation(.easeOut(duration: 0.6)) {
                     isTimerBounceActive = false
                 }
             }
         }
 
-        Task {
+        glowTask = Task {
             try? await Task.sleep(for: .milliseconds(180))
+            guard !Task.isCancelled else { return }
             await MainActor.run {
-                withAnimation(.easeOut(duration: 0.6)) {
+                withAnimation(.easeOut(duration: 0.9)) {
                     isTimerGlowActive = false
                 }
             }

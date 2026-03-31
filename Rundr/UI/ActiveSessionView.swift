@@ -599,7 +599,7 @@ struct ActiveSessionView: View {
     private func handleRestButtonTap() {
         switch ActiveSessionControlRouting.restButtonAction(for: workoutController.runState) {
         case .startRest:
-            workoutController.startRest()
+            workoutController.startRest(shouldPlayHaptic: false)
         case .cancelRest:
             workoutController.cancelRest()
         case .toggleRestWhilePaused:

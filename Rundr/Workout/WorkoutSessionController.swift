@@ -38,6 +38,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     /// Tracks the last integer second at which a time-goal haptic was played.
     private var lastTimeGoalAlertSecond: Int = -1
+    var hapticFeedbackHandler: ((WKHapticType) -> Void)?
 
     private var usesGPSDistance: Bool {
         trackingMode.usesGPSDistance
@@ -352,10 +353,12 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         playHaptic(.notification)
     }
 
-    func startRest() {
+    func startRest(shouldPlayHaptic: Bool = true) {
         guard runState == .active else { return }
         cancelPendingAutoRestDetection()
-        playHaptic(.notification)
+        if shouldPlayHaptic {
+            playHaptic(.notification)
+        }
         runState = .rest
         persistRecoverySnapshotIfNeeded()
         publishLiveWorkoutStateIfNeeded()
@@ -938,7 +941,11 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     }
 
     private func playHaptic(_ type: WKHapticType) {
-        WKInterfaceDevice.current().play(type)
+        if let hapticFeedbackHandler {
+            hapticFeedbackHandler(type)
+        } else {
+            WKInterfaceDevice.current().play(type)
+        }
     }
 
     /// Called externally when distance/HR updates arrive

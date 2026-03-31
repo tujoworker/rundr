@@ -1,4 +1,5 @@
 import XCTest
+import WatchKit
 @testable import Rundr
 
 @MainActor
@@ -95,6 +96,28 @@ final class WorkoutControllerTests: XCTestCase {
         controller.commitFinalLap()
         XCTAssertEqual(controller.runState, .idle)
         XCTAssertTrue(controller.completedLaps.isEmpty)
+    }
+
+    func testStartRestFromButtonIsSilent() {
+        let controller = makeStartedController()
+        var haptics: [WKHapticType] = []
+        controller.hapticFeedbackHandler = { haptics.append($0) }
+
+        controller.startRest(shouldPlayHaptic: false)
+
+        XCTAssertEqual(controller.runState, .rest)
+        XCTAssertTrue(haptics.isEmpty)
+    }
+
+    func testStartRestKeepsNotificationHapticForAutomaticRest() {
+        let controller = makeStartedController()
+        var haptics: [WKHapticType] = []
+        controller.hapticFeedbackHandler = { haptics.append($0) }
+
+        controller.startRest()
+
+        XCTAssertEqual(controller.runState, .rest)
+        XCTAssertEqual(haptics, [.notification])
     }
 
     func testActionButtonLapIgnoresMinimumLapDurationGuard() {

@@ -257,10 +257,6 @@ struct ActiveSessionView: View {
                             .font(.system(size: Tokens.FontSize.sm, weight: .medium, design: .rounded))
                             .foregroundStyle(theme.text.subtle)
                     }
-                    .padding(.horizontal, Tokens.Spacing.xl)
-                    .padding(.vertical, Tokens.Spacing.lg)
-                    .background(Capsule().fill(theme.background.emphasisAction(primaryColor)))
-                    .contentShape(Capsule())
                 }
                 .buttonStyle(RestPressStyle())
 

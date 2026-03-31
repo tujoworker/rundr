@@ -1,3 +1,4 @@
+import Combine
 import Foundation
 
 enum ActionButtonCommand: String {
@@ -10,12 +11,20 @@ enum ActionButtonCommandStore {
     private static let pendingCommandKey = "action_button.pending_command"
     private static let notificationName = "com.rundr.watchapp.action-button-command"
 
+    /// In-process signal emitted every time a command is queued.
+    /// Provides a reliable trigger when the intent runs in the same process
+    /// (openAppWhenRun = true), where Darwin notifications can be unreliable.
+    static let commandQueued = PassthroughSubject<Void, Never>()
+
     private static var defaults: UserDefaults {
         UserDefaults(suiteName: sharedDefaultsSuiteName) ?? .standard
     }
 
     static func queue(_ command: ActionButtonCommand) {
         defaults.set(command.rawValue, forKey: pendingCommandKey)
+        // In-process signal (primary path when intent runs in same process)
+        commandQueued.send()
+        // Cross-process Darwin notification (fallback for out-of-process intents)
         CFNotificationCenterPostNotification(
             CFNotificationCenterGetDarwinNotifyCenter(),
             CFNotificationName(notificationName as CFString),

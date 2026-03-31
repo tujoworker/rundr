@@ -1,3 +1,4 @@
+import Combine
 import XCTest
 @testable import Rundr
 
@@ -23,4 +24,14 @@ final class ActionButtonCommandStoreTests: XCTestCase {
 
         XCTAssertNil(ActionButtonCommandStore.pendingCommand())
     }
-}
+
+    func testQueueEmitsCommandQueuedSignal() {
+        var received = false
+        let cancellable = ActionButtonCommandStore.commandQueued
+            .sink { received = true }
+
+        ActionButtonCommandStore.queue(.markLap)
+
+        XCTAssertTrue(received)
+        cancellable.cancel()
+    }

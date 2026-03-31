@@ -661,7 +661,7 @@ private struct SegmentRow: View {
             } label: {
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: Tokens.FontSize.xl))
-                    .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundDisabled))
+                    .foregroundStyle(theme.text.subtle)
             }
             .buttonStyle(.plain)
             .padding(.top, Tokens.Spacing.xl)

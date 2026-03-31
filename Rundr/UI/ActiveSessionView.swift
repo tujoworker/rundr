@@ -237,19 +237,18 @@ struct ActiveSessionView: View {
                         selectedPage = 1
                     }
                 } label: {
-                    Label {
+                    VStack(spacing: Tokens.Spacing.sm) {
+                        WorkoutControlIcon(
+                            systemName: isResting ? "figure.run" : "figure.cooldown",
+                            baseColor: primaryColor,
+                            size: 78,
+                            iconFontSizeOverride: 34
+                        )
                         Text(isResting ? L10n.endRest : L10n.rest)
-                    } icon: {
-                        Image(systemName: isResting ? "figure.run" : "figure.cooldown")
+                            .font(.system(size: Tokens.FontSize.sm, weight: .medium, design: .rounded))
+                            .foregroundStyle(theme.text.subtle)
                     }
-                    .font(.title3.bold())
-                    .frame(maxWidth: .infinity, minHeight: 50)
                 }
-                .accentRoundedButtonChrome(
-                    accentColor: primaryColor,
-                    cornerRadius: Tokens.Radius.pill,
-                    lineWidth: Tokens.LineWidth.thick
-                )
                 .buttonStyle(.plain)
 
                 HStack(spacing: Tokens.Spacing.xxxxl) {
@@ -873,10 +872,11 @@ private struct WorkoutControlIcon: View {
     let baseColor: Color
     var size: CGFloat = 46
     var isSecondary: Bool = false
+    var iconFontSizeOverride: CGFloat? = nil
     @Environment(\.appTheme) private var theme
 
     private var iconFontSize: CGFloat {
-        Tokens.FontSize.xl * (size / 46)
+        iconFontSizeOverride ?? (Tokens.FontSize.xl * (size / 46))
     }
 
     var body: some View {

@@ -97,7 +97,7 @@ struct ActiveSessionView: View {
     private var timerStatusBadgeText: String? {
         ActiveSessionTimerBadgeContent.statusText(
             runState: workoutController.runState,
-            restDurationSeconds: workoutController.restDurationSeconds
+            willResumeIntoRest: workoutController.willResumeIntoRest
         )
     }
 
@@ -688,14 +688,11 @@ private enum StatusBadgeStyle {
 }
 
 enum ActiveSessionTimerBadgeContent {
-    static func statusText(runState: WorkoutRunState, restDurationSeconds: Int?) -> String? {
+    static func statusText(runState: WorkoutRunState, willResumeIntoRest: Bool) -> String? {
         switch runState {
         case .paused:
-            return L10n.workoutPaused
+            return willResumeIntoRest ? L10n.restModePausedStatus : L10n.workoutPaused
         case .rest:
-            if let restDurationSeconds {
-                return L10n.restDuration(restDurationSeconds)
-            }
             return L10n.restModeStatus
         case .idle, .ready, .active, .ending, .ended:
             return nil

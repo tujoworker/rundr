@@ -34,6 +34,7 @@
 "Color" = "Farbe";
 "Rest (Auto)" = "Erholung (Auto)";
 "Resting" = "Erholung";
+"%@ (%@)" = "%@ (%@)";
 "Manual" = "Manuell";
 "Auto-detect" = "Auto erkennen";
 "e.g. 400" = "z.B. 400";

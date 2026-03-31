@@ -34,6 +34,7 @@
 "Color" = "Farge";
 "Rest (Auto)" = "Hvile (Auto)";
 "Resting" = "Hviler";
+"%@ (%@)" = "%@ (%@)";
 "Manual" = "Manuell";
 "Auto-detect" = "Automatisk";
 "e.g. 400" = "f.eks. 400";

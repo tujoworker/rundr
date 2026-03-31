@@ -3,29 +3,29 @@ import XCTest
 
 final class ActiveSessionTimerBadgeContentTests: XCTestCase {
 
-    func testStatusTextReturnsPausedLabelForPausedState() {
+    func testStatusTextReturnsCombinedLabelForPausedRestState() {
         XCTAssertEqual(
-            ActiveSessionTimerBadgeContent.statusText(runState: .paused, restDurationSeconds: 30),
-            L10n.workoutPaused
+            ActiveSessionTimerBadgeContent.statusText(runState: .paused, willResumeIntoRest: true),
+            L10n.restModePausedStatus
         )
     }
 
-    func testStatusTextReturnsRestCountdownForRestStateWithDuration() {
+    func testStatusTextReturnsPausedLabelForPausedState() {
         XCTAssertEqual(
-            ActiveSessionTimerBadgeContent.statusText(runState: .rest, restDurationSeconds: 45),
-            L10n.restDuration(45)
+            ActiveSessionTimerBadgeContent.statusText(runState: .paused, willResumeIntoRest: false),
+            L10n.workoutPaused
         )
     }
 
     func testStatusTextReturnsRestingLabelForRestStateWithoutDuration() {
         XCTAssertEqual(
-            ActiveSessionTimerBadgeContent.statusText(runState: .rest, restDurationSeconds: nil),
+            ActiveSessionTimerBadgeContent.statusText(runState: .rest, willResumeIntoRest: false),
             L10n.restModeStatus
         )
     }
 
     func testStatusTextReturnsNilOutsideRestAndPause() {
-        XCTAssertNil(ActiveSessionTimerBadgeContent.statusText(runState: .active, restDurationSeconds: 10))
-        XCTAssertNil(ActiveSessionTimerBadgeContent.statusText(runState: .ready, restDurationSeconds: nil))
+        XCTAssertNil(ActiveSessionTimerBadgeContent.statusText(runState: .active, willResumeIntoRest: false))
+        XCTAssertNil(ActiveSessionTimerBadgeContent.statusText(runState: .ready, willResumeIntoRest: false))
     }
 }

@@ -56,3 +56,18 @@ xcodebuild test -project Rundr.xcodeproj -scheme Rundr -destination 'platform=wa
 - Stage changes with explicit paths, for example `git add path/to/file`.
 - Check staged changes with `git diff --cached`.
 - The lap cards area in `ActiveSessionView` must keep its fixed height even when there are no laps yet.
+
+## Design Tokens
+
+- Always use tokens for visual decisions: colors, opacity, spacing, font sizes, line widths, corner radius, shadows, and similar values.
+- Raw `Tokens` values are context-free building blocks. They are the foundation. Use them for primitives such as `Radius`, `Spacing`, `Opacity`, `FontSize`, and `LineWidth`.
+- In views, use semantic theme tokens from `AppTheme` for color decisions instead of raw color literals or ad-hoc opacity chains.
+- Use the semantic groups consistently:
+  - `theme.background` for fills and surfaces.
+  - `theme.stroke` for borders and dividers.
+  - `theme.text` for foreground text colors.
+  - `theme.icon` for symbol rendering/tint behavior.
+- Token names should describe purpose, role, or emphasis level, not a specific screen or hard-coded color. Prefer names like `neutral`, `subtle`, `emphasis`, `bold`, `success`, or `destructive`.
+- Keep semantic token usage the same across light and dark mode. If a component needs different visual balance per color scheme, change the token value or the semantic token implementation, not the token name used by the mode.
+- Reuse an existing token before adding a new one. Only add a new token when the role is genuinely different and will stay meaningful across the app.
+- Avoid inline visual constants in feature code such as raw `CGFloat` spacing, direct opacity numbers, or custom `Color` combinations when an existing token can express the same intent.

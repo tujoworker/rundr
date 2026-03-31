@@ -800,11 +800,11 @@ struct PlaceholderLapCardView: View {
                     RoundedRectangle(cornerRadius: Tokens.Radius.small, style: .continuous)
                         .fill(theme.background.bold)
                 )
-                .opacity(0.2)
+                .opacity(Tokens.Opacity.foregroundBody)
             Text(L10n.lapCardPlaceholder)
                 .font(.system(size: 25, weight: .medium, design: .rounded))
                 .monospacedDigit()
-                .foregroundColor(theme.text.neutral)
+                .foregroundStyle(theme.text.neutral.opacity(Tokens.Opacity.foregroundBody))
         }
         .padding(.top, lapCardTopPadding)
         .padding(.leading, lapCardLeadingPadding)

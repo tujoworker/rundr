@@ -33,6 +33,7 @@
 "Unit" = "Enhet";
 "Color" = "Farge";
 "Rest Mode" = "Hvilemodus";
+"Rest Mode (Auto)" = "Hvilemodus (Auto)";
 "Manual" = "Manuell";
 "Auto-detect" = "Automatisk";
 "e.g. 400" = "f.eks. 400";

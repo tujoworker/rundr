@@ -33,6 +33,7 @@
 "Unit" = "Einheit";
 "Color" = "Farbe";
 "Rest Mode" = "Erholungsmodus";
+"Rest Mode (Auto)" = "Erholungsmodus (Auto)";
 "Manual" = "Manuell";
 "Auto-detect" = "Auto erkennen";
 "e.g. 400" = "z.B. 400";

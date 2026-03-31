@@ -100,7 +100,7 @@ struct ActiveSessionView: View {
 
     private var timerBorderOverlay: some View {
         Capsule()
-            .strokeBorder(theme.stroke.emphasisAction(primaryColor), lineWidth: Tokens.LineWidth.thick)
+            .strokeBorder(theme.stroke.emphasisAction(primaryColor), style: StrokeStyle(lineWidth: Tokens.LineWidth.thick, dash: isResting ? [6, 4] : []))
     }
 
     private var lapGlowOverlay: some View {
@@ -236,10 +236,10 @@ struct ActiveSessionView: View {
                             systemName: isResting ? "figure.run" : "figure.cooldown",
                             baseColor: primaryColor,
                             size: 78,
-                            isDashed: settings.restMode == .autoDetect,
+                            isDashed: isResting,
                             iconFontSizeOverride: 34
                         )
-                        Text(isResting ? L10n.endRest : L10n.restMode)
+                        Text(isResting ? L10n.endRest : (settings.restMode == .autoDetect ? L10n.restModeAuto : L10n.restMode))
                             .font(.system(size: Tokens.FontSize.sm, weight: .medium, design: .rounded))
                             .foregroundStyle(theme.text.subtle)
                     }

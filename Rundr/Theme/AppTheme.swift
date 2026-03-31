@@ -49,6 +49,11 @@ struct AppTheme {
                 : .white.opacity(Tokens.Opacity.fillCard)
         }
 
+        /// Floating status badges and small callouts.
+        var statusBadge: Color {
+            .white.opacity(Tokens.Opacity.fillCard)
+        }
+
         /// Rest rows within history surfaces.
         var historyRest: Color {
             .white
@@ -73,11 +78,6 @@ struct AppTheme {
             isDark
                 ? accent.opacity(Tokens.Opacity.fillAccent)
                 : .white.opacity(Tokens.Opacity.fillAccent)
-        }
-
-        /// Solid accent surfaces with no opacity.
-        func emphasisSolid(_ accent: Color) -> Color {
-            accent
         }
 
         /// Destructive action backgrounds.

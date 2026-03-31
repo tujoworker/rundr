@@ -40,8 +40,6 @@ enum Tokens {
         static let xl: CGFloat = 12
         static let xxl: CGFloat = 14
         static let xxxl: CGFloat = 18
-        /// 14 pt – floating status badge overlap
-        static let badgeOverlap: CGFloat = 14
         static let xxxxl: CGFloat = 24
     }
 

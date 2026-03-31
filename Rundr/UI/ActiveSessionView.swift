@@ -123,16 +123,28 @@ struct ActiveSessionView: View {
         if showsLapCounterBadge {
             let labelFont = Font.system(size: Tokens.FontSize.base, weight: .regular, design: .rounded)
 
-            HStack(spacing: 5) {
-                Group {
+            VStack(spacing: Tokens.Spacing.xxs) {
+                if let timerStatusBadgeText {
+                    Text(timerStatusBadgeText)
+                        .font(StatusBadgeStyle.font)
+                        .foregroundStyle(theme.text.bold)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
+                        .fixedSize(horizontal: true, vertical: false)
+                        .padding(.horizontal, StatusBadgeStyle.horizontalPadding)
+                        .padding(.vertical, StatusBadgeStyle.verticalPadding)
+                        .background(StatusBadgeStyle.background(theme))
+                }
+
+                HStack(spacing: 5) {
                     if let total = lapCounterTotal {
                         HStack(alignment: .firstTextBaseline, spacing: 0) {
                             Text("\(displayedLapCounter)")
                                 .font(.system(size: Tokens.FontSize.xxl, weight: .bold, design: .rounded))
                                 .foregroundStyle(theme.text.bold)
-                        Text("/\(total)")
-                            .font(.system(size: Tokens.FontSize.xs, weight: .semibold, design: .rounded))
-                            .foregroundStyle(theme.text.bold)
+                            Text("/\(total)")
+                                .font(.system(size: Tokens.FontSize.xs, weight: .semibold, design: .rounded))
+                                .foregroundStyle(theme.text.bold)
                         }
                         .padding(.horizontal, Tokens.Spacing.xs)
                         .padding(.vertical, 0)
@@ -152,12 +164,12 @@ struct ActiveSessionView: View {
                                     .fill(theme.background.bold)
                             )
                     }
-                }
 
-                if !timerTopLabel.isEmpty {
-                    Text(timerTopLabel)
-                        .font(labelFont)
-                        .foregroundStyle(theme.text.neutral)
+                    if !timerTopLabel.isEmpty {
+                        Text(timerTopLabel)
+                            .font(labelFont)
+                            .foregroundStyle(theme.text.neutral)
+                    }
                 }
             }
         } else {
@@ -183,37 +195,23 @@ struct ActiveSessionView: View {
                 .lineLimit(1)
                 .foregroundStyle(theme.text.neutral)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .overlay(alignment: .bottom) {
-                    if let timerStatusBadgeText {
-                        Text(timerStatusBadgeText)
-                            .font(StatusBadgeStyle.font)
-                            .foregroundStyle(theme.text.neutral)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                            .fixedSize(horizontal: true, vertical: false)
-                            .padding(.horizontal, StatusBadgeStyle.horizontalPadding)
-                            .padding(.vertical, StatusBadgeStyle.verticalPadding)
-                            .background(StatusBadgeStyle.background(theme, accent: primaryColor))
-                            .offset(y: StatusBadgeStyle.borderOverlap)
-                    }
+                .frame(maxWidth: .infinity)
+                .padding(.horizontal, Tokens.Spacing.md)
+                .padding(.vertical, Tokens.Spacing.sm)
+                .frame(maxHeight: 120)
+                .background(Capsule().fill(theme.background.emphasisAction(primaryColor)))
+                .overlay(timerBorderOverlay)
+                .overlay(lapGlowOverlay)
+                .overlay(alignment: .top) {
+                    timerTopOverlay
+                        .offset(y: -31)
                 }
-            .frame(maxWidth: .infinity)
-            .padding(.horizontal, Tokens.Spacing.md)
-            .padding(.vertical, Tokens.Spacing.sm)
-            .frame(maxHeight: 120)
-            .background(Capsule().fill(theme.background.emphasisAction(primaryColor)))
-            .overlay(timerBorderOverlay)
-            .overlay(lapGlowOverlay)
-            .overlay(alignment: .top) {
-                timerTopOverlay
-                    .offset(y: -31)
-            }
-            .scaleEffect(isTimerBounceActive ? 1.11 : 1)
-            .brightness(isTimerGlowActive ? 0.3 : 0)
-            .shadow(color: Color.white.opacity(isTimerGlowActive ? 0.5 : 0), radius: 18)
-            .shadow(color: primaryColor.opacity(isTimerGlowActive ? 0.72 : 0), radius: 24)
-            .padding(.horizontal, Tokens.Spacing.xs)
-            .contentShape(Capsule())
+                .scaleEffect(isTimerBounceActive ? 1.11 : 1)
+                .brightness(isTimerGlowActive ? 0.3 : 0)
+                .shadow(color: Color.white.opacity(isTimerGlowActive ? 0.5 : 0), radius: 18)
+                .shadow(color: primaryColor.opacity(isTimerGlowActive ? 0.72 : 0), radius: 24)
+                .padding(.horizontal, Tokens.Spacing.xs)
+                .contentShape(Capsule())
         }
         .buttonStyle(TimerPressStyle())
     }
@@ -682,11 +680,10 @@ private enum StatusBadgeStyle {
     static let font = Font.system(size: Tokens.FontSize.md, weight: .regular, design: .rounded)
     static let horizontalPadding: CGFloat = Tokens.Spacing.sm
     static let verticalPadding: CGFloat = Tokens.Spacing.xxxs
-    static let borderOverlap: CGFloat = Tokens.Spacing.badgeOverlap
 
-    static func background(_ theme: AppTheme, accent: Color) -> some View {
+    static func background(_ theme: AppTheme) -> some View {
         Capsule(style: .continuous)
-            .fill(theme.background.emphasisSolid(accent))
+            .fill(theme.background.statusBadge)
     }
 }
 

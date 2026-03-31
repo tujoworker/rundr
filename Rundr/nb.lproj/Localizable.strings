@@ -32,8 +32,8 @@
 "Enable GPS Access" = "Aktiver GPS-tilgang";
 "Unit" = "Enhet";
 "Color" = "Farge";
-"Rest Mode" = "Hvilemodus";
-"Rest Mode (Auto)" = "Hvilemodus (Auto)";
+"Rest (Auto)" = "Hvile (Auto)";
+"Resting" = "Hviler";
 "Manual" = "Manuell";
 "Auto-detect" = "Automatisk";
 "e.g. 400" = "f.eks. 400";

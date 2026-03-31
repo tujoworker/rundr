@@ -32,8 +32,8 @@
 "Enable GPS Access" = "GPSアクセスを有効にする";
 "Unit" = "単位";
 "Color" = "カラー";
-"Rest Mode" = "レストモード";
-"Rest Mode (Auto)" = "レストモード（自動）";
+"Rest (Auto)" = "レスト（自動）";
+"Resting" = "レスト中";
 "Manual" = "手動";
 "Auto-detect" = "自動検出";
 "e.g. 400" = "例: 400";

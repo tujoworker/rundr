@@ -35,8 +35,8 @@ enum L10n {
     static let requestLocationAccess = String(localized: "Enable GPS Access", comment: "Open interval GPS banner button")
     static let unit = String(localized: "Unit", comment: "Distance unit setting")
     static let color = String(localized: "Color", comment: "Primary color setting")
-    static let restMode = String(localized: "Rest Mode", comment: "Rest mode setting")
-    static let restModeAuto = String(localized: "Rest Mode (Auto)", comment: "Rest mode button label when auto-detect is on")
+    static let restMode = String(localized: "Rest", comment: "Rest mode setting")
+    static let restModeAuto = String(localized: "Rest (Auto)", comment: "Rest mode button label when auto-detect is on")
     static let restManual = String(localized: "Manual", comment: "Rest mode: manual")
     static let restAutoDetect = String(localized: "Auto-detect", comment: "Rest mode: auto detect")
     static let distancePlaceholderKm = String(localized: "e.g. 400", comment: "Distance placeholder")
@@ -58,7 +58,7 @@ enum L10n {
     static func lapIndex(_ index: Int) -> String {
         String(format: String(localized: "Lap %d", comment: "Lap label"), index)
     }
-    static let restModeStatus = String(localized: "Rest Mode", comment: "Timer label when resting")
+    static let restModeStatus = String(localized: "Resting", comment: "Timer label when resting")
     static func restDuration(_ seconds: Int) -> String {
         String(format: String(localized: "Rest %ds", comment: "Timer label with rest countdown"), seconds)
     }

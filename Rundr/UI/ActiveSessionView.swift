@@ -256,7 +256,7 @@ struct ActiveSessionView: View {
                     } label: {
                         VStack(spacing: Tokens.Spacing.sm) {
                             WorkoutControlIcon(
-                                systemName: "stop.fill",
+                                systemName: "xmark",
                                 baseColor: primaryColor,
                                 isSecondary: true
                             )

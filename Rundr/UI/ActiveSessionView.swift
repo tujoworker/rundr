@@ -274,11 +274,11 @@ struct ActiveSessionView: View {
                     Button {
                         if isWorkoutPaused {
                             workoutController.resumeSession()
+                            withAnimation {
+                                selectedPage = 1
+                            }
                         } else {
                             workoutController.pauseSession()
-                        }
-                        withAnimation {
-                            selectedPage = 1
                         }
                     } label: {
                         VStack(spacing: Tokens.Spacing.sm) {

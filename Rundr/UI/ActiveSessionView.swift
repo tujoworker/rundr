@@ -682,7 +682,7 @@ private enum StatusBadgeStyle {
     static let font = Font.system(size: Tokens.FontSize.md, weight: .regular, design: .rounded)
     static let horizontalPadding: CGFloat = Tokens.Spacing.sm
     static let verticalPadding: CGFloat = Tokens.Spacing.xxxs
-    static let borderOverlap: CGFloat = Tokens.Spacing.md
+    static let borderOverlap: CGFloat = Tokens.Spacing.xxxl
 
     static func background(_ accent: Color) -> some View {
         Capsule(style: .continuous)

@@ -18,9 +18,14 @@ struct ActiveSessionView: View {
     @State private var isRestPulseOn = false
     @State private var isPausePulseOn = false
     @State private var isTimeGoalPulseOn = false
+    @State private var isRestButtonBounceActive = false
+    @State private var isRestButtonGlowActive = false
     @State private var flashTask: Task<Void, Never>?
     @State private var bounceTask: Task<Void, Never>?
     @State private var glowTask: Task<Void, Never>?
+    @State private var restBounceTask: Task<Void, Never>?
+    @State private var restGlowTask: Task<Void, Never>?
+    @State private var restTransitionTask: Task<Void, Never>?
     @State private var isShowingSessionComplete = false
     @State private var isEndingSession = false
     @State private var hasDismissedCompletedSession = false
@@ -242,14 +247,7 @@ struct ActiveSessionView: View {
         ScrollView {
             VStack(spacing: Tokens.Spacing.xxl) {
                 Button {
-                    if isWorkoutPaused {
-                        workoutController.toggleRestWhilePaused()
-                    } else if isResting {
-                        workoutController.cancelRest()
-                    } else {
-                        workoutController.startRest()
-                    }
-                    selectedPage = 1
+                    handleRestButtonTap()
                 } label: {
                     VStack(spacing: Tokens.Spacing.sm) {
                         WorkoutControlIcon(
@@ -263,8 +261,25 @@ struct ActiveSessionView: View {
                             .font(.system(size: Tokens.FontSize.sm, weight: .medium, design: .rounded))
                             .foregroundStyle(theme.text.subtle)
                     }
+                    .padding(.horizontal, Tokens.Spacing.xl)
+                    .padding(.vertical, Tokens.Spacing.lg)
+                    .overlay {
+                        RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous)
+                            .strokeBorder(
+                                theme.stroke.emphasisAction(primaryColor),
+                                style: StrokeStyle(
+                                    lineWidth: Tokens.LineWidth.thick,
+                                    dash: restButtonShowsEndRest ? [6, 4] : []
+                                )
+                            )
+                            .opacity((isRestButtonBounceActive || isRestButtonGlowActive) ? 1 : 0)
+                    }
+                    .scaleEffect(isRestButtonBounceActive ? 1.08 : 1)
+                    .brightness(isRestButtonGlowActive ? 0.18 : 0)
+                    .shadow(color: Color.white.opacity(isRestButtonGlowActive ? 0.35 : 0), radius: 12)
+                    .shadow(color: primaryColor.opacity(isRestButtonGlowActive ? 0.45 : 0), radius: 18)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(TimerPressStyle())
 
                 HStack(spacing: Tokens.Spacing.xxxxl) {
                     Button {
@@ -506,6 +521,9 @@ struct ActiveSessionView: View {
         }
         .onDisappear {
             completedSessionDismissTask?.cancel()
+            restBounceTask?.cancel()
+            restGlowTask?.cancel()
+            restTransitionTask?.cancel()
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarHidden(true)
@@ -577,6 +595,19 @@ struct ActiveSessionView: View {
         }
         flashTapBorder()
         workoutController.markLap()
+    }
+
+    private func handleRestButtonTap() {
+        if isWorkoutPaused {
+            workoutController.toggleRestWhilePaused()
+        } else if isResting {
+            workoutController.cancelRest()
+        } else {
+            workoutController.startRest()
+        }
+
+        flashTapBorder()
+        animateRestButtonForPageTransition()
     }
 
     private func presentLapEditor(for lap: Lap) {
@@ -673,6 +704,45 @@ struct ActiveSessionView: View {
                 withAnimation(.easeOut(duration: 0.9)) {
                     isTimerGlowActive = false
                 }
+            }
+        }
+    }
+
+    private func animateRestButtonForPageTransition() {
+        restBounceTask?.cancel()
+        restGlowTask?.cancel()
+        restTransitionTask?.cancel()
+
+        withAnimation(.easeOut(duration: 0.08)) {
+            isRestButtonBounceActive = true
+            isRestButtonGlowActive = true
+        }
+
+        restBounceTask = Task {
+            try? await Task.sleep(for: .milliseconds(120))
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                withAnimation(.easeOut(duration: 0.6)) {
+                    isRestButtonBounceActive = false
+                }
+            }
+        }
+
+        restGlowTask = Task {
+            try? await Task.sleep(for: .milliseconds(180))
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                withAnimation(.easeOut(duration: 0.9)) {
+                    isRestButtonGlowActive = false
+                }
+            }
+        }
+
+        restTransitionTask = Task {
+            try? await Task.sleep(for: .milliseconds(220))
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                selectedPage = 1
             }
         }
     }

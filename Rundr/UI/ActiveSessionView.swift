@@ -217,6 +217,7 @@ struct ActiveSessionView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.leading, Tokens.Spacing.xl)
+        .padding(.top, Tokens.Spacing.xxs)
     }
 
     @ViewBuilder
@@ -399,6 +400,7 @@ struct ActiveSessionView: View {
         }
         .overlay(alignment: .top) {
             heartRateOverlay
+                .ignoresSafeArea(edges: .top)
         }
         .overlay {
             ZStack {

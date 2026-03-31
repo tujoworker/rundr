@@ -277,7 +277,7 @@ struct ActiveSessionView: View {
                 }
                 .buttonStyle(RestPressStyle())
 
-                HStack(spacing: Tokens.Spacing.xxxxl) {
+                HStack {
                     Button {
                         isShowingEndConfirmation = true
                     } label: {
@@ -299,6 +299,8 @@ struct ActiveSessionView: View {
                         }
                         Button(L10n.cancel, role: .cancel) {}
                     }
+
+                    Spacer(minLength: Tokens.Spacing.xl)
 
                     Button {
                         switch ActiveSessionControlRouting.pauseResumeAction(for: workoutController.runState) {
@@ -322,6 +324,7 @@ struct ActiveSessionView: View {
                     }
                     .buttonStyle(RestPressStyle())
                 }
+                .frame(maxWidth: .infinity)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.horizontal, Tokens.Spacing.xl)

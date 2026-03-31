@@ -33,7 +33,7 @@ struct AppTheme {
         fileprivate let successBaseColor: Color
 
         /// Screen / view background.
-        var app: Color { isDark ? .black : .white }
+        func app(_ accent: Color) -> Color { isDark ? .black : accent }
 
         /// Cards, input fields, containers.
         var neutral: Color {
@@ -227,12 +227,12 @@ struct AppTheme {
 
     /// Start colour of the full-screen app gradient.
     func appGradientStart(accent: Color) -> Color {
-        isDark ? .black : accent
+        background.app(accent)
     }
 
     /// End colour of the full-screen app gradient.
     func appGradientEnd(accent: Color) -> Color {
-        isDark ? accent.opacity(Tokens.Opacity.fillGradientEnd) : accent
+        isDark ? accent.opacity(Tokens.Opacity.fillGradientEnd) : background.app(accent)
     }
 }
 

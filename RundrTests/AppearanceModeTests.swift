@@ -229,11 +229,16 @@ final class AppearanceModeTests: XCTestCase {
     }
 
     func testAppThemeUsesDifferentAppBackgroundColorsForDarkAndLightModes() throws {
+        let accent = Color(red: 0.8, green: 0.4, blue: 0.2)
         let darkTheme = AppTheme(colorScheme: .dark)
         let lightTheme = AppTheme(colorScheme: .light)
 
-        XCTAssertEqual(try rgbaComponents(for: darkTheme.background.app), [0, 0, 0, 1])
-        XCTAssertEqual(try rgbaComponents(for: lightTheme.background.app), [1, 1, 1, 1])
+        XCTAssertEqual(try rgbaComponents(for: darkTheme.background.app(accent)), [0, 0, 0, 1])
+        assertEqualComponents(
+            try rgbaComponents(for: lightTheme.background.app(accent)),
+            [0.8, 0.4, 0.2, 1],
+            accuracy: 0.001
+        )
     }
 
     func testAppThemeUsesDarkGradientStartAndLightAccentGradientStart() throws {

@@ -182,8 +182,7 @@ struct ActiveSessionView: View {
                     .padding(.vertical, StatusBadgeStyle.verticalPadding)
                     .background(StatusBadgeStyle.background(theme))
                     .opacity(isTimerStatusBadgeVisible ? 1 : 0)
-                    .offset(y: -Tokens.Spacing.badgeLift + (isTimerStatusBadgeVisible ? 0 : -Tokens.Spacing.xs))
-                    .animation(.easeInOut(duration: timerStatusBadgeAnimationDuration), value: isTimerStatusBadgeVisible)
+                    .offset(y: -Tokens.Spacing.badgeLift)
             }
         } else {
             Text(timerTopLabel)
@@ -235,7 +234,10 @@ struct ActiveSessionView: View {
     private let lapHistoryContainerTrailingPadding: CGFloat = 12
     private let timerCardsSpacing: CGFloat = 6
     private let timerStatusBadgeAnimationDuration = 0.18
-    private let timerStatusBadgeAppearanceDelay = 1.0
+    private let timerStatusBadgeAppearanceDelay = 0.5
+    private var timerStatusBadgeAnimation: Animation {
+        .easeInOut(duration: timerStatusBadgeAnimationDuration)
+    }
 
     @ViewBuilder
     private var heartRateOverlay: some View {
@@ -572,7 +574,9 @@ struct ActiveSessionView: View {
                 try? await Task.sleep(for: .seconds(timerStatusBadgeAppearanceDelay))
                 guard !Task.isCancelled else { return }
                 await MainActor.run {
-                    isTimerStatusBadgeVisible = true
+                    withAnimation(timerStatusBadgeAnimation) {
+                        isTimerStatusBadgeVisible = true
+                    }
                 }
             }
             return
@@ -589,13 +593,17 @@ struct ActiveSessionView: View {
                 try? await Task.sleep(for: .seconds(timerStatusBadgeAppearanceDelay))
                 guard !Task.isCancelled else { return }
                 await MainActor.run {
-                    isTimerStatusBadgeVisible = true
+                    withAnimation(timerStatusBadgeAnimation) {
+                        isTimerStatusBadgeVisible = true
+                    }
                 }
             }
             return
         }
 
-        isTimerStatusBadgeVisible = false
+        withAnimation(timerStatusBadgeAnimation) {
+            isTimerStatusBadgeVisible = false
+        }
         timerStatusBadgeHideTask = Task {
             try? await Task.sleep(for: .milliseconds(Int(timerStatusBadgeAnimationDuration * 1000)))
             guard !Task.isCancelled else { return }
@@ -606,7 +614,9 @@ struct ActiveSessionView: View {
                     try? await Task.sleep(for: .seconds(timerStatusBadgeAppearanceDelay))
                     guard !Task.isCancelled else { return }
                     await MainActor.run {
-                        isTimerStatusBadgeVisible = true
+                        withAnimation(timerStatusBadgeAnimation) {
+                            isTimerStatusBadgeVisible = true
+                        }
                     }
                 }
             }

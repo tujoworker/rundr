@@ -33,6 +33,35 @@ enum Tokens {
             bottom: Spacing.xxxl,
             trailing: Spacing.xl
         )
+
+        /// iPhone companion card spacing inside grouped lists.
+        static let companionCard = EdgeInsets(
+            top: Spacing.xs,
+            leading: Spacing.lg,
+            bottom: Spacing.xs,
+            trailing: Spacing.lg
+        )
+    }
+
+    // MARK: Content Insets
+
+    enum ContentInsets {
+        /// Inner padding for companion list cards.
+        static let companionCard = EdgeInsets(
+            top: Spacing.lg,
+            leading: Spacing.lg,
+            bottom: Spacing.lg,
+            trailing: Spacing.lg
+        )
+    }
+
+    // MARK: Control Sizing
+
+    enum ControlSize {
+        /// 54 pt – larger inline editor +/- controls on watch.
+        static let inlineAdjustButton: CGFloat = 54
+        /// 32 pt – prominent add controls in companion list rows.
+        static let companionAddIcon: CGFloat = 32
     }
 
     // MARK: Corner Radius

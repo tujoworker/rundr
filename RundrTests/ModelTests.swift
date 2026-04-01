@@ -903,6 +903,16 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(a, b)
     }
 
+    func testDistanceSegmentHashableUsesFullSegmentIdentity() {
+        let id = UUID()
+        let a = DistanceSegment(id: id, distanceMeters: 400, repeatCount: 3, restSeconds: 30)
+        let b = DistanceSegment(id: id, distanceMeters: 400, repeatCount: 3, restSeconds: 30)
+        let c = DistanceSegment(id: id, distanceMeters: 800, repeatCount: 3, restSeconds: 30)
+
+        XCTAssertEqual(Set([a, b]).count, 1)
+        XCTAssertEqual(Set([a, c]).count, 2)
+    }
+
     func testDistanceSegmentWithRestSeconds() {
         let segment = DistanceSegment(distanceMeters: 400, repeatCount: 5, restSeconds: 30)
         XCTAssertEqual(segment.restSeconds, 30)

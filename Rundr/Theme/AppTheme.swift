@@ -231,12 +231,12 @@ struct AppTheme {
 
     /// Start colour of the full-screen app gradient.
     func appGradientStart(accent: Color) -> Color {
-        isDark ? background.app(accent) : accent.opacity(0.22)
+        isDark ? accent.opacity(Tokens.Opacity.fillGradientEnd) : accent.opacity(0.22)
     }
 
     /// End colour of the full-screen app gradient.
     func appGradientEnd(accent: Color) -> Color {
-        isDark ? accent.opacity(Tokens.Opacity.fillGradientEnd) : .clear
+        isDark ? background.app(accent) : .clear
     }
 }
 

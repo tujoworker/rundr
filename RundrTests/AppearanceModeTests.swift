@@ -30,12 +30,16 @@ final class AppearanceModeTests: XCTestCase {
         XCTAssertEqual(lightTheme.icon.settingsRow, lightTheme.icon.neutral)
     }
 
-    func testAppThemeUsesWhiteNeutralTextColorsForDarkAndLightModes() throws {
+    func testAppThemeUsesReadableNeutralTextColorsForDarkAndLightModes() throws {
         let darkTheme = AppTheme(colorScheme: .dark)
         let lightTheme = AppTheme(colorScheme: .light)
 
         XCTAssertEqual(try rgbaComponents(for: darkTheme.text.neutral), [1, 1, 1, 1])
-        XCTAssertEqual(try rgbaComponents(for: lightTheme.text.neutral), [1, 1, 1, 1])
+        assertEqualComponents(
+            try rgbaComponents(for: lightTheme.text.neutral),
+            [0, 0, 0, Tokens.Opacity.foregroundRest],
+            accuracy: 0.001
+        )
     }
 
     func testAppThemeUsesDifferentNeutralBackgroundColorsForDarkAndLightModes() throws {
@@ -49,12 +53,12 @@ final class AppearanceModeTests: XCTestCase {
         )
         assertEqualComponents(
             try rgbaComponents(for: lightTheme.background.neutral),
-            [0, 0, 0, 0.08],
+            [1, 1, 1, 0.84],
             accuracy: 0.001
         )
     }
 
-    func testAppThemeUsesWhiteHistoryBackgroundInLightMode() throws {
+    func testAppThemeUsesHistoryBackgroundTokensInBothModes() throws {
         let darkTheme = AppTheme(colorScheme: .dark)
         let lightTheme = AppTheme(colorScheme: .light)
 
@@ -65,7 +69,7 @@ final class AppearanceModeTests: XCTestCase {
         )
         assertEqualComponents(
             try rgbaComponents(for: lightTheme.background.history),
-            [1, 1, 1, Tokens.Opacity.fillCard],
+            [1, 1, 1, 0.92],
             accuracy: 0.001
         )
     }
@@ -99,7 +103,7 @@ final class AppearanceModeTests: XCTestCase {
         )
         assertEqualComponents(
             try rgbaComponents(for: lightTheme.background.neutralInteraction),
-            [0, 0, 0, 0.06],
+            [1, 1, 1, 0.72],
             accuracy: 0.001
         )
     }
@@ -116,7 +120,7 @@ final class AppearanceModeTests: XCTestCase {
         )
         assertEqualComponents(
             try rgbaComponents(for: lightTheme.background.emphasisAction(accent)),
-            [1, 1, 1, Tokens.Opacity.fillAccent],
+            [0.8, 0.4, 0.2, 1],
             accuracy: 0.001
         )
         assertEqualComponents(
@@ -126,7 +130,7 @@ final class AppearanceModeTests: XCTestCase {
         )
         assertEqualComponents(
             try rgbaComponents(for: lightTheme.background.destructiveAction(accent)),
-            [0, 0, 0, Tokens.Opacity.fillDestructive],
+            [0.8, 0.4, 0.2, 0.12],
             accuracy: 0.001
         )
         assertEqualComponents(
@@ -146,7 +150,7 @@ final class AppearanceModeTests: XCTestCase {
         )
         assertEqualComponents(
             try rgbaComponents(for: lightTheme.stroke.emphasisAction(accent)),
-            [1, 1, 1, Tokens.Opacity.strokeAccent],
+            [0.8, 0.4, 0.2, 0.16],
             accuracy: 0.001
         )
         assertEqualComponents(
@@ -167,7 +171,7 @@ final class AppearanceModeTests: XCTestCase {
         )
     }
 
-    func testAppThemeUsesWhiteActiveCardBackgroundInLightMode() throws {
+    func testAppThemeUsesModeSpecificActiveCardBackgrounds() throws {
         let accent = Color(red: 0.8, green: 0.4, blue: 0.2)
         let darkTheme = AppTheme(colorScheme: .dark)
         let lightTheme = AppTheme(colorScheme: .light)
@@ -179,7 +183,7 @@ final class AppearanceModeTests: XCTestCase {
         )
         assertEqualComponents(
             try rgbaComponents(for: lightTheme.background.emphasisCard(accent)),
-            [1, 1, 1, Tokens.Opacity.fillAccent],
+            [1, 1, 1, 0.88],
             accuracy: 0.001
         )
     }
@@ -236,43 +240,59 @@ final class AppearanceModeTests: XCTestCase {
         XCTAssertEqual(try rgbaComponents(for: darkTheme.background.app(accent)), [0, 0, 0, 1])
         assertEqualComponents(
             try rgbaComponents(for: lightTheme.background.app(accent)),
-            [0.8, 0.4, 0.2, 1],
+            [1, 1, 1, 1],
             accuracy: 0.001
         )
     }
 
-    func testAppThemeUsesDarkGradientStartAndLightAccentGradientStart() throws {
+    func testAppThemeUsesAccentGradientStartInBothModes() throws {
         let accent = Color(red: 0.8, green: 0.4, blue: 0.2)
         let darkTheme = AppTheme(colorScheme: .dark)
         let lightTheme = AppTheme(colorScheme: .light)
 
         assertEqualComponents(
             try rgbaComponents(for: darkTheme.appGradientStart(accent: accent)),
-            [0, 0, 0, 1],
+            [0.8, 0.4, 0.2, Tokens.Opacity.fillGradientEnd],
             accuracy: 0.001
         )
         assertEqualComponents(
             try rgbaComponents(for: lightTheme.appGradientStart(accent: accent)),
-            [0.8, 0.4, 0.2, 1],
+            [0.8, 0.4, 0.2, 0.22],
             accuracy: 0.001
         )
     }
 
-    func testAppThemeUsesDarkGradientEndAndLightAccentGradientEnd() throws {
+    func testAppThemeUsesDarkBaseGradientEndAndLightTransparentGradientEnd() throws {
         let accent = Color(red: 0.8, green: 0.4, blue: 0.2)
         let darkTheme = AppTheme(colorScheme: .dark)
         let lightTheme = AppTheme(colorScheme: .light)
 
         assertEqualComponents(
             try rgbaComponents(for: darkTheme.appGradientEnd(accent: accent)),
-            [0.8, 0.4, 0.2, Tokens.Opacity.fillGradientEnd],
+            [0, 0, 0, 1],
             accuracy: 0.001
         )
         assertEqualComponents(
             try rgbaComponents(for: lightTheme.appGradientEnd(accent: accent)),
-            [0.8, 0.4, 0.2, 1],
+            [0, 0, 0, 0],
             accuracy: 0.001
         )
+    }
+
+    func testListRowInsetTokensMatchCompanionAndWatchSpacing() {
+        XCTAssertEqual(Tokens.ListRowInsets.card.top, Tokens.Spacing.xxs)
+        XCTAssertEqual(Tokens.ListRowInsets.card.leading, Tokens.Spacing.xs)
+        XCTAssertEqual(Tokens.ListRowInsets.action.leading, Tokens.Spacing.xl)
+        XCTAssertEqual(Tokens.ListRowInsets.primaryAction.bottom, Tokens.Spacing.xxxl)
+        XCTAssertEqual(Tokens.ListRowInsets.companionCard.leading, Tokens.Spacing.lg)
+        XCTAssertEqual(Tokens.ContentInsets.companionCard.top, Tokens.Spacing.lg)
+        XCTAssertEqual(Tokens.ContentInsets.companionCard.trailing, Tokens.Spacing.lg)
+    }
+
+    func testControlSizeTokensSupportExpandedInlineAndCompanionAddControls() {
+        XCTAssertEqual(Tokens.ControlSize.inlineAdjustButton, 54)
+        XCTAssertEqual(Tokens.ControlSize.companionAddIcon, 32)
+        XCTAssertEqual(Tokens.FontSize.xxxl, 24)
     }
 
     private func rgbaComponents(for color: Color) throws -> [CGFloat] {

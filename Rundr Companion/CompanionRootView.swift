@@ -32,7 +32,7 @@ private struct CompanionWorkoutsView: View {
     @Environment(\.appTheme) private var theme
     @Query(sort: [SortDescriptor(\Session.startedAt, order: .reverse)]) private var sessions: [Session]
     @State private var visibleSessionCount = 2
-    @State private var editingSegment: DistanceSegment?
+    @State private var selectedSegment: DistanceSegment?
     @State private var lastAddedDistanceMeters: Double = DistanceSegment.default.distanceMeters
     @State private var lastAddedUsesOpenDistance = false
     @State private var lastAddedRepeatCount: Int = 0
@@ -81,7 +81,7 @@ private struct CompanionWorkoutsView: View {
                     Section {
                         ForEach(segments) { segment in
                             Button {
-                                editingSegment = segment
+                                selectedSegment = segment
                             } label: {
                                 CompanionSegmentRow(segment: segment, distanceUnit: settings.distanceUnit)
                             }
@@ -95,11 +95,7 @@ private struct CompanionWorkoutsView: View {
                             }
                             .listRowCardChrome()
                         }
-                    } header: {
-                        CompanionHomeSectionHeader(title: L10n.intervalsTitle)
-                    }
 
-                    Section {
                         Button {
                             animateSegmentAddition()
                         } label: {
@@ -107,16 +103,19 @@ private struct CompanionWorkoutsView: View {
                                 Spacer()
 
                                 Image(systemName: "plus.circle.fill")
-                                    .font(.title2)
+                                    .font(.system(size: Tokens.ControlSize.companionAddIcon, weight: .semibold))
                                     .foregroundStyle(settings.primaryAccentColor)
                                     .symbolEffect(.bounce, value: addSegmentBounceTrigger)
 
                                 Spacer()
                             }
-                            .padding(.vertical, Tokens.Spacing.sm)
+                            .padding(.vertical, Tokens.Spacing.xs)
                         }
                         .buttonStyle(.plain)
+                        .listRowInsets(Tokens.ListRowInsets.card)
                         .listRowBackground(Color.clear)
+                    } header: {
+                        CompanionHomeSectionHeader(title: L10n.intervalsTitle)
                     }
                 }
 
@@ -147,7 +146,9 @@ private struct CompanionWorkoutsView: View {
 
                         if canLoadMoreSessions {
                             Button(L10n.loadMore) {
-                                visibleSessionCount += 4
+                                withAnimation(.snappy(duration: 0.3, extraBounce: 0.08)) {
+                                    visibleSessionCount += 4
+                                }
                             }
                             .buttonStyle(.plain)
                             .font(.headline)
@@ -160,7 +161,8 @@ private struct CompanionWorkoutsView: View {
                     CompanionHomeSectionHeader(title: L10n.syncedSessions)
                 }
             }
-            .sheet(item: $editingSegment) { segment in
+            .onAppear(perform: syncLastAddedValues)
+            .navigationDestination(item: $selectedSegment) { segment in
                 CompanionSegmentEditorView(
                     segment: segment,
                     distanceUnit: settings.distanceUnit
@@ -168,7 +170,6 @@ private struct CompanionWorkoutsView: View {
                     commitSegment(updatedSegment)
                 }
             }
-            .onAppear(perform: syncLastAddedValues)
             .onChange(of: settings.distanceSegments) { _, _ in
                 syncLastAddedValues()
             }
@@ -572,7 +573,7 @@ private struct CompanionWorkoutEditorView: View {
     @State private var segments: [DistanceSegment] = []
     @State private var customTitle: String = ""
     @State private var storedPresetID: UUID?
-    @State private var editingSegment: DistanceSegment?
+    @State private var selectedSegment: DistanceSegment?
     @State private var showsOpenDistanceBanner = false
     @State private var addSegmentBounceTrigger = 0
 
@@ -629,7 +630,7 @@ private struct CompanionWorkoutEditorView: View {
                 Section(L10n.intervalsTitle) {
                     ForEach(segments) { segment in
                         Button {
-                            editingSegment = segment
+                            selectedSegment = segment
                         } label: {
                             CompanionSegmentRow(segment: segment, distanceUnit: distanceUnit)
                         }
@@ -668,6 +669,14 @@ private struct CompanionWorkoutEditorView: View {
         }
         .navigationTitle(headerTitle)
         .themedCompanionList()
+        .navigationDestination(item: $selectedSegment) { segment in
+            CompanionSegmentEditorView(
+                segment: segment,
+                distanceUnit: distanceUnit
+            ) { updatedSegment in
+                commitSegment(updatedSegment)
+            }
+        }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(L10n.done) {
@@ -676,14 +685,6 @@ private struct CompanionWorkoutEditorView: View {
             }
         }
         .onAppear(perform: loadSnapshot)
-        .sheet(item: $editingSegment) { segment in
-            CompanionSegmentEditorView(
-                segment: segment,
-                distanceUnit: distanceUnit
-            ) { updatedSegment in
-                commitSegment(updatedSegment)
-            }
-        }
         .onChange(of: trackingMode) { _, newValue in
             guard newValue.usesManualIntervals else { return }
             if segments.isEmpty {
@@ -831,9 +832,17 @@ private struct CompanionSegmentRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: Tokens.Spacing.md) {
             VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
-                Text(title)
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(theme.text.neutral)
+                HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.md) {
+                    Text(title)
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(theme.text.neutral)
+
+                    Spacer(minLength: Tokens.Spacing.md)
+
+                    Image(systemName: "chevron.right")
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(theme.text.subtle)
+                }
 
                 HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
                     CompanionMetricPill(title: L10n.repeats, value: repeatValue)
@@ -842,13 +851,6 @@ private struct CompanionSegmentRow: View {
                     CompanionMetricPill(title: targetLabel, value: targetValue)
                 }
             }
-
-            Spacer(minLength: Tokens.Spacing.md)
-
-            Image(systemName: "chevron.right")
-                .font(.headline.weight(.semibold))
-                .foregroundStyle(theme.text.subtle)
-                .padding(.top, Tokens.Spacing.xs)
         }
     }
 }
@@ -870,73 +872,71 @@ private struct CompanionSegmentEditorView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Picker(L10n.distanceType, selection: $segment.distanceGoalMode) {
-                    Text(L10n.fixedDistance).tag(DistanceGoalMode.fixed)
-                    Text(L10n.openDistance).tag(DistanceGoalMode.open)
-                }
+        Form {
+            Picker(L10n.distanceType, selection: $segment.distanceGoalMode) {
+                Text(L10n.fixedDistance).tag(DistanceGoalMode.fixed)
+                Text(L10n.openDistance).tag(DistanceGoalMode.open)
+            }
 
-                if !segment.usesOpenDistance {
-                    TextField(distanceLabel, text: $distanceText)
-                        .keyboardType(.decimalPad)
-                        .foregroundStyle(theme.text.neutral)
-                }
+            if !segment.usesOpenDistance {
+                TextField(distanceLabel, text: $distanceText)
+                    .keyboardType(.decimalPad)
+                    .foregroundStyle(theme.text.neutral)
+            }
 
+            Stepper(value: Binding(
+                get: { segment.repeatCount ?? 0 },
+                set: { segment.repeatCount = $0 > 0 ? $0 : nil }
+            ), in: 0...99) {
+                LabeledContent(L10n.repeats, value: segment.repeatCount.map(String.init) ?? L10n.unlimited)
+            }
+
+            Stepper(value: Binding(
+                get: { segment.restSeconds ?? 0 },
+                set: { segment.restSeconds = $0 > 0 ? $0 : nil }
+            ), in: 0...600) {
+                LabeledContent(L10n.rest, value: segment.restSeconds.map { "\($0)s" } ?? L10n.manual)
+            }
+
+            Stepper(value: Binding(
+                get: { segment.lastRestSeconds ?? 0 },
+                set: { segment.lastRestSeconds = $0 > 0 ? $0 : nil }
+            ), in: 0...600) {
+                LabeledContent(L10n.lastRest, value: segment.lastRestSeconds.map { "\($0)s" } ?? L10n.off)
+            }
+
+            Stepper(value: Binding(
+                get: { Int(segment.targetTimeSeconds ?? 0) },
+                set: { segment.targetTimeSeconds = $0 > 0 ? Double($0) : nil }
+            ), in: 0...7200) {
+                LabeledContent(L10n.time, value: segment.targetTimeSeconds.map { Formatters.timeString(from: $0) } ?? L10n.off)
+            }
+
+            if !segment.usesOpenDistance {
                 Stepper(value: Binding(
-                    get: { segment.repeatCount ?? 0 },
-                    set: { segment.repeatCount = $0 > 0 ? $0 : nil }
-                ), in: 0...99) {
-                    LabeledContent(L10n.repeats, value: segment.repeatCount.map(String.init) ?? L10n.unlimited)
-                }
-
-                Stepper(value: Binding(
-                    get: { segment.restSeconds ?? 0 },
-                    set: { segment.restSeconds = $0 > 0 ? $0 : nil }
-                ), in: 0...600) {
-                    LabeledContent(L10n.rest, value: segment.restSeconds.map { "\($0)s" } ?? L10n.manual)
-                }
-
-                Stepper(value: Binding(
-                    get: { segment.lastRestSeconds ?? 0 },
-                    set: { segment.lastRestSeconds = $0 > 0 ? $0 : nil }
-                ), in: 0...600) {
-                    LabeledContent(L10n.lastRest, value: segment.lastRestSeconds.map { "\($0)s" } ?? L10n.off)
-                }
-
-                Stepper(value: Binding(
-                    get: { Int(segment.targetTimeSeconds ?? 0) },
-                    set: { segment.targetTimeSeconds = $0 > 0 ? Double($0) : nil }
-                ), in: 0...7200) {
-                    LabeledContent(L10n.time, value: segment.targetTimeSeconds.map { Formatters.timeString(from: $0) } ?? L10n.off)
-                }
-
-                if !segment.usesOpenDistance {
-                    Stepper(value: Binding(
-                        get: { Int(segment.targetPaceSecondsPerKm ?? 0) },
-                        set: { segment.targetPaceSecondsPerKm = $0 > 0 ? Double($0) : nil }
-                    ), in: 0...1200) {
-                        LabeledContent(
-                            L10n.pace,
-                            value: segment.targetPaceSecondsPerKm.map {
-                                Formatters.compactPaceString(secondsPerKm: $0, unit: distanceUnit)
-                            } ?? L10n.off
-                        )
-                    }
+                    get: { Int(segment.targetPaceSecondsPerKm ?? 0) },
+                    set: { segment.targetPaceSecondsPerKm = $0 > 0 ? Double($0) : nil }
+                ), in: 0...1200) {
+                    LabeledContent(
+                        L10n.pace,
+                        value: segment.targetPaceSecondsPerKm.map {
+                            Formatters.compactPaceString(secondsPerKm: $0, unit: distanceUnit)
+                        } ?? L10n.off
+                    )
                 }
             }
-            .navigationTitle(L10n.editInterval)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(L10n.cancel) {
-                        dismiss()
-                    }
+        }
+        .navigationTitle(L10n.editInterval)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button(L10n.cancel) {
+                    dismiss()
                 }
+            }
 
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(L10n.done) {
-                        commit()
-                    }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(L10n.done) {
+                    commit()
                 }
             }
         }
@@ -1271,8 +1271,14 @@ private struct CompanionListRowChrome: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .listRowInsets(EdgeInsets(top: Tokens.Spacing.xs, leading: Tokens.Spacing.lg, bottom: Tokens.Spacing.xs, trailing: Tokens.Spacing.lg))
-            .listRowBackground(theme.background.history)
+            .padding(Tokens.ContentInsets.companionCard)
+            .background(
+                RoundedRectangle(cornerRadius: Tokens.Radius.xxxl, style: .continuous)
+                    .fill(theme.background.history)
+            )
+            .listRowInsets(Tokens.ListRowInsets.companionCard)
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
     }
 }
 

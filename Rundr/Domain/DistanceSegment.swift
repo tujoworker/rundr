@@ -1,11 +1,11 @@
 import Foundation
 
-enum DistanceGoalMode: String, Codable, Equatable {
+enum DistanceGoalMode: String, Codable, Equatable, Hashable {
     case fixed
     case open
 }
 
-struct DistanceSegment: Codable, Identifiable, Equatable {
+struct DistanceSegment: Codable, Identifiable, Equatable, Hashable {
     var id: UUID
     var distanceMeters: Double
     var distanceGoalMode: DistanceGoalMode

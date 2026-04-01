@@ -39,7 +39,9 @@ struct HomeView: View {
 
                     if viewModel.hasMoreSessions {
                         Button {
-                            viewModel.loadMore(persistence: persistence)
+                            withAnimation(.snappy(duration: 0.3, extraBounce: 0.08)) {
+                                viewModel.loadMore(persistence: persistence)
+                            }
                         } label: {
                             Text(L10n.loadMore)
                                 .font(.footnote.weight(.semibold))

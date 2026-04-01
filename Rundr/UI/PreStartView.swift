@@ -1565,7 +1565,7 @@ private struct SegmentEditSheet: View {
                 .padding(.horizontal, Tokens.Spacing.xs)
                 .padding(.top, Tokens.Spacing.xs)
 
-            HStack(spacing: Tokens.Spacing.md) {
+            HStack(spacing: Tokens.Spacing.sm) {
                 Button {
                     if repeatCount > 0 {
                         repeatCount -= 1
@@ -1573,7 +1573,7 @@ private struct SegmentEditSheet: View {
                 } label: {
                     Image(systemName: "minus")
                         .font(.system(size: Tokens.FontSize.lg, weight: .bold))
-                        .frame(width: 36, height: 36)
+                        .frame(width: Tokens.ControlSize.inlineAdjustButton, height: Tokens.ControlSize.inlineAdjustButton)
                         .background(Circle().fill(theme.background.neutralAction))
                         .foregroundStyle(theme.text.neutral)
                 }
@@ -1592,8 +1592,8 @@ private struct SegmentEditSheet: View {
                     repeatCount += 1
                 } label: {
                     Image(systemName: "plus")
-                        .font(.system(size: Tokens.FontSize.lg, weight: .bold))
-                        .frame(width: 36, height: 36)
+                        .font(.system(size: Tokens.FontSize.xxl, weight: .bold))
+                        .frame(width: Tokens.ControlSize.inlineAdjustButton, height: Tokens.ControlSize.inlineAdjustButton)
                         .background(Circle().fill(theme.background.neutralAction))
                         .foregroundStyle(theme.text.neutral)
                 }
@@ -1610,7 +1610,7 @@ private struct SegmentEditSheet: View {
                 .padding(.horizontal, Tokens.Spacing.xs)
                 .padding(.top, Tokens.Spacing.xs)
 
-            HStack(spacing: Tokens.Spacing.md) {
+            HStack(spacing: Tokens.Spacing.sm) {
                 Button {
                     if restSeconds >= 15 {
                         restSeconds -= 15
@@ -1620,7 +1620,7 @@ private struct SegmentEditSheet: View {
                 } label: {
                     Image(systemName: "minus")
                         .font(.system(size: Tokens.FontSize.lg, weight: .bold))
-                        .frame(width: 36, height: 36)
+                        .frame(width: Tokens.ControlSize.inlineAdjustButton, height: Tokens.ControlSize.inlineAdjustButton)
                         .background(Circle().fill(theme.background.neutralAction))
                         .foregroundStyle(theme.text.neutral)
                 }
@@ -1639,8 +1639,8 @@ private struct SegmentEditSheet: View {
                     restSeconds += 15
                 } label: {
                     Image(systemName: "plus")
-                        .font(.system(size: Tokens.FontSize.lg, weight: .bold))
-                        .frame(width: 36, height: 36)
+                        .font(.system(size: Tokens.FontSize.xxl, weight: .bold))
+                        .frame(width: Tokens.ControlSize.inlineAdjustButton, height: Tokens.ControlSize.inlineAdjustButton)
                         .background(Circle().fill(theme.background.neutralAction))
                         .foregroundStyle(theme.text.neutral)
                 }
@@ -1659,7 +1659,7 @@ private struct SegmentEditSheet: View {
                     .padding(.horizontal, Tokens.Spacing.xs)
                     .padding(.top, Tokens.Spacing.xs)
 
-                HStack(spacing: Tokens.Spacing.md) {
+                HStack(spacing: Tokens.Spacing.sm) {
                     Button {
                         withAnimation(.easeInOut(duration: 0.22)) {
                             if lastRestSeconds >= 15 {
@@ -1671,7 +1671,7 @@ private struct SegmentEditSheet: View {
                     } label: {
                         Image(systemName: "minus")
                             .font(.system(size: Tokens.FontSize.lg, weight: .bold))
-                            .frame(width: 36, height: 36)
+                            .frame(width: Tokens.ControlSize.inlineAdjustButton, height: Tokens.ControlSize.inlineAdjustButton)
                             .background(Circle().fill(theme.background.neutralAction))
                             .foregroundStyle(theme.text.neutral)
                     }
@@ -1692,8 +1692,8 @@ private struct SegmentEditSheet: View {
                         }
                     } label: {
                         Image(systemName: "plus")
-                            .font(.system(size: Tokens.FontSize.lg, weight: .bold))
-                            .frame(width: 36, height: 36)
+                            .font(.system(size: Tokens.FontSize.xxl, weight: .bold))
+                            .frame(width: Tokens.ControlSize.inlineAdjustButton, height: Tokens.ControlSize.inlineAdjustButton)
                             .background(Circle().fill(theme.background.neutralAction))
                             .foregroundStyle(theme.text.neutral)
                     }
@@ -1757,7 +1757,7 @@ private struct SegmentEditSheet: View {
                 .padding(.horizontal, Tokens.Spacing.xs)
                 .padding(.top, Tokens.Spacing.md)
 
-            HStack(spacing: Tokens.Spacing.md) {
+            HStack(spacing: Tokens.Spacing.sm) {
                 Button {
                     if targetPace >= 15 {
                         targetPace -= 5
@@ -1768,7 +1768,7 @@ private struct SegmentEditSheet: View {
                 } label: {
                     Image(systemName: "minus")
                         .font(.system(size: Tokens.FontSize.lg, weight: .bold))
-                        .frame(width: 36, height: 36)
+                        .frame(width: Tokens.ControlSize.inlineAdjustButton, height: Tokens.ControlSize.inlineAdjustButton)
                         .background(Circle().fill(theme.background.neutralAction))
                         .foregroundStyle(theme.text.neutral)
                 }
@@ -1789,8 +1789,8 @@ private struct SegmentEditSheet: View {
                     targetTime = 0
                 } label: {
                     Image(systemName: "plus")
-                        .font(.system(size: Tokens.FontSize.lg, weight: .bold))
-                        .frame(width: 36, height: 36)
+                        .font(.system(size: Tokens.FontSize.xxl, weight: .bold))
+                        .frame(width: Tokens.ControlSize.inlineAdjustButton, height: Tokens.ControlSize.inlineAdjustButton)
                         .background(Circle().fill(theme.background.neutralAction))
                         .foregroundStyle(theme.text.neutral)
                 }
@@ -1807,7 +1807,7 @@ private struct SegmentEditSheet: View {
                 .padding(.horizontal, Tokens.Spacing.xs)
                 .padding(.top, Tokens.Spacing.xs)
 
-            HStack(spacing: Tokens.Spacing.md) {
+            HStack(spacing: Tokens.Spacing.sm) {
                 Button {
                     if targetTime >= 10 {
                         targetTime -= 5
@@ -1818,7 +1818,7 @@ private struct SegmentEditSheet: View {
                 } label: {
                     Image(systemName: "minus")
                         .font(.system(size: Tokens.FontSize.lg, weight: .bold))
-                        .frame(width: 36, height: 36)
+                        .frame(width: Tokens.ControlSize.inlineAdjustButton, height: Tokens.ControlSize.inlineAdjustButton)
                         .background(Circle().fill(theme.background.neutralAction))
                         .foregroundStyle(theme.text.neutral)
                 }
@@ -1839,8 +1839,8 @@ private struct SegmentEditSheet: View {
                     targetPace = 0
                 } label: {
                     Image(systemName: "plus")
-                        .font(.system(size: Tokens.FontSize.lg, weight: .bold))
-                        .frame(width: 36, height: 36)
+                        .font(.system(size: Tokens.FontSize.xxl, weight: .bold))
+                        .frame(width: Tokens.ControlSize.inlineAdjustButton, height: Tokens.ControlSize.inlineAdjustButton)
                         .background(Circle().fill(theme.background.neutralAction))
                         .foregroundStyle(theme.text.neutral)
                 }

@@ -22,7 +22,6 @@ enum L10n {
     static let savedIntervalsPlaceholderDetail = String(localized: "Open a predefined interval to save your own version.", comment: "Browse empty state guidance for saved intervals")
     static let mode = String(localized: "Tracking Mode", comment: "Tracking mode setting")
     static let distance = String(localized: "Distance", comment: "Distance setting")
-    static let addInterval = String(localized: "Add Interval", comment: "Add interval button")
     static let editInterval = String(localized: "Edit Interval", comment: "Companion segment editor title")
     static let distanceMeters = String(localized: "Distance (meters)", comment: "Distance input label")
     static let distanceFeet = String(localized: "Distance (feet)", comment: "Distance input label")

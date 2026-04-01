@@ -141,16 +141,17 @@ struct PreStartView: View {
             Button {
                 addSegment()
             } label: {
-                HStack(spacing: Tokens.Spacing.sm) {
+                HStack {
+                    Spacer()
+
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: Tokens.FontSize.xxxl, weight: .semibold))
-                    Text(L10n.addInterval)
-                        .font(.system(size: Tokens.FontSize.md, weight: .semibold, design: .rounded))
+
+                    Spacer()
                 }
-                .foregroundStyle(theme.text.neutral)
+                .foregroundStyle(settings.primaryAccentColor)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, Tokens.Spacing.lg)
-                .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: Tokens.Radius.xxl)
+                .padding(.vertical, Tokens.Spacing.xs)
             }
             .buttonStyle(.plain)
             .padding(.top, Tokens.Spacing.xxs)
@@ -892,16 +893,17 @@ private struct IntervalSetupView: View {
             Button {
                 addSegment()
             } label: {
-                HStack(spacing: Tokens.Spacing.sm) {
+                HStack {
+                    Spacer()
+
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: Tokens.FontSize.xxxl, weight: .semibold))
-                    Text(L10n.addInterval)
-                        .font(.system(size: Tokens.FontSize.md, weight: .semibold, design: .rounded))
+
+                    Spacer()
                 }
-                .foregroundStyle(.white)
+                .foregroundStyle(settings.primaryAccentColor)
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, Tokens.Spacing.lg)
-                .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: Tokens.Radius.xxl)
+                .padding(.vertical, Tokens.Spacing.xs)
             }
             .buttonStyle(.plain)
             .padding(.top, Tokens.Spacing.xxs)

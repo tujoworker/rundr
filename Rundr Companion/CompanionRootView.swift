@@ -784,9 +784,12 @@ private struct CompanionWorkoutEditorView: View {
                         animateSegmentAddition()
                     } label: {
                         HStack {
+                            Spacer()
+
                             Image(systemName: "plus.circle.fill")
                                 .symbolEffect(.bounce, value: addSegmentBounceTrigger)
-                            Text(L10n.addInterval)
+
+                            Spacer()
                         }
                         .font(.headline.weight(.semibold))
                         .foregroundStyle(theme.text.emphasis)
@@ -1681,6 +1684,11 @@ private struct CompanionSessionRow: View {
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
 
+    private let columns = [
+        GridItem(.flexible(), spacing: Tokens.Spacing.xl, alignment: .topLeading),
+        GridItem(.flexible(), spacing: Tokens.Spacing.xl, alignment: .topLeading)
+    ]
+
     private var sessionUsesOpenIntervals: Bool {
         session.snapshotWorkoutPlan.distanceSegments.contains(where: \.usesOpenDistance)
     }
@@ -1700,34 +1708,53 @@ private struct CompanionSessionRow: View {
         )
     }
 
-    var body: some View {
-        HStack(alignment: .top, spacing: Tokens.Spacing.md) {
-            VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
-                Text(Formatters.historySessionDateTimeString(from: session.startedAt))
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(theme.text.neutral)
+    private var sessionStats: [CompanionSessionStatItem] {
+        [
+            CompanionSessionStatItem(label: L10n.laps, value: String(session.activeLapCount)),
+            CompanionSessionStatItem(label: L10n.pace, value: summaryPace),
+            CompanionSessionStatItem(label: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds)),
+            CompanionSessionStatItem(
+                label: session.mode.usesManualIntervals && !sessionUsesOpenIntervals ? L10n.distance : L10n.gpsDistanceLabel,
+                value: summaryDistance > 0
+                    ? Formatters.distanceString(meters: summaryDistance, unit: settings.distanceUnit)
+                    : L10n.dash
+            )
+        ]
+    }
 
-                HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
-                    CompanionMetricPill(title: L10n.laps, value: "\(session.activeLapCount)")
-                    CompanionMetricPill(title: L10n.pace, value: summaryPace)
-                    CompanionMetricPill(title: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds))
-                    CompanionMetricPill(
-                        title: L10n.distance,
-                        value: summaryDistance > 0
-                            ? Formatters.distanceString(meters: summaryDistance, unit: settings.distanceUnit)
-                            : L10n.dash
-                    )
+    var body: some View {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+            Text(Formatters.historySessionDateTimeString(from: session.startedAt))
+                .font(.caption2.weight(.semibold))
+                .foregroundStyle(theme.text.neutral)
+                .padding(.bottom, Tokens.Spacing.xs)
+
+            LazyVGrid(columns: columns, alignment: .leading, spacing: Tokens.Spacing.lg) {
+                ForEach(sessionStats) { item in
+                    VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+                        Text(item.label)
+                            .font(.system(size: Tokens.FontSize.sm, weight: .regular, design: .rounded))
+                            .foregroundStyle(theme.text.subtle)
+
+                        Text(item.value)
+                            .font(.caption2.weight(.semibold))
+                            .foregroundStyle(theme.text.neutral)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
             }
-
-            Spacer(minLength: Tokens.Spacing.md)
-
-            Image(systemName: "chevron.right")
-                .font(.headline.weight(.semibold))
-                .foregroundStyle(theme.text.subtle)
-                .padding(.top, Tokens.Spacing.xs)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(Tokens.Spacing.md)
+        .background(theme.background.history)
+        .cornerRadius(Tokens.Radius.medium)
     }
+}
+
+private struct CompanionSessionStatItem: Identifiable {
+    let id = UUID()
+    let label: String
+    let value: String
 }
 
 private struct CompanionSessionDetailView: View {

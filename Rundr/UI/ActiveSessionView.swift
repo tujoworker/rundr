@@ -27,6 +27,7 @@ struct ActiveSessionView: View {
     @State private var completedSessionDismissTask: Task<Void, Never>?
     @State private var selectedPage: Int = 1
     @State private var isShowingEndConfirmation = false
+    @State private var pendingLapAnimationCount: Int?
 
     private let defaultLapDistanceText = "400"
 
@@ -109,10 +110,19 @@ struct ActiveSessionView: View {
             .strokeBorder(theme.stroke.emphasisAction(primaryColor), style: StrokeStyle(lineWidth: Tokens.LineWidth.thick, dash: restButtonShowsEndRest ? [6, 4] : []))
     }
 
+    private var timerBounceAnimation: Animation {
+        isTimerBounceActive ? .easeOut(duration: 0.1) : .easeOut(duration: 0.6)
+    }
+
+    private var timerGlowAnimation: Animation {
+        isTimerGlowActive ? .easeOut(duration: 0.08) : .easeOut(duration: 0.9)
+    }
+
     private var lapGlowOverlay: some View {
         Capsule()
             .stroke(Color.white.opacity(isTimerGlowActive ? 0.6 : 0), lineWidth: Tokens.LineWidth.thick)
             .blur(radius: isTimerGlowActive ? 3 : 0)
+            .animation(timerGlowAnimation, value: isTimerGlowActive)
     }
 
     private var displayedLapCounter: Int {
@@ -216,13 +226,15 @@ struct ActiveSessionView: View {
                     .overlay(timerBorderOverlay)
                     .overlay(lapGlowOverlay)
                     .scaleEffect(isTimerBounceActive ? 1.11 : 1)
+                    .animation(timerBounceAnimation, value: isTimerBounceActive)
                     .brightness(isTimerGlowActive ? 0.3 : 0)
                     .shadow(color: Color.white.opacity(isTimerGlowActive ? 0.5 : 0), radius: 18)
                     .shadow(color: primaryColor.opacity(isTimerGlowActive ? 0.72 : 0), radius: 24)
+                    .animation(timerGlowAnimation, value: isTimerGlowActive)
                     .padding(.horizontal, Tokens.Spacing.xs)
                     .contentShape(Capsule())
             }
-            .buttonStyle(TimerPressStyle())
+            .buttonStyle(.plain)
 
             timerTopOverlay
                 .offset(y: -31)
@@ -401,9 +413,17 @@ struct ActiveSessionView: View {
                         }
 
                         let lapCount = workoutController.completedLaps.count
-                        if lapCount > lastAnimatedLapCount && lapCount > 0 {
+                        if ActiveSessionTimerAnimationRouting.shouldAnimateOnLapCountChange(
+                            lapCount: lapCount,
+                            lastAnimatedLapCount: lastAnimatedLapCount,
+                            pendingLapAnimationCount: pendingLapAnimationCount
+                        ) {
                             animateTimerForNewLap()
                         }
+                        pendingLapAnimationCount = ActiveSessionTimerAnimationRouting.resolvedPendingLapAnimationCount(
+                            lapCount: lapCount,
+                            pendingLapAnimationCount: pendingLapAnimationCount
+                        )
                         lastAnimatedLapCount = lapCount
                     }
                 }
@@ -448,6 +468,7 @@ struct ActiveSessionView: View {
                     startRadius: Tokens.Spacing.xxxl,
                     endRadius: 170
                 )
+                .animation(timerGlowAnimation, value: isTimerGlowActive)
                 .ignoresSafeArea()
 
             }
@@ -629,6 +650,11 @@ struct ActiveSessionView: View {
             animateTimerForNewLap()
             return
         }
+
+        pendingLapAnimationCount = ActiveSessionTimerAnimationRouting.nextPendingLapCount(
+            currentLapCount: workoutController.completedLaps.count
+        )
+        animateTimerForNewLap()
         workoutController.markLap()
     }
 
@@ -696,21 +722,14 @@ struct ActiveSessionView: View {
         bounceTask?.cancel()
         glowTask?.cancel()
 
-        withAnimation(.easeOut(duration: 0.08)) {
-            isTimerGlowActive = true
-        }
-
-        withAnimation(.easeOut(duration: 0.1)) {
-            isTimerBounceActive = true
-        }
+        isTimerGlowActive = true
+        isTimerBounceActive = true
 
         bounceTask = Task {
             try? await Task.sleep(for: .milliseconds(120))
             guard !Task.isCancelled else { return }
             await MainActor.run {
-                withAnimation(.easeOut(duration: 0.6)) {
-                    isTimerBounceActive = false
-                }
+                isTimerBounceActive = false
             }
         }
 
@@ -718,9 +737,7 @@ struct ActiveSessionView: View {
             try? await Task.sleep(for: .milliseconds(180))
             guard !Task.isCancelled else { return }
             await MainActor.run {
-                withAnimation(.easeOut(duration: 0.9)) {
-                    isTimerGlowActive = false
-                }
+                isTimerGlowActive = false
             }
         }
     }
@@ -1087,12 +1104,25 @@ private struct SessionCompleteView: View {
 
 // MARK: - Press Styles
 
-private struct TimerPressStyle: ButtonStyle {
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed ? 0.97 : 1)
-            .opacity(configuration.isPressed ? 0.82 : 1)
-            .animation(.spring(response: 0.2, dampingFraction: 0.78), value: configuration.isPressed)
+enum ActiveSessionTimerAnimationRouting {
+    static func nextPendingLapCount(currentLapCount: Int) -> Int {
+        currentLapCount + 1
+    }
+
+    static func shouldAnimateOnLapCountChange(
+        lapCount: Int,
+        lastAnimatedLapCount: Int,
+        pendingLapAnimationCount: Int?
+    ) -> Bool {
+        lapCount > lastAnimatedLapCount && lapCount > 0 && pendingLapAnimationCount != lapCount
+    }
+
+    static func resolvedPendingLapAnimationCount(
+        lapCount: Int,
+        pendingLapAnimationCount: Int?
+    ) -> Int? {
+        guard let pendingLapAnimationCount else { return nil }
+        return lapCount >= pendingLapAnimationCount ? nil : pendingLapAnimationCount
     }
 }
 

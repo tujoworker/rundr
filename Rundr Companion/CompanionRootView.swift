@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import UIKit
 
 struct CompanionRootView: View {
     @EnvironmentObject private var settings: SettingsStore
@@ -860,13 +861,63 @@ private struct CompanionSegmentRow: View {
 }
 
 private struct CompanionSegmentEditorView: View {
+    private enum EditableField: String, Identifiable {
+        case distance
+        case repeats
+        case rest
+        case lastRest
+        case time
+        case pace
+
+        var id: String { rawValue }
+
+        var title: String {
+            switch self {
+            case .distance:
+                return L10n.distance
+            case .repeats:
+                return L10n.repeats
+            case .rest:
+                return L10n.rest
+            case .lastRest:
+                return L10n.lastRest
+            case .time:
+                return L10n.time
+            case .pace:
+                return L10n.pace
+            }
+        }
+    }
+
     @Environment(\.appTheme) private var theme
 
     @State private var segment: DistanceSegment
     @State private var distanceText: String
     @State private var hasCommitted = false
+    @State private var isLastRestInfoPresented = false
+    @State private var editableField: EditableField?
+    @State private var bouncingField: EditableField?
+    @State private var editableValueText = ""
     let distanceUnit: DistanceUnit
     let onSave: (DistanceSegment) -> Void
+    private let durationKeypadRows: [[String]] = [
+        ["1", "2", "3"],
+        ["4", "5", "6"],
+        ["7", "8", "9"],
+        [":", "0", "⌫"]
+    ]
+    private let repeatKeypadRows: [[String]] = [
+        ["1", "2", "3"],
+        ["4", "5", "6"],
+        ["7", "8", "9"],
+        ["∞", "0", "⌫"]
+    ]
+    private let distanceKeypadRows: [[String]] = [
+        ["1", "2", "3"],
+        ["4", "5", "6"],
+        ["7", "8", "9"],
+        [".", "0", "⌫"]
+    ]
 
     private var editorRowInsets: EdgeInsets {
         Tokens.ListRowInsets.card
@@ -878,6 +929,13 @@ private struct CompanionSegmentEditorView: View {
             leading: Tokens.Spacing.xxxl,
             bottom: Tokens.Spacing.xxxxl,
             trailing: Tokens.Spacing.xxxl
+        )
+    }
+
+    private var canConfigureLastRest: Bool {
+        SegmentEditSheetRules.canConfigureLastRest(
+            repeatCount: segment.repeatCount ?? 0,
+            restSeconds: segment.restSeconds ?? 0
         )
     }
 
@@ -902,92 +960,213 @@ private struct CompanionSegmentEditorView: View {
                 )
 
                 if !segment.usesOpenDistance {
-                    HStack(spacing: Tokens.Spacing.md) {
-                        Text(distanceLabel)
-                            .font(.body.weight(.medium))
-                            .foregroundStyle(theme.text.neutral)
-
-                        Spacer(minLength: Tokens.Spacing.md)
-
-                        TextField("", text: $distanceText)
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                            .foregroundStyle(theme.text.neutral)
-                            .frame(maxWidth: 140)
-                            .padding(.trailing, Tokens.Spacing.sm)
-                    }
-                    .listRowCardChrome(
-                        rowInsets: editorRowInsets,
-                        contentInsets: editorRowContentInsets
-                    )
-                }
-
-                Stepper(value: Binding(
-                    get: { segment.repeatCount ?? 0 },
-                    set: { segment.repeatCount = $0 > 0 ? $0 : nil }
-                ), in: 0...99) {
-                    LabeledContent(L10n.repeats, value: segment.repeatCount.map(String.init) ?? L10n.unlimited)
-                }
-                .listRowCardChrome(
-                    rowInsets: editorRowInsets,
-                    contentInsets: editorRowContentInsets
-                )
-
-                Stepper(value: Binding(
-                    get: { segment.restSeconds ?? 0 },
-                    set: { segment.restSeconds = $0 > 0 ? $0 : nil }
-                ), in: 0...600) {
-                    LabeledContent(L10n.rest, value: segment.restSeconds.map { "\($0)s" } ?? L10n.manual)
-                }
-                .listRowCardChrome(
-                    rowInsets: editorRowInsets,
-                    contentInsets: editorRowContentInsets
-                )
-
-                Stepper(value: Binding(
-                    get: { segment.lastRestSeconds ?? 0 },
-                    set: { segment.lastRestSeconds = $0 > 0 ? $0 : nil }
-                ), in: 0...600) {
-                    LabeledContent(L10n.lastRest, value: segment.lastRestSeconds.map { "\($0)s" } ?? L10n.off)
-                }
-                .listRowCardChrome(
-                    rowInsets: editorRowInsets,
-                    contentInsets: editorRowContentInsets
-                )
-
-                Stepper(value: Binding(
-                    get: { Int(segment.targetTimeSeconds ?? 0) },
-                    set: { segment.targetTimeSeconds = $0 > 0 ? Double($0) : nil }
-                ), in: 0...7200) {
-                    LabeledContent(L10n.time, value: segment.targetTimeSeconds.map { Formatters.timeString(from: $0) } ?? L10n.off)
-                }
-                .listRowCardChrome(
-                    rowInsets: editorRowInsets,
-                    contentInsets: editorRowContentInsets
-                )
-
-                if !segment.usesOpenDistance {
                     Stepper(value: Binding(
-                        get: { Int(segment.targetPaceSecondsPerKm ?? 0) },
-                        set: { segment.targetPaceSecondsPerKm = $0 > 0 ? Double($0) : nil }
-                    ), in: 0...1200) {
-                        LabeledContent(
-                            L10n.pace,
-                            value: segment.targetPaceSecondsPerKm.map {
-                                Formatters.compactPaceString(secondsPerKm: $0, unit: distanceUnit)
-                            } ?? L10n.off
+                        get: { displayedDistanceValue() },
+                        set: { updateDisplayedDistanceValue($0) }
+                    ), in: 0...distanceMaximumValue, step: distanceStep) {
+                        editableStepperContent(
+                            title: distanceLabel,
+                            value: distanceText,
+                            field: .distance
                         )
                     }
                     .listRowCardChrome(
                         rowInsets: editorRowInsets,
                         contentInsets: editorRowContentInsets
                     )
+                    .scaleEffect(bouncingField == .distance ? 0.97 : 1.0)
+                    .animation(.spring(response: 0.2, dampingFraction: 0.62), value: bouncingField)
+                }
+
+                Stepper(value: Binding(
+                    get: { segment.repeatCount ?? 0 },
+                    set: {
+                        segment.repeatCount = $0 > 0 ? $0 : nil
+                        segment.lastRestSeconds = SegmentEditorValueRules.normalizedLastRestSeconds(
+                            lastRestSeconds: segment.lastRestSeconds,
+                            repeatCount: segment.repeatCount
+                        )
+                    }
+                ), in: 0...99, step: 1) {
+                    editableStepperContent(
+                        title: L10n.repeats,
+                        value: segment.repeatCount.map(String.init) ?? L10n.unlimited,
+                        field: .repeats
+                    )
+                }
+                .listRowCardChrome(
+                    rowInsets: editorRowInsets,
+                    contentInsets: editorRowContentInsets
+                )
+                .scaleEffect(bouncingField == .repeats ? 0.97 : 1.0)
+                .animation(.spring(response: 0.2, dampingFraction: 0.62), value: bouncingField)
+
+                Stepper(value: Binding(
+                    get: { segment.restSeconds ?? 0 },
+                    set: { segment.restSeconds = $0 > 0 ? $0 : nil }
+                ), in: 0...600, step: 15) {
+                    editableStepperContent(
+                        title: L10n.rest,
+                        value: segment.restSeconds.map { Formatters.timeString(from: Double($0)) } ?? L10n.manual,
+                        field: .rest
+                    )
+                }
+                .listRowCardChrome(
+                    rowInsets: editorRowInsets,
+                    contentInsets: editorRowContentInsets
+                )
+                .scaleEffect(bouncingField == .rest ? 0.97 : 1.0)
+                .animation(.spring(response: 0.2, dampingFraction: 0.62), value: bouncingField)
+
+                Stepper(value: Binding(
+                    get: { segment.lastRestSeconds ?? 0 },
+                    set: {
+                        guard canConfigureLastRest else {
+                            isLastRestInfoPresented = true
+                            return
+                        }
+
+                        segment.lastRestSeconds = SegmentEditorValueRules.normalizedLastRestSeconds(
+                            lastRestSeconds: $0 > 0 ? $0 : nil,
+                            repeatCount: segment.repeatCount
+                        )
+                    }
+                ), in: 0...600, step: 15) {
+                    editableStepperContent(
+                        title: L10n.lastRest,
+                        value: segment.lastRestSeconds.map { Formatters.timeString(from: Double($0)) } ?? L10n.off,
+                        field: .lastRest
+                    )
+                }
+                .listRowCardChrome(
+                    rowInsets: editorRowInsets,
+                    contentInsets: editorRowContentInsets
+                )
+                .scaleEffect(bouncingField == .lastRest ? 0.97 : 1.0)
+                .animation(.spring(response: 0.2, dampingFraction: 0.62), value: bouncingField)
+
+                Stepper(value: Binding(
+                    get: { Int(segment.targetTimeSeconds ?? 0) },
+                    set: {
+                        let updatedTargets = SegmentEditorValueRules.updatedTargetsAfterSettingTime(
+                            seconds: $0,
+                            currentPaceSecondsPerKm: segment.targetPaceSecondsPerKm
+                        )
+                        segment.targetTimeSeconds = updatedTargets.targetTimeSeconds
+                        segment.targetPaceSecondsPerKm = updatedTargets.targetPaceSecondsPerKm
+                    }
+                ), in: 0...7200, step: 5) {
+                    editableStepperContent(
+                        title: L10n.time,
+                        value: segment.targetTimeSeconds.map { Formatters.timeString(from: $0) } ?? L10n.off,
+                        field: .time
+                    )
+                }
+                .listRowCardChrome(
+                    rowInsets: editorRowInsets,
+                    contentInsets: editorRowContentInsets
+                )
+                .scaleEffect(bouncingField == .time ? 0.97 : 1.0)
+                .animation(.spring(response: 0.2, dampingFraction: 0.62), value: bouncingField)
+
+                if !segment.usesOpenDistance {
+                    Stepper(value: Binding(
+                        get: { Int(segment.targetPaceSecondsPerKm ?? 0) },
+                        set: {
+                            let updatedTargets = SegmentEditorValueRules.updatedTargetsAfterSettingPace(
+                                secondsPerKm: $0,
+                                currentTargetTimeSeconds: segment.targetTimeSeconds
+                            )
+                            segment.targetTimeSeconds = updatedTargets.targetTimeSeconds
+                            segment.targetPaceSecondsPerKm = updatedTargets.targetPaceSecondsPerKm
+                        }
+                    ), in: 0...1200, step: 5) {
+                        editableStepperContent(
+                            title: L10n.pace,
+                            value: segment.targetPaceSecondsPerKm.map {
+                                Formatters.compactPaceString(secondsPerKm: $0, unit: distanceUnit)
+                            } ?? L10n.off,
+                            field: .pace
+                        )
+                    }
+                    .listRowCardChrome(
+                        rowInsets: editorRowInsets,
+                        contentInsets: editorRowContentInsets
+                    )
+                    .scaleEffect(bouncingField == .pace ? 0.97 : 1.0)
+                    .animation(.spring(response: 0.2, dampingFraction: 0.62), value: bouncingField)
                 }
             }
         }
         .navigationTitle(L10n.editInterval)
         .themedCompanionList()
+        .onAppear(perform: normalizeEditingState)
+        .onChange(of: segment.distanceGoalMode) { _, _ in
+            segment.targetPaceSecondsPerKm = SegmentEditorValueRules.normalizedTargetPace(
+                for: segment.distanceGoalMode,
+                targetPaceSecondsPerKm: segment.targetPaceSecondsPerKm
+            )
+        }
         .onDisappear(perform: commitIfNeeded)
+        .alert(L10n.lastRestNeedsRepeatsTitle, isPresented: $isLastRestInfoPresented) {
+            Button(L10n.ok, role: .cancel) {}
+        } message: {
+            Text(L10n.lastRestNeedsRepeatsMessage)
+        }
+        .sheet(item: $editableField) { field in
+            CompanionNumericKeypadSheet(
+                title: field.title,
+                text: $editableValueText,
+                valueSuffix: field == .distance ? distanceUnitSuffix : nil,
+                keypadRows: keypadRows(for: field),
+                onTapKey: { key in
+                    handleKeyTap(key, for: field)
+                },
+                onCancel: {
+                    editableField = nil
+                },
+                onDone: {
+                    commitEditableField(field)
+                    editableField = nil
+                }
+            )
+            .presentationDetents([.medium, .large])
+            .presentationDragIndicator(.visible)
+        }
+    }
+
+    @ViewBuilder
+    private func editableStepperContent(title: String, value: String, field: EditableField) -> some View {
+        HStack(spacing: Tokens.Spacing.md) {
+            Text(title)
+
+            Spacer(minLength: Tokens.Spacing.md)
+
+            Text(value)
+                .foregroundStyle(theme.text.neutral)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            guard canOpenEditor(for: field) else { return }
+            bouncingField = field
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
+                bouncingField = nil
+                beginEditing(field)
+            }
+        }
+    }
+
+    private func canOpenEditor(for field: EditableField) -> Bool {
+        switch field {
+        case .time:
+            return (segment.targetTimeSeconds ?? 0) > 0
+        case .pace:
+            return (segment.targetPaceSecondsPerKm ?? 0) > 0
+        case .lastRest:
+            return (segment.lastRestSeconds ?? 0) > 0
+        case .distance, .repeats, .rest:
+            return true
+        }
     }
 
     private var distanceLabel: String {
@@ -996,6 +1175,29 @@ private struct CompanionSegmentEditorView: View {
             return L10n.distanceMetersShort
         case .miles:
             return L10n.distanceFeetShort
+        }
+    }
+
+    private var distanceUnitSuffix: String {
+        let openParen = distanceLabel.firstIndex(of: "(")
+        let closeParen = distanceLabel.lastIndex(of: ")")
+        if let openParen, let closeParen, openParen < closeParen {
+            let start = distanceLabel.index(after: openParen)
+            return String(distanceLabel[start..<closeParen])
+        }
+        return distanceLabel
+    }
+
+    private var distanceStep: Double {
+        displayedDistanceValue() >= 1000 ? 100 : 50
+    }
+
+    private var distanceMaximumValue: Double {
+        switch distanceUnit {
+        case .km:
+            return 10_000
+        case .miles:
+            return 5_280_000
         }
     }
 
@@ -1012,11 +1214,136 @@ private struct CompanionSegmentEditorView: View {
             }
         }
 
-        if segment.usesOpenDistance {
-            segment.targetPaceSecondsPerKm = nil
-        }
+        segment.lastRestSeconds = SegmentEditorValueRules.normalizedLastRestSeconds(
+            lastRestSeconds: segment.lastRestSeconds,
+            repeatCount: segment.repeatCount
+        )
+        segment.targetPaceSecondsPerKm = SegmentEditorValueRules.normalizedTargetPace(
+            for: segment.distanceGoalMode,
+            targetPaceSecondsPerKm: segment.targetPaceSecondsPerKm
+        )
 
         onSave(segment)
+    }
+
+    private func normalizeEditingState() {
+        segment.lastRestSeconds = SegmentEditorValueRules.normalizedLastRestSeconds(
+            lastRestSeconds: segment.lastRestSeconds,
+            repeatCount: segment.repeatCount
+        )
+        segment.targetPaceSecondsPerKm = SegmentEditorValueRules.normalizedTargetPace(
+            for: segment.distanceGoalMode,
+            targetPaceSecondsPerKm: segment.targetPaceSecondsPerKm
+        )
+    }
+
+    private func beginEditing(_ field: EditableField) {
+        switch field {
+        case .distance:
+            editableValueText = distanceText
+        case .repeats:
+            editableValueText = segment.repeatCount.map(String.init) ?? ""
+        case .rest:
+            editableValueText = segment.restSeconds.map { Formatters.timeString(from: Double($0)) } ?? ""
+        case .lastRest:
+            guard canConfigureLastRest else {
+                isLastRestInfoPresented = true
+                return
+            }
+            editableValueText = segment.lastRestSeconds.map { Formatters.timeString(from: Double($0)) } ?? ""
+        case .time:
+            editableValueText = segment.targetTimeSeconds.map { Formatters.timeString(from: $0) } ?? ""
+        case .pace:
+            editableValueText = segment.targetPaceSecondsPerKm.map { Formatters.timeString(from: $0) } ?? ""
+        }
+
+        editableField = field
+    }
+
+    private func commitEditableField(_ field: EditableField) {
+        switch field {
+        case .distance:
+            guard let value = Double(editableValueText), value > 0 else { return }
+            updateDisplayedDistanceValue(value)
+        case .repeats:
+            let repeats = min(max(SegmentEditInputParser.parseRepeatCount(from: editableValueText), 0), 99)
+            segment.repeatCount = repeats > 0 ? repeats : nil
+            segment.lastRestSeconds = SegmentEditorValueRules.normalizedLastRestSeconds(
+                lastRestSeconds: segment.lastRestSeconds,
+                repeatCount: segment.repeatCount
+            )
+        case .rest:
+            let rest = min(max(SegmentEditInputParser.parseDurationSeconds(from: editableValueText), 0), 600)
+            segment.restSeconds = rest > 0 ? rest : nil
+        case .lastRest:
+            guard canConfigureLastRest else {
+                isLastRestInfoPresented = true
+                return
+            }
+            let lastRest = min(max(SegmentEditInputParser.parseDurationSeconds(from: editableValueText), 0), 600)
+            segment.lastRestSeconds = SegmentEditorValueRules.normalizedLastRestSeconds(
+                lastRestSeconds: lastRest > 0 ? lastRest : nil,
+                repeatCount: segment.repeatCount
+            )
+        case .time:
+            let time = min(max(SegmentEditInputParser.parseDurationSeconds(from: editableValueText), 0), 7200)
+            let updatedTargets = SegmentEditorValueRules.updatedTargetsAfterSettingTime(
+                seconds: time,
+                currentPaceSecondsPerKm: segment.targetPaceSecondsPerKm
+            )
+            segment.targetTimeSeconds = updatedTargets.targetTimeSeconds
+            segment.targetPaceSecondsPerKm = updatedTargets.targetPaceSecondsPerKm
+        case .pace:
+            let pace = min(max(SegmentEditInputParser.parseDurationSeconds(from: editableValueText), 0), 1200)
+            let updatedTargets = SegmentEditorValueRules.updatedTargetsAfterSettingPace(
+                secondsPerKm: pace,
+                currentTargetTimeSeconds: segment.targetTimeSeconds
+            )
+            segment.targetTimeSeconds = updatedTargets.targetTimeSeconds
+            segment.targetPaceSecondsPerKm = updatedTargets.targetPaceSecondsPerKm
+        }
+    }
+
+    private func displayedDistanceValue() -> Double {
+        switch distanceUnit {
+        case .km:
+            return segment.distanceMeters
+        case .miles:
+            return segment.distanceMeters * 3.28084
+        }
+    }
+
+    private func updateDisplayedDistanceValue(_ newValue: Double) {
+        let clamped = max(newValue, 0)
+        switch distanceUnit {
+        case .km:
+            segment.distanceMeters = clamped
+        case .miles:
+            segment.distanceMeters = clamped / 3.28084
+        }
+        distanceText = CompanionSegmentEditorView.distanceText(for: segment, unit: distanceUnit)
+    }
+
+    private func keypadRows(for field: EditableField) -> [[String]] {
+        switch field {
+        case .distance:
+            return distanceKeypadRows
+        case .repeats:
+            return repeatKeypadRows
+        case .rest, .lastRest, .time, .pace:
+            return durationKeypadRows
+        }
+    }
+
+    private func handleKeyTap(_ key: String, for field: EditableField) {
+        switch field {
+        case .distance:
+            companionDistanceFieldTapKey(key, text: &editableValueText)
+        case .repeats:
+            SegmentEditInputParser.applyRepeatKey(key, to: &editableValueText)
+        case .rest, .lastRest, .time, .pace:
+            SegmentEditInputParser.applyDurationKey(key, to: &editableValueText)
+        }
     }
 
     private static func distanceText(for segment: DistanceSegment, unit: DistanceUnit) -> String {
@@ -1114,6 +1441,109 @@ private struct CompanionLiveWorkoutCard: View {
         }
         .onReceive(stalenessTimer) { now = $0 }
         .onAppear { now = Date() }
+    }
+}
+
+private struct CompanionNumericKeypadSheet: View {
+    let title: String
+    @Binding var text: String
+    let valueSuffix: String?
+    let keypadRows: [[String]]
+    let onTapKey: (String) -> Void
+    let onCancel: () -> Void
+    let onDone: () -> Void
+    @Environment(\.appTheme) private var theme
+
+    private var displayedValue: String {
+        let baseValue = text.isEmpty ? " " : text
+        guard let valueSuffix, !valueSuffix.isEmpty else { return baseValue }
+        return "\(baseValue) \(valueSuffix)"
+    }
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: Tokens.Spacing.lg) {
+                ZStack(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: Tokens.Radius.companionListCell, style: .continuous)
+                        .fill(theme.background.neutralAction)
+
+                    Text(displayedValue)
+                        .font(.system(size: Tokens.FontSize.xl, weight: .bold, design: .rounded))
+                        .monospacedDigit()
+                        .foregroundStyle(theme.text.neutral)
+                        .padding(.leading, Tokens.Spacing.xxxxl)
+                        .padding(.trailing, Tokens.Spacing.lg)
+                        .frame(maxWidth: .infinity, minHeight: 34, maxHeight: 34, alignment: .leading)
+                }
+
+                VStack(spacing: Tokens.Spacing.sm) {
+                    ForEach(0..<keypadRows.count, id: \.self) { rowIndex in
+                        HStack(spacing: Tokens.Spacing.sm) {
+                            ForEach(keypadRows[rowIndex], id: \.self) { key in
+                                CompanionKeypadButton(key: key) {
+                                    onTapKey(key)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(.horizontal, Tokens.Spacing.xl)
+            .padding(.vertical, Tokens.Spacing.lg)
+            .navigationTitle(title)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(L10n.cancel, action: onCancel)
+                }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(L10n.done, action: onDone)
+                }
+            }
+        }
+    }
+}
+
+private struct CompanionKeypadButton: View {
+    let key: String
+    let action: () -> Void
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        Button(action: action) {
+            Text(key)
+                .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
+                .frame(maxWidth: .infinity, minHeight: 46)
+                .background(
+                    RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous)
+                        .fill(theme.background.neutralInteraction)
+                )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private func companionDistanceFieldTapKey(_ key: String, text: inout String) {
+    if key == "⌫" {
+        if !text.isEmpty {
+            text.removeLast()
+        }
+        return
+    }
+
+    if key == "." {
+        if text.isEmpty {
+            text = "0."
+        } else if !text.contains(".") {
+            text += key
+        }
+        return
+    }
+
+    if text == "0" {
+        text = key
+    } else {
+        text += key
     }
 }
 

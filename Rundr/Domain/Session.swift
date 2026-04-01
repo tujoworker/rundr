@@ -82,6 +82,157 @@ enum WorkoutPlanSupport {
     }
 }
 
+enum SegmentEditSheetSection: Hashable {
+    case timeTarget
+    case rest
+    case lastRest
+    case repeats
+    case paceTarget
+
+    static func orderedSections(for usesOpenDistance: Bool) -> [SegmentEditSheetSection] {
+        if usesOpenDistance {
+            return [.timeTarget, .rest, .lastRest, .repeats]
+        }
+
+        return [.rest, .lastRest, .repeats, .paceTarget, .timeTarget]
+    }
+}
+
+enum SegmentEditSheetRules {
+    enum AddLastRestAction {
+        case addValue
+        case showRepeatsInfo
+    }
+
+    static func canConfigureLastRest(repeatCount: Int, restSeconds: Int) -> Bool {
+        repeatCount > 0
+    }
+
+    static func shouldShowAddLastRestButton(lastRestSeconds: Int) -> Bool {
+        lastRestSeconds <= 0
+    }
+
+    static func addLastRestAction(repeatCount: Int) -> AddLastRestAction {
+        canConfigureLastRest(repeatCount: repeatCount, restSeconds: 0) ? .addValue : .showRepeatsInfo
+    }
+
+    static func normalizedLastRestSeconds(_ lastRestSeconds: Int, repeatCount: Int) -> Int {
+        repeatCount > 0 ? lastRestSeconds : 0
+    }
+}
+
+enum SegmentEditorValueRules {
+    static func normalizedLastRestSeconds(lastRestSeconds: Int?, repeatCount: Int?) -> Int? {
+        guard let repeatCount, repeatCount > 0 else { return nil }
+        guard let lastRestSeconds, lastRestSeconds > 0 else { return nil }
+        return lastRestSeconds
+    }
+
+    static func normalizedTargetPace(
+        for distanceGoalMode: DistanceGoalMode,
+        targetPaceSecondsPerKm: Double?
+    ) -> Double? {
+        distanceGoalMode == .open ? nil : targetPaceSecondsPerKm
+    }
+
+    static func updatedTargetsAfterSettingTime(
+        seconds: Int,
+        currentPaceSecondsPerKm: Double?
+    ) -> (targetTimeSeconds: Double?, targetPaceSecondsPerKm: Double?) {
+        let targetTimeSeconds = seconds > 0 ? Double(seconds) : nil
+        let targetPaceSecondsPerKm = seconds > 0 ? nil : currentPaceSecondsPerKm
+        return (targetTimeSeconds, targetPaceSecondsPerKm)
+    }
+
+    static func updatedTargetsAfterSettingPace(
+        secondsPerKm: Int,
+        currentTargetTimeSeconds: Double?
+    ) -> (targetTimeSeconds: Double?, targetPaceSecondsPerKm: Double?) {
+        let targetPaceSecondsPerKm = secondsPerKm > 0 ? Double(secondsPerKm) : nil
+        let targetTimeSeconds = secondsPerKm > 0 ? nil : currentTargetTimeSeconds
+        return (targetTimeSeconds, targetPaceSecondsPerKm)
+    }
+}
+
+enum SegmentEditInputParser {
+    static func parseRepeatCount(from value: String) -> Int {
+        let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        return Int(trimmedValue) ?? 0
+    }
+
+    static func parseDurationSeconds(from value: String) -> Int {
+        let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedValue.isEmpty else { return 0 }
+
+        let components = trimmedValue.split(separator: ":", omittingEmptySubsequences: false)
+
+        if components.count == 1 {
+            return Int(components[0]) ?? 0
+        }
+
+        guard components.count <= 3 else { return 0 }
+        guard components.allSatisfy({ !$0.isEmpty && Int($0) != nil }) else { return 0 }
+
+        let values = components.compactMap { Int($0) }
+        guard values.count == components.count else { return 0 }
+        guard values.dropFirst().allSatisfy({ $0 < 60 }) else { return 0 }
+
+        return values.reversed().enumerated().reduce(0) { partialResult, pair in
+            let (index, component) = pair
+            return partialResult + component * Int(pow(60.0, Double(index)))
+        }
+    }
+
+    static func applyDurationKey(_ key: String, to text: inout String) {
+        if key == "⌫" {
+            if !text.isEmpty {
+                text.removeLast()
+            }
+            return
+        }
+
+        if key == ":" {
+            guard !text.isEmpty, !text.hasSuffix(":"), text.filter({ $0 == ":" }).count < 2 else { return }
+            text += key
+            return
+        }
+
+        if text == "0" {
+            text = key
+        } else {
+            text += key
+        }
+    }
+
+    static func applyRepeatKey(_ key: String, to text: inout String) {
+        if key == "⌫" {
+            if !text.isEmpty {
+                text.removeLast()
+            }
+            return
+        }
+
+        if key == "∞" {
+            text = ""
+            return
+        }
+
+        if text == "0" {
+            text = key
+        } else {
+            text += key
+        }
+    }
+}
+
+func durationFieldTapKey(_ key: String, text: inout String) {
+    SegmentEditInputParser.applyDurationKey(key, to: &text)
+}
+
+func repeatFieldTapKey(_ key: String, text: inout String) {
+    SegmentEditInputParser.applyRepeatKey(key, to: &text)
+}
+
 extension IntervalPreset {
     func displayTitle(unit: DistanceUnit) -> String {
         trimmedCustomTitle ?? workoutPlan.displayTitle(unit: unit)

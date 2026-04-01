@@ -1232,45 +1232,6 @@ private struct IntervalTitleField: View {
     }
 }
 
-enum SegmentEditSheetSection: Hashable {
-    case timeTarget
-    case rest
-    case lastRest
-    case repeats
-    case paceTarget
-
-    static func orderedSections(for usesOpenDistance: Bool) -> [SegmentEditSheetSection] {
-        if usesOpenDistance {
-            return [.timeTarget, .rest, .lastRest, .repeats]
-        }
-
-        return [.rest, .lastRest, .repeats, .paceTarget, .timeTarget]
-    }
-}
-
-enum SegmentEditSheetRules {
-    enum AddLastRestAction {
-        case addValue
-        case showRepeatsInfo
-    }
-
-    static func canConfigureLastRest(repeatCount: Int, restSeconds: Int) -> Bool {
-        repeatCount > 0
-    }
-
-    static func shouldShowAddLastRestButton(lastRestSeconds: Int) -> Bool {
-        lastRestSeconds <= 0
-    }
-
-    static func addLastRestAction(repeatCount: Int) -> AddLastRestAction {
-        canConfigureLastRest(repeatCount: repeatCount, restSeconds: 0) ? .addValue : .showRepeatsInfo
-    }
-
-    static func normalizedLastRestSeconds(_ lastRestSeconds: Int, repeatCount: Int) -> Int {
-        repeatCount > 0 ? lastRestSeconds : 0
-    }
-}
-
 private struct SegmentEditSheet: View {
     @Binding var distanceText: String
     @Binding var usesOpenDistance: Bool
@@ -1912,85 +1873,6 @@ private struct SegmentEditSheet: View {
 
     private func distanceModeButton(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         SelectionToggleButton(title: title, isSelected: isSelected, action: action)
-    }
-}
-
-private func durationFieldTapKey(_ key: String, text: inout String) {
-    SegmentEditInputParser.applyDurationKey(key, to: &text)
-}
-
-private func repeatFieldTapKey(_ key: String, text: inout String) {
-    SegmentEditInputParser.applyRepeatKey(key, to: &text)
-}
-
-enum SegmentEditInputParser {
-    static func parseRepeatCount(from value: String) -> Int {
-        let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
-        return Int(trimmedValue) ?? 0
-    }
-
-    static func parseDurationSeconds(from value: String) -> Int {
-        let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedValue.isEmpty else { return 0 }
-
-        let components = trimmedValue.split(separator: ":", omittingEmptySubsequences: false)
-
-        if components.count == 1 {
-            return Int(components[0]) ?? 0
-        }
-
-        guard components.count <= 3 else { return 0 }
-        guard components.allSatisfy({ !$0.isEmpty && Int($0) != nil }) else { return 0 }
-
-        let values = components.compactMap { Int($0) }
-        guard values.count == components.count else { return 0 }
-        guard values.dropFirst().allSatisfy({ $0 < 60 }) else { return 0 }
-
-        return values.reversed().enumerated().reduce(0) { partialResult, pair in
-            let (index, component) = pair
-            return partialResult + component * Int(pow(60.0, Double(index)))
-        }
-    }
-
-    static func applyDurationKey(_ key: String, to text: inout String) {
-        if key == "⌫" {
-            if !text.isEmpty {
-                text.removeLast()
-            }
-            return
-        }
-
-        if key == ":" {
-            guard !text.isEmpty, !text.hasSuffix(":"), text.filter({ $0 == ":" }).count < 2 else { return }
-            text += key
-            return
-        }
-
-        if text == "0" {
-            text = key
-        } else {
-            text += key
-        }
-    }
-
-    static func applyRepeatKey(_ key: String, to text: inout String) {
-        if key == "⌫" {
-            if !text.isEmpty {
-                text.removeLast()
-            }
-            return
-        }
-
-        if key == "∞" {
-            text = ""
-            return
-        }
-
-        if text == "0" {
-            text = key
-        } else {
-            text += key
-        }
     }
 }
 

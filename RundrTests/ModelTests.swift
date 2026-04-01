@@ -335,6 +335,70 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(text, "")
     }
 
+    func testSegmentEditorValueRulesClearLastRestWhenRepeatsAreUnlimited() {
+        XCTAssertEqual(
+            SegmentEditorValueRules.normalizedLastRestSeconds(lastRestSeconds: 45, repeatCount: nil),
+            nil
+        )
+        XCTAssertEqual(
+            SegmentEditorValueRules.normalizedLastRestSeconds(lastRestSeconds: 45, repeatCount: 0),
+            nil
+        )
+        XCTAssertEqual(
+            SegmentEditorValueRules.normalizedLastRestSeconds(lastRestSeconds: 45, repeatCount: 3),
+            45
+        )
+    }
+
+    func testSegmentEditorValueRulesClearPaceForOpenDistance() {
+        XCTAssertEqual(
+            SegmentEditorValueRules.normalizedTargetPace(
+                for: .open,
+                targetPaceSecondsPerKm: 320
+            ),
+            nil
+        )
+        XCTAssertEqual(
+            SegmentEditorValueRules.normalizedTargetPace(
+                for: .fixed,
+                targetPaceSecondsPerKm: 320
+            ),
+            320
+        )
+    }
+
+    func testSegmentEditorValueRulesSettingTimeClearsPaceOnlyWhenTimeIsSet() {
+        let withTime = SegmentEditorValueRules.updatedTargetsAfterSettingTime(
+            seconds: 95,
+            currentPaceSecondsPerKm: 300
+        )
+        XCTAssertEqual(withTime.targetTimeSeconds, 95)
+        XCTAssertNil(withTime.targetPaceSecondsPerKm)
+
+        let clearedTime = SegmentEditorValueRules.updatedTargetsAfterSettingTime(
+            seconds: 0,
+            currentPaceSecondsPerKm: 300
+        )
+        XCTAssertNil(clearedTime.targetTimeSeconds)
+        XCTAssertEqual(clearedTime.targetPaceSecondsPerKm, 300)
+    }
+
+    func testSegmentEditorValueRulesSettingPaceClearsTimeOnlyWhenPaceIsSet() {
+        let withPace = SegmentEditorValueRules.updatedTargetsAfterSettingPace(
+            secondsPerKm: 280,
+            currentTargetTimeSeconds: 90
+        )
+        XCTAssertNil(withPace.targetTimeSeconds)
+        XCTAssertEqual(withPace.targetPaceSecondsPerKm, 280)
+
+        let clearedPace = SegmentEditorValueRules.updatedTargetsAfterSettingPace(
+            secondsPerKm: 0,
+            currentTargetTimeSeconds: 90
+        )
+        XCTAssertEqual(clearedPace.targetTimeSeconds, 90)
+        XCTAssertNil(clearedPace.targetPaceSecondsPerKm)
+    }
+
     // MARK: - WorkoutRunState
 
     func testWorkoutRunStateCases() {

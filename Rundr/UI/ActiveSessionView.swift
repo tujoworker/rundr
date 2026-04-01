@@ -11,11 +11,14 @@ struct ActiveSessionView: View {
     var onSessionEnded: () -> Void
     @State private var isTimerBounceActive = false
     @State private var isTimerGlowActive = false
+    @State private var displayedTimerStatusBadgeText: String?
+    @State private var isTimerStatusBadgeVisible = false
     @State private var isLapHistoryDragging = false
     @State private var lastAnimatedLapCount = 0
     @State private var lapEditorState: LapEditorState?
     @State private var bounceTask: Task<Void, Never>?
     @State private var glowTask: Task<Void, Never>?
+    @State private var timerStatusBadgeHideTask: Task<Void, Never>?
     @State private var restTransitionTask: Task<Void, Never>?
     @State private var isShowingSessionComplete = false
     @State private var isEndingSession = false
@@ -164,27 +167,18 @@ struct ActiveSessionView: View {
                 }
             }
             .overlay(alignment: .top) {
-                ZStack {
-                    if let timerStatusBadgeText {
-                        Text(timerStatusBadgeText)
-                            .font(StatusBadgeStyle.font)
-                            .foregroundStyle(primaryColor)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.8)
-                            .fixedSize(horizontal: true, vertical: false)
-                            .padding(.horizontal, StatusBadgeStyle.horizontalPadding)
-                            .padding(.vertical, StatusBadgeStyle.verticalPadding)
-                            .background(StatusBadgeStyle.background(theme))
-                            .transition(
-                                .asymmetric(
-                                    insertion: .opacity.combined(with: .offset(y: Tokens.Spacing.xs)),
-                                    removal: .opacity.combined(with: .offset(y: Tokens.Spacing.xs))
-                                )
-                            )
-                    }
-                }
-                .offset(y: -Tokens.Spacing.badgeLift)
-                .animation(.easeInOut(duration: 0.18), value: timerStatusBadgeText)
+                Text(displayedTimerStatusBadgeText ?? "")
+                    .font(StatusBadgeStyle.font)
+                    .foregroundStyle(primaryColor)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                    .fixedSize(horizontal: true, vertical: false)
+                    .padding(.horizontal, StatusBadgeStyle.horizontalPadding)
+                    .padding(.vertical, StatusBadgeStyle.verticalPadding)
+                    .background(StatusBadgeStyle.background(theme))
+                    .opacity(isTimerStatusBadgeVisible ? 1 : 0)
+                    .offset(y: -Tokens.Spacing.badgeLift + (isTimerStatusBadgeVisible ? 0 : -Tokens.Spacing.xs))
+                    .animation(.easeInOut(duration: timerStatusBadgeAnimationDuration), value: isTimerStatusBadgeVisible)
             }
         } else {
             Text(timerTopLabel)
@@ -235,6 +229,7 @@ struct ActiveSessionView: View {
     private let contentVerticalOffset: CGFloat = -4
     private let lapHistoryContainerTrailingPadding: CGFloat = 12
     private let timerCardsSpacing: CGFloat = 6
+    private let timerStatusBadgeAnimationDuration = 0.18
 
     @ViewBuilder
     private var heartRateOverlay: some View {
@@ -486,10 +481,15 @@ struct ActiveSessionView: View {
         }
         .onAppear {
             lastAnimatedLapCount = workoutController.completedLaps.count
+            syncTimerStatusBadge(animated: false)
+        }
+        .onChange(of: timerStatusBadgeText) {
+            syncTimerStatusBadge(animated: true)
         }
         .onDisappear {
             completedSessionDismissTask?.cancel()
             restTransitionTask?.cancel()
+            timerStatusBadgeHideTask?.cancel()
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarHidden(true)
@@ -550,6 +550,45 @@ struct ActiveSessionView: View {
         completedSessionDismissTask?.cancel()
         completedSessionDismissTask = nil
         onSessionEnded()
+    }
+
+    private func syncTimerStatusBadge(animated: Bool) {
+        timerStatusBadgeHideTask?.cancel()
+        let targetText = timerStatusBadgeText
+
+        guard animated else {
+            displayedTimerStatusBadgeText = targetText
+            isTimerStatusBadgeVisible = targetText != nil
+            return
+        }
+
+        guard displayedTimerStatusBadgeText != nil else {
+            displayedTimerStatusBadgeText = targetText
+            guard targetText != nil else {
+                isTimerStatusBadgeVisible = false
+                return
+            }
+            isTimerStatusBadgeVisible = false
+            Task { @MainActor in
+                await Task.yield()
+                isTimerStatusBadgeVisible = true
+            }
+            return
+        }
+
+        isTimerStatusBadgeVisible = false
+        timerStatusBadgeHideTask = Task {
+            try? await Task.sleep(for: .milliseconds(Int(timerStatusBadgeAnimationDuration * 1000)))
+            guard !Task.isCancelled else { return }
+            await MainActor.run {
+                displayedTimerStatusBadgeText = targetText
+                guard targetText != nil else { return }
+                Task { @MainActor in
+                    await Task.yield()
+                    isTimerStatusBadgeVisible = true
+                }
+            }
+        }
     }
 
     private func handleLapTap() {
@@ -1019,8 +1058,9 @@ private struct SessionCompleteView: View {
 private struct TimerPressStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .opacity(configuration.isPressed ? 0.7 : 1)
-            .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+            .scaleEffect(configuration.isPressed ? 0.97 : 1)
+            .opacity(configuration.isPressed ? 0.82 : 1)
+            .animation(.spring(response: 0.2, dampingFraction: 0.78), value: configuration.isPressed)
     }
 }
 

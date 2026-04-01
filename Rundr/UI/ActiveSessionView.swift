@@ -164,18 +164,27 @@ struct ActiveSessionView: View {
                 }
             }
             .overlay(alignment: .top) {
-                if let timerStatusBadgeText {
-                    Text(timerStatusBadgeText)
-                        .font(StatusBadgeStyle.font)
-                        .foregroundStyle(primaryColor)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.8)
-                        .fixedSize(horizontal: true, vertical: false)
-                        .padding(.horizontal, StatusBadgeStyle.horizontalPadding)
-                        .padding(.vertical, StatusBadgeStyle.verticalPadding)
-                        .background(StatusBadgeStyle.background(theme))
-                        .offset(y: -Tokens.Spacing.badgeLift)
+                ZStack {
+                    if let timerStatusBadgeText {
+                        Text(timerStatusBadgeText)
+                            .font(StatusBadgeStyle.font)
+                            .foregroundStyle(primaryColor)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                            .fixedSize(horizontal: true, vertical: false)
+                            .padding(.horizontal, StatusBadgeStyle.horizontalPadding)
+                            .padding(.vertical, StatusBadgeStyle.verticalPadding)
+                            .background(StatusBadgeStyle.background(theme))
+                            .transition(
+                                .asymmetric(
+                                    insertion: .opacity.combined(with: .offset(y: Tokens.Spacing.xs)),
+                                    removal: .opacity.combined(with: .offset(y: Tokens.Spacing.xs))
+                                )
+                            )
+                    }
                 }
+                .offset(y: -Tokens.Spacing.badgeLift)
+                .animation(.easeInOut(duration: 0.18), value: timerStatusBadgeText)
             }
         } else {
             Text(timerTopLabel)

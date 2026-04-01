@@ -149,7 +149,7 @@ struct NumericKeypadEditorScreen: View {
     let onDone: () -> Void
     @Environment(\.appTheme) private var theme
 
-    private let headerContentHeight: CGFloat = 8
+    private let headerContentHeight: CGFloat = 4
 
     var body: some View {
         GeometryReader { geometry in
@@ -168,7 +168,7 @@ struct NumericKeypadEditorScreen: View {
                         accentColor.opacity(Tokens.Opacity.fillInput)
 
                         Text(text.isEmpty ? " " : text)
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .font(.system(size: 32, weight: .bold, design: .rounded))
                             .foregroundStyle(.white)
                             .monospacedDigit()
                             .minimumScaleFactor(0.7)

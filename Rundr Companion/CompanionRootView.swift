@@ -1485,12 +1485,12 @@ private struct CompanionNumericKeypadSheet: View {
                         .fill(theme.background.neutralAction)
 
                     Text(displayedValue)
-                        .font(.system(size: Tokens.FontSize.xxl, weight: .bold, design: .rounded))
+                        .font(.system(size: Tokens.FontSize.xxxl, weight: .bold, design: .rounded))
                         .monospacedDigit()
                         .foregroundStyle(theme.text.neutral)
                         .padding(.leading, Tokens.Spacing.xxxxl)
                         .padding(.trailing, Tokens.Spacing.lg)
-                        .frame(maxWidth: .infinity, minHeight: 30, maxHeight: 30, alignment: .leading)
+                        .frame(maxWidth: .infinity, minHeight: 28, maxHeight: 28, alignment: .leading)
                 }
 
                 VStack(spacing: Tokens.Spacing.sm) {

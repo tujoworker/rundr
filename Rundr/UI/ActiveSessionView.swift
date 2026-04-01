@@ -9,13 +9,11 @@ struct ActiveSessionView: View {
     @EnvironmentObject var syncManager: WatchConnectivitySyncManager
 
     var onSessionEnded: () -> Void
-    @State private var isTapFlashVisible = false
     @State private var isTimerBounceActive = false
     @State private var isTimerGlowActive = false
     @State private var isLapHistoryDragging = false
     @State private var lastAnimatedLapCount = 0
     @State private var lapEditorState: LapEditorState?
-    @State private var flashTask: Task<Void, Never>?
     @State private var bounceTask: Task<Void, Never>?
     @State private var glowTask: Task<Void, Never>?
     @State private var restTransitionTask: Task<Void, Never>?
@@ -114,7 +112,11 @@ struct ActiveSessionView: View {
     }
 
     private var displayedLapCounter: Int {
-        isResting ? max(currentLapNumber - 1, 1) : currentLapNumber
+        currentLapNumber
+    }
+
+    private var lapCounterPrimaryOpacity: Double {
+        isResting ? 0.8 : 1
     }
 
     @ViewBuilder
@@ -129,6 +131,7 @@ struct ActiveSessionView: View {
                             Text("\(displayedLapCounter)")
                                 .font(.system(size: Tokens.FontSize.xxl, weight: .bold, design: .rounded))
                                 .foregroundStyle(theme.text.bold)
+                                .opacity(lapCounterPrimaryOpacity)
                             Text("/\(total)")
                                 .font(.system(size: Tokens.FontSize.xs, weight: .semibold, design: .rounded))
                                 .foregroundStyle(theme.text.bold)
@@ -144,6 +147,7 @@ struct ActiveSessionView: View {
                             .font(.system(size: Tokens.FontSize.xxl, weight: .bold, design: .rounded))
                             .monospacedDigit()
                             .foregroundStyle(theme.text.bold)
+                            .opacity(lapCounterPrimaryOpacity)
                             .padding(.horizontal, Tokens.Spacing.xs)
                             .padding(.vertical, 0)
                             .background(
@@ -186,35 +190,36 @@ struct ActiveSessionView: View {
         let screenWidth = WKInterfaceDevice.current().screenBounds.width
         let t = max(0, min(1, (screenWidth - 162) / (205 - 162)))
         let timerFontSize = round(60 + t * 40)
-        Button {
-            handleLapTap()
-        } label: {
-            Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
-                .font(.system(size: timerFontSize, weight: .medium, design: .rounded))
-                .monospacedDigit()
-                .minimumScaleFactor(0.45)
-                .lineLimit(1)
-                .foregroundStyle(theme.text.neutral)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, Tokens.Spacing.md)
-                .padding(.vertical, Tokens.Spacing.sm)
-                .frame(maxHeight: 120)
-                .background(Capsule().fill(theme.background.emphasisAction(primaryColor)))
-                .overlay(timerBorderOverlay)
-                .overlay(lapGlowOverlay)
-                .overlay(alignment: .top) {
-                    timerTopOverlay
-                        .offset(y: -31)
-                }
-                .scaleEffect(isTimerBounceActive ? 1.11 : 1)
-                .brightness(isTimerGlowActive ? 0.3 : 0)
-                .shadow(color: Color.white.opacity(isTimerGlowActive ? 0.5 : 0), radius: 18)
-                .shadow(color: primaryColor.opacity(isTimerGlowActive ? 0.72 : 0), radius: 24)
-                .padding(.horizontal, Tokens.Spacing.xs)
-                .contentShape(Capsule())
+        ZStack(alignment: .top) {
+            Button {
+                handleLapTap()
+            } label: {
+                Text(Formatters.precisionTimeString(from: workoutController.lapElapsedSeconds))
+                    .font(.system(size: timerFontSize, weight: .medium, design: .rounded))
+                    .monospacedDigit()
+                    .minimumScaleFactor(0.45)
+                    .lineLimit(1)
+                    .foregroundStyle(theme.text.neutral)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .frame(maxWidth: .infinity)
+                    .padding(.horizontal, Tokens.Spacing.md)
+                    .padding(.vertical, Tokens.Spacing.sm)
+                    .frame(maxHeight: 120)
+                    .background(Capsule().fill(theme.background.emphasisAction(primaryColor)))
+                    .overlay(timerBorderOverlay)
+                    .overlay(lapGlowOverlay)
+                    .scaleEffect(isTimerBounceActive ? 1.11 : 1)
+                    .brightness(isTimerGlowActive ? 0.3 : 0)
+                    .shadow(color: Color.white.opacity(isTimerGlowActive ? 0.5 : 0), radius: 18)
+                    .shadow(color: primaryColor.opacity(isTimerGlowActive ? 0.72 : 0), radius: 24)
+                    .padding(.horizontal, Tokens.Spacing.xs)
+                    .contentShape(Capsule())
+            }
+            .buttonStyle(TimerPressStyle())
+
+            timerTopOverlay
+                .offset(y: -31)
         }
-        .buttonStyle(TimerPressStyle())
     }
 
     private let topHeaderHeight: CGFloat = 66
@@ -433,9 +438,6 @@ struct ActiveSessionView: View {
                 )
                 .ignoresSafeArea()
 
-                Color.white
-                    .opacity(isTapFlashVisible ? 0.22 : 0)
-                    .ignoresSafeArea()
             }
             .allowsHitTesting(false)
         }
@@ -544,11 +546,9 @@ struct ActiveSessionView: View {
     private func handleLapTap() {
         if isWorkoutPaused {
             workoutController.resumeSession()
-            flashTapBorder()
             animateTimerForNewLap()
             return
         }
-        flashTapBorder()
         workoutController.markLap()
     }
 
@@ -609,24 +609,6 @@ struct ActiveSessionView: View {
             return value
         case .miles:
             return value / 3.28084
-        }
-    }
-
-    private func flashTapBorder() {
-        flashTask?.cancel()
-
-        withAnimation(.easeOut(duration: 0.08)) {
-            isTapFlashVisible = true
-        }
-
-        flashTask = Task {
-            try? await Task.sleep(for: .milliseconds(180))
-            guard !Task.isCancelled else { return }
-            await MainActor.run {
-                withAnimation(.easeIn(duration: 0.18)) {
-                    isTapFlashVisible = false
-                }
-            }
         }
     }
 

@@ -212,6 +212,7 @@ struct PreStartView: View {
 
                 Text(L10n.settings)
                     .font(.headline.weight(.semibold))
+                    .foregroundStyle(theme.text.neutral)
                     .padding(.horizontal, Tokens.Spacing.sm)
                     .padding(.top, Tokens.Spacing.xl)
 
@@ -636,7 +637,7 @@ private struct SegmentRow: View {
                                 VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                                     Text(item.label)
                                         .font(.system(size: Tokens.FontSize.sm, weight: .regular, design: .rounded))
-                                        .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundQuaternary))
+                                        .foregroundStyle(theme.text.subtle)
 
                                     Text(item.value)
                                         .font(.caption2)
@@ -716,7 +717,7 @@ struct IntervalLibraryView: View {
 
     var body: some View {
         List {
-            Section(L10n.myIntervals) {
+            Section {
                 if settings.intervalPresets.isEmpty {
                     Text(L10n.noSavedIntervalsYet)
                         .foregroundStyle(.secondary)
@@ -753,12 +754,13 @@ struct IntervalLibraryView: View {
                         }
                         .buttonStyle(.plain)
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
+                            Button {
                                 settings.deleteIntervalPreset(id: preset.id)
                             } label: {
                                 Label(L10n.delete, systemImage: "trash")
+                                    .foregroundStyle(Color.white)
                             }
-                            .tint(theme.background.swipeAction(settings.primaryAccentColor))
+                            .tint(settings.primaryAccentColor)
                         }
                         .listRowInsets(Tokens.ListRowInsets.card)
                         .listRowBackground(Color.clear)
@@ -778,9 +780,12 @@ struct IntervalLibraryView: View {
                         .listRowBackground(Color.clear)
                     }
                 }
+            } header: {
+                Text(L10n.myIntervals)
+                    .foregroundStyle(theme.text.neutral)
             }
 
-            Section(L10n.predefined) {
+            Section {
                 ForEach(SettingsStore.predefinedIntervalPresets) { preset in
                     NavigationLink {
                         IntervalSetupView(
@@ -815,6 +820,9 @@ struct IntervalLibraryView: View {
                     .listRowInsets(Tokens.ListRowInsets.card)
                     .listRowBackground(Color.clear)
                 }
+            } header: {
+                Text(L10n.predefined)
+                    .foregroundStyle(theme.text.neutral)
             }
         }
         .tint(settings.primaryAccentColor)
@@ -827,6 +835,7 @@ struct IntervalLibraryView: View {
 
 private struct IntervalSetupView: View {
     @EnvironmentObject var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
 
     let headerTitle: String
     let subtitle: String?
@@ -878,7 +887,7 @@ private struct IntervalSetupView: View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
             Text(L10n.intervalsTitle)
                 .font(.caption.bold())
-                .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
+                .foregroundStyle(theme.text.subtle)
                 .padding(.horizontal, Tokens.Spacing.md)
 
             ForEach(segments) { segment in
@@ -917,12 +926,12 @@ private struct IntervalSetupView: View {
                     VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                         Text(headerTitle)
                             .font(.headline.weight(.semibold))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(theme.text.neutral)
 
                         if let subtitle, !subtitle.isEmpty {
                             Text(subtitle)
                                 .font(.footnote.weight(.medium))
-                                .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundSecondary))
+                                .foregroundStyle(theme.text.subtle)
                         }
                     }
                     .padding(.horizontal, Tokens.Spacing.sm)
@@ -944,7 +953,12 @@ private struct IntervalSetupView: View {
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, Tokens.Spacing.md)
                     }
-                    .buttonStyle(.bordered)
+                    .accentRoundedButtonChrome(
+                        accentColor: settings.primaryAccentColor,
+                        cornerRadius: Tokens.Radius.pill,
+                        lineWidth: Tokens.LineWidth.thick
+                    )
+                    .buttonStyle(.plain)
                     .disabled(isContinueDisabled)
                     .opacity(isContinueDisabled ? 0.5 : 1)
                     .padding(.top, Tokens.Spacing.lg)

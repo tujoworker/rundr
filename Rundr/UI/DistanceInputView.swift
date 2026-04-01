@@ -169,7 +169,7 @@ struct NumericKeypadEditorScreen: View {
 
                         Text(text.isEmpty ? " " : text)
                             .font(.system(size: 32, weight: .bold, design: .rounded))
-                            .foregroundStyle(.white)
+                            .foregroundStyle(theme.text.neutral)
                             .monospacedDigit()
                             .minimumScaleFactor(0.7)
                             .lineLimit(1)
@@ -190,7 +190,7 @@ struct NumericKeypadEditorScreen: View {
                         VStack(spacing: Tokens.Spacing.lg) {
                             Text(title)
                                 .font(.headline.weight(.semibold))
-                                .foregroundStyle(.white)
+                                .foregroundStyle(theme.text.neutral)
                                 .frame(maxWidth: .infinity, alignment: .leading)
 
                             VStack(spacing: Tokens.Spacing.sm) {

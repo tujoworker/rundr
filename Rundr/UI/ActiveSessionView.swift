@@ -957,6 +957,7 @@ private struct LapEditorScreen: View {
     let accentColor: Color
     let onDismiss: (LapEditorState) -> Void
     let onDelete: (LapEditorState) -> Void
+    @Environment(\.appTheme) private var theme
 
     @State private var lapType: LapType
     @State private var distanceText: String
@@ -989,7 +990,7 @@ private struct LapEditorScreen: View {
                 VStack(alignment: .leading, spacing: 12) {
                     Text(L10n.editLap)
                         .font(.headline.weight(.semibold))
-                        .foregroundStyle(.white)
+                        .foregroundStyle(theme.text.neutral)
 
                     HStack(spacing: 8) {
                         lapTypeButton(title: L10n.activity, type: .active)
@@ -1006,7 +1007,7 @@ private struct LapEditorScreen: View {
                     } else {
                         Text(L10n.lapTreatedAsRest)
                             .font(.system(size: Tokens.FontSize.lg, weight: .medium, design: .rounded))
-                            .foregroundStyle(.white.opacity(Tokens.Opacity.foregroundBody))
+                            .foregroundStyle(theme.text.subtle)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.horizontal, Tokens.Spacing.xs)
                             .padding(.vertical, Tokens.Spacing.xl)

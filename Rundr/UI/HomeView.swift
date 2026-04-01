@@ -79,13 +79,14 @@ struct HomeView: View {
         }
         .buttonStyle(.plain)
         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button(role: .destructive) {
+            Button {
                 persistence.deleteSession(session)
                 viewModel.loadRecent(persistence: persistence)
             } label: {
                 Label(L10n.delete, systemImage: "trash")
+                    .foregroundStyle(Color.white)
             }
-            .tint(theme.background.swipeAction(settings.primaryAccentColor))
+            .tint(settings.primaryAccentColor)
         }
         .listRowInsets(Tokens.ListRowInsets.card)
         .listRowBackground(Color.clear)

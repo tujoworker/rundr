@@ -171,6 +171,7 @@ struct SelectionToggleButton: View {
 }
 
 struct RootView: View {
+    @Environment(\.appTheme) private var theme
     @EnvironmentObject var coordinator: NavigationCoordinator
     @EnvironmentObject var persistence: PersistenceManager
     @EnvironmentObject var ongoingWorkoutStore: OngoingWorkoutStore
@@ -263,6 +264,7 @@ struct RootView: View {
                         }
                     }
                 }
+                .toolbarColorScheme(theme.colorScheme, for: .navigationBar)
                 .background(Color.clear)
                 .transition(.asymmetric(insertion: .move(edge: .trailing).combined(with: .opacity), removal: .opacity))
             }

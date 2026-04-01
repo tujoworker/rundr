@@ -826,7 +826,7 @@ struct IntervalLibraryView: View {
             }
         }
         .tint(settings.primaryAccentColor)
-        .listStyle(.carousel)
+        .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .background(Color.clear)
         .toolbar(.visible, for: .navigationBar)

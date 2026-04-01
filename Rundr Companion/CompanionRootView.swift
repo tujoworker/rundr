@@ -2,6 +2,8 @@ import SwiftData
 import SwiftUI
 
 struct CompanionRootView: View {
+    @EnvironmentObject private var settings: SettingsStore
+
     var body: some View {
         TabView {
             CompanionWorkoutsView()
@@ -19,15 +21,26 @@ struct CompanionRootView: View {
                     Label(L10n.settings, systemImage: "paintpalette")
                 }
         }
-        .tint(.white)
+        .tint(settings.primaryAccentColor)
     }
 }
 
 private struct CompanionWorkoutsView: View {
     @EnvironmentObject private var syncManager: WatchConnectivitySyncManager
+    @EnvironmentObject private var persistence: PersistenceManager
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
     @Query(sort: [SortDescriptor(\Session.startedAt, order: .reverse)]) private var sessions: [Session]
+    @State private var visibleSessionCount = 2
+    @State private var editingSegment: DistanceSegment?
+    @State private var lastAddedDistanceMeters: Double = DistanceSegment.default.distanceMeters
+    @State private var lastAddedUsesOpenDistance = false
+    @State private var lastAddedRepeatCount: Int = 0
+    @State private var lastAddedRestSeconds: Int = 0
+    @State private var lastAddedLastRestSeconds: Int = 0
+    @State private var lastAddedTargetPace: Int = 0
+    @State private var lastAddedTargetTime: Int = 0
+    @State private var addSegmentBounceTrigger = 0
 
     private var visibleLiveWorkoutState: LiveWorkoutStateRecord? {
         guard let state = syncManager.liveWorkoutState,
@@ -39,139 +52,303 @@ private struct CompanionWorkoutsView: View {
         return state
     }
 
+    private var segments: [DistanceSegment] {
+        let storedSegments = settings.distanceSegments
+        return storedSegments.isEmpty ? [.default] : WorkoutPlanSupport.normalizedSegments(storedSegments)
+    }
+
+    private var visibleSessions: ArraySlice<Session> {
+        sessions.prefix(visibleSessionCount)
+    }
+
+    private var canLoadMoreSessions: Bool {
+        sessions.count > visibleSessionCount
+    }
+
     var body: some View {
         NavigationStack {
             List {
                 if let liveWorkoutState = visibleLiveWorkoutState {
-                    Section(L10n.liveOnAppleWatch) {
+                    Section {
                         CompanionLiveWorkoutCard(state: liveWorkoutState)
                             .listRowCardChrome()
+                    } header: {
+                        CompanionHomeSectionHeader(title: L10n.liveOnAppleWatch)
                     }
                 }
 
-                Section(L10n.syncedSessions) {
+                if settings.trackingMode.usesManualIntervals {
+                    Section {
+                        ForEach(segments) { segment in
+                            Button {
+                                editingSegment = segment
+                            } label: {
+                                CompanionSegmentRow(segment: segment, distanceUnit: settings.distanceUnit)
+                            }
+                            .buttonStyle(.plain)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    deleteSegment(segment)
+                                } label: {
+                                    Label(L10n.delete, systemImage: "trash")
+                                }
+                            }
+                            .listRowCardChrome()
+                        }
+                    } header: {
+                        CompanionHomeSectionHeader(title: L10n.intervalsTitle)
+                    }
+
+                    Section {
+                        Button {
+                            animateSegmentAddition()
+                        } label: {
+                            HStack {
+                                Spacer()
+
+                                Image(systemName: "plus.circle.fill")
+                                    .font(.title2)
+                                    .foregroundStyle(settings.primaryAccentColor)
+                                    .symbolEffect(.bounce, value: addSegmentBounceTrigger)
+
+                                Spacer()
+                            }
+                            .padding(.vertical, Tokens.Spacing.sm)
+                        }
+                        .buttonStyle(.plain)
+                        .listRowBackground(Color.clear)
+                    }
+                }
+
+                Section {
                     if sessions.isEmpty {
                         Text(L10n.noSyncedSessionsYet)
+                            .font(.subheadline)
                             .foregroundStyle(theme.text.subtle)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .listRowCardChrome()
                     } else {
-                        ForEach(sessions, id: \.id) { session in
+                        ForEach(visibleSessions, id: \.id) { session in
                             NavigationLink {
                                 CompanionSessionDetailView(session: session)
                             } label: {
                                 CompanionSessionRow(session: session)
                             }
                             .buttonStyle(.plain)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    persistence.deleteSession(session)
+                                } label: {
+                                    Label(L10n.delete, systemImage: "trash")
+                                }
+                            }
                             .listRowCardChrome()
                         }
+
+                        if canLoadMoreSessions {
+                            Button(L10n.loadMore) {
+                                visibleSessionCount += 4
+                            }
+                            .buttonStyle(.plain)
+                            .font(.headline)
+                            .foregroundStyle(settings.primaryAccentColor)
+                            .frame(maxWidth: .infinity)
+                            .listRowBackground(Color.clear)
+                        }
                     }
+                } header: {
+                    CompanionHomeSectionHeader(title: L10n.syncedSessions)
                 }
             }
-            .navigationBarTitleDisplayMode(.inline)
+            .sheet(item: $editingSegment) { segment in
+                CompanionSegmentEditorView(
+                    segment: segment,
+                    distanceUnit: settings.distanceUnit
+                ) { updatedSegment in
+                    commitSegment(updatedSegment)
+                }
+            }
+            .onAppear(perform: syncLastAddedValues)
+            .onChange(of: settings.distanceSegments) { _, _ in
+                syncLastAddedValues()
+            }
+            .navigationTitle(L10n.workouts)
+            .navigationBarTitleDisplayMode(.large)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .themedCompanionList()
         }
+    }
+
+    private func syncLastAddedValues() {
+        let lastSegment = settings.distanceSegments.last
+        lastAddedDistanceMeters = lastSegment?.distanceMeters ?? DistanceSegment.default.distanceMeters
+        lastAddedUsesOpenDistance = lastSegment?.usesOpenDistance ?? false
+        lastAddedRepeatCount = lastSegment?.repeatCount ?? 0
+        lastAddedRestSeconds = lastSegment?.restSeconds ?? 0
+        lastAddedLastRestSeconds = lastSegment?.lastRestSeconds ?? 0
+        lastAddedTargetPace = Int(lastSegment?.targetPaceSecondsPerKm ?? 0)
+        lastAddedTargetTime = Int(lastSegment?.targetTimeSeconds ?? 0)
+    }
+
+    private func animateSegmentAddition() {
+        addSegmentBounceTrigger += 1
+        withAnimation(.snappy(duration: 0.3, extraBounce: 0.12)) {
+            addSegment()
+        }
+    }
+
+    private func addSegment() {
+        var updatedSegments = segments
+        updatedSegments.append(
+            DistanceSegment(
+                distanceMeters: lastAddedDistanceMeters,
+                repeatCount: lastAddedRepeatCount > 0 ? lastAddedRepeatCount : nil,
+                restSeconds: lastAddedRestSeconds > 0 ? lastAddedRestSeconds : nil,
+                lastRestSeconds: lastAddedLastRestSeconds > 0 ? lastAddedLastRestSeconds : nil,
+                distanceGoalMode: lastAddedUsesOpenDistance ? .open : .fixed,
+                targetPaceSecondsPerKm: lastAddedTargetPace > 0 ? Double(lastAddedTargetPace) : nil,
+                targetTimeSeconds: lastAddedTargetTime > 0 ? Double(lastAddedTargetTime) : nil
+            )
+        )
+        settings.distanceSegments = WorkoutPlanSupport.normalizedSegments(updatedSegments)
+    }
+
+    private func deleteSegment(_ segment: DistanceSegment) {
+        var updatedSegments = segments
+        updatedSegments.removeAll { $0.id == segment.id }
+        if updatedSegments.isEmpty {
+            updatedSegments = [.default]
+        }
+        settings.distanceSegments = WorkoutPlanSupport.normalizedSegments(updatedSegments)
+    }
+
+    private func commitSegment(_ updatedSegment: DistanceSegment) {
+        var updatedSegments = segments
+        guard let index = updatedSegments.firstIndex(where: { $0.id == updatedSegment.id }) else { return }
+        updatedSegments[index] = updatedSegment
+
+        if !updatedSegment.usesOpenDistance {
+            lastAddedDistanceMeters = updatedSegment.distanceMeters
+        }
+        lastAddedUsesOpenDistance = updatedSegment.usesOpenDistance
+        lastAddedRepeatCount = updatedSegment.repeatCount ?? 0
+        lastAddedRestSeconds = updatedSegment.restSeconds ?? 0
+        lastAddedLastRestSeconds = updatedSegment.lastRestSeconds ?? 0
+        lastAddedTargetPace = Int(updatedSegment.targetPaceSecondsPerKm ?? 0)
+        lastAddedTargetTime = Int(updatedSegment.targetTimeSeconds ?? 0)
+
+        if updatedSegment.usesOpenDistance, settings.trackingMode == .distanceDistance {
+            settings.trackingMode = .dual
+        }
+
+        settings.distanceSegments = WorkoutPlanSupport.normalizedSegments(updatedSegments)
     }
 }
 
 private struct CompanionBrowserView: View {
+    var body: some View {
+        NavigationStack {
+            CompanionPresetLibraryView()
+        }
+    }
+}
+
+private struct CompanionPresetLibraryView: View {
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
 
     var body: some View {
-        NavigationStack {
-            List {
-                Section(L10n.myIntervals) {
-                        if settings.intervalPresets.isEmpty {
-                            VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
-                                Text(L10n.noSavedIntervalsYet)
-                                    .font(.headline.weight(.semibold))
-                                    .foregroundStyle(theme.text.neutral)
+        List {
+            Section(L10n.myIntervals) {
+                if settings.intervalPresets.isEmpty {
+                    VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+                        Text(L10n.noSavedIntervalsYet)
+                            .font(.headline.weight(.semibold))
+                            .foregroundStyle(theme.text.neutral)
 
-                                Text(L10n.savedIntervalsPlaceholderDetail)
-                                    .font(.subheadline)
-                                    .foregroundStyle(theme.text.subtle)
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                                .listRowCardChrome()
-                        } else {
-                            ForEach(settings.intervalPresets) { preset in
-                                NavigationLink {
-                                    CompanionWorkoutEditorView(
-                                        headerTitle: L10n.adjustSettings,
-                                        subtitle: preset.trimmedCustomTitle ?? L10n.presetCountSummary(preset.workoutPlan.distanceSegments.count),
-                                        initialWorkoutPlan: preset.workoutPlan,
-                                        initialCustomTitle: preset.customTitle,
-                                        initialStoredPresetID: preset.id,
-                                        showsCustomTitle: true,
-                                        autoSaveOnSegmentDone: true
-                                    ) { workoutPlan, customTitle, storedPresetID in
-                                        _ = settings.saveIntervalPreset(
-                                            workoutPlan,
-                                            customTitle: customTitle,
-                                            existingPresetID: storedPresetID ?? preset.id
-                                        )
-                                        settings.apply(workoutPlan: workoutPlan)
-                                    }
-                                } label: {
-                                    CompanionPresetRowView(
-                                        title: preset.displayTitle(unit: settings.distanceUnit),
-                                        subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
-                                        usageCount: settings.presetUsageCount(for: preset.workoutPlan)
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button(role: .destructive) {
-                                        settings.deleteIntervalPreset(id: preset.id)
-                                    } label: {
-                                        Label(L10n.delete, systemImage: "trash")
-                                    }
-                                    .tint(theme.background.swipeAction(settings.primaryAccentColor))
-                                }
-                                .listRowCardChrome()
-                            }
-                        }
+                        Text(L10n.savedIntervalsPlaceholderDetail)
+                            .font(.subheadline)
+                            .foregroundStyle(theme.text.subtle)
                     }
-
-                    Section(L10n.predefined) {
-                        ForEach(SettingsStore.predefinedIntervalPresets) { preset in
-                            NavigationLink {
-                                CompanionWorkoutEditorView(
-                                    headerTitle: L10n.adjustSettings,
-                                    subtitle: preset.title,
-                                    initialWorkoutPlan: preset.workoutPlan,
-                                    initialCustomTitle: preset.title,
-                                    initialStoredPresetID: nil,
-                                    showsCustomTitle: true,
-                                    autoSaveOnSegmentDone: true
-                                ) { workoutPlan, customTitle, storedPresetID in
-                                    let normalizedTitle = IntervalPreset.sanitizeTitle(customTitle)
-                                    if IntervalPresetSignature(workoutPlan: workoutPlan) != preset.signature || normalizedTitle != nil {
-                                        _ = settings.saveIntervalPreset(
-                                            workoutPlan,
-                                            customTitle: normalizedTitle,
-                                            existingPresetID: storedPresetID
-                                        )
-                                    }
-                                    settings.apply(workoutPlan: workoutPlan)
-                                }
-                            } label: {
-                                CompanionPresetRowView(
-                                    title: preset.title,
-                                    subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
-                                    usageCount: settings.presetUsageCount(for: preset.workoutPlan)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .listRowCardChrome()
+                } else {
+                    ForEach(settings.intervalPresets) { preset in
+                        NavigationLink {
+                            CompanionWorkoutEditorView(
+                                headerTitle: L10n.adjustSettings,
+                                subtitle: preset.trimmedCustomTitle ?? L10n.presetCountSummary(preset.workoutPlan.distanceSegments.count),
+                                initialWorkoutPlan: preset.workoutPlan,
+                                initialCustomTitle: preset.customTitle,
+                                initialStoredPresetID: preset.id,
+                                showsCustomTitle: true,
+                                autoSaveOnSegmentDone: true
+                            ) { workoutPlan, customTitle, storedPresetID in
+                                _ = settings.saveIntervalPreset(
+                                    workoutPlan,
+                                    customTitle: customTitle,
+                                    existingPresetID: storedPresetID ?? preset.id
                                 )
+                                settings.apply(workoutPlan: workoutPlan)
                             }
-                            .buttonStyle(.plain)
-                            .listRowCardChrome()
+                        } label: {
+                            CompanionPresetRowView(
+                                title: preset.displayTitle(unit: settings.distanceUnit),
+                                subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
+                                usageCount: settings.presetUsageCount(for: preset.workoutPlan)
+                            )
                         }
+                        .buttonStyle(.plain)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                settings.deleteIntervalPreset(id: preset.id)
+                            } label: {
+                                Label(L10n.delete, systemImage: "trash")
+                            }
+                            .tint(.red)
+                        }
+                        .listRowCardChrome()
                     }
                 }
-            .navigationTitle(L10n.browser)
-            .navigationBarTitleDisplayMode(.inline)
-            .themedCompanionList()
+            }
+
+            Section(L10n.predefined) {
+                ForEach(SettingsStore.predefinedIntervalPresets) { preset in
+                    NavigationLink {
+                        CompanionWorkoutEditorView(
+                            headerTitle: L10n.adjustSettings,
+                            subtitle: preset.title,
+                            initialWorkoutPlan: preset.workoutPlan,
+                            initialCustomTitle: preset.title,
+                            initialStoredPresetID: nil,
+                            showsCustomTitle: true,
+                            autoSaveOnSegmentDone: true
+                        ) { workoutPlan, customTitle, storedPresetID in
+                            let normalizedTitle = IntervalPreset.sanitizeTitle(customTitle)
+                            if IntervalPresetSignature(workoutPlan: workoutPlan) != preset.signature || normalizedTitle != nil {
+                                _ = settings.saveIntervalPreset(
+                                    workoutPlan,
+                                    customTitle: normalizedTitle,
+                                    existingPresetID: storedPresetID
+                                )
+                            }
+                            settings.apply(workoutPlan: workoutPlan)
+                        }
+                    } label: {
+                        CompanionPresetRowView(
+                            title: preset.title,
+                            subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
+                            usageCount: settings.presetUsageCount(for: preset.workoutPlan)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .listRowCardChrome()
+                }
+            }
         }
+        .navigationTitle(L10n.browser)
+        .navigationBarTitleDisplayMode(.large)
+        .themedCompanionList()
     }
 }
 
@@ -205,8 +382,21 @@ private struct CompanionSettingsView: View {
                     }
                 }
             .navigationTitle(L10n.settings)
-            .navigationBarTitleDisplayMode(.inline)
+                .navigationBarTitleDisplayMode(.large)
             .themedCompanionSettingsList()
+        }
+    }
+}
+
+private struct CompanionHomeSectionHeader: View {
+    let title: String
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.md) {
+            Text(title)
+                .font(.title2.weight(.semibold))
+                .foregroundStyle(theme.text.neutral)
         }
     }
 }
@@ -291,15 +481,17 @@ private struct CompanionSettingsNavigationRow: View {
     @Environment(\.appTheme) private var theme
 
     var body: some View {
+        let iconTint = tintColor ?? theme.text.neutral
+
         HStack(spacing: Tokens.Spacing.md) {
             ZStack {
                 RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
-                    .fill((tintColor ?? theme.background.boldAction).opacity(Tokens.Opacity.fillAccent))
+                    .fill(iconTint.opacity(theme.isDark ? Tokens.Opacity.fillAccent : 0.14))
                     .frame(width: 28, height: 28)
 
                 Image(systemName: systemImage)
                     .font(.system(size: Tokens.FontSize.md, weight: .semibold))
-                    .foregroundStyle(theme.text.emphasis)
+                    .foregroundStyle(iconTint)
             }
 
             Text(title)
@@ -324,7 +516,7 @@ private struct CompanionMetricPill: View {
                 .font(.caption)
                 .foregroundStyle(theme.text.subtle)
             Text(value)
-                .font(.caption.weight(.semibold))
+                .font(.headline.weight(.semibold))
                 .foregroundStyle(theme.text.neutral)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -357,7 +549,6 @@ private struct CompanionPresetRowView: View {
                     .foregroundStyle(theme.text.subtle)
             }
         }
-        .companionCardChrome()
     }
 }
 
@@ -383,6 +574,7 @@ private struct CompanionWorkoutEditorView: View {
     @State private var storedPresetID: UUID?
     @State private var editingSegment: DistanceSegment?
     @State private var showsOpenDistanceBanner = false
+    @State private var addSegmentBounceTrigger = 0
 
     var body: some View {
         List {
@@ -447,10 +639,11 @@ private struct CompanionWorkoutEditorView: View {
                     .onDelete(perform: deleteSegments)
 
                     Button {
-                        addSegment()
+                        animateSegmentAddition()
                     } label: {
                         HStack {
                             Image(systemName: "plus.circle.fill")
+                                .symbolEffect(.bounce, value: addSegmentBounceTrigger)
                             Text(L10n.addInterval)
                         }
                         .font(.headline.weight(.semibold))
@@ -508,6 +701,13 @@ private struct CompanionWorkoutEditorView: View {
         customTitle = initialCustomTitle ?? ""
         storedPresetID = initialStoredPresetID
         ensuresDualModeForOpenIntervals(showBanner: false)
+    }
+
+    private func animateSegmentAddition() {
+        addSegmentBounceTrigger += 1
+        withAnimation(.snappy(duration: 0.3, extraBounce: 0.12)) {
+            addSegment()
+        }
     }
 
     private func addSegment() {
@@ -600,41 +800,55 @@ private struct CompanionSegmentRow: View {
         return distance
     }
 
-    private var details: [String] {
-        var items: [String] = []
+    private var repeatValue: String {
+        segment.repeatCount.map(String.init) ?? L10n.unlimited
+    }
 
-        if let restSeconds = segment.restSeconds {
-            items.append("\(L10n.rest): \(restSeconds)s")
-        } else {
-            items.append("\(L10n.rest): \(L10n.manual)")
-        }
+    private var restValue: String {
+        segment.restSeconds.map { Formatters.compactTimeString(from: Double($0)) } ?? L10n.manual
+    }
 
-        if let lastRestSeconds = segment.lastRestSeconds {
-            items.append("\(L10n.lastRest): \(lastRestSeconds)s")
-        }
+    private var lastRestValue: String {
+        segment.lastRestSeconds.map { Formatters.compactTimeString(from: Double($0)) } ?? L10n.off
+    }
 
+    private var targetLabel: String {
+        segment.targetTimeSeconds != nil ? L10n.targetTimeLabel : L10n.targetPaceLabel
+    }
+
+    private var targetValue: String {
         if let targetTime = segment.targetTimeSeconds {
-            items.append("\(L10n.time): \(Formatters.timeString(from: targetTime))")
+            return Formatters.compactTimeString(from: targetTime)
         }
 
         if let targetPace = segment.targetPaceSecondsPerKm {
-            items.append("\(L10n.pace): \(Formatters.compactPaceString(secondsPerKm: targetPace, unit: distanceUnit))")
+            return Formatters.compactPaceString(secondsPerKm: targetPace, unit: distanceUnit)
         }
 
-        return items
+        return L10n.off
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
-            Text(title)
-                .font(.headline.weight(.semibold))
-                .foregroundStyle(theme.text.neutral)
+        HStack(alignment: .top, spacing: Tokens.Spacing.md) {
+            VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
+                Text(title)
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(theme.text.neutral)
 
-            if !details.isEmpty {
-                Text(details.joined(separator: " • "))
-                    .font(.subheadline)
-                    .foregroundStyle(theme.text.subtle)
+                HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
+                    CompanionMetricPill(title: L10n.repeats, value: repeatValue)
+                    CompanionMetricPill(title: L10n.rest, value: restValue)
+                    CompanionMetricPill(title: L10n.lastRest, value: lastRestValue)
+                    CompanionMetricPill(title: targetLabel, value: targetValue)
+                }
             }
+
+            Spacer(minLength: Tokens.Spacing.md)
+
+            Image(systemName: "chevron.right")
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(theme.text.subtle)
+                .padding(.top, Tokens.Spacing.xs)
         }
     }
 }
@@ -774,6 +988,7 @@ private struct CompanionSegmentEditorView: View {
 
 private struct CompanionLiveWorkoutCard: View {
     let state: LiveWorkoutStateRecord
+    @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
     @State private var now = Date()
     private let stalenessTimer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
@@ -837,7 +1052,7 @@ private struct CompanionLiveWorkoutCard: View {
                 CompanionMetricPill(title: L10n.laps, value: "\(state.completedLapCount)")
                 CompanionMetricPill(
                     title: primaryDistanceLabel,
-                    value: Formatters.distanceString(meters: primaryDistanceMeters, unit: .km)
+                    value: Formatters.distanceString(meters: primaryDistanceMeters, unit: settings.distanceUnit)
                 )
             }
 
@@ -867,41 +1082,48 @@ private struct CompanionSessionRow: View {
             : session.totalDistanceMeters
     }
 
+    private var summaryPace: String {
+        guard summaryDistance > 0 else { return L10n.dash }
+        return Formatters.paceString(
+            distanceMeters: summaryDistance,
+            durationSeconds: session.activeDurationSeconds,
+            unit: settings.distanceUnit
+        )
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: Tokens.Spacing.sm) {
-            HStack(alignment: .center, spacing: Tokens.Spacing.md) {
+        HStack(alignment: .top, spacing: Tokens.Spacing.md) {
+            VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
                 Text(Formatters.historySessionDateTimeString(from: session.startedAt))
-                    .font(.headline)
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(theme.text.neutral)
 
-                Spacer(minLength: Tokens.Spacing.md)
-
-                if session.isImportedFromWatch {
-                    CompanionImportBadge(title: L10n.fromAppleWatch)
+                HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
+                    CompanionMetricPill(title: L10n.laps, value: "\(session.activeLapCount)")
+                    CompanionMetricPill(title: L10n.pace, value: summaryPace)
+                    CompanionMetricPill(title: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds))
+                    CompanionMetricPill(
+                        title: L10n.distance,
+                        value: summaryDistance > 0
+                            ? Formatters.distanceString(meters: summaryDistance, unit: settings.distanceUnit)
+                            : L10n.dash
+                    )
                 }
             }
 
-            Text(L10n.lapsSummary(session.activeLapCount, Formatters.speedString(metersPerSecond: session.averageSpeedMetersPerSecond)))
-                .font(.subheadline)
-                .foregroundStyle(theme.text.subtle)
+            Spacer(minLength: Tokens.Spacing.md)
 
-            Text(
-                L10n.timeSummary(
-                    Formatters.timeString(from: session.activeDurationSeconds),
-                    summaryDistance > 0
-                        ? Formatters.distanceString(meters: summaryDistance, unit: settings.distanceUnit)
-                        : L10n.dash
-                )
-            )
-            .font(.subheadline)
-            .foregroundStyle(theme.text.subtle)
+            Image(systemName: "chevron.right")
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(theme.text.subtle)
+                .padding(.top, Tokens.Spacing.xs)
         }
-        .companionCardChrome()
     }
 }
 
 private struct CompanionSessionDetailView: View {
     let session: Session
+    @EnvironmentObject private var settings: SettingsStore
 
     private var sortedLaps: [Lap] {
         session.laps.sorted { $0.startedAt < $1.startedAt }
@@ -921,9 +1143,9 @@ private struct CompanionSessionDetailView: View {
                 LabeledContent(L10n.importStatus, value: L10n.importComplete)
                 LabeledContent(L10n.mode, value: session.mode.displayName)
                 LabeledContent(L10n.time, value: Formatters.timeString(from: session.activeDurationSeconds))
-                LabeledContent(L10n.distance, value: Formatters.distanceString(meters: session.totalDistanceMeters, unit: .km))
+                LabeledContent(L10n.distance, value: Formatters.distanceString(meters: session.totalDistanceMeters, unit: settings.distanceUnit))
                 if let gpsDistance = session.totalGPSDistanceMeters {
-                    LabeledContent(L10n.gpsDistanceLabel, value: Formatters.distanceString(meters: gpsDistance, unit: .km))
+                    LabeledContent(L10n.gpsDistanceLabel, value: Formatters.distanceString(meters: gpsDistance, unit: settings.distanceUnit))
                 }
             }
 
@@ -932,7 +1154,7 @@ private struct CompanionSessionDetailView: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(lap.lapType == .rest ? L10n.rest : L10n.lapIndex(lap.index))
                             .font(.headline)
-                        Text(Formatters.lapSummaryString(lap: lap, trackingMode: session.mode, unit: .km))
+                        Text(Formatters.lapSummaryString(lap: lap, trackingMode: session.mode, unit: settings.distanceUnit))
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                         if let heartRate = lap.averageHeartRateBPM {
@@ -953,18 +1175,17 @@ private struct CompanionSessionDetailView: View {
 private struct CompanionImportBadge: View {
     let title: String
     @EnvironmentObject private var settings: SettingsStore
-    @Environment(\.appTheme) private var theme
 
     var body: some View {
         Text(title)
             .font(.system(size: 11, weight: .semibold, design: .rounded))
-            .foregroundStyle(theme.text.emphasis)
+            .foregroundStyle(settings.primaryAccentColor)
             .padding(.horizontal, Tokens.Spacing.sm)
             .padding(.vertical, Tokens.Spacing.xxs)
-            .background(theme.background.emphasis(settings.primaryAccentColor))
+            .background(settings.primaryAccentColor.opacity(0.12))
             .overlay(
                 Capsule(style: .continuous)
-                    .stroke(theme.stroke.emphasis(settings.primaryAccentColor), lineWidth: Tokens.LineWidth.thin)
+                    .stroke(settings.primaryAccentColor.opacity(0.18), lineWidth: Tokens.LineWidth.thin)
             )
             .clipShape(Capsule(style: .continuous))
     }
@@ -995,11 +1216,32 @@ private struct CompanionImportStatusCard: View {
     }
 }
 
+private struct CompanionScreenBackground: View {
+    let accentColor: Color
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        ZStack {
+            theme.background.app(accentColor)
+
+            LinearGradient(
+                colors: [
+                    theme.appGradientStart(accent: accentColor),
+                    theme.appGradientEnd(accent: accentColor)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottom
+            )
+        }
+        .ignoresSafeArea()
+    }
+}
+
 private extension View {
     @ViewBuilder
     func companionListBackground() -> some View {
         self
-            .listStyle(.plain)
+            .listStyle(.insetGrouped)
             .scrollContentBackground(.hidden)
             .background {
                 CompanionListBackgroundView()
@@ -1016,40 +1258,29 @@ private extension View {
     }
 
     func listRowCardChrome() -> some View {
-        self
-            .listRowInsets(EdgeInsets(top: Tokens.Spacing.xs, leading: Tokens.Spacing.lg, bottom: Tokens.Spacing.xs, trailing: Tokens.Spacing.lg))
-            .listRowBackground(Color.clear)
+        modifier(CompanionListRowChrome())
     }
 
     func companionCardChrome() -> some View {
-        modifier(CompanionCardChrome())
+        self
     }
 }
 
-private struct CompanionCardChrome: ViewModifier {
+private struct CompanionListRowChrome: ViewModifier {
     @Environment(\.appTheme) private var theme
 
     func body(content: Content) -> some View {
         content
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(Tokens.Spacing.lg)
-            .background(
-                RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
-                    .fill(theme.background.neutral)
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
-                    .stroke(theme.stroke.neutral, lineWidth: Tokens.LineWidth.thin)
-            )
+            .listRowInsets(EdgeInsets(top: Tokens.Spacing.xs, leading: Tokens.Spacing.lg, bottom: Tokens.Spacing.xs, trailing: Tokens.Spacing.lg))
+            .listRowBackground(theme.background.history)
     }
 }
 
 private struct CompanionListBackgroundView: View {
     @EnvironmentObject private var settings: SettingsStore
-    @Environment(\.appTheme) private var theme
 
     var body: some View {
-        theme.background.app(settings.primaryAccentColor)
+        CompanionScreenBackground(accentColor: settings.primaryAccentColor)
     }
 }
 

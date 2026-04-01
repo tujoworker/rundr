@@ -33,25 +33,25 @@ struct AppTheme {
         fileprivate let successBaseColor: Color
 
         /// Screen / view background.
-        func app(_ accent: Color) -> Color { isDark ? .black : accent }
+        func app(_ accent: Color) -> Color { isDark ? .black : .white }
 
         /// Cards, input fields, containers.
         var neutral: Color {
             isDark
                 ? .white.opacity(Tokens.Opacity.fillCard)
-                : .black.opacity(0.08)
+                : .white.opacity(0.84)
         }
 
         /// History cards and session detail containers.
         var history: Color {
             isDark
                 ? .white.opacity(Tokens.Opacity.fillCard)
-                : .white.opacity(Tokens.Opacity.fillCard)
+                : .white.opacity(0.92)
         }
 
         /// Floating status badges and small callouts.
         var statusBadge: Color {
-            .white
+            isDark ? .white : .white.opacity(0.96)
         }
 
         /// Rest rows within history surfaces.
@@ -63,28 +63,28 @@ struct AppTheme {
         var neutralAction: Color {
             isDark
                 ? .white.opacity(Tokens.Opacity.fillCard)
-                : .black.opacity(0.08)
+                : .white.opacity(0.78)
         }
 
         /// Interactive rows and cards with embedded controls.
         var neutralInteraction: Color {
             isDark
                 ? .white.opacity(Tokens.Opacity.fillInput)
-                : .black.opacity(0.06)
+                : .white.opacity(0.72)
         }
 
         /// Accent-tinted buttons and primary actions.
         func emphasisAction(_ accent: Color) -> Color {
             isDark
                 ? accent.opacity(Tokens.Opacity.fillAccent)
-                : .white.opacity(Tokens.Opacity.fillAccent)
+                : accent
         }
 
         /// Destructive action backgrounds.
         func destructiveAction(_ accent: Color) -> Color {
             isDark
                 ? accent.opacity(Tokens.Opacity.fillDestructive)
-                : .black.opacity(Tokens.Opacity.fillDestructive)
+                : accent.opacity(0.12)
         }
 
         /// Success surfaces, such as confirmation or guidance banners.
@@ -103,7 +103,7 @@ struct AppTheme {
         func emphasisCard(_ accent: Color) -> Color {
             isDark
                 ? accent.opacity(Tokens.Opacity.fillAccent)
-                : .white.opacity(Tokens.Opacity.fillAccent)
+                : .white.opacity(0.88)
         }
 
         /// Swipe action backgrounds.
@@ -124,7 +124,7 @@ struct AppTheme {
         var boldAction: Color {
             isDark
                 ? .white.opacity(Tokens.Opacity.foregroundRest)
-                    : .white
+                : .white
         }
     }
 
@@ -138,7 +138,7 @@ struct AppTheme {
         var neutral: Color {
             isDark
                 ? .white.opacity(Tokens.Opacity.fillSubtle)
-                : .black.opacity(0.08)
+                : .black.opacity(0.06)
         }
 
         /// Accent-tinted borders.
@@ -150,7 +150,7 @@ struct AppTheme {
         func emphasisAction(_ accent: Color) -> Color {
             isDark
                 ? accent.opacity(Tokens.Opacity.strokeAccent)
-                : .white.opacity(Tokens.Opacity.strokeAccent)
+                : accent.opacity(0.16)
         }
 
         /// Keypad header divider keeps the original accent stroke in dark mode
@@ -179,11 +179,15 @@ struct AppTheme {
         fileprivate let successBaseColor: Color
 
         /// Primary readable text.
-        var neutral: Color { .white }
+        var neutral: Color {
+            isDark ? .white : .black.opacity(Tokens.Opacity.foregroundRest)
+        }
 
         /// Secondary / muted text.
         var subtle: Color {
-            .white.opacity(Tokens.Opacity.foregroundSecondary)
+            isDark
+                ? .white.opacity(Tokens.Opacity.foregroundSecondary)
+                : .black.opacity(Tokens.Opacity.foregroundQuaternary)
         }
 
         /// Text on emphasis (accent) surfaces.
@@ -193,7 +197,7 @@ struct AppTheme {
         var success: Color { successBaseColor }
 
         /// Text on bold (inverted) surfaces.
-            var bold: Color { isDark ? .black : .black }
+        var bold: Color { .black }
 
         /// Text on rest rows within history surfaces.
         var historyRest: Color { .black }
@@ -227,12 +231,12 @@ struct AppTheme {
 
     /// Start colour of the full-screen app gradient.
     func appGradientStart(accent: Color) -> Color {
-        background.app(accent)
+        isDark ? background.app(accent) : accent.opacity(0.22)
     }
 
     /// End colour of the full-screen app gradient.
     func appGradientEnd(accent: Color) -> Color {
-        isDark ? accent.opacity(Tokens.Opacity.fillGradientEnd) : background.app(accent)
+        isDark ? accent.opacity(Tokens.Opacity.fillGradientEnd) : .clear
     }
 }
 

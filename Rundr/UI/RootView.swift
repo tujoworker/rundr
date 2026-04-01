@@ -5,15 +5,19 @@ struct AppScreenBackground: View {
     @Environment(\.appTheme) private var theme
 
     var body: some View {
-        LinearGradient(
-            colors: [
-                theme.appGradientStart(accent: accentColor),
-                theme.appGradientEnd(accent: accentColor)
-            ],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-            .ignoresSafeArea()
+        ZStack {
+            theme.background.app(accentColor)
+
+            LinearGradient(
+                colors: [
+                    theme.appGradientStart(accent: accentColor),
+                    theme.appGradientEnd(accent: accentColor)
+                ],
+                startPoint: .topLeading,
+                endPoint: .bottom
+            )
+        }
+        .ignoresSafeArea()
     }
 }
 

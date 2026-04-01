@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 @main
 struct RundrCompanionApp: App {
@@ -9,8 +10,18 @@ struct RundrCompanionApp: App {
     init() {
         let tabBarAppearance = UITabBarAppearance()
         tabBarAppearance.configureWithTransparentBackground()
+        tabBarAppearance.backgroundEffect = UIBlurEffect(style: .systemUltraThinMaterial)
+        tabBarAppearance.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.72)
+        tabBarAppearance.shadowColor = UIColor.separator.withAlphaComponent(0.12)
         UITabBar.appearance().standardAppearance = tabBarAppearance
         UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
+
+        let navigationBarAppearance = UINavigationBarAppearance()
+        navigationBarAppearance.configureWithTransparentBackground()
+        navigationBarAppearance.shadowColor = .clear
+        UINavigationBar.appearance().standardAppearance = navigationBarAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = navigationBarAppearance
+        UINavigationBar.appearance().compactAppearance = navigationBarAppearance
     }
 
     var body: some Scene {

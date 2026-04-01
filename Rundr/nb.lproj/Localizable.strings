@@ -36,6 +36,7 @@
 "Mark as Rest" = "Marker som hvile";
 "Mark as Rest (Auto)" = "Marker som hvile (Auto)";
 "Resting" = "Hviler";
+"Resting for %@" = "Hviler i %@";
 "%@ (%@)" = "%@ (%@)";
 "Manual" = "Manuell";
 "Auto-detect" = "Automatisk";

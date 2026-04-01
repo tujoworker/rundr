@@ -23,9 +23,9 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     @Published var restElapsedSeconds: Int? = nil
     /// Total rest duration in seconds for the current timed rest.
     @Published var restDurationSeconds: Int? = nil
-    /// True when ≤5 seconds remain in a timed rest (for UI warning pulse).
+    /// True when ≤5 seconds remain in a timed rest.
     @Published var isRestWarningActive: Bool = false
-    /// True when the time goal has been reached on an open interval (for UI warning pulse).
+    /// True when the time goal has been reached on an open interval.
     @Published var isTimeGoalWarningActive: Bool = false
 
     // MARK: - Settings Snapshot

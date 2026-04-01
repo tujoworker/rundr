@@ -36,6 +36,7 @@
 "Mark as Rest" = "レストとしてマーク";
 "Mark as Rest (Auto)" = "レストとしてマーク（自動）";
 "Resting" = "レスト中";
+"Resting for %@" = "%@のレスト中";
 "%@ (%@)" = "%@ (%@)";
 "Manual" = "手動";
 "Auto-detect" = "自動検出";

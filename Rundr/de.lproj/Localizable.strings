@@ -36,6 +36,7 @@
 "Mark as Rest" = "Als Pause markieren";
 "Mark as Rest (Auto)" = "Als Pause markieren (Auto)";
 "Resting" = "Erholung";
+"Resting for %@" = "Erholung für %@";
 "%@ (%@)" = "%@ (%@)";
 "Manual" = "Manuell";
 "Auto-detect" = "Auto erkennen";

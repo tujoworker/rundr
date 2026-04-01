@@ -15,9 +15,6 @@ struct ActiveSessionView: View {
     @State private var isLapHistoryDragging = false
     @State private var lastAnimatedLapCount = 0
     @State private var lapEditorState: LapEditorState?
-    @State private var isRestPulseOn = false
-    @State private var isPausePulseOn = false
-    @State private var isTimeGoalPulseOn = false
     @State private var flashTask: Task<Void, Never>?
     @State private var bounceTask: Task<Void, Never>?
     @State private var glowTask: Task<Void, Never>?
@@ -98,7 +95,8 @@ struct ActiveSessionView: View {
     private var timerStatusBadgeText: String? {
         ActiveSessionTimerBadgeContent.statusText(
             runState: workoutController.runState,
-            willResumeIntoRest: workoutController.willResumeIntoRest
+            willResumeIntoRest: workoutController.willResumeIntoRest,
+            restDurationSeconds: workoutController.restDurationSeconds
         )
     }
 
@@ -333,89 +331,71 @@ struct ActiveSessionView: View {
 
     @ViewBuilder
     private var trackingPage: some View {
-        ZStack {
-            // Keep pause/rest pulses behind content so labels remain readable.
-            // Always present in the view tree (opacity-only hiding) to avoid
-            // changing the ZStack child count during layout, which can trigger
-            // an infinite PUICCarouselCollectionViewLayout invalidation loop.
-            Color.white
-                .opacity(isResting && isPausePulseOn ? 0.1 : 0)
-                .ignoresSafeArea()
+        VStack(spacing: 0) {
+            Color.clear
+                .frame(height: topHeaderHeight + 16)
 
-            Color.white
-                .opacity(isResting && isRestPulseOn ? 0.3 : 0)
-                .ignoresSafeArea()
+            Spacer(minLength: 0)
 
-            Color.white
-                .opacity(workoutController.isTimeGoalWarningActive && isTimeGoalPulseOn ? 0.15 : 0)
-                .ignoresSafeArea()
+            VStack(spacing: timerCardsSpacing) {
+                sessionTimerView
 
-            VStack(spacing: 0) {
-                Color.clear
-                    .frame(height: topHeaderHeight + 16)
-
-                Spacer(minLength: 0)
-
-                VStack(spacing: timerCardsSpacing) {
-                    sessionTimerView
-
-                    ScrollViewReader { proxy in
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: Tokens.Spacing.md) {
-                                if workoutController.completedLaps.isEmpty {
-                                    PlaceholderLapCardView(accentColor: primaryColor)
-                                        .offset(x: -Tokens.Spacing.md)
-                                } else {
-                                    ForEach(workoutController.completedLaps, id: \.id) { lap in
-                                        Button {
-                                            presentLapEditor(for: lap)
-                                        } label: {
-                                            LapCardView(lap: lap, trackingMode: workoutController.trackingMode, distanceUnit: settings.distanceUnit, accentColor: primaryColor, isLatest: lap.id == workoutController.completedLaps.last?.id)
-                                        }
-                                        .buttonStyle(LapCardPressStyle())
-                                        .id(lap.id)
+                ScrollViewReader { proxy in
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: Tokens.Spacing.md) {
+                            if workoutController.completedLaps.isEmpty {
+                                PlaceholderLapCardView(accentColor: primaryColor)
+                                    .offset(x: -Tokens.Spacing.md)
+                            } else {
+                                ForEach(workoutController.completedLaps, id: \.id) { lap in
+                                    Button {
+                                        presentLapEditor(for: lap)
+                                    } label: {
+                                        LapCardView(lap: lap, trackingMode: workoutController.trackingMode, distanceUnit: settings.distanceUnit, accentColor: primaryColor, isLatest: lap.id == workoutController.completedLaps.last?.id)
                                     }
+                                    .buttonStyle(LapCardPressStyle())
+                                    .id(lap.id)
                                 }
                             }
-                            .padding(.leading, Tokens.Spacing.md)
-                            .padding(.trailing, Tokens.Spacing.md)
-                            .frame(minWidth: WKInterfaceDevice.current().screenBounds.width, alignment: .trailing)
                         }
-                        .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
-                        .contentShape(Rectangle())
-                        .simultaneousGesture(
-                            DragGesture(minimumDistance: 4)
-                                .onChanged { _ in
-                                    isLapHistoryDragging = true
-                                }
-                                .onEnded { _ in
-                                    Task { @MainActor in
-                                        try? await Task.sleep(for: .milliseconds(120))
-                                        isLapHistoryDragging = false
-                                    }
-                                }
-                        )
-                        .onChange(of: workoutController.completedLaps.count) {
-                            if let lastLap = workoutController.completedLaps.last {
-                                withAnimation {
-                                    proxy.scrollTo(lastLap.id, anchor: .trailing)
-                                }
-                            }
-
-                            let lapCount = workoutController.completedLaps.count
-                            if lapCount > lastAnimatedLapCount && lapCount > 0 {
-                                animateTimerForNewLap()
-                            }
-                            lastAnimatedLapCount = lapCount
-                        }
+                        .padding(.leading, Tokens.Spacing.md)
+                        .padding(.trailing, Tokens.Spacing.md)
+                        .frame(minWidth: WKInterfaceDevice.current().screenBounds.width, alignment: .trailing)
                     }
-                    .frame(height: 64)
-                    .padding(.trailing, lapHistoryContainerTrailingPadding)
+                    .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
+                    .contentShape(Rectangle())
+                    .simultaneousGesture(
+                        DragGesture(minimumDistance: 4)
+                            .onChanged { _ in
+                                isLapHistoryDragging = true
+                            }
+                            .onEnded { _ in
+                                Task { @MainActor in
+                                    try? await Task.sleep(for: .milliseconds(120))
+                                    isLapHistoryDragging = false
+                                }
+                            }
+                    )
+                    .onChange(of: workoutController.completedLaps.count) {
+                        if let lastLap = workoutController.completedLaps.last {
+                            withAnimation {
+                                proxy.scrollTo(lastLap.id, anchor: .trailing)
+                            }
+                        }
+
+                        let lapCount = workoutController.completedLaps.count
+                        if lapCount > lastAnimatedLapCount && lapCount > 0 {
+                            animateTimerForNewLap()
+                        }
+                        lastAnimatedLapCount = lapCount
+                    }
                 }
-                .padding(.bottom, 4)
+                .frame(height: 64)
+                .padding(.trailing, lapHistoryContainerTrailingPadding)
             }
-            .offset(y: contentVerticalOffset)
+            .padding(.bottom, 4)
         }
+        .offset(y: contentVerticalOffset)
     }
 
     var body: some View {
@@ -458,33 +438,6 @@ struct ActiveSessionView: View {
                     .ignoresSafeArea()
             }
             .allowsHitTesting(false)
-        }
-        .onChange(of: isResting) { _, paused in
-            if paused {
-                withAnimation(.easeInOut(duration: 0.75).repeatForever(autoreverses: true)) {
-                    isPausePulseOn = true
-                }
-            } else {
-                withAnimation(nil) { isPausePulseOn = false }
-            }
-        }
-        .onChange(of: workoutController.isRestWarningActive) { _, active in
-            if active {
-                withAnimation(.easeInOut(duration: 0.45).repeatForever(autoreverses: true)) {
-                    isRestPulseOn = true
-                }
-            } else {
-                withAnimation(nil) { isRestPulseOn = false }
-            }
-        }
-        .onChange(of: workoutController.isTimeGoalWarningActive) { _, active in
-            if active {
-                withAnimation(.easeInOut(duration: 0.75).repeatForever(autoreverses: true)) {
-                    isTimeGoalPulseOn = true
-                }
-            } else {
-                withAnimation(nil) { isTimeGoalPulseOn = false }
-            }
         }
         .overlay {
             if isShowingSessionComplete {
@@ -764,15 +717,38 @@ private enum StatusBadgeStyle {
 }
 
 enum ActiveSessionTimerBadgeContent {
-    static func statusText(runState: WorkoutRunState, willResumeIntoRest: Bool) -> String? {
+    static func statusText(runState: WorkoutRunState, willResumeIntoRest: Bool, restDurationSeconds: Int? = nil) -> String? {
         switch runState {
         case .paused:
-            return willResumeIntoRest ? L10n.restModePausedStatus : L10n.workoutPaused
+            guard willResumeIntoRest else { return L10n.workoutPaused }
+            if let restDurationSeconds, restDurationSeconds > 0 {
+                return L10n.restModePausedStatusWithDuration(restDurationText(seconds: restDurationSeconds))
+            }
+            return L10n.restModePausedStatus
         case .rest:
+            if let restDurationSeconds, restDurationSeconds > 0 {
+                return L10n.restModeStatusWithDuration(restDurationText(seconds: restDurationSeconds))
+            }
             return L10n.restModeStatus
         case .idle, .ready, .active, .ending, .ended:
             return nil
         }
+    }
+
+    private static func restDurationText(seconds: Int) -> String {
+        let totalSeconds = max(0, seconds)
+        let minutes = totalSeconds / 60
+        let remainingSeconds = totalSeconds % 60
+
+        if minutes > 0, remainingSeconds > 0 {
+            return "\(minutes)\(L10n.minutesAbbrev) \(remainingSeconds)\(L10n.secondsAbbrev)"
+        }
+
+        if minutes > 0 {
+            return "\(minutes)\(L10n.minutesAbbrev)"
+        }
+
+        return "\(remainingSeconds)\(L10n.secondsAbbrev)"
     }
 }
 

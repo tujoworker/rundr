@@ -67,7 +67,13 @@ enum L10n {
         String(format: String(localized: "Lap %d", comment: "Lap label"), index)
     }
     static let restModeStatus = String(localized: "Resting", comment: "Timer label when resting")
+    static func restModeStatusWithDuration(_ duration: String) -> String {
+        String(format: String(localized: "Resting for %@", comment: "Timer label when resting with a target duration"), duration)
+    }
     static let restModePausedStatus = String(format: String(localized: "%@ (%@)", comment: "Timer label when resting and paused"), restModeStatus, workoutPaused)
+    static func restModePausedStatusWithDuration(_ duration: String) -> String {
+        String(format: String(localized: "%@ (%@)", comment: "Timer label when resting and paused"), restModeStatusWithDuration(duration), workoutPaused)
+    }
     static func restDuration(_ seconds: Int) -> String {
         String(format: String(localized: "Rest %ds", comment: "Timer label with rest countdown"), seconds)
     }

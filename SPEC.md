@@ -354,12 +354,15 @@ The active session uses a horizontal **paged TabView** with two pages and page i
 - Must be highly visible
 - Use monospaced digits for stability
 - Example: `08:43`
+- Show a status badge above the timer during rest and paused-rest states
+- For timed rests, that status badge must include the configured rest goal duration, for example `Resting for 15s` or `Resting for 1m 15s`
 - In distance mode, show the **current target distance** above the timer (from the active segment in the interval plan)
 - If the active segment has a target time or target pace, prefer showing that target summary above the timer
 - For an open interval with a target time, show an `Open • <time>` style target summary above the timer
 - when the interval plan has a finite total, show the **remaining planned laps** beside that label, e.g. `400 m · 5 left`
 - During rest, show "Rest Mode" above the timer instead
 - During a full pause, show `Paused` and stop accumulating elapsed workout time until resumed
+- Warning countdowns for the last 5 seconds of a timed rest must keep their haptics, but must not add any visual blinking, pulsing, or background flashing
 
 #### Lap cards
 

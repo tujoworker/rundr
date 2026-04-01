@@ -10,6 +10,13 @@ final class ActiveSessionTimerBadgeContentTests: XCTestCase {
         )
     }
 
+    func testStatusTextIncludesDurationForPausedTimedRestState() {
+        XCTAssertEqual(
+            ActiveSessionTimerBadgeContent.statusText(runState: .paused, willResumeIntoRest: true, restDurationSeconds: 75),
+            L10n.restModePausedStatusWithDuration("1\(L10n.minutesAbbrev) 15\(L10n.secondsAbbrev)")
+        )
+    }
+
     func testStatusTextReturnsPausedLabelForPausedState() {
         XCTAssertEqual(
             ActiveSessionTimerBadgeContent.statusText(runState: .paused, willResumeIntoRest: false),
@@ -21,6 +28,20 @@ final class ActiveSessionTimerBadgeContentTests: XCTestCase {
         XCTAssertEqual(
             ActiveSessionTimerBadgeContent.statusText(runState: .rest, willResumeIntoRest: false),
             L10n.restModeStatus
+        )
+    }
+
+    func testStatusTextIncludesSecondsForTimedRestState() {
+        XCTAssertEqual(
+            ActiveSessionTimerBadgeContent.statusText(runState: .rest, willResumeIntoRest: false, restDurationSeconds: 15),
+            L10n.restModeStatusWithDuration("15\(L10n.secondsAbbrev)")
+        )
+    }
+
+    func testStatusTextIncludesMinutesAndSecondsForTimedRestState() {
+        XCTAssertEqual(
+            ActiveSessionTimerBadgeContent.statusText(runState: .rest, willResumeIntoRest: false, restDurationSeconds: 75),
+            L10n.restModeStatusWithDuration("1\(L10n.minutesAbbrev) 15\(L10n.secondsAbbrev)")
         )
     }
 

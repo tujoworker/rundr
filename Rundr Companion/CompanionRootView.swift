@@ -71,7 +71,8 @@ private struct CompanionWorkoutsView: View {
                 if let liveWorkoutState = visibleLiveWorkoutState {
                     Section {
                         CompanionLiveWorkoutCard(state: liveWorkoutState)
-                            .listRowCardChrome()
+                            .padding(.leading, Tokens.Spacing.xl)
+                            .listRowCardChrome(rowInsets: Tokens.ListRowInsets.card)
                     } header: {
                         CompanionHomeSectionHeader(title: L10n.liveOnAppleWatch)
                     }
@@ -84,6 +85,7 @@ private struct CompanionWorkoutsView: View {
                                 selectedSegment = segment
                             } label: {
                                 CompanionSegmentRow(segment: segment, distanceUnit: settings.distanceUnit)
+                                    .padding(.leading, Tokens.Spacing.xl)
                             }
                             .buttonStyle(.plain)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -93,7 +95,7 @@ private struct CompanionWorkoutsView: View {
                                     Label(L10n.delete, systemImage: "trash")
                                 }
                             }
-                            .listRowCardChrome()
+                            .listRowCardChrome(rowInsets: Tokens.ListRowInsets.card)
                         }
 
                         Button {
@@ -125,13 +127,15 @@ private struct CompanionWorkoutsView: View {
                             .font(.subheadline)
                             .foregroundStyle(theme.text.subtle)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .listRowCardChrome()
+                            .padding(.leading, Tokens.Spacing.xl)
+                            .listRowCardChrome(rowInsets: Tokens.ListRowInsets.card)
                     } else {
                         ForEach(visibleSessions, id: \.id) { session in
                             NavigationLink {
                                 CompanionSessionDetailView(session: session)
                             } label: {
                                 CompanionSessionRow(session: session)
+                                    .padding(.leading, Tokens.Spacing.xl)
                             }
                             .buttonStyle(.plain)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
@@ -141,7 +145,7 @@ private struct CompanionWorkoutsView: View {
                                     Label(L10n.delete, systemImage: "trash")
                                 }
                             }
-                            .listRowCardChrome()
+                            .listRowCardChrome(rowInsets: Tokens.ListRowInsets.card)
                         }
 
                         if canLoadMoreSessions {
@@ -1257,8 +1261,8 @@ private extension View {
         self.companionListBackground()
     }
 
-    func listRowCardChrome() -> some View {
-        modifier(CompanionListRowChrome())
+    func listRowCardChrome(rowInsets: EdgeInsets = Tokens.ListRowInsets.companionCard) -> some View {
+        modifier(CompanionListRowChrome(rowInsets: rowInsets))
     }
 
     func companionCardChrome() -> some View {
@@ -1267,6 +1271,7 @@ private extension View {
 }
 
 private struct CompanionListRowChrome: ViewModifier {
+    let rowInsets: EdgeInsets
     @Environment(\.appTheme) private var theme
 
     func body(content: Content) -> some View {
@@ -1276,7 +1281,7 @@ private struct CompanionListRowChrome: ViewModifier {
                 RoundedRectangle(cornerRadius: Tokens.Radius.xxxl, style: .continuous)
                     .fill(theme.background.history)
             )
-            .listRowInsets(Tokens.ListRowInsets.companionCard)
+            .listRowInsets(rowInsets)
             .listRowSeparator(.hidden)
             .listRowBackground(Color.clear)
     }

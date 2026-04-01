@@ -143,6 +143,25 @@ final class ModelTests: XCTestCase {
         }
     }
 
+    func testResolvedTrackingModeForcesDualWhenOpenDistanceExists() {
+        let resolved = WorkoutPlanSupport.resolvedTrackingMode(
+            requestedTrackingMode: .distanceDistance,
+            segments: [DistanceSegment(distanceMeters: 0, distanceGoalMode: .open)]
+        )
+
+        XCTAssertEqual(resolved, .dual)
+    }
+
+    func testResolvedTrackingModeKeepsGPSContextWhenSwitchingToManualIntervals() {
+        let resolved = WorkoutPlanSupport.resolvedTrackingMode(
+            requestedTrackingMode: .distanceDistance,
+            segments: [.default],
+            currentTrackingMode: .gps
+        )
+
+        XCTAssertEqual(resolved, .dual)
+    }
+
     // MARK: - LapType
 
     func testLapTypeDisplayNames() {

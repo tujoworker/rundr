@@ -366,31 +366,167 @@ private struct CompanionSettingsView: View {
             List {
                 Section {
                     NavigationLink {
-                        CompanionAppearanceSettingsDetailView()
-                        } label: {
-                            CompanionSettingsNavigationRow(
-                                title: L10n.appearance,
-                                value: settings.appearanceMode.displayName,
-                                systemImage: "circle.lefthalf.filled"
-                            )
-                        }
+                        CompanionTrackingModeSettingsDetailView()
+                    } label: {
+                        CompanionSettingsNavigationRow(
+                            title: L10n.mode,
+                            value: settings.trackingMode.displayName,
+                            systemImage: "location"
+                        )
+                    }
 
-                        NavigationLink {
-                            CompanionColorSettingsDetailView()
-                        } label: {
-                            CompanionSettingsNavigationRow(
-                                title: L10n.color,
-                                value: settings.primaryColor.displayName,
-                                tintColor: settings.primaryColor.color,
-                                systemImage: "paintpalette.fill"
-                            )
-                        }
+                    NavigationLink {
+                        CompanionDistanceUnitSettingsDetailView()
+                    } label: {
+                        CompanionSettingsNavigationRow(
+                            title: L10n.unit,
+                            value: settings.distanceUnit.displayName,
+                            systemImage: "ruler"
+                        )
+                    }
+
+                    NavigationLink {
+                        CompanionRestModeSettingsDetailView()
+                    } label: {
+                        CompanionSettingsNavigationRow(
+                            title: L10n.restMode,
+                            value: settings.restMode.displayName,
+                            systemImage: "figure.cooldown"
+                        )
+                    }
+
+                    NavigationLink {
+                        CompanionAppearanceSettingsDetailView()
+                    } label: {
+                        CompanionSettingsNavigationRow(
+                            title: L10n.appearance,
+                            value: settings.appearanceMode.displayName,
+                            systemImage: "circle.lefthalf.filled"
+                        )
+                    }
+
+                    NavigationLink {
+                        CompanionColorSettingsDetailView()
+                    } label: {
+                        CompanionSettingsNavigationRow(
+                            title: L10n.color,
+                            value: settings.primaryColor.displayName,
+                            tintColor: settings.primaryColor.color,
+                            systemImage: "paintpalette.fill"
+                        )
                     }
                 }
+            }
             .navigationTitle(L10n.settings)
-                .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.large)
             .themedCompanionSettingsList()
         }
+    }
+}
+
+private struct CompanionTrackingModeSettingsDetailView: View {
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        List {
+            Section {
+                ForEach(TrackingMode.allCases) { mode in
+                    Button {
+                        settings.trackingMode = WorkoutPlanSupport.resolvedTrackingMode(
+                            requestedTrackingMode: mode,
+                            segments: settings.distanceSegments,
+                            currentTrackingMode: settings.trackingMode
+                        )
+                    } label: {
+                        HStack(spacing: Tokens.Spacing.md) {
+                            Text(mode.displayName)
+                                .foregroundStyle(theme.text.neutral)
+
+                            Spacer()
+
+                            if settings.trackingMode == mode {
+                                Image(systemName: "checkmark")
+                                    .font(.body.weight(.semibold))
+                                    .foregroundStyle(settings.primaryAccentColor)
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .navigationTitle(L10n.mode)
+        .navigationBarTitleDisplayMode(.inline)
+        .themedCompanionSettingsList()
+    }
+}
+
+private struct CompanionDistanceUnitSettingsDetailView: View {
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        List {
+            Section {
+                ForEach(DistanceUnit.allCases) { unit in
+                    Button {
+                        settings.distanceUnit = unit
+                    } label: {
+                        HStack(spacing: Tokens.Spacing.md) {
+                            Text(unit.displayName)
+                                .foregroundStyle(theme.text.neutral)
+
+                            Spacer()
+
+                            if settings.distanceUnit == unit {
+                                Image(systemName: "checkmark")
+                                    .font(.body.weight(.semibold))
+                                    .foregroundStyle(settings.primaryAccentColor)
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .navigationTitle(L10n.distanceUnit)
+        .navigationBarTitleDisplayMode(.inline)
+        .themedCompanionSettingsList()
+    }
+}
+
+private struct CompanionRestModeSettingsDetailView: View {
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        List {
+            Section {
+                ForEach(RestMode.allCases) { mode in
+                    Button {
+                        settings.restMode = mode
+                    } label: {
+                        HStack(spacing: Tokens.Spacing.md) {
+                            Text(mode.displayName)
+                                .foregroundStyle(theme.text.neutral)
+
+                            Spacer()
+
+                            if settings.restMode == mode {
+                                Image(systemName: "checkmark")
+                                    .font(.body.weight(.semibold))
+                                    .foregroundStyle(settings.primaryAccentColor)
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .navigationTitle(L10n.restMode)
+        .navigationBarTitleDisplayMode(.inline)
+        .themedCompanionSettingsList()
     }
 }
 

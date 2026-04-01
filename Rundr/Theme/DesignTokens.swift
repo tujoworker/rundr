@@ -81,6 +81,8 @@ enum Tokens {
         static let xxxl: CGFloat = 18
         /// 22 pt – settings card rows
         static let xxxxl: CGFloat = 22
+        /// 24 pt – companion list cell cards
+        static let companionListCell: CGFloat = 24
         /// 999 pt – pill / fully-rounded shapes
         static let pill: CGFloat = 999
     }

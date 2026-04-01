@@ -657,7 +657,7 @@ private struct CompanionWorkoutEditorView: View {
                         .padding(.vertical, Tokens.Spacing.md)
                     }
                     .listRowBackground(
-                        RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
+                        RoundedRectangle(cornerRadius: Tokens.Radius.companionListCell, style: .continuous)
                             .fill(theme.background.emphasisAction(settings.primaryAccentColor))
                     )
                 }
@@ -860,13 +860,26 @@ private struct CompanionSegmentRow: View {
 }
 
 private struct CompanionSegmentEditorView: View {
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.appTheme) private var theme
 
     @State private var segment: DistanceSegment
     @State private var distanceText: String
+    @State private var hasCommitted = false
     let distanceUnit: DistanceUnit
     let onSave: (DistanceSegment) -> Void
+
+    private var editorRowInsets: EdgeInsets {
+        Tokens.ListRowInsets.card
+    }
+
+    private var editorRowContentInsets: EdgeInsets {
+        EdgeInsets(
+            top: Tokens.Spacing.xxxxl,
+            leading: Tokens.Spacing.xxxl,
+            bottom: Tokens.Spacing.xxxxl,
+            trailing: Tokens.Spacing.xxxl
+        )
+    }
 
     init(segment: DistanceSegment, distanceUnit: DistanceUnit, onSave: @escaping (DistanceSegment) -> Void) {
         _segment = State(initialValue: segment)
@@ -876,74 +889,105 @@ private struct CompanionSegmentEditorView: View {
     }
 
     var body: some View {
-        Form {
-            Picker(L10n.distanceType, selection: $segment.distanceGoalMode) {
-                Text(L10n.fixedDistance).tag(DistanceGoalMode.fixed)
-                Text(L10n.openDistance).tag(DistanceGoalMode.open)
-            }
+        List {
+            Section {
+                Picker(L10n.distanceType, selection: $segment.distanceGoalMode) {
+                    Text(L10n.fixedDistance).tag(DistanceGoalMode.fixed)
+                    Text(L10n.openDistance).tag(DistanceGoalMode.open)
+                }
+                .padding(.trailing, Tokens.Spacing.sm)
+                .listRowCardChrome(
+                    rowInsets: editorRowInsets,
+                    contentInsets: editorRowContentInsets
+                )
 
-            if !segment.usesOpenDistance {
-                TextField(distanceLabel, text: $distanceText)
-                    .keyboardType(.decimalPad)
-                    .foregroundStyle(theme.text.neutral)
-            }
+                if !segment.usesOpenDistance {
+                    HStack(spacing: Tokens.Spacing.md) {
+                        Text(distanceLabel)
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(theme.text.neutral)
 
-            Stepper(value: Binding(
-                get: { segment.repeatCount ?? 0 },
-                set: { segment.repeatCount = $0 > 0 ? $0 : nil }
-            ), in: 0...99) {
-                LabeledContent(L10n.repeats, value: segment.repeatCount.map(String.init) ?? L10n.unlimited)
-            }
+                        Spacer(minLength: Tokens.Spacing.md)
 
-            Stepper(value: Binding(
-                get: { segment.restSeconds ?? 0 },
-                set: { segment.restSeconds = $0 > 0 ? $0 : nil }
-            ), in: 0...600) {
-                LabeledContent(L10n.rest, value: segment.restSeconds.map { "\($0)s" } ?? L10n.manual)
-            }
+                        TextField("", text: $distanceText)
+                            .keyboardType(.decimalPad)
+                            .multilineTextAlignment(.trailing)
+                            .foregroundStyle(theme.text.neutral)
+                            .frame(maxWidth: 140)
+                            .padding(.trailing, Tokens.Spacing.sm)
+                    }
+                    .listRowCardChrome(
+                        rowInsets: editorRowInsets,
+                        contentInsets: editorRowContentInsets
+                    )
+                }
 
-            Stepper(value: Binding(
-                get: { segment.lastRestSeconds ?? 0 },
-                set: { segment.lastRestSeconds = $0 > 0 ? $0 : nil }
-            ), in: 0...600) {
-                LabeledContent(L10n.lastRest, value: segment.lastRestSeconds.map { "\($0)s" } ?? L10n.off)
-            }
-
-            Stepper(value: Binding(
-                get: { Int(segment.targetTimeSeconds ?? 0) },
-                set: { segment.targetTimeSeconds = $0 > 0 ? Double($0) : nil }
-            ), in: 0...7200) {
-                LabeledContent(L10n.time, value: segment.targetTimeSeconds.map { Formatters.timeString(from: $0) } ?? L10n.off)
-            }
-
-            if !segment.usesOpenDistance {
                 Stepper(value: Binding(
-                    get: { Int(segment.targetPaceSecondsPerKm ?? 0) },
-                    set: { segment.targetPaceSecondsPerKm = $0 > 0 ? Double($0) : nil }
-                ), in: 0...1200) {
-                    LabeledContent(
-                        L10n.pace,
-                        value: segment.targetPaceSecondsPerKm.map {
-                            Formatters.compactPaceString(secondsPerKm: $0, unit: distanceUnit)
-                        } ?? L10n.off
+                    get: { segment.repeatCount ?? 0 },
+                    set: { segment.repeatCount = $0 > 0 ? $0 : nil }
+                ), in: 0...99) {
+                    LabeledContent(L10n.repeats, value: segment.repeatCount.map(String.init) ?? L10n.unlimited)
+                }
+                .listRowCardChrome(
+                    rowInsets: editorRowInsets,
+                    contentInsets: editorRowContentInsets
+                )
+
+                Stepper(value: Binding(
+                    get: { segment.restSeconds ?? 0 },
+                    set: { segment.restSeconds = $0 > 0 ? $0 : nil }
+                ), in: 0...600) {
+                    LabeledContent(L10n.rest, value: segment.restSeconds.map { "\($0)s" } ?? L10n.manual)
+                }
+                .listRowCardChrome(
+                    rowInsets: editorRowInsets,
+                    contentInsets: editorRowContentInsets
+                )
+
+                Stepper(value: Binding(
+                    get: { segment.lastRestSeconds ?? 0 },
+                    set: { segment.lastRestSeconds = $0 > 0 ? $0 : nil }
+                ), in: 0...600) {
+                    LabeledContent(L10n.lastRest, value: segment.lastRestSeconds.map { "\($0)s" } ?? L10n.off)
+                }
+                .listRowCardChrome(
+                    rowInsets: editorRowInsets,
+                    contentInsets: editorRowContentInsets
+                )
+
+                Stepper(value: Binding(
+                    get: { Int(segment.targetTimeSeconds ?? 0) },
+                    set: { segment.targetTimeSeconds = $0 > 0 ? Double($0) : nil }
+                ), in: 0...7200) {
+                    LabeledContent(L10n.time, value: segment.targetTimeSeconds.map { Formatters.timeString(from: $0) } ?? L10n.off)
+                }
+                .listRowCardChrome(
+                    rowInsets: editorRowInsets,
+                    contentInsets: editorRowContentInsets
+                )
+
+                if !segment.usesOpenDistance {
+                    Stepper(value: Binding(
+                        get: { Int(segment.targetPaceSecondsPerKm ?? 0) },
+                        set: { segment.targetPaceSecondsPerKm = $0 > 0 ? Double($0) : nil }
+                    ), in: 0...1200) {
+                        LabeledContent(
+                            L10n.pace,
+                            value: segment.targetPaceSecondsPerKm.map {
+                                Formatters.compactPaceString(secondsPerKm: $0, unit: distanceUnit)
+                            } ?? L10n.off
+                        )
+                    }
+                    .listRowCardChrome(
+                        rowInsets: editorRowInsets,
+                        contentInsets: editorRowContentInsets
                     )
                 }
             }
         }
         .navigationTitle(L10n.editInterval)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button(L10n.cancel) {
-                    dismiss()
-                }
-            }
-
-            ToolbarItem(placement: .topBarTrailing) {
-                Button(L10n.done) {
-                    commit()
-                }
-            }
-        }
+        .themedCompanionList()
+        .onDisappear(perform: commitIfNeeded)
     }
 
     private var distanceLabel: String {
@@ -955,7 +999,10 @@ private struct CompanionSegmentEditorView: View {
         }
     }
 
-    private func commit() {
+    private func commitIfNeeded() {
+        guard !hasCommitted else { return }
+        hasCommitted = true
+
         if !segment.usesOpenDistance, let value = Double(distanceText), value > 0 {
             switch distanceUnit {
             case .km:
@@ -970,7 +1017,6 @@ private struct CompanionSegmentEditorView: View {
         }
 
         onSave(segment)
-        dismiss()
     }
 
     private static func distanceText(for segment: DistanceSegment, unit: DistanceUnit) -> String {
@@ -1261,8 +1307,11 @@ private extension View {
         self.companionListBackground()
     }
 
-    func listRowCardChrome(rowInsets: EdgeInsets = Tokens.ListRowInsets.companionCard) -> some View {
-        modifier(CompanionListRowChrome(rowInsets: rowInsets))
+    func listRowCardChrome(
+        rowInsets: EdgeInsets = Tokens.ListRowInsets.companionCard,
+        contentInsets: EdgeInsets = Tokens.ContentInsets.companionCard
+    ) -> some View {
+        modifier(CompanionListRowChrome(rowInsets: rowInsets, contentInsets: contentInsets))
     }
 
     func companionCardChrome() -> some View {
@@ -1272,13 +1321,14 @@ private extension View {
 
 private struct CompanionListRowChrome: ViewModifier {
     let rowInsets: EdgeInsets
+    let contentInsets: EdgeInsets
     @Environment(\.appTheme) private var theme
 
     func body(content: Content) -> some View {
         content
-            .padding(Tokens.ContentInsets.companionCard)
+            .padding(contentInsets)
             .background(
-                RoundedRectangle(cornerRadius: Tokens.Radius.xxxl, style: .continuous)
+                RoundedRectangle(cornerRadius: Tokens.Radius.companionListCell, style: .continuous)
                     .fill(theme.background.history)
             )
             .listRowInsets(rowInsets)

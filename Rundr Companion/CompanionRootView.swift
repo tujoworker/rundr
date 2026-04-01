@@ -871,6 +871,23 @@ private struct CompanionSegmentEditorView: View {
 
         var id: String { rawValue }
 
+        var sharedField: CompanionSegmentEditorField {
+            switch self {
+            case .distance:
+                return .distance
+            case .repeats:
+                return .repeats
+            case .rest:
+                return .rest
+            case .lastRest:
+                return .lastRest
+            case .time:
+                return .time
+            case .pace:
+                return .pace
+            }
+        }
+
         var title: String {
             switch self {
             case .distance:
@@ -1118,6 +1135,7 @@ private struct CompanionSegmentEditorView: View {
                 title: field.title,
                 text: $editableValueText,
                 valueSuffix: field == .distance ? distanceUnitSuffix : nil,
+                emptyDisplayValue: emptyDisplayValue(for: field),
                 keypadRows: keypadRows(for: field),
                 onTapKey: { key in
                     handleKeyTap(key, for: field)
@@ -1157,16 +1175,14 @@ private struct CompanionSegmentEditorView: View {
     }
 
     private func canOpenEditor(for field: EditableField) -> Bool {
-        switch field {
-        case .time:
-            return (segment.targetTimeSeconds ?? 0) > 0
-        case .pace:
-            return (segment.targetPaceSecondsPerKm ?? 0) > 0
-        case .lastRest:
-            return (segment.lastRestSeconds ?? 0) > 0
-        case .distance, .repeats, .rest:
-            return true
-        }
+        CompanionSegmentEditorRules.canOpenEditor(
+            field: field.sharedField,
+            lastRestSeconds: segment.lastRestSeconds
+        )
+    }
+
+    private func emptyDisplayValue(for field: EditableField) -> String? {
+        CompanionSegmentEditorRules.emptyDisplayValue(for: field.sharedField)
     }
 
     private var distanceLabel: String {
@@ -1338,7 +1354,7 @@ private struct CompanionSegmentEditorView: View {
     private func handleKeyTap(_ key: String, for field: EditableField) {
         switch field {
         case .distance:
-            companionDistanceFieldTapKey(key, text: &editableValueText)
+            SegmentEditInputParser.applyDistanceKey(key, to: &editableValueText)
         case .repeats:
             SegmentEditInputParser.applyRepeatKey(key, to: &editableValueText)
         case .rest, .lastRest, .time, .pace:
@@ -1448,6 +1464,7 @@ private struct CompanionNumericKeypadSheet: View {
     let title: String
     @Binding var text: String
     let valueSuffix: String?
+    let emptyDisplayValue: String?
     let keypadRows: [[String]]
     let onTapKey: (String) -> Void
     let onCancel: () -> Void
@@ -1455,7 +1472,7 @@ private struct CompanionNumericKeypadSheet: View {
     @Environment(\.appTheme) private var theme
 
     private var displayedValue: String {
-        let baseValue = text.isEmpty ? " " : text
+        let baseValue = text.isEmpty ? (emptyDisplayValue ?? " ") : text
         guard let valueSuffix, !valueSuffix.isEmpty else { return baseValue }
         return "\(baseValue) \(valueSuffix)"
     }
@@ -1468,12 +1485,12 @@ private struct CompanionNumericKeypadSheet: View {
                         .fill(theme.background.neutralAction)
 
                     Text(displayedValue)
-                        .font(.system(size: Tokens.FontSize.xl, weight: .bold, design: .rounded))
+                        .font(.system(size: Tokens.FontSize.xxl, weight: .bold, design: .rounded))
                         .monospacedDigit()
                         .foregroundStyle(theme.text.neutral)
                         .padding(.leading, Tokens.Spacing.xxxxl)
                         .padding(.trailing, Tokens.Spacing.lg)
-                        .frame(maxWidth: .infinity, minHeight: 34, maxHeight: 34, alignment: .leading)
+                        .frame(maxWidth: .infinity, minHeight: 30, maxHeight: 30, alignment: .leading)
                 }
 
                 VStack(spacing: Tokens.Spacing.sm) {
@@ -1520,30 +1537,6 @@ private struct CompanionKeypadButton: View {
                 )
         }
         .buttonStyle(.plain)
-    }
-}
-
-private func companionDistanceFieldTapKey(_ key: String, text: inout String) {
-    if key == "⌫" {
-        if !text.isEmpty {
-            text.removeLast()
-        }
-        return
-    }
-
-    if key == "." {
-        if text.isEmpty {
-            text = "0."
-        } else if !text.contains(".") {
-            text += key
-        }
-        return
-    }
-
-    if text == "0" {
-        text = key
-    } else {
-        text += key
     }
 }
 

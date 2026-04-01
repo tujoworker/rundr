@@ -292,24 +292,55 @@ final class ModelTests: XCTestCase {
     func testSegmentEditInputParserAppliesDurationKeys() {
         var text = ""
 
+        SegmentEditInputParser.applyDurationKey("0", to: &text)
         SegmentEditInputParser.applyDurationKey("1", to: &text)
-        SegmentEditInputParser.applyDurationKey(":", to: &text)
+
+        XCTAssertEqual(text, "01:")
+
+        SegmentEditInputParser.applyDurationKey("⌫", to: &text)
+        SegmentEditInputParser.applyDurationKey("⌫", to: &text)
+        SegmentEditInputParser.applyDurationKey("⌫", to: &text)
+        XCTAssertEqual(text, "")
+
+        SegmentEditInputParser.applyDurationKey("1", to: &text)
+        SegmentEditInputParser.applyDurationKey("5", to: &text)
+
+        XCTAssertEqual(text, "15:")
+
         SegmentEditInputParser.applyDurationKey("3", to: &text)
         SegmentEditInputParser.applyDurationKey("0", to: &text)
 
-        XCTAssertEqual(text, "1:30")
+        XCTAssertEqual(text, "15:30")
 
         SegmentEditInputParser.applyDurationKey(":", to: &text)
         SegmentEditInputParser.applyDurationKey("4", to: &text)
         SegmentEditInputParser.applyDurationKey("5", to: &text)
 
-        XCTAssertEqual(text, "1:30:45")
+        XCTAssertEqual(text, "15:30")
 
         SegmentEditInputParser.applyDurationKey(":", to: &text)
-        XCTAssertEqual(text, "1:30:45")
+        XCTAssertEqual(text, "15:30")
 
         SegmentEditInputParser.applyDurationKey("⌫", to: &text)
-        XCTAssertEqual(text, "1:30:4")
+        XCTAssertEqual(text, "15:3")
+
+        SegmentEditInputParser.applyDurationKey("9", to: &text)
+        XCTAssertEqual(text, "15:39")
+
+        SegmentEditInputParser.applyDurationKey("9", to: &text)
+        XCTAssertEqual(text, "15:39")
+    }
+
+    func testSegmentEditInputParserCapsDurationInputAtNinetyNineNinetyNine() {
+        var text = ""
+
+        SegmentEditInputParser.applyDurationKey("9", to: &text)
+        SegmentEditInputParser.applyDurationKey("9", to: &text)
+        SegmentEditInputParser.applyDurationKey("9", to: &text)
+        SegmentEditInputParser.applyDurationKey("9", to: &text)
+        SegmentEditInputParser.applyDurationKey("9", to: &text)
+
+        XCTAssertEqual(text, "99:99")
     }
 
     func testSegmentEditInputParserParsesRepeatCounts() {
@@ -319,20 +350,85 @@ final class ModelTests: XCTestCase {
     }
 
     func testSegmentEditInputParserAppliesRepeatKeys() {
-        var text = "0"
+        var text = ""
+
+        SegmentEditInputParser.applyRepeatKey("0", to: &text)
+        SegmentEditInputParser.applyRepeatKey("1", to: &text)
+        XCTAssertEqual(text, "01")
 
         SegmentEditInputParser.applyRepeatKey("8", to: &text)
-        XCTAssertEqual(text, "8")
+        XCTAssertEqual(text, "018")
 
         SegmentEditInputParser.applyRepeatKey("⌫", to: &text)
-        XCTAssertEqual(text, "")
+        XCTAssertEqual(text, "01")
 
         SegmentEditInputParser.applyRepeatKey("1", to: &text)
         SegmentEditInputParser.applyRepeatKey("2", to: &text)
-        XCTAssertEqual(text, "12")
+        XCTAssertEqual(text, "0112")
 
         SegmentEditInputParser.applyRepeatKey("∞", to: &text)
         XCTAssertEqual(text, "")
+    }
+
+    func testSegmentEditInputParserAppliesDistanceKeys() {
+        var text = ""
+
+        SegmentEditInputParser.applyDistanceKey("0", to: &text)
+        SegmentEditInputParser.applyDistanceKey("1", to: &text)
+        XCTAssertEqual(text, "01")
+
+        SegmentEditInputParser.applyDistanceKey(".", to: &text)
+        XCTAssertEqual(text, "01.")
+
+        SegmentEditInputParser.applyDistanceKey(".", to: &text)
+        XCTAssertEqual(text, "01.")
+
+        SegmentEditInputParser.applyDistanceKey("5", to: &text)
+        XCTAssertEqual(text, "01.5")
+
+        SegmentEditInputParser.applyDistanceKey("⌫", to: &text)
+        XCTAssertEqual(text, "01.")
+    }
+
+    func testCompanionSegmentEditorRulesCanOpenEditor() {
+        XCTAssertTrue(
+            CompanionSegmentEditorRules.canOpenEditor(
+                field: .time,
+                lastRestSeconds: nil
+            )
+        )
+        XCTAssertTrue(
+            CompanionSegmentEditorRules.canOpenEditor(
+                field: .pace,
+                lastRestSeconds: nil
+            )
+        )
+        XCTAssertTrue(
+            CompanionSegmentEditorRules.canOpenEditor(
+                field: .lastRest,
+                lastRestSeconds: 15
+            )
+        )
+        XCTAssertFalse(
+            CompanionSegmentEditorRules.canOpenEditor(
+                field: .lastRest,
+                lastRestSeconds: 0
+            )
+        )
+    }
+
+    func testCompanionSegmentEditorRulesEmptyDisplayValue() {
+        XCTAssertEqual(
+            CompanionSegmentEditorRules.emptyDisplayValue(for: .time),
+            L10n.off
+        )
+        XCTAssertEqual(
+            CompanionSegmentEditorRules.emptyDisplayValue(for: .pace),
+            L10n.off
+        )
+        XCTAssertNil(
+            CompanionSegmentEditorRules.emptyDisplayValue(for: .distance)
+        )
     }
 
     func testSegmentEditorValueRulesClearLastRestWhenRepeatsAreUnlimited() {

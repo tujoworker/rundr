@@ -192,15 +192,31 @@ enum SegmentEditInputParser {
         }
 
         if key == ":" {
-            guard !text.isEmpty, !text.hasSuffix(":"), text.filter({ $0 == ":" }).count < 2 else { return }
+            guard !text.isEmpty, !text.hasSuffix(":"), !text.contains(":") else { return }
             text += key
             return
         }
 
-        if text == "0" {
-            text = key
-        } else {
+        if let colonIndex = text.firstIndex(of: ":") {
+            let secondsStart = text.index(after: colonIndex)
+            let secondsCount = text[secondsStart...].count
+            guard secondsCount < 2 else { return }
             text += key
+            return
+        }
+
+        // If the trailing colon was removed with backspace from "mm:", resume in mm:ss mode.
+        if text.count >= 2 {
+            text += ":"
+            text += key
+            return
+        }
+
+        text += key
+
+        // Match watch-style keypad behavior by auto-inserting a colon after two digits.
+        if !text.contains(":"), text.count == 2 {
+            text += ":"
         }
     }
 
@@ -217,10 +233,58 @@ enum SegmentEditInputParser {
             return
         }
 
-        if text == "0" {
-            text = key
-        } else {
-            text += key
+        text += key
+    }
+
+    static func applyDistanceKey(_ key: String, to text: inout String) {
+        if key == "⌫" {
+            if !text.isEmpty {
+                text.removeLast()
+            }
+            return
+        }
+
+        if key == "." {
+            if text.isEmpty {
+                text = "0."
+            } else if !text.contains(".") {
+                text += key
+            }
+            return
+        }
+
+        text += key
+    }
+}
+
+enum CompanionSegmentEditorField {
+    case distance
+    case repeats
+    case rest
+    case lastRest
+    case time
+    case pace
+}
+
+enum CompanionSegmentEditorRules {
+    static func canOpenEditor(
+        field: CompanionSegmentEditorField,
+        lastRestSeconds: Int?
+    ) -> Bool {
+        switch field {
+        case .time, .pace, .distance, .repeats, .rest:
+            return true
+        case .lastRest:
+            return (lastRestSeconds ?? 0) > 0
+        }
+    }
+
+    static func emptyDisplayValue(for field: CompanionSegmentEditorField) -> String? {
+        switch field {
+        case .time, .pace:
+            return L10n.off
+        case .distance, .repeats, .rest, .lastRest:
+            return nil
         }
     }
 }

@@ -224,27 +224,7 @@ struct NumericKeypadEditorScreen: View {
 }
 
 func distanceFieldTapKey(_ key: String, text: inout String) {
-    if key == "⌫" {
-        if !text.isEmpty {
-            text.removeLast()
-        }
-        return
-    }
-
-    if key == "." {
-        if text.isEmpty {
-            text = "0."
-        } else if !text.contains(".") {
-            text += key
-        }
-        return
-    }
-
-    if text == "0" {
-        text = key
-    } else {
-        text += key
-    }
+    SegmentEditInputParser.applyDistanceKey(key, to: &text)
 }
 
 private extension DistanceInputView {

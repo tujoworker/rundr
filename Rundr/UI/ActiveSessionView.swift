@@ -19,6 +19,7 @@ struct ActiveSessionView: View {
     @State private var bounceTask: Task<Void, Never>?
     @State private var glowTask: Task<Void, Never>?
     @State private var timerStatusBadgeHideTask: Task<Void, Never>?
+    @State private var timerStatusBadgeShowTask: Task<Void, Never>?
     @State private var restTransitionTask: Task<Void, Never>?
     @State private var isShowingSessionComplete = false
     @State private var isEndingSession = false
@@ -119,7 +120,11 @@ struct ActiveSessionView: View {
     }
 
     private var lapCounterPrimaryOpacity: Double {
-        isResting ? 0.8 : 1
+        restButtonShowsEndRest ? 0.8 : 1
+    }
+
+    private var lapCounterPrimaryColor: Color {
+        restButtonShowsEndRest ? primaryColor : theme.text.bold
     }
 
     @ViewBuilder
@@ -133,7 +138,7 @@ struct ActiveSessionView: View {
                         HStack(alignment: .firstTextBaseline, spacing: 0) {
                             Text("\(displayedLapCounter)")
                                 .font(.system(size: Tokens.FontSize.xxl, weight: .bold, design: .rounded))
-                                .foregroundStyle(theme.text.bold)
+                                .foregroundStyle(lapCounterPrimaryColor)
                                 .opacity(lapCounterPrimaryOpacity)
                             Text("/\(total)")
                                 .font(.system(size: Tokens.FontSize.xs, weight: .semibold, design: .rounded))
@@ -149,7 +154,7 @@ struct ActiveSessionView: View {
                         Text("\(displayedLapCounter)")
                             .font(.system(size: Tokens.FontSize.xxl, weight: .bold, design: .rounded))
                             .monospacedDigit()
-                            .foregroundStyle(theme.text.bold)
+                            .foregroundStyle(lapCounterPrimaryColor)
                             .opacity(lapCounterPrimaryOpacity)
                             .padding(.horizontal, Tokens.Spacing.xs)
                             .padding(.vertical, 0)
@@ -230,6 +235,7 @@ struct ActiveSessionView: View {
     private let lapHistoryContainerTrailingPadding: CGFloat = 12
     private let timerCardsSpacing: CGFloat = 6
     private let timerStatusBadgeAnimationDuration = 0.18
+    private let timerStatusBadgeAppearanceDelay = 1.0
 
     @ViewBuilder
     private var heartRateOverlay: some View {
@@ -490,6 +496,7 @@ struct ActiveSessionView: View {
             completedSessionDismissTask?.cancel()
             restTransitionTask?.cancel()
             timerStatusBadgeHideTask?.cancel()
+            timerStatusBadgeShowTask?.cancel()
         }
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarHidden(true)
@@ -554,11 +561,20 @@ struct ActiveSessionView: View {
 
     private func syncTimerStatusBadge(animated: Bool) {
         timerStatusBadgeHideTask?.cancel()
+        timerStatusBadgeShowTask?.cancel()
         let targetText = timerStatusBadgeText
 
         guard animated else {
             displayedTimerStatusBadgeText = targetText
-            isTimerStatusBadgeVisible = targetText != nil
+            isTimerStatusBadgeVisible = false
+            guard targetText != nil else { return }
+            timerStatusBadgeShowTask = Task {
+                try? await Task.sleep(for: .seconds(timerStatusBadgeAppearanceDelay))
+                guard !Task.isCancelled else { return }
+                await MainActor.run {
+                    isTimerStatusBadgeVisible = true
+                }
+            }
             return
         }
 
@@ -569,9 +585,12 @@ struct ActiveSessionView: View {
                 return
             }
             isTimerStatusBadgeVisible = false
-            Task { @MainActor in
-                await Task.yield()
-                isTimerStatusBadgeVisible = true
+            timerStatusBadgeShowTask = Task {
+                try? await Task.sleep(for: .seconds(timerStatusBadgeAppearanceDelay))
+                guard !Task.isCancelled else { return }
+                await MainActor.run {
+                    isTimerStatusBadgeVisible = true
+                }
             }
             return
         }
@@ -583,9 +602,12 @@ struct ActiveSessionView: View {
             await MainActor.run {
                 displayedTimerStatusBadgeText = targetText
                 guard targetText != nil else { return }
-                Task { @MainActor in
-                    await Task.yield()
-                    isTimerStatusBadgeVisible = true
+                timerStatusBadgeShowTask = Task {
+                    try? await Task.sleep(for: .seconds(timerStatusBadgeAppearanceDelay))
+                    guard !Task.isCancelled else { return }
+                    await MainActor.run {
+                        isTimerStatusBadgeVisible = true
+                    }
                 }
             }
         }

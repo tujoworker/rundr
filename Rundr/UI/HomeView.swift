@@ -9,7 +9,6 @@ struct HomeView: View {
 
     var onGetReady: () -> Void
     var onSelectSession: (Session) -> Void
-
     var body: some View {
         List {
             Section {
@@ -24,7 +23,7 @@ struct HomeView: View {
                     lineWidth: Tokens.LineWidth.thick
                 )
                 .buttonStyle(.plain)
-                .listRowInsets(EdgeInsets(top: Tokens.Spacing.md, leading: Tokens.Spacing.xl, bottom: Tokens.Spacing.xxxl, trailing: Tokens.Spacing.xl))
+                .listRowInsets(Tokens.ListRowInsets.primaryAction)
                 .listRowBackground(Color.clear)
 
                 if viewModel.recentSessions.isEmpty {
@@ -35,23 +34,7 @@ struct HomeView: View {
                         .listRowBackground(Color.clear)
                 } else {
                     ForEach(viewModel.recentSessions, id: \.id) { session in
-                        Button {
-                            onSelectSession(session)
-                        } label: {
-                            SessionRowView(session: session)
-                        }
-                        .buttonStyle(.plain)
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                persistence.deleteSession(session)
-                                viewModel.loadRecent(persistence: persistence)
-                            } label: {
-                                Label(L10n.delete, systemImage: "trash")
-                            }
-                            .tint(theme.background.swipeAction(settings.primaryAccentColor))
-                        }
-                        .listRowInsets(EdgeInsets(top: Tokens.Spacing.xxs, leading: Tokens.Spacing.xs, bottom: Tokens.Spacing.xxs, trailing: Tokens.Spacing.xs))
-                        .listRowBackground(Color.clear)
+                        sessionRow(for: session)
                     }
 
                     if viewModel.hasMoreSessions {
@@ -64,7 +47,7 @@ struct HomeView: View {
                         }
                         .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: Tokens.Radius.pill)
                         .buttonStyle(.plain)
-                        .listRowInsets(EdgeInsets(top: Tokens.Spacing.md, leading: Tokens.Spacing.xl, bottom: Tokens.Spacing.md, trailing: Tokens.Spacing.xl))
+                        .listRowInsets(Tokens.ListRowInsets.action)
                         .listRowBackground(Color.clear)
                     }
                 }
@@ -85,6 +68,25 @@ struct HomeView: View {
                 viewModel.loadRecent(persistence: persistence)
             }
         }
+    }
+
+    @ViewBuilder
+    private func sessionRow(for session: Session) -> some View {
+        NavigationLink(value: AppScreenState.sessionDetail(session.id)) {
+            SessionRowView(session: session)
+        }
+        .buttonStyle(.plain)
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button(role: .destructive) {
+                persistence.deleteSession(session)
+                viewModel.loadRecent(persistence: persistence)
+            } label: {
+                Label(L10n.delete, systemImage: "trash")
+            }
+            .tint(theme.background.swipeAction(settings.primaryAccentColor))
+        }
+        .listRowInsets(Tokens.ListRowInsets.card)
+        .listRowBackground(Color.clear)
     }
 }
 

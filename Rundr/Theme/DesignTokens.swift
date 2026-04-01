@@ -7,6 +7,34 @@ import SwiftUI
 /// in views instead of referencing these directly.
 enum Tokens {
 
+    // MARK: List Row Insets
+
+    enum ListRowInsets {
+        /// Compact edge spacing for card-like rows inside watch lists.
+        static let card = EdgeInsets(
+            top: Spacing.xxs,
+            leading: Spacing.xs,
+            bottom: Spacing.xxs,
+            trailing: Spacing.xs
+        )
+
+        /// Standard spacing for full-width list actions.
+        static let action = EdgeInsets(
+            top: Spacing.md,
+            leading: Spacing.xl,
+            bottom: Spacing.md,
+            trailing: Spacing.xl
+        )
+
+        /// Taller spacing used when separating the primary CTA from nearby content.
+        static let primaryAction = EdgeInsets(
+            top: Spacing.md,
+            leading: Spacing.xl,
+            bottom: Spacing.xxxl,
+            trailing: Spacing.xl
+        )
+    }
+
     // MARK: Corner Radius
 
     enum Radius {
@@ -103,6 +131,8 @@ enum Tokens {
         static let xl: CGFloat = 18
         /// 20 pt – numeric badges, keypad buttons
         static let xxl: CGFloat = 20
+        /// 24 pt – large add and emphasis icons
+        static let xxxl: CGFloat = 24
     }
 
     // MARK: Line Width

@@ -143,7 +143,7 @@ struct PreStartView: View {
             } label: {
                 HStack(spacing: Tokens.Spacing.sm) {
                     Image(systemName: "plus.circle.fill")
-                        .font(.system(size: Tokens.FontSize.lg, weight: .semibold))
+                        .font(.system(size: Tokens.FontSize.xxxl, weight: .semibold))
                     Text(L10n.addInterval)
                         .font(.system(size: Tokens.FontSize.md, weight: .semibold, design: .rounded))
                 }
@@ -153,6 +153,7 @@ struct PreStartView: View {
                 .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: Tokens.Radius.xxl)
             }
             .buttonStyle(.plain)
+            .padding(.top, Tokens.Spacing.xxs)
         }
     }
 
@@ -758,7 +759,7 @@ struct IntervalLibraryView: View {
                             }
                             .tint(theme.background.swipeAction(settings.primaryAccentColor))
                         }
-                        .listRowInsets(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4))
+                        .listRowInsets(Tokens.ListRowInsets.card)
                         .listRowBackground(Color.clear)
                     }
 
@@ -772,7 +773,7 @@ struct IntervalLibraryView: View {
                         }
                         .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: Tokens.Radius.pill)
                         .buttonStyle(.plain)
-                        .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
+                        .listRowInsets(Tokens.ListRowInsets.action)
                         .listRowBackground(Color.clear)
                     }
                 }
@@ -810,7 +811,7 @@ struct IntervalLibraryView: View {
                         )
                     }
                     .buttonStyle(.plain)
-                    .listRowInsets(EdgeInsets(top: 2, leading: 4, bottom: 2, trailing: 4))
+                    .listRowInsets(Tokens.ListRowInsets.card)
                     .listRowBackground(Color.clear)
                 }
             }
@@ -893,7 +894,7 @@ private struct IntervalSetupView: View {
             } label: {
                 HStack(spacing: Tokens.Spacing.sm) {
                     Image(systemName: "plus.circle.fill")
-                        .font(.system(size: Tokens.FontSize.lg, weight: .semibold))
+                        .font(.system(size: Tokens.FontSize.xxxl, weight: .semibold))
                     Text(L10n.addInterval)
                         .font(.system(size: Tokens.FontSize.md, weight: .semibold, design: .rounded))
                 }
@@ -903,6 +904,7 @@ private struct IntervalSetupView: View {
                 .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor, cornerRadius: Tokens.Radius.xxl)
             }
             .buttonStyle(.plain)
+            .padding(.top, Tokens.Spacing.xxs)
         }
     }
 

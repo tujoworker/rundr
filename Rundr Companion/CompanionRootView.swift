@@ -451,6 +451,8 @@ private struct CompanionTrackingModeSettingsDetailView: View {
                                     .foregroundStyle(settings.primaryAccentColor)
                             }
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -485,6 +487,8 @@ private struct CompanionDistanceUnitSettingsDetailView: View {
                                     .foregroundStyle(settings.primaryAccentColor)
                             }
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -519,6 +523,8 @@ private struct CompanionRestModeSettingsDetailView: View {
                                     .foregroundStyle(settings.primaryAccentColor)
                             }
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -566,6 +572,8 @@ private struct CompanionAppearanceSettingsDetailView: View {
                                     .foregroundStyle(settings.primaryAccentColor)
                             }
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -604,6 +612,8 @@ private struct CompanionColorSettingsDetailView: View {
                                     .foregroundStyle(settings.primaryAccentColor)
                             }
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -644,6 +654,8 @@ private struct CompanionSettingsNavigationRow: View {
             Text(value)
                 .foregroundStyle(theme.text.subtle)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 }
 

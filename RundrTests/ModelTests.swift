@@ -1209,6 +1209,38 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(store.restMode, .autoDetect)
     }
 
+    func testSettingsStoreApplyUpgradesGPSOnlyToDualForOpenIntervals() {
+        UserDefaults.standard.removeObject(forKey: "trackingMode")
+        UserDefaults.standard.removeObject(forKey: "distanceDistanceMeters")
+        UserDefaults.standard.removeObject(forKey: "distanceSegmentsJSON")
+        UserDefaults.standard.removeObject(forKey: "restMode")
+        UserDefaults.standard.removeObject(forKey: "pauseMode")
+        defer {
+            UserDefaults.standard.removeObject(forKey: "trackingMode")
+            UserDefaults.standard.removeObject(forKey: "distanceDistanceMeters")
+            UserDefaults.standard.removeObject(forKey: "distanceSegmentsJSON")
+            UserDefaults.standard.removeObject(forKey: "restMode")
+            UserDefaults.standard.removeObject(forKey: "pauseMode")
+        }
+
+        let store = SettingsStore()
+        store.trackingMode = .gps
+
+        let workoutPlan = WorkoutPlanSnapshot(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 500,
+            distanceSegments: [DistanceSegment(distanceMeters: 500, repeatCount: 6, restSeconds: 45, distanceGoalMode: .open)],
+            restMode: .autoDetect
+        )
+
+        store.apply(workoutPlan: workoutPlan)
+
+        XCTAssertEqual(store.trackingMode, .dual)
+        XCTAssertEqual(store.distanceDistanceMeters, 500)
+        XCTAssertEqual(store.distanceSegments, workoutPlan.distanceSegments)
+        XCTAssertEqual(store.restMode, .autoDetect)
+    }
+
     func testSettingsStoreDoesNotStorePredefinedSessionPreset() {
         UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON")
         defer { UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON") }

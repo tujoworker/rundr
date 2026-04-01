@@ -451,8 +451,6 @@ private struct CompanionTrackingModeSettingsDetailView: View {
                                     .foregroundStyle(settings.primaryAccentColor)
                             }
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -487,8 +485,6 @@ private struct CompanionDistanceUnitSettingsDetailView: View {
                                     .foregroundStyle(settings.primaryAccentColor)
                             }
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -523,8 +519,6 @@ private struct CompanionRestModeSettingsDetailView: View {
                                     .foregroundStyle(settings.primaryAccentColor)
                             }
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -572,8 +566,6 @@ private struct CompanionAppearanceSettingsDetailView: View {
                                     .foregroundStyle(settings.primaryAccentColor)
                             }
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -612,8 +604,6 @@ private struct CompanionColorSettingsDetailView: View {
                                     .foregroundStyle(settings.primaryAccentColor)
                             }
                         }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
@@ -654,8 +644,6 @@ private struct CompanionSettingsNavigationRow: View {
             Text(value)
                 .foregroundStyle(theme.text.subtle)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .contentShape(Rectangle())
     }
 }
 
@@ -1696,11 +1684,6 @@ private struct CompanionSessionRow: View {
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
 
-    private let columns = [
-        GridItem(.flexible(), spacing: Tokens.Spacing.xl, alignment: .topLeading),
-        GridItem(.flexible(), spacing: Tokens.Spacing.xl, alignment: .topLeading)
-    ]
-
     private var sessionUsesOpenIntervals: Bool {
         session.snapshotWorkoutPlan.distanceSegments.contains(where: \.usesOpenDistance)
     }
@@ -1720,46 +1703,33 @@ private struct CompanionSessionRow: View {
         )
     }
 
-    private var sessionStats: [CompanionSessionStatItem] {
-        [
-            CompanionSessionStatItem(label: L10n.laps, value: String(session.activeLapCount)),
-            CompanionSessionStatItem(label: L10n.pace, value: summaryPace),
-            CompanionSessionStatItem(label: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds)),
-            CompanionSessionStatItem(
-                label: session.mode.usesManualIntervals && !sessionUsesOpenIntervals ? L10n.distance : L10n.gpsDistanceLabel,
-                value: summaryDistance > 0
-                    ? Formatters.distanceString(meters: summaryDistance, unit: settings.distanceUnit)
-                    : L10n.dash
-            )
-        ]
-    }
-
     var body: some View {
-        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
-            Text(Formatters.historySessionDateTimeString(from: session.startedAt))
-                .font(.caption2.weight(.semibold))
-                .foregroundStyle(theme.text.neutral)
-                .padding(.bottom, Tokens.Spacing.xs)
+        HStack(alignment: .top, spacing: Tokens.Spacing.md) {
+            VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
+                Text(Formatters.historySessionDateTimeString(from: session.startedAt))
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(theme.text.neutral)
 
-            LazyVGrid(columns: columns, alignment: .leading, spacing: Tokens.Spacing.lg) {
-                ForEach(sessionStats) { item in
-                    VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
-                        Text(item.label)
-                            .font(.system(size: Tokens.FontSize.sm, weight: .regular, design: .rounded))
-                            .foregroundStyle(theme.text.subtle)
-
-                        Text(item.value)
-                            .font(.caption2.weight(.semibold))
-                            .foregroundStyle(theme.text.neutral)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
+                    CompanionMetricPill(title: L10n.laps, value: "\(session.activeLapCount)")
+                    CompanionMetricPill(title: L10n.pace, value: summaryPace)
+                    CompanionMetricPill(title: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds))
+                    CompanionMetricPill(
+                        title: L10n.distance,
+                        value: summaryDistance > 0
+                            ? Formatters.distanceString(meters: summaryDistance, unit: settings.distanceUnit)
+                            : L10n.dash
+                    )
                 }
             }
+
+            Spacer(minLength: Tokens.Spacing.md)
+
+            Image(systemName: "chevron.right")
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(theme.text.subtle)
+                .padding(.top, Tokens.Spacing.xs)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(Tokens.Spacing.md)
-        .background(theme.background.history)
-        .cornerRadius(Tokens.Radius.medium)
     }
 }
 
@@ -1772,95 +1742,325 @@ private struct CompanionSessionStatItem: Identifiable {
 private struct CompanionSessionDetailView: View {
     let session: Session
     @EnvironmentObject private var settings: SettingsStore
+    @EnvironmentObject private var persistence: PersistenceManager
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.appTheme) private var theme
+    @State private var isDeleteConfirmationPresented = false
 
     private var sortedLaps: [Lap] {
         session.laps.sorted { $0.startedAt < $1.startedAt }
     }
 
-    var body: some View {
-        List {
-            Section {
-                CompanionImportStatusCard(session: session)
-                    .listRowCardChrome()
-            }
-
-            Section(L10n.summary) {
-                LabeledContent(L10n.started, value: Formatters.historySessionDateTimeString(from: session.startedAt))
-                LabeledContent(L10n.ended, value: Formatters.historySessionDateTimeString(from: session.endedAt))
-                LabeledContent(L10n.source, value: session.companionSourceDisplayName)
-                LabeledContent(L10n.importStatus, value: L10n.importComplete)
-                LabeledContent(L10n.mode, value: session.mode.displayName)
-                LabeledContent(L10n.time, value: Formatters.timeString(from: session.activeDurationSeconds))
-                LabeledContent(L10n.distance, value: Formatters.distanceString(meters: session.totalDistanceMeters, unit: settings.distanceUnit))
-                if let gpsDistance = session.totalGPSDistanceMeters {
-                    LabeledContent(L10n.gpsDistanceLabel, value: Formatters.distanceString(meters: gpsDistance, unit: settings.distanceUnit))
-                }
-            }
-
-            Section(L10n.laps) {
-                ForEach(sortedLaps, id: \.id) { lap in
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(lap.lapType == .rest ? L10n.rest : L10n.lapIndex(lap.index))
-                            .font(.headline)
-                        Text(Formatters.lapSummaryString(lap: lap, trackingMode: session.mode, unit: settings.distanceUnit))
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        if let heartRate = lap.averageHeartRateBPM {
-                            Text(L10n.heartRateBPM(Int(heartRate)))
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .padding(.vertical, 2)
-                }
-            }
-        }
-        .navigationTitle(L10n.session)
-        .themedCompanionList()
+    private var headerTitle: HistoryDateRangeParts {
+        Formatters.historySessionDateRangeParts(start: session.startedAt, end: session.endedAt)
     }
-}
 
-private struct CompanionImportBadge: View {
-    let title: String
-    @EnvironmentObject private var settings: SettingsStore
+    private var sessionUsesOpenIntervals: Bool {
+        session.snapshotWorkoutPlan.distanceSegments.contains(where: \.usesOpenDistance)
+    }
 
-    var body: some View {
-        Text(title)
-            .font(.system(size: 11, weight: .semibold, design: .rounded))
-            .foregroundStyle(settings.primaryAccentColor)
-            .padding(.horizontal, Tokens.Spacing.sm)
-            .padding(.vertical, Tokens.Spacing.xxs)
-            .background(settings.primaryAccentColor.opacity(0.12))
-            .overlay(
-                Capsule(style: .continuous)
-                    .stroke(settings.primaryAccentColor.opacity(0.18), lineWidth: Tokens.LineWidth.thin)
+    private var sessionStats: [CompanionSessionStatItem] {
+        var items: [CompanionSessionStatItem] = [
+            CompanionSessionStatItem(label: L10n.laps, value: String(session.activeLapCount)),
+            CompanionSessionStatItem(label: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds)),
+            CompanionSessionStatItem(label: L10n.mode, value: session.mode == .distanceDistance ? L10n.manualLabel : session.mode.displayName)
+        ]
+
+        if session.mode.usesManualIntervals && !sessionUsesOpenIntervals {
+            items.append(
+                CompanionSessionStatItem(
+                    label: L10n.distance,
+                    value: session.totalDistanceMeters > 0
+                        ? Formatters.distanceString(meters: session.totalDistanceMeters, unit: settings.distanceUnit)
+                        : L10n.dash
+                )
             )
-            .clipShape(Capsule(style: .continuous))
+        } else {
+            let gpsDistance = session.totalGPSDistanceMeters ?? session.totalDistanceMeters
+            items.append(
+                CompanionSessionStatItem(
+                    label: L10n.gpsDistanceLabel,
+                    value: gpsDistance > 0
+                        ? Formatters.distanceString(meters: gpsDistance, unit: settings.distanceUnit)
+                        : L10n.dash
+                )
+            )
+        }
+
+        return items
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+                VStack(alignment: .leading, spacing: Tokens.Spacing.xxxs) {
+                    Text(headerTitle.dayText)
+                        .font(.title2.weight(.semibold))
+                        .foregroundStyle(theme.text.neutral)
+
+                    Text(headerTitle.timeText)
+                        .font(.subheadline)
+                        .foregroundStyle(theme.text.subtle)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, Tokens.ContentInsets.companionCard.leading + Tokens.Spacing.sm + Tokens.Spacing.xs)
+                .padding(.trailing, Tokens.Spacing.xs)
+
+                CompanionSessionStatsView(items: sessionStats)
+
+                Text(L10n.laps)
+                    .font(.title2.weight(.semibold))
+                    .foregroundStyle(theme.text.neutral)
+                    .padding(.leading, Tokens.ContentInsets.companionCard.leading + Tokens.Spacing.sm + Tokens.Spacing.xs)
+                    .padding(.trailing, Tokens.Spacing.xs)
+                    .padding(.top, Tokens.Spacing.md)
+
+                ForEach(sortedLaps, id: \.id) { lap in
+                    CompanionSessionLapRow(lap: lap, trackingMode: session.mode, distanceUnit: settings.distanceUnit)
+                }
+
+                Button {
+                    settings.apply(workoutPlan: session.snapshotWorkoutPlan)
+                } label: {
+                    Text(L10n.redoActivity)
+                        .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, Tokens.Spacing.md)
+                }
+                .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor)
+                .buttonStyle(.plain)
+                .padding(.top, Tokens.Spacing.lg)
+                .padding(.horizontal, Tokens.Spacing.xs)
+
+                Button(role: .destructive) {
+                    isDeleteConfirmationPresented = true
+                } label: {
+                    Text(L10n.deleteSession)
+                        .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, Tokens.Spacing.md)
+                }
+                .destructiveFillButtonChrome(tintColor: .red)
+                .buttonStyle(.plain)
+                .padding(.top, Tokens.Spacing.lg)
+                .padding(.horizontal, Tokens.Spacing.xs)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(Tokens.Spacing.md)
+            .padding(.vertical, Tokens.Spacing.xs)
+        }
+        .navigationTitle(headerTitle.dayText)
+        .background(Color.clear)
+        .alert(L10n.deleteSession, isPresented: $isDeleteConfirmationPresented) {
+            Button(L10n.delete, role: .destructive) {
+                persistence.deleteSession(session)
+                dismiss()
+            }
+            Button(L10n.cancel, role: .cancel) {}
+        } message: {
+            Text(L10n.deleteSessionConfirmMessage)
+        }
     }
 }
 
-private struct CompanionImportStatusCard: View {
-    let session: Session
+private struct CompanionSessionStatsView: View {
+    let items: [CompanionSessionStatItem]
+    @Environment(\.appTheme) private var theme
+
+    private let columns = [
+        GridItem(.flexible(), spacing: Tokens.Spacing.xl, alignment: .topLeading),
+        GridItem(.flexible(), spacing: Tokens.Spacing.xl, alignment: .topLeading)
+    ]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .center, spacing: 8) {
-                Text(L10n.importedSession)
-                    .font(.headline)
+        LazyVGrid(columns: columns, alignment: .leading, spacing: Tokens.Spacing.lg) {
+            ForEach(items) { item in
+                VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+                    Text(item.label)
+                        .font(.subheadline)
+                        .foregroundStyle(theme.text.subtle)
+                        .padding(.top, Tokens.Spacing.xs)
 
-                if session.isImportedFromWatch {
-                    CompanionImportBadge(title: L10n.fromAppleWatch)
+                    Text(item.value)
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(theme.text.neutral)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(
+            EdgeInsets(
+                top: Tokens.ContentInsets.companionCard.top + Tokens.Spacing.sm,
+                leading: Tokens.ContentInsets.companionCard.leading + Tokens.Spacing.sm,
+                bottom: Tokens.ContentInsets.companionCard.bottom + Tokens.Spacing.sm,
+                trailing: Tokens.ContentInsets.companionCard.trailing
+            )
+        )
+        .background(theme.background.history)
+        .cornerRadius(Tokens.Radius.companionListCell)
+        .padding(.horizontal, Tokens.Spacing.xs)
+        .padding(.bottom, Tokens.Spacing.xs)
+    }
+}
+
+private struct CompanionSessionLapRow: View {
+    let lap: Lap
+    let trackingMode: TrackingMode
+    let distanceUnit: DistanceUnit
+    @Environment(\.appTheme) private var theme
+
+    private let badgeOpticalLift: CGFloat = 2
+
+    private let columns = [
+        GridItem(.flexible(), spacing: Tokens.Spacing.xl, alignment: .topLeading),
+        GridItem(.flexible(), spacing: Tokens.Spacing.xl, alignment: .topLeading)
+    ]
+
+    private var isRestLap: Bool {
+        lap.lapType == .rest
+    }
+
+    private var badgeTitle: String {
+        String(lap.index)
+    }
+
+    private var isSingleDigitLap: Bool {
+        badgeTitle.count == 1
+    }
+
+    private var badgeMinSide: CGFloat {
+        Tokens.FontSize.xxl + Tokens.Spacing.xs
+    }
+
+    private var restInlineTitle: String {
+        "\(L10n.rest) • \(Formatters.compactTimeString(from: lap.durationSeconds))"
+    }
+
+    private var activeHeaderTime: String {
+        Formatters.compactTimeString(from: lap.durationSeconds)
+    }
+
+    private var detailItems: [CompanionSessionStatItem] {
+        var items: [CompanionSessionStatItem] = []
+
+        guard !isRestLap else {
+            if let averageHeartRateBPM = lap.averageHeartRateBPM {
+                items.append(CompanionSessionStatItem(label: L10n.heartRate, value: "\(Int(averageHeartRateBPM)) bpm"))
+            }
+            return items
+        }
+
+        if trackingMode.usesManualIntervals {
+            items.append(
+                CompanionSessionStatItem(
+                    label: L10n.distance,
+                    value: lap.distanceMeters > 0
+                        ? Formatters.distanceString(meters: lap.distanceMeters, unit: distanceUnit)
+                        : L10n.dash
+                )
+            )
+
+            items.append(
+                CompanionSessionStatItem(
+                    label: L10n.pace,
+                    value: lap.distanceMeters > 0
+                        ? Formatters.paceString(distanceMeters: lap.distanceMeters, durationSeconds: lap.durationSeconds, unit: distanceUnit)
+                        : L10n.dash
+                )
+            )
+        }
+
+        if trackingMode.usesGPSDistance {
+            let gpsDistance = trackingMode == .gps ? lap.distanceMeters : (lap.gpsDistanceMeters ?? 0)
+
+            items.append(
+                CompanionSessionStatItem(
+                    label: L10n.gpsDistanceLabel,
+                    value: gpsDistance > 0
+                        ? Formatters.distanceString(meters: gpsDistance, unit: distanceUnit)
+                        : L10n.dash
+                )
+            )
+
+            items.append(
+                CompanionSessionStatItem(
+                    label: L10n.gpsPaceLabel,
+                    value: gpsDistance > 0
+                        ? Formatters.paceString(distanceMeters: gpsDistance, durationSeconds: lap.durationSeconds, unit: distanceUnit)
+                        : L10n.dash
+                )
+            )
+        }
+
+        if let averageHeartRateBPM = lap.averageHeartRateBPM {
+            items.append(CompanionSessionStatItem(label: L10n.heartRate, value: "\(Int(averageHeartRateBPM)) bpm"))
+        }
+
+        return items
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+            HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.sm) {
+                if isRestLap {
+                    Text(restInlineTitle)
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(theme.text.historyRest)
+                } else {
+                    Text(badgeTitle)
+                        .font(.system(size: Tokens.FontSize.lg, weight: .bold, design: .rounded))
+                        .foregroundStyle(theme.text.bold)
+                        .frame(
+                            minWidth: badgeMinSide,
+                            minHeight: badgeMinSide
+                        )
+                        .background(
+                            RoundedRectangle(
+                                cornerRadius: isSingleDigitLap ? badgeMinSide / 2 : Tokens.Radius.medium,
+                                style: .continuous
+                            )
+                                .fill(theme.background.bold)
+                        )
+                        .alignmentGuide(.firstTextBaseline) { dimensions in
+                            dimensions[.firstTextBaseline] + badgeOpticalLift
+                        }
+
+                    Text(activeHeaderTime)
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(theme.text.neutral)
                 }
             }
 
-            Text(L10n.importedFromSource(session.companionSourceDisplayName))
-                .font(.subheadline.weight(.semibold))
+            LazyVGrid(columns: columns, alignment: .leading, spacing: Tokens.Spacing.lg) {
+                ForEach(detailItems) { item in
+                    VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+                        Text(item.label)
+                            .font(.subheadline)
+                            .foregroundStyle(isRestLap ? theme.text.historyRest : theme.text.subtle)
+                            .padding(.top, Tokens.Spacing.xs)
 
-            Text(L10n.importedSessionSummary)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                        Text(item.value)
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(isRestLap ? theme.text.historyRest : theme.text.neutral)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
         }
-        .padding(.vertical, 4)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(
+            EdgeInsets(
+                top: Tokens.ContentInsets.companionCard.top + Tokens.Spacing.sm,
+                leading: Tokens.ContentInsets.companionCard.leading + Tokens.Spacing.sm,
+                bottom: Tokens.ContentInsets.companionCard.bottom + Tokens.Spacing.sm,
+                trailing: Tokens.ContentInsets.companionCard.trailing
+            )
+        )
+        .background(isRestLap ? theme.background.historyRest : theme.background.history)
+        .cornerRadius(Tokens.Radius.companionListCell)
+        .padding(.horizontal, Tokens.Spacing.xs)
+        .padding(.bottom, Tokens.Spacing.xs)
     }
 }
 

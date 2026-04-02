@@ -137,7 +137,9 @@ private struct CompanionWorkoutsView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
-                                    deleteSegment(segment)
+                                    withAnimation {
+                                        deleteSegment(segment)
+                                    }
                                 } label: {
                                     Label(L10n.delete, systemImage: "trash")
                                 }

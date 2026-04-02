@@ -2290,8 +2290,13 @@ private struct CompanionSessionDetailView: View {
             .padding(Tokens.Spacing.md)
             .padding(.vertical, Tokens.Spacing.xs)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background {
+            CompanionListBackgroundView()
+        }
         .navigationTitle(headerTitle.dayText)
         .navigationBarTitleDisplayMode(.large)
+        .toolbarBackground(.hidden, for: .navigationBar)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
@@ -2308,7 +2313,6 @@ private struct CompanionSessionDetailView: View {
                 }
             }
         }
-        .background(Color.clear)
         .alert(L10n.deleteSession, isPresented: $isDeleteConfirmationPresented) {
             Button(L10n.delete, role: .destructive) {
                 persistence.deleteSession(session)

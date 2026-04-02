@@ -207,7 +207,10 @@ struct SessionDetailView: View {
             .padding(Tokens.Spacing.md)
             .padding(.vertical, Tokens.Spacing.xs)
         }
-        .background(Color.clear)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .background {
+            AppScreenBackground(accentColor: settings.primaryAccentColor)
+        }
         .toolbar(.visible, for: .navigationBar)
         .alert(L10n.deleteSession, isPresented: $isDeleteConfirmationPresented) {
             Button(L10n.delete, role: .destructive) {

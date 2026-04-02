@@ -150,6 +150,8 @@ enum L10n {
     static let targetTimeLabel = String(localized: "Target Time", comment: "Lap target time label")
     static let targetPaceLabel = String(localized: "Target Pace", comment: "Lap target pace label")
     static let useSessionSettings = String(localized: "Use Activity", comment: "Button")
+    static let useActivityConfirmationTitle = String(localized: "Use this session plan?", comment: "Confirmation title before applying a session plan")
+    static let useActivityConfirmationMessage = String(localized: "This replaces your current Session Plan.", comment: "Confirmation message before applying a session plan")
     static let redoActivity = String(localized: "Redo Activity", comment: "Button")
     static let deleteSession = String(localized: "Delete Session", comment: "Button")
     static let deleteSessionConfirmMessage = String(localized: "This session will be permanently deleted.", comment: "Delete session confirmation message")

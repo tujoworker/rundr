@@ -209,8 +209,7 @@ final class SettingsStore: ObservableObject {
         get {
             guard !distanceSegmentsJSON.isEmpty,
                   let data = distanceSegmentsJSON.data(using: .utf8),
-                  let segments = try? JSONDecoder().decode([DistanceSegment].self, from: data),
-                  !segments.isEmpty else {
+                  let segments = try? JSONDecoder().decode([DistanceSegment].self, from: data) else {
                 return [DistanceSegment(distanceMeters: distanceDistanceMeters, repeatCount: nil)]
             }
             return segments

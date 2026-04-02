@@ -4,20 +4,32 @@ import UIKit
 
 struct CompanionRootView: View {
     @EnvironmentObject private var settings: SettingsStore
+    @State private var selectedTab: CompanionTab = .workouts
+
+    private enum CompanionTab: Hashable {
+        case workouts
+        case browser
+        case settings
+    }
 
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             CompanionWorkoutsView()
+                .tag(CompanionTab.workouts)
                 .tabItem {
                     Label(L10n.workouts, systemImage: "figure.run")
                 }
 
-            CompanionBrowserView()
+            CompanionBrowserView {
+                selectedTab = .workouts
+            }
+            .tag(CompanionTab.browser)
                 .tabItem {
                     Label(L10n.browser, systemImage: "square.grid.2x2")
                 }
 
             CompanionSettingsView()
+                .tag(CompanionTab.settings)
                 .tabItem {
                     Label(L10n.preferences, systemImage: "ellipsis.circle")
                 }
@@ -44,6 +56,7 @@ private struct CompanionWorkoutsView: View {
     @State private var lastAddedTargetTime: Int = 0
     @State private var addSegmentBounceTrigger = 0
     @State private var flashingSegmentIDs: Set<UUID> = []
+    @State private var lastObservedSegments: [DistanceSegment] = []
 
     private var visibleLiveWorkoutState: LiveWorkoutStateRecord? {
         guard let state = syncManager.liveWorkoutState,
@@ -57,7 +70,7 @@ private struct CompanionWorkoutsView: View {
 
     private var segments: [DistanceSegment] {
         let storedSegments = settings.distanceSegments
-        return storedSegments.isEmpty ? [.default] : WorkoutPlanSupport.normalizedSegments(storedSegments)
+        return storedSegments.isEmpty ? [] : WorkoutPlanSupport.normalizedSegments(storedSegments)
     }
 
     private var visibleSessions: ArraySlice<Session> {
@@ -79,17 +92,24 @@ private struct CompanionWorkoutsView: View {
             List {
                 if let liveWorkoutState = visibleLiveWorkoutState {
                     Section {
+                        CompanionHomeSectionHeader(title: L10n.liveOnAppleWatch)
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+
                         CompanionLiveWorkoutCard(state: liveWorkoutState)
                             .padding(.leading, Tokens.Spacing.xl)
                             .listRowCardChrome(rowInsets: workoutsRowInsets)
-                    } header: {
-                        CompanionHomeSectionHeader(title: L10n.liveOnAppleWatch)
                     }
                     .listSectionSeparator(.hidden)
                 }
 
                 if settings.trackingMode.usesManualIntervals {
                     Section {
+                        CompanionHomeSectionHeader(title: L10n.intervalsTitle)
+                            .padding(.leading, workoutsSectionHeaderLeadingInset)
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+
                         ForEach(segments) { segment in
                             Button {
                                 selectedSegment = segment
@@ -139,14 +159,16 @@ private struct CompanionWorkoutsView: View {
                         .listRowInsets(workoutsRowInsets)
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
-                    } header: {
-                        CompanionHomeSectionHeader(title: L10n.intervalsTitle)
-                            .padding(.leading, workoutsSectionHeaderLeadingInset)
                     }
                     .listSectionSeparator(.hidden)
                 }
 
                 Section {
+                    CompanionHomeSectionHeader(title: L10n.syncedSessions)
+                        .padding(.leading, workoutsSectionHeaderLeadingInset)
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+
                     if sessions.isEmpty {
                         Text(L10n.noSyncedSessionsYet)
                             .font(.subheadline)
@@ -194,13 +216,16 @@ private struct CompanionWorkoutsView: View {
                             .listRowBackground(Color.clear)
                         }
                     }
-                } header: {
-                    CompanionHomeSectionHeader(title: L10n.syncedSessions)
-                        .padding(.leading, workoutsSectionHeaderLeadingInset)
                 }
                 .listSectionSeparator(.hidden)
             }
-            .onAppear(perform: syncLastAddedValues)
+            .onAppear {
+                syncLastAddedValues()
+                if !lastObservedSegments.isEmpty, lastObservedSegments != settings.distanceSegments {
+                    flashChangedSegments(oldSegments: lastObservedSegments, newSegments: settings.distanceSegments)
+                }
+                lastObservedSegments = settings.distanceSegments
+            }
             .navigationDestination(item: $selectedSegment) { segment in
                 CompanionSegmentEditorView(
                     segment: segment,
@@ -208,7 +233,7 @@ private struct CompanionWorkoutsView: View {
                 ) { updatedSegment in
                     commitSegment(updatedSegment)
                 } onDelete: { segmentToDelete in
-                    deleteSegment(segmentToDelete)
+                    deleteSegment(segmentToDelete, keepsAtLeastOne: false)
                 }
             }
             .navigationDestination(isPresented: Binding(
@@ -226,6 +251,7 @@ private struct CompanionWorkoutsView: View {
             .onChange(of: settings.distanceSegments) { oldValue, newValue in
                 syncLastAddedValues()
                 flashChangedSegments(oldSegments: oldValue, newSegments: newValue)
+                lastObservedSegments = newValue
             }
             .navigationTitle(L10n.workouts)
             .navigationBarTitleDisplayMode(.large)
@@ -258,13 +284,18 @@ private struct CompanionWorkoutsView: View {
         settings.distanceSegments = WorkoutPlanSupport.normalizedSegments(updatedSegments)
     }
 
-    private func deleteSegment(_ segment: DistanceSegment) {
+    private func deleteSegment(_ segment: DistanceSegment, keepsAtLeastOne: Bool = true) {
         var updatedSegments = segments
         updatedSegments.removeAll { $0.id == segment.id }
-        if updatedSegments.isEmpty {
+        if keepsAtLeastOne, updatedSegments.isEmpty {
             updatedSegments = [.default]
         }
-        settings.distanceSegments = WorkoutPlanSupport.normalizedSegments(updatedSegments)
+
+        if keepsAtLeastOne || !updatedSegments.isEmpty {
+            settings.distanceSegments = WorkoutPlanSupport.normalizedSegments(updatedSegments)
+        } else {
+            settings.distanceSegments = []
+        }
     }
 
     private func commitSegment(_ updatedSegment: DistanceSegment) {
@@ -316,9 +347,11 @@ private struct CompanionWorkoutsView: View {
 }
 
 private struct CompanionBrowserView: View {
+    let onUseActivity: () -> Void
+
     var body: some View {
         NavigationStack {
-            CompanionPresetLibraryView()
+            CompanionPresetLibraryView(onUseActivity: onUseActivity)
         }
     }
 }
@@ -332,6 +365,7 @@ private struct CompanionPresetLibraryView: View {
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
     @State private var selectedRoute: PresetRoute?
+    let onUseActivity: () -> Void
 
     private var browseCellContentInsets: EdgeInsets {
         let baseInsets = Tokens.ContentInsets.companionCard
@@ -363,6 +397,11 @@ private struct CompanionPresetLibraryView: View {
     var body: some View {
         List {
             Section {
+                CompanionHomeSectionHeader(title: L10n.myIntervals)
+                    .padding(.leading, browseSectionHeaderLeadingInset)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+
                 if settings.intervalPresets.isEmpty {
                     VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                         Text(L10n.noSavedIntervalsYet)
@@ -410,13 +449,15 @@ private struct CompanionPresetLibraryView: View {
                         .contentShape(Rectangle())
                     }
                 }
-            } header: {
-                CompanionHomeSectionHeader(title: L10n.myIntervals)
-                    .padding(.leading, browseSectionHeaderLeadingInset)
             }
             .listSectionSeparator(.hidden)
 
             Section {
+                CompanionHomeSectionHeader(title: L10n.predefined)
+                    .padding(.leading, browseSectionHeaderLeadingInset)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+
                 ForEach(SettingsStore.predefinedIntervalPresets) { preset in
                     Button {
                         selectedRoute = .predefined(preset.id)
@@ -440,9 +481,6 @@ private struct CompanionPresetLibraryView: View {
                     )
                     .contentShape(Rectangle())
                 }
-            } header: {
-                CompanionHomeSectionHeader(title: L10n.predefined)
-                    .padding(.leading, browseSectionHeaderLeadingInset)
             }
             .listSectionSeparator(.hidden)
         }
@@ -468,6 +506,7 @@ private struct CompanionPresetLibraryView: View {
                             existingPresetID: storedPresetID ?? preset.id
                         )
                         settings.apply(workoutPlan: workoutPlan)
+                        onUseActivity()
                     }
                 } else {
                     EmptyView()
@@ -493,6 +532,7 @@ private struct CompanionPresetLibraryView: View {
                             )
                         }
                         settings.apply(workoutPlan: workoutPlan)
+                        onUseActivity()
                     }
                 } else {
                     EmptyView()
@@ -937,6 +977,8 @@ private struct CompanionWorkoutEditorView: View {
     @State private var selectedSegment: DistanceSegment?
     @State private var showsOpenDistanceBanner = false
     @State private var addSegmentBounceTrigger = 0
+    @State private var hasLoadedSnapshot = false
+    @State private var isUseActivityConfirmationPresented = false
 
     private var customTitleRowContentInsets: EdgeInsets {
         EdgeInsets(
@@ -983,7 +1025,7 @@ private struct CompanionWorkoutEditorView: View {
                         }
                     }
                     .listRowCardChrome(
-                        rowInsets: Tokens.ListRowInsets.card,
+                        rowInsets: CompanionSessionPlanStyle.rowInsets,
                         contentInsets: customTitleRowContentInsets
                     )
                 }
@@ -1063,15 +1105,23 @@ private struct CompanionWorkoutEditorView: View {
             ) { updatedSegment in
                 commitSegment(updatedSegment)
             } onDelete: { segmentToDelete in
-                deleteSegment(segmentToDelete)
+                deleteSegment(segmentToDelete, keepsAtLeastOne: false)
             }
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button(L10n.continueToGetReady) {
-                    commitWorkoutPlan()
+                Button(L10n.useSessionSettings) {
+                    isUseActivityConfirmationPresented = true
                 }
             }
+        }
+        .alert(L10n.useActivityConfirmationTitle, isPresented: $isUseActivityConfirmationPresented) {
+            Button(L10n.useSessionSettings) {
+                commitWorkoutPlan()
+            }
+            Button(L10n.cancel, role: .cancel) {}
+        } message: {
+            Text(L10n.useActivityConfirmationMessage)
         }
         .onAppear(perform: loadSnapshot)
         .onChange(of: trackingMode) { _, newValue in
@@ -1083,6 +1133,9 @@ private struct CompanionWorkoutEditorView: View {
     }
 
     private func loadSnapshot() {
+        guard !hasLoadedSnapshot else { return }
+        hasLoadedSnapshot = true
+
         let snapshot = initialWorkoutPlan
         trackingMode = snapshot.trackingMode
         restMode = snapshot.restMode
@@ -1115,12 +1168,14 @@ private struct CompanionWorkoutEditorView: View {
         persistPresetAfterEditIfNeeded()
     }
 
-    private func deleteSegment(_ segment: DistanceSegment) {
+    private func deleteSegment(_ segment: DistanceSegment, keepsAtLeastOne: Bool = true) {
         segments.removeAll { $0.id == segment.id }
-        if segments.isEmpty {
+        if keepsAtLeastOne, segments.isEmpty {
             segments = [.default]
         }
-        segments = WorkoutPlanSupport.normalizedSegments(segments)
+        if keepsAtLeastOne || !segments.isEmpty {
+            segments = WorkoutPlanSupport.normalizedSegments(segments)
+        }
         persistPresetAfterEditIfNeeded()
     }
 
@@ -1573,8 +1628,12 @@ private struct CompanionSegmentEditorView: View {
         .navigationTitle(L10n.editInterval)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button(L10n.deleteInterval, role: .destructive) {
-                    deleteSegment()
+                Menu {
+                    Button(L10n.deleteInterval, role: .destructive) {
+                        deleteSegment()
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
                 }
             }
         }

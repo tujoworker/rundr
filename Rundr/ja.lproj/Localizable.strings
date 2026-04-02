@@ -128,6 +128,8 @@
 "On your iPhone" = "iPhoneに保存済み";
 "Rundr on your iPhone already has this workout." = "iPhone上のRundrにはこのワークアウトがすでに保存されています。";
 "Use Activity" = "アクティビティを使用";
+"Use this session plan?" = "このセッションプランを使いますか？";
+"This replaces your current Session Plan." = "現在のセッションプランはこれで置き換わります。";
 "Redo Activity" = "アクティビティをやり直す";
 "Delete Session" = "セッションを削除";
 "This session will be permanently deleted." = "このセッションは完全に削除されます。";

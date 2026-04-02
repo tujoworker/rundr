@@ -855,7 +855,7 @@ private struct IntervalSetupView: View {
     @State private var lastAddedTargetPace: Int = 0
     @State private var lastAddedTargetTime: Int = 0
     @State private var showsOpenDistanceGPSBanner = false
-    @State private var isTrackingModeDialogPresented = false
+    @State private var isUseActivityConfirmationPresented = false
     @StateObject private var locationPermissionRequester = LocationPermissionRequester()
 
     private var distanceLabel: String {
@@ -917,12 +917,6 @@ private struct IntervalSetupView: View {
                         Text(headerTitle)
                             .font(.headline.weight(.semibold))
                             .foregroundStyle(theme.text.neutral)
-
-                        if let subtitle, !subtitle.isEmpty {
-                            Text(subtitle)
-                                .font(.footnote.weight(.medium))
-                                .foregroundStyle(theme.text.subtle)
-                        }
                     }
                     .padding(.horizontal, Tokens.Spacing.sm)
                     .id("top")
@@ -931,23 +925,12 @@ private struct IntervalSetupView: View {
                         IntervalTitleField(text: $customTitle)
                     }
 
-                    Button {
-                        isTrackingModeDialogPresented = true
-                    } label: {
-                        SettingsCardRow(
-                            icon: "location",
-                            title: L10n.mode,
-                            value: trackingMode.displayName
-                        )
-                    }
-                    .buttonStyle(.plain)
-
                     if trackingMode.usesManualIntervals {
                         intervalsSection
                     }
 
                     Button {
-                        continueToGetReady()
+                        isUseActivityConfirmationPresented = true
                     } label: {
                         Text(L10n.useSessionSettings)
                             .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
@@ -995,17 +978,13 @@ private struct IntervalSetupView: View {
                 onDone: { commitSegmentEdit() }
             )
         }
-        .confirmationDialog(L10n.mode, isPresented: $isTrackingModeDialogPresented) {
-            ForEach(TrackingMode.allCases) { mode in
-                Button(mode.displayName) {
-                    trackingMode = WorkoutPlanSupport.resolvedTrackingMode(
-                        requestedTrackingMode: mode,
-                        segments: segments,
-                        currentTrackingMode: trackingMode
-                    )
-                }
+        .alert(L10n.useActivityConfirmationTitle, isPresented: $isUseActivityConfirmationPresented) {
+            Button(L10n.useSessionSettings) {
+                continueToGetReady()
             }
             Button(L10n.cancel, role: .cancel) {}
+        } message: {
+            Text(L10n.useActivityConfirmationMessage)
         }
     }
 
@@ -1246,6 +1225,7 @@ private struct IntervalTitleField: View {
 
             TextField(L10n.optionalTitlePlaceholder, text: $text)
                 .textInputAutocapitalization(.words)
+                .foregroundStyle(theme.text.neutral)
                 .padding(.horizontal, Tokens.Spacing.md)
         }
     }

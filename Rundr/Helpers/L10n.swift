@@ -55,6 +55,7 @@ enum L10n {
     static let distanceUnit = String(localized: "Distance Unit", comment: "Dialog title")
     static let primaryColor = String(localized: "Primary Color", comment: "Dialog title")
     static let done = String(localized: "Done", comment: "Done button")
+    static let deleteInterval = String(localized: "Delete Interval", comment: "Button")
     static let secondsAbbrev = String(localized: "s", comment: "Seconds unit")
     static let minutesAbbrev = String(localized: "m", comment: "Minutes unit")
 

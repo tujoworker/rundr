@@ -34,6 +34,7 @@ private struct CompanionWorkoutsView: View {
     @Query(sort: [SortDescriptor(\Session.startedAt, order: .reverse)]) private var sessions: [Session]
     @State private var visibleSessionCount = 2
     @State private var selectedSegment: DistanceSegment?
+    @State private var selectedSession: Session?
     @State private var lastAddedDistanceMeters: Double = DistanceSegment.default.distanceMeters
     @State private var lastAddedUsesOpenDistance = false
     @State private var lastAddedRepeatCount: Int = 0
@@ -86,11 +87,15 @@ private struct CompanionWorkoutsView: View {
                             Button {
                                 selectedSegment = segment
                             } label: {
-                                CompanionSegmentRow(segment: segment, distanceUnit: settings.distanceUnit)
-                                    .padding(.leading, Tokens.Spacing.xl)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                HStack(spacing: 0) {
+                                    CompanionSegmentRow(segment: segment, distanceUnit: settings.distanceUnit)
+                                        .padding(Tokens.ContentInsets.companionCard)
+                                    Spacer(minLength: 0)
+                                }
+                                .contentShape(Rectangle())
                             }
                             .buttonStyle(CompanionNoPressOpacityButtonStyle())
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     deleteSegment(segment)
@@ -100,6 +105,7 @@ private struct CompanionWorkoutsView: View {
                             }
                             .listRowCardChrome(
                                 rowInsets: Tokens.ListRowInsets.card,
+                                contentInsets: EdgeInsets(),
                                 fillColor: flashingSegmentIDs.contains(segment.id)
                                     ? theme.background.emphasisAction(settings.primaryAccentColor)
                                     : nil
@@ -140,13 +146,18 @@ private struct CompanionWorkoutsView: View {
                             .listRowCardChrome(rowInsets: Tokens.ListRowInsets.card)
                     } else {
                         ForEach(visibleSessions, id: \.id) { session in
-                            NavigationLink {
-                                CompanionSessionDetailView(session: session)
+                            Button {
+                                selectedSession = session
                             } label: {
-                                CompanionSessionRow(session: session)
-                                    .padding(.leading, Tokens.Spacing.xl)
+                                HStack(spacing: 0) {
+                                    CompanionSessionRow(session: session)
+                                        .padding(Tokens.ContentInsets.companionCard)
+                                    Spacer(minLength: 0)
+                                }
+                                .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
+                            .contentShape(Rectangle())
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     persistence.deleteSession(session)
@@ -154,7 +165,7 @@ private struct CompanionWorkoutsView: View {
                                     Label(L10n.delete, systemImage: "trash")
                                 }
                             }
-                            .listRowCardChrome(rowInsets: Tokens.ListRowInsets.card)
+                            .listRowCardChrome(rowInsets: Tokens.ListRowInsets.card, contentInsets: EdgeInsets())
                         }
 
                         if canLoadMoreSessions {
@@ -181,6 +192,20 @@ private struct CompanionWorkoutsView: View {
                     distanceUnit: settings.distanceUnit
                 ) { updatedSegment in
                     commitSegment(updatedSegment)
+                } onDelete: { segmentToDelete in
+                    deleteSegment(segmentToDelete)
+                }
+            }
+            .navigationDestination(isPresented: Binding(
+                get: { selectedSession != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        selectedSession = nil
+                    }
+                }
+            )) {
+                if let selectedSession {
+                    CompanionSessionDetailView(session: selectedSession)
                 }
             }
             .onChange(of: settings.distanceSegments) { oldValue, newValue in
@@ -322,13 +347,19 @@ private struct CompanionPresetLibraryView: View {
                                 settings.apply(workoutPlan: workoutPlan)
                             }
                         } label: {
-                            CompanionPresetRowView(
-                                title: preset.displayTitle(unit: settings.distanceUnit),
-                                subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
-                                usageCount: settings.presetUsageCount(for: preset.workoutPlan)
-                            )
+                            HStack(spacing: 0) {
+                                CompanionPresetRowView(
+                                    title: preset.displayTitle(unit: settings.distanceUnit),
+                                    subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
+                                    usageCount: settings.presetUsageCount(for: preset.workoutPlan)
+                                )
+                                .padding(Tokens.ContentInsets.companionCard)
+                                Spacer(minLength: 0)
+                            }
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button(role: .destructive) {
                                 settings.deleteIntervalPreset(id: preset.id)
@@ -337,7 +368,8 @@ private struct CompanionPresetLibraryView: View {
                             }
                             .tint(.red)
                         }
-                        .listRowCardChrome()
+                        .listRowCardChrome(contentInsets: EdgeInsets())
+                        .contentShape(Rectangle())
                     }
                 }
             }
@@ -365,14 +397,21 @@ private struct CompanionPresetLibraryView: View {
                             settings.apply(workoutPlan: workoutPlan)
                         }
                     } label: {
-                        CompanionPresetRowView(
-                            title: preset.title,
-                            subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
-                            usageCount: settings.presetUsageCount(for: preset.workoutPlan)
-                        )
+                        HStack(spacing: 0) {
+                            CompanionPresetRowView(
+                                title: preset.title,
+                                subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
+                                usageCount: settings.presetUsageCount(for: preset.workoutPlan)
+                            )
+                            .padding(Tokens.ContentInsets.companionCard)
+                            Spacer(minLength: 0)
+                        }
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .listRowCardChrome()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .listRowCardChrome(contentInsets: EdgeInsets())
+                    .contentShape(Rectangle())
                 }
             }
         }
@@ -797,10 +836,17 @@ private struct CompanionWorkoutEditorView: View {
                         Button {
                             selectedSegment = segment
                         } label: {
-                            CompanionSegmentRow(segment: segment, distanceUnit: distanceUnit)
+                            HStack(spacing: 0) {
+                                CompanionSegmentRow(segment: segment, distanceUnit: distanceUnit)
+                                    .padding(Tokens.ContentInsets.companionCard)
+                                Spacer(minLength: 0)
+                            }
+                            .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
-                        .listRowCardChrome()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .listRowCardChrome(contentInsets: EdgeInsets())
+                        .contentShape(Rectangle())
                     }
                     .onDelete(perform: deleteSegments)
 
@@ -843,6 +889,8 @@ private struct CompanionWorkoutEditorView: View {
                 distanceUnit: distanceUnit
             ) { updatedSegment in
                 commitSegment(updatedSegment)
+            } onDelete: { segmentToDelete in
+                deleteSegment(segmentToDelete)
             }
         }
         .toolbar {
@@ -887,6 +935,15 @@ private struct CompanionWorkoutEditorView: View {
 
     private func deleteSegments(at offsets: IndexSet) {
         segments.remove(atOffsets: offsets)
+        if segments.isEmpty {
+            segments = [.default]
+        }
+        segments = WorkoutPlanSupport.normalizedSegments(segments)
+        persistPresetAfterEditIfNeeded()
+    }
+
+    private func deleteSegment(_ segment: DistanceSegment) {
+        segments.removeAll { $0.id == segment.id }
         if segments.isEmpty {
             segments = [.default]
         }
@@ -1043,6 +1100,8 @@ private struct CompanionSegmentRow: View {
                 }
             }
         }
+        .padding(.top, Tokens.Spacing.xs)
+        .padding(.bottom, Tokens.Spacing.sm)
     }
 }
 
@@ -1092,6 +1151,7 @@ private struct CompanionSegmentEditorView: View {
         }
     }
 
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.appTheme) private var theme
 
     @State private var segment: DistanceSegment
@@ -1103,6 +1163,7 @@ private struct CompanionSegmentEditorView: View {
     @State private var editableValueText = ""
     let distanceUnit: DistanceUnit
     let onSave: (DistanceSegment) -> Void
+    let onDelete: (DistanceSegment) -> Void
     private let durationKeypadRows: [[String]] = [
         ["1", "2", "3"],
         ["4", "5", "6"],
@@ -1142,11 +1203,17 @@ private struct CompanionSegmentEditorView: View {
         )
     }
 
-    init(segment: DistanceSegment, distanceUnit: DistanceUnit, onSave: @escaping (DistanceSegment) -> Void) {
+    init(
+        segment: DistanceSegment,
+        distanceUnit: DistanceUnit,
+        onSave: @escaping (DistanceSegment) -> Void,
+        onDelete: @escaping (DistanceSegment) -> Void
+    ) {
         _segment = State(initialValue: segment)
         _distanceText = State(initialValue: CompanionSegmentEditorView.distanceText(for: segment, unit: distanceUnit))
         self.distanceUnit = distanceUnit
         self.onSave = onSave
+        self.onDelete = onDelete
     }
 
     var body: some View {
@@ -1302,6 +1369,20 @@ private struct CompanionSegmentEditorView: View {
             }
         }
         .navigationTitle(L10n.editInterval)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button(role: .destructive) {
+                        deleteSegment()
+                    }
+                    label: {
+                        Text(L10n.deleteInterval)
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
+            }
+        }
         .themedCompanionList()
         .onAppear(perform: normalizeEditingState)
         .onChange(of: segment.distanceGoalMode) { _, _ in
@@ -1426,6 +1507,13 @@ private struct CompanionSegmentEditorView: View {
         )
 
         onSave(segment)
+    }
+
+    private func deleteSegment() {
+        guard !hasCommitted else { return }
+        hasCommitted = true
+        onDelete(segment)
+        dismiss()
     }
 
     private func normalizeEditingState() {
@@ -1704,6 +1792,8 @@ private struct CompanionNumericKeypadSheet: View {
                 }
             }
         }
+        .padding(.top, Tokens.Spacing.xs)
+        .padding(.bottom, Tokens.Spacing.sm)
     }
 }
 
@@ -1727,6 +1817,12 @@ private struct CompanionKeypadButton: View {
 }
 
 private struct CompanionSessionRow: View {
+    private struct MetricItem: Identifiable {
+        let id = UUID()
+        let title: String
+        let value: String
+    }
+
     let session: Session
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
@@ -1750,33 +1846,54 @@ private struct CompanionSessionRow: View {
         )
     }
 
+    private var metricItems: [MetricItem] {
+        [
+            MetricItem(title: L10n.laps, value: "\(session.activeLapCount)"),
+            MetricItem(title: L10n.pace, value: summaryPace),
+            MetricItem(title: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds)),
+            MetricItem(
+                title: L10n.distance,
+                value: summaryDistance > 0
+                    ? Formatters.distanceString(meters: summaryDistance, unit: settings.distanceUnit)
+                    : L10n.dash
+            )
+        ]
+    }
+
+    private var metricRows: [[MetricItem]] {
+        stride(from: 0, to: metricItems.count, by: 3).map { start in
+            Array(metricItems[start..<min(start + 3, metricItems.count)])
+        }
+    }
+
     var body: some View {
         HStack(alignment: .top, spacing: Tokens.Spacing.md) {
-            VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
-                Text(Formatters.historySessionDateTimeString(from: session.startedAt))
-                    .font(.title3.weight(.semibold))
-                    .foregroundStyle(theme.text.neutral)
+            VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
+                HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.md) {
+                    Text(Formatters.historySessionDateTimeString(from: session.startedAt))
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(theme.text.neutral)
 
-                HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
-                    CompanionMetricPill(title: L10n.laps, value: "\(session.activeLapCount)")
-                    CompanionMetricPill(title: L10n.pace, value: summaryPace)
-                    CompanionMetricPill(title: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds))
-                    CompanionMetricPill(
-                        title: L10n.distance,
-                        value: summaryDistance > 0
-                            ? Formatters.distanceString(meters: summaryDistance, unit: settings.distanceUnit)
-                            : L10n.dash
-                    )
+                    Spacer(minLength: Tokens.Spacing.md)
+
+                    Image(systemName: "chevron.right")
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(theme.text.subtle)
+                }
+
+                VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
+                    ForEach(Array(metricRows.enumerated()), id: \.offset) { _, row in
+                        HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
+                            ForEach(row) { item in
+                                CompanionMetricPill(title: item.title, value: item.value)
+                            }
+                        }
+                    }
                 }
             }
-
-            Spacer(minLength: Tokens.Spacing.md)
-
-            Image(systemName: "chevron.right")
-                .font(.headline.weight(.semibold))
-                .foregroundStyle(theme.text.subtle)
-                .padding(.top, Tokens.Spacing.xs)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, Tokens.Spacing.xs)
     }
 }
 

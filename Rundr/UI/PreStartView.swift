@@ -576,7 +576,7 @@ private struct SegmentRow: View {
         }
 
         if let count = segment.repeatCount {
-            let repeatItem = SessionStatItem(label: L10n.repeats, value: "×\(count)")
+            let repeatItem = SessionStatItem(label: L10n.repeats, value: String(count))
             if segment.usesOpenDistance {
                 items.append(repeatItem)
             } else {

@@ -140,6 +140,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     // Location
     private var locationManager: CLLocationManager?
     private var lastLocation: CLLocation?
+    private(set) var collectedRouteLocations: [CLLocation] = []
 
     // MARK: - Configuration
 
@@ -1181,6 +1182,7 @@ extension WorkoutSessionController: CLLocationManagerDelegate {
                     }
                 }
                 self.lastLocation = location
+                self.collectedRouteLocations.append(location)
             }
         }
     }

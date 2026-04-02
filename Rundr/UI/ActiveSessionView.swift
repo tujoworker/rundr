@@ -542,6 +542,7 @@ struct ActiveSessionView: View {
     }
 
     private func endSession() async {
+        let routeLocations = workoutController.collectedRouteLocations
         let session = await workoutController.endSession()
         if let session {
             persistence.saveSession(session)
@@ -550,7 +551,7 @@ struct ActiveSessionView: View {
             settings.recordPresetUsage(for: session.snapshotWorkoutPlan)
             Task.detached {
                 do {
-                    let uuid = try await self.healthKitManager.saveWorkout(session: session)
+                    let uuid = try await self.healthKitManager.saveWorkout(session: session, routeLocations: routeLocations)
                     await MainActor.run {
                         session.healthKitWorkoutUUID = uuid
                         session.updatedAt = Date()

@@ -1,5 +1,6 @@
 import Foundation
 import HealthKit
+import CoreLocation
 
 final class HealthKitManager: ObservableObject {
 
@@ -180,7 +181,7 @@ final class HealthKitManager: ObservableObject {
     }
 
     /// Save a completed session to HealthKit as an HKWorkout with interval activities.
-    func saveWorkout(session: Session) async throws -> UUID? {
+    func saveWorkout(session: Session, routeLocations: [CLLocation] = []) async throws -> UUID? {
         let configuration = HKWorkoutConfiguration()
         configuration.activityType = .running
         configuration.locationType = session.mode.usesGPSDistance ? .outdoor : .indoor
@@ -284,6 +285,14 @@ final class HealthKitManager: ObservableObject {
 
         try await builder.endCollection(at: session.endedAt)
         let workout = try await builder.finishWorkout()
+
+        // Attach GPS route so Activity app can display a map when sharing
+        if let workout, !routeLocations.isEmpty {
+            let routeBuilder = HKWorkoutRouteBuilder(healthStore: healthStore, device: .local())
+            try await routeBuilder.insertRouteData(routeLocations)
+            try await routeBuilder.finishRoute(with: workout, metadata: nil)
+        }
+
         return workout?.uuid
     }
 }

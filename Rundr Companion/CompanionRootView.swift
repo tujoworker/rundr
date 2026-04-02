@@ -68,32 +68,11 @@ private struct CompanionWorkoutsView: View {
         sessions.count > visibleSessionCount
     }
 
-    private var workoutsCellContentInsets: EdgeInsets {
-        let baseInsets = Tokens.ContentInsets.companionCard
+    private var workoutsCellContentInsets: EdgeInsets { CompanionSessionPlanStyle.cellContentInsets }
 
-        return EdgeInsets(
-            top: baseInsets.top,
-            leading: baseInsets.leading * 2,
-            bottom: baseInsets.bottom,
-            trailing: baseInsets.trailing * 2
-        )
-    }
+    private var workoutsSectionHeaderLeadingInset: CGFloat { CompanionSessionPlanStyle.sectionHeaderLeadingInset }
 
-    private var workoutsSectionHeaderLeadingInset: CGFloat {
-        Tokens.ContentInsets.companionCard.leading * 2
-    }
-
-    private var workoutsRowInsets: EdgeInsets {
-        let baseInsets = Tokens.ListRowInsets.card
-        let horizontalInset = (Tokens.Spacing.xxl + Tokens.Spacing.xxxl) / 2
-
-        return EdgeInsets(
-            top: baseInsets.top,
-            leading: horizontalInset,
-            bottom: baseInsets.bottom,
-            trailing: horizontalInset
-        )
-    }
+    private var workoutsRowInsets: EdgeInsets { CompanionSessionPlanStyle.rowInsets }
 
     var body: some View {
         NavigationStack {
@@ -959,74 +938,87 @@ private struct CompanionWorkoutEditorView: View {
     @State private var showsOpenDistanceBanner = false
     @State private var addSegmentBounceTrigger = 0
 
+    private var customTitleRowContentInsets: EdgeInsets {
+        EdgeInsets(
+            top: Tokens.Spacing.xxxxl,
+            leading: Tokens.Spacing.xxxl,
+            bottom: Tokens.Spacing.xxxxl,
+            trailing: Tokens.Spacing.xxxl
+        )
+    }
+
     var body: some View {
         List {
-            Section {
-                VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
-                    Text(headerTitle)
-                        .font(.headline.weight(.semibold))
-                        .foregroundStyle(theme.text.neutral)
-
-                    if let subtitle, !subtitle.isEmpty {
-                        Text(subtitle)
-                            .font(.subheadline)
-                            .foregroundStyle(theme.text.subtle)
-                    }
-                }
-                .companionCardChrome()
-            }
-
             if showsCustomTitle {
-                Section(L10n.title) {
-                    TextField(L10n.optionalTitlePlaceholder, text: $customTitle)
-                        .textInputAutocapitalization(.words)
-                        .foregroundStyle(theme.text.neutral)
-                        .listRowCardChrome()
-                }
-            }
+                Section {
+                    HStack(spacing: Tokens.Spacing.md) {
+                        Text(L10n.title)
+                            .font(.body)
+                            .foregroundStyle(theme.text.subtle)
 
-            Section(L10n.mode) {
-                Picker(L10n.mode, selection: $trackingMode) {
-                    ForEach(TrackingMode.allCases) { mode in
-                        Text(mode.displayName).tag(mode)
-                    }
-                }
-                .listRowCardChrome()
+                        HStack(spacing: Tokens.Spacing.xs) {
+                            TextField(
+                                "",
+                                text: $customTitle,
+                                prompt: Text(L10n.optionalTitlePlaceholder)
+                                    .foregroundStyle(theme.text.subtle)
+                            )
+                            .textInputAutocapitalization(.words)
+                            .multilineTextAlignment(.trailing)
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(theme.text.neutral)
 
-                Picker(L10n.restMode, selection: $restMode) {
-                    ForEach(RestMode.allCases) { mode in
-                        Text(mode.displayName).tag(mode)
+                            if !customTitle.isEmpty {
+                                Button {
+                                    customTitle = ""
+                                } label: {
+                                    Image(systemName: "xmark.circle.fill")
+                                        .foregroundStyle(theme.text.subtle)
+                                }
+                                .buttonStyle(.plain)
+                                .padding(.leading, Tokens.Spacing.sm)
+                                .padding(.trailing, Tokens.Spacing.xxs)
+                                .padding(.vertical, Tokens.Spacing.xxs)
+                            }
+                        }
                     }
+                    .listRowCardChrome(
+                        rowInsets: Tokens.ListRowInsets.card,
+                        contentInsets: customTitleRowContentInsets
+                    )
                 }
-                .listRowCardChrome()
-
-                Picker(L10n.unit, selection: $distanceUnit) {
-                    ForEach(DistanceUnit.allCases) { unit in
-                        Text(unit.displayName).tag(unit)
-                    }
-                }
-                .listRowCardChrome()
+                .listSectionSeparator(.hidden)
             }
 
             if trackingMode.usesManualIntervals {
-                Section(L10n.intervalsTitle) {
+                Section {
                     ForEach(segments) { segment in
                         Button {
                             selectedSegment = segment
                         } label: {
                             HStack(spacing: 0) {
                                 CompanionSegmentRow(segment: segment, distanceUnit: distanceUnit)
-                                    .padding(Tokens.ContentInsets.companionCard)
+                                    .padding(CompanionSessionPlanStyle.cellContentInsets)
                                 Spacer(minLength: 0)
                             }
                             .contentShape(Rectangle())
                         }
                         .buttonStyle(.plain)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .listRowCardChrome(contentInsets: EdgeInsets())
+                        .listRowCardChrome(
+                            rowInsets: CompanionSessionPlanStyle.rowInsets,
+                            contentInsets: EdgeInsets()
+                        )
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button {
+                                deleteSegment(segment)
+                            } label: {
+                                Label(L10n.delete, systemImage: "trash")
+                            }
+                            .tint(settings.primaryAccentColor)
+                        }
                         .contentShape(Rectangle())
                     }
-                    .onDelete(perform: deleteSegments)
 
                     Button {
                         animateSegmentAddition()
@@ -1035,20 +1027,23 @@ private struct CompanionWorkoutEditorView: View {
                             Spacer()
 
                             Image(systemName: "plus.circle.fill")
+                                .font(.system(size: Tokens.ControlSize.companionAddIcon, weight: .semibold))
+                                .foregroundStyle(settings.primaryAccentColor)
                                 .symbolEffect(.bounce, value: addSegmentBounceTrigger)
 
                             Spacer()
                         }
-                        .font(.headline.weight(.semibold))
-                        .foregroundStyle(theme.text.emphasis)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, Tokens.Spacing.md)
+                        .padding(.vertical, Tokens.Spacing.xs)
                     }
-                    .listRowBackground(
-                        RoundedRectangle(cornerRadius: Tokens.Radius.companionListCell, style: .continuous)
-                            .fill(theme.background.emphasisAction(settings.primaryAccentColor))
-                    )
+                    .buttonStyle(.plain)
+                    .listRowInsets(CompanionSessionPlanStyle.rowInsets)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                } header: {
+                    CompanionHomeSectionHeader(title: L10n.intervalsTitle)
+                        .padding(.leading, CompanionSessionPlanStyle.sectionHeaderLeadingInset)
                 }
+                .listSectionSeparator(.hidden)
             }
 
             if showsOpenDistanceBanner {
@@ -1073,7 +1068,7 @@ private struct CompanionWorkoutEditorView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button(L10n.done) {
+                Button(L10n.continueToGetReady) {
                     commitWorkoutPlan()
                 }
             }
@@ -1173,6 +1168,35 @@ private struct CompanionWorkoutEditorView: View {
         guard trackingMode == .distanceDistance else { return }
         trackingMode = .dual
         showsOpenDistanceBanner = showBanner
+    }
+}
+
+private enum CompanionSessionPlanStyle {
+    static var cellContentInsets: EdgeInsets {
+        let baseInsets = Tokens.ContentInsets.companionCard
+
+        return EdgeInsets(
+            top: baseInsets.top,
+            leading: baseInsets.leading * 2,
+            bottom: baseInsets.bottom,
+            trailing: baseInsets.trailing * 2
+        )
+    }
+
+    static var sectionHeaderLeadingInset: CGFloat {
+        Tokens.ContentInsets.companionCard.leading * 2
+    }
+
+    static var rowInsets: EdgeInsets {
+        let baseInsets = Tokens.ListRowInsets.card
+        let horizontalInset = (Tokens.Spacing.xxl + Tokens.Spacing.xxxl) / 2
+
+        return EdgeInsets(
+            top: baseInsets.top,
+            leading: horizontalInset,
+            bottom: baseInsets.bottom,
+            trailing: horizontalInset
+        )
     }
 }
 
@@ -1549,15 +1573,8 @@ private struct CompanionSegmentEditorView: View {
         .navigationTitle(L10n.editInterval)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button(role: .destructive) {
-                        deleteSegment()
-                    }
-                    label: {
-                        Text(L10n.deleteInterval)
-                    }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
+                Button(L10n.deleteInterval, role: .destructive) {
+                    deleteSegment()
                 }
             }
         }
@@ -1606,6 +1623,7 @@ private struct CompanionSegmentEditorView: View {
             Spacer(minLength: Tokens.Spacing.md)
 
             Text(value)
+                .font(.body.weight(.medium))
                 .foregroundStyle(theme.text.neutral)
         }
         .contentShape(Rectangle())

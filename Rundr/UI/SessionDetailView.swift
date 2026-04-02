@@ -200,7 +200,7 @@ struct SessionDetailView: View {
             Button(L10n.cancel, role: .cancel) {}
         }
         .alert(L10n.useActivityConfirmationTitle, isPresented: $isReuseConfirmationPresented) {
-            Button(L10n.redoActivity) {
+            Button(L10n.yes) {
                 onUseSessionSettings()
             }
             Button(L10n.cancel, role: .cancel) {}

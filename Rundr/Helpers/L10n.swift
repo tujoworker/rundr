@@ -155,6 +155,7 @@ enum L10n {
     static let redoActivity = String(localized: "Reuse Session Plan", comment: "Button")
     static let thisSession = String(localized: "This Session", comment: "Session detail action menu title")
     static let more = String(localized: "More", comment: "Menu button")
+    static let yes = String(localized: "Yes", comment: "Confirmation button")
     static let deleteSession = String(localized: "Delete Session", comment: "Button")
     static let deleteSessionConfirmMessage = String(localized: "This session will be permanently deleted.", comment: "Delete session confirmation message")
     static let phoneSyncPendingTitle = String(localized: "Still sending to iPhone", comment: "Watch history: session not yet on phone")

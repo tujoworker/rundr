@@ -18,4 +18,8 @@ final class L10nTests: XCTestCase {
     func testThisSessionLabelExistsForActionMenuTitle() {
         XCTAssertEqual(L10n.thisSession, "This Session")
     }
+
+    func testYesLabelExistsForConfirmationActions() {
+        XCTAssertEqual(L10n.yes, "Yes")
+    }
 }

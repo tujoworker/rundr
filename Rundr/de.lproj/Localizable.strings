@@ -133,6 +133,7 @@
 "Reuse Session Plan" = "Trainingsplan erneut verwenden";
 "This Session" = "Diese Einheit";
 "More" = "Mehr";
+"Yes" = "Ja";
 "Delete Session" = "Session löschen";
 "This session will be permanently deleted." = "Diese Session wird unwiderruflich gelöscht.";
 "Loaded from %@" = "Geladen aus %@";

@@ -133,6 +133,7 @@
 "Reuse Session Plan" = "セッションプランを再利用";
 "This Session" = "このセッション";
 "More" = "その他";
+"Yes" = "はい";
 "Delete Session" = "セッションを削除";
 "This session will be permanently deleted." = "このセッションは完全に削除されます。";
 "Loaded from %@" = "%@から読み込み";

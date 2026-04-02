@@ -14,4 +14,8 @@ final class L10nTests: XCTestCase {
     func testRedoActivityLabelUsesReuseSessionPlanWording() {
         XCTAssertEqual(L10n.redoActivity, "Reuse Session Plan")
     }
+
+    func testThisSessionLabelExistsForActionMenuTitle() {
+        XCTAssertEqual(L10n.thisSession, "This Session")
+    }
 }

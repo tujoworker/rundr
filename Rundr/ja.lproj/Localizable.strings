@@ -131,6 +131,7 @@
 "Use this session plan?" = "このセッションプランを使いますか？";
 "This replaces your current Session Plan." = "現在のセッションプランはこれで置き換わります。";
 "Reuse Session Plan" = "セッションプランを再利用";
+"This Session" = "このセッション";
 "More" = "その他";
 "Delete Session" = "セッションを削除";
 "This session will be permanently deleted." = "このセッションは完全に削除されます。";

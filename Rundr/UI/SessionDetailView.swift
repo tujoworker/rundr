@@ -10,6 +10,7 @@ struct SessionDetailView: View {
     @Environment(\.appTheme) private var theme
 
     @State private var isActionMenuPresented = false
+    @State private var isReuseConfirmationPresented = false
     @State private var isDeleteConfirmationPresented = false
 
     private var sortedLaps: [Lap] {
@@ -131,9 +132,9 @@ struct SessionDetailView: View {
                         isActionMenuPresented = true
                     } label: {
                         Image(systemName: "ellipsis")
-                            .font(.system(size: 9, weight: .bold))
+                            .font(.system(size: 18, weight: .bold))
                             .foregroundStyle(theme.text.neutral)
-                            .frame(width: 18, height: 18)
+                            .frame(width: 36, height: 36)
                             .background(
                                 Circle()
                                     .fill(settings.primaryAccentColor.opacity(Tokens.Opacity.foregroundBody))
@@ -189,12 +190,22 @@ struct SessionDetailView: View {
             AppScreenBackground(accentColor: settings.primaryAccentColor)
         }
         .toolbar(.visible, for: .navigationBar)
-        .confirmationDialog(L10n.more, isPresented: $isActionMenuPresented) {
-            Button(L10n.redoActivity, action: onUseSessionSettings)
+        .confirmationDialog(L10n.thisSession, isPresented: $isActionMenuPresented, titleVisibility: .visible) {
+            Button(L10n.redoActivity) {
+                isReuseConfirmationPresented = true
+            }
             Button(L10n.deleteSession, role: .destructive) {
                 isDeleteConfirmationPresented = true
             }
             Button(L10n.cancel, role: .cancel) {}
+        }
+        .alert(L10n.useActivityConfirmationTitle, isPresented: $isReuseConfirmationPresented) {
+            Button(L10n.redoActivity) {
+                onUseSessionSettings()
+            }
+            Button(L10n.cancel, role: .cancel) {}
+        } message: {
+            Text(L10n.useActivityConfirmationMessage)
         }
         .alert(L10n.deleteSession, isPresented: $isDeleteConfirmationPresented) {
             Button(L10n.delete, role: .destructive) {

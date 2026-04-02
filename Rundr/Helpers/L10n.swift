@@ -153,6 +153,7 @@ enum L10n {
     static let useActivityConfirmationTitle = String(localized: "Use this session plan?", comment: "Confirmation title before applying a session plan")
     static let useActivityConfirmationMessage = String(localized: "This replaces your current Session Plan.", comment: "Confirmation message before applying a session plan")
     static let redoActivity = String(localized: "Reuse Session Plan", comment: "Button")
+    static let thisSession = String(localized: "This Session", comment: "Session detail action menu title")
     static let more = String(localized: "More", comment: "Menu button")
     static let deleteSession = String(localized: "Delete Session", comment: "Button")
     static let deleteSessionConfirmMessage = String(localized: "This session will be permanently deleted.", comment: "Delete session confirmation message")

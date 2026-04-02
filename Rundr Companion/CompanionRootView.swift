@@ -93,12 +93,24 @@ private struct CompanionWorkoutsView: View {
                 if let liveWorkoutState = visibleLiveWorkoutState {
                     Section {
                         CompanionHomeSectionHeader(title: L10n.liveOnAppleWatch)
+                            .padding(.leading, workoutsSectionHeaderLeadingInset)
                             .listRowSeparator(.hidden)
                             .listRowBackground(Color.clear)
 
-                        CompanionLiveWorkoutCard(state: liveWorkoutState)
-                            .padding(.leading, Tokens.Spacing.xl)
-                            .listRowCardChrome(rowInsets: workoutsRowInsets)
+                        HStack(spacing: 0) {
+                            CompanionLiveWorkoutCard(state: liveWorkoutState)
+                                .padding(
+                                    EdgeInsets(
+                                        top: workoutsCellContentInsets.leading,
+                                        leading: workoutsCellContentInsets.leading,
+                                        bottom: workoutsCellContentInsets.leading,
+                                        trailing: workoutsCellContentInsets.trailing
+                                    )
+                                )
+                            Spacer(minLength: 0)
+                        }
+                        .contentShape(Rectangle())
+                        .listRowCardChrome(rowInsets: workoutsRowInsets, contentInsets: EdgeInsets())
                     }
                     .listSectionSeparator(.hidden)
                 }
@@ -1957,26 +1969,25 @@ private struct CompanionLiveWorkoutCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
-            Text(Formatters.historySessionDateTimeString(from: state.startedAt))
-                .font(.headline)
-                .foregroundStyle(theme.text.neutral)
-
-            HStack {
-                Label(Formatters.timeString(from: state.elapsedSeconds), systemImage: "timer")
+            HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.md) {
+                Text(Formatters.historySessionDateTimeString(from: state.startedAt))
+                    .font(.title3.weight(.semibold))
                     .foregroundStyle(theme.text.neutral)
-                Spacer()
-                Text(statusLabel)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(isStale ? .orange : theme.text.subtle)
             }
 
-            HStack {
+            Text(statusLabel)
+                .font(.system(size: Tokens.FontSize.md, weight: .regular, design: .rounded))
+                .foregroundStyle(settings.primaryAccentColor)
+
+            HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
                 CompanionMetricPill(title: L10n.laps, value: "\(state.completedLapCount)")
+                CompanionMetricPill(title: L10n.duration, value: Formatters.timeString(from: state.elapsedSeconds))
                 CompanionMetricPill(
                     title: primaryDistanceLabel,
                     value: Formatters.distanceString(meters: primaryDistanceMeters, unit: settings.distanceUnit)
                 )
             }
+            .padding(.top, Tokens.Spacing.xl)
 
             if let heartRate = state.currentHeartRate {
                 Text(L10n.heartRateBPM(Int(heartRate)))

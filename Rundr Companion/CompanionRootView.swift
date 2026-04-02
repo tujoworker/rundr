@@ -42,6 +42,7 @@ private struct CompanionWorkoutsView: View {
     @State private var lastAddedTargetPace: Int = 0
     @State private var lastAddedTargetTime: Int = 0
     @State private var addSegmentBounceTrigger = 0
+    @State private var flashingSegmentIDs: Set<UUID> = []
 
     private var visibleLiveWorkoutState: LiveWorkoutStateRecord? {
         guard let state = syncManager.liveWorkoutState,
@@ -96,7 +97,12 @@ private struct CompanionWorkoutsView: View {
                                     Label(L10n.delete, systemImage: "trash")
                                 }
                             }
-                            .listRowCardChrome(rowInsets: Tokens.ListRowInsets.card)
+                            .listRowCardChrome(
+                                rowInsets: Tokens.ListRowInsets.card,
+                                fillColor: flashingSegmentIDs.contains(segment.id)
+                                    ? theme.background.emphasisAction(settings.primaryAccentColor)
+                                    : nil
+                            )
                         }
 
                         Button {
@@ -175,8 +181,9 @@ private struct CompanionWorkoutsView: View {
                     commitSegment(updatedSegment)
                 }
             }
-            .onChange(of: settings.distanceSegments) { _, _ in
+            .onChange(of: settings.distanceSegments) { oldValue, newValue in
                 syncLastAddedValues()
+                flashChangedSegments(oldSegments: oldValue, newSegments: newValue)
             }
             .navigationTitle(L10n.workouts)
             .navigationBarTitleDisplayMode(.large)
@@ -248,6 +255,31 @@ private struct CompanionWorkoutsView: View {
         }
 
         settings.distanceSegments = WorkoutPlanSupport.normalizedSegments(updatedSegments)
+    }
+
+    private func flashChangedSegments(oldSegments: [DistanceSegment], newSegments: [DistanceSegment]) {
+        let oldByID = Dictionary(uniqueKeysWithValues: oldSegments.map { ($0.id, $0) })
+        let changedOrAdded = Set(
+            newSegments.compactMap { segment in
+                guard let oldSegment = oldByID[segment.id] else { return segment.id }
+                return oldSegment == segment ? nil : segment.id
+            }
+        )
+
+        guard !changedOrAdded.isEmpty else { return }
+
+        withAnimation(.easeOut(duration: 0.15)) {
+            flashingSegmentIDs.formUnion(changedOrAdded)
+        }
+
+        Task {
+            try? await Task.sleep(nanoseconds: 700_000_000)
+            await MainActor.run {
+                withAnimation(.easeInOut(duration: 0.25)) {
+                    flashingSegmentIDs.subtract(changedOrAdded)
+                }
+            }
+        }
     }
 }
 
@@ -655,7 +687,7 @@ private struct CompanionMetricPill: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.xxs) {
             Text(title)
-                .font(.caption)
+                .font(.system(size: Tokens.FontSize.md, weight: .regular, design: .rounded))
                 .foregroundStyle(theme.text.subtle)
             Text(value)
                 .font(.headline.weight(.semibold))
@@ -934,15 +966,9 @@ private struct CompanionSegmentRow: View {
     @Environment(\.appTheme) private var theme
 
     private var title: String {
-        let distance = segment.usesOpenDistance
+        segment.usesOpenDistance
             ? L10n.openDistance
             : Formatters.distanceString(meters: segment.distanceMeters, unit: distanceUnit)
-
-        if let repeatCount = segment.repeatCount {
-            return "\(repeatCount) × \(distance)"
-        }
-
-        return distance
     }
 
     private var repeatValue: String {
@@ -973,12 +999,20 @@ private struct CompanionSegmentRow: View {
         return L10n.off
     }
 
+    private var showsLastRest: Bool {
+        segment.lastRestSeconds != nil
+    }
+
+    private var showsTarget: Bool {
+        segment.targetTimeSeconds != nil || segment.targetPaceSecondsPerKm != nil
+    }
+
     var body: some View {
         HStack(alignment: .top, spacing: Tokens.Spacing.md) {
-            VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
+            VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
                 HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.md) {
                     Text(title)
-                        .font(.title3.weight(.semibold))
+                        .font(.system(size: Tokens.FontSize.xxxl + Tokens.Spacing.xxs, weight: .semibold, design: .rounded))
                         .foregroundStyle(theme.text.neutral)
 
                     Spacer(minLength: Tokens.Spacing.md)
@@ -991,8 +1025,12 @@ private struct CompanionSegmentRow: View {
                 HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
                     CompanionMetricPill(title: L10n.repeats, value: repeatValue)
                     CompanionMetricPill(title: L10n.rest, value: restValue)
-                    CompanionMetricPill(title: L10n.lastRest, value: lastRestValue)
-                    CompanionMetricPill(title: targetLabel, value: targetValue)
+                    if showsLastRest {
+                        CompanionMetricPill(title: L10n.lastRest, value: lastRestValue)
+                    }
+                    if showsTarget {
+                        CompanionMetricPill(title: targetLabel, value: targetValue)
+                    }
                 }
             }
         }
@@ -2148,9 +2186,10 @@ private extension View {
 
     func listRowCardChrome(
         rowInsets: EdgeInsets = Tokens.ListRowInsets.companionCard,
-        contentInsets: EdgeInsets = Tokens.ContentInsets.companionCard
+        contentInsets: EdgeInsets = Tokens.ContentInsets.companionCard,
+        fillColor: Color? = nil
     ) -> some View {
-        modifier(CompanionListRowChrome(rowInsets: rowInsets, contentInsets: contentInsets))
+        modifier(CompanionListRowChrome(rowInsets: rowInsets, contentInsets: contentInsets, fillColor: fillColor))
     }
 
     func companionCardChrome() -> some View {
@@ -2161,6 +2200,7 @@ private extension View {
 private struct CompanionListRowChrome: ViewModifier {
     let rowInsets: EdgeInsets
     let contentInsets: EdgeInsets
+    let fillColor: Color?
     @Environment(\.appTheme) private var theme
 
     func body(content: Content) -> some View {
@@ -2168,7 +2208,7 @@ private struct CompanionListRowChrome: ViewModifier {
             .padding(contentInsets)
             .background(
                 RoundedRectangle(cornerRadius: Tokens.Radius.companionListCell, style: .continuous)
-                    .fill(theme.background.history)
+                    .fill(fillColor ?? theme.background.history)
             )
             .listRowInsets(rowInsets)
             .listRowSeparator(.hidden)

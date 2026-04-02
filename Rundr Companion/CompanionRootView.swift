@@ -214,17 +214,7 @@ private struct CompanionWorkoutsView: View {
 
     private func addSegment() {
         var updatedSegments = segments
-        updatedSegments.append(
-            DistanceSegment(
-                distanceMeters: lastAddedDistanceMeters,
-                repeatCount: lastAddedRepeatCount > 0 ? lastAddedRepeatCount : nil,
-                restSeconds: lastAddedRestSeconds > 0 ? lastAddedRestSeconds : nil,
-                lastRestSeconds: lastAddedLastRestSeconds > 0 ? lastAddedLastRestSeconds : nil,
-                distanceGoalMode: lastAddedUsesOpenDistance ? .open : .fixed,
-                targetPaceSecondsPerKm: lastAddedTargetPace > 0 ? Double(lastAddedTargetPace) : nil,
-                targetTimeSeconds: lastAddedTargetTime > 0 ? Double(lastAddedTargetTime) : nil
-            )
-        )
+        updatedSegments.append(WorkoutPlanSupport.nextSegmentForAppend(from: updatedSegments))
         settings.distanceSegments = WorkoutPlanSupport.normalizedSegments(updatedSegments)
     }
 
@@ -890,18 +880,7 @@ private struct CompanionWorkoutEditorView: View {
     }
 
     private func addSegment() {
-        let nextSegment = segments.last ?? .default
-        segments.append(
-            DistanceSegment(
-                distanceMeters: nextSegment.distanceMeters,
-                repeatCount: nextSegment.repeatCount,
-                restSeconds: nextSegment.restSeconds,
-                lastRestSeconds: nextSegment.lastRestSeconds,
-                distanceGoalMode: nextSegment.distanceGoalMode,
-                targetPaceSecondsPerKm: nextSegment.targetPaceSecondsPerKm,
-                targetTimeSeconds: nextSegment.targetTimeSeconds
-            )
-        )
+        segments.append(WorkoutPlanSupport.nextSegmentForAppend(from: segments))
         segments = WorkoutPlanSupport.normalizedSegments(segments)
         persistPresetAfterEditIfNeeded()
     }

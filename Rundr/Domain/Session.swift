@@ -39,6 +39,19 @@ enum WorkoutPlanSupport {
         return normalized
     }
 
+    static func nextSegmentForAppend(from segments: [DistanceSegment]) -> DistanceSegment {
+        let source = segments.last ?? .default
+        return DistanceSegment(
+            distanceMeters: source.distanceMeters,
+            repeatCount: source.repeatCount,
+            restSeconds: source.restSeconds,
+            lastRestSeconds: source.lastRestSeconds,
+            distanceGoalMode: source.distanceGoalMode,
+            targetPaceSecondsPerKm: source.targetPaceSecondsPerKm,
+            targetTimeSeconds: source.targetTimeSeconds
+        )
+    }
+
     static func resolvedTrackingMode(
         requestedTrackingMode: TrackingMode,
         segments: [DistanceSegment],

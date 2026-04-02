@@ -421,17 +421,7 @@ struct PreStartView: View {
     }
 
     private func addSegment() {
-        segments.append(
-            DistanceSegment(
-                distanceMeters: lastAddedDistanceMeters,
-                repeatCount: lastAddedRepeatCount > 0 ? lastAddedRepeatCount : nil,
-                restSeconds: lastAddedRestSeconds > 0 ? lastAddedRestSeconds : nil,
-                lastRestSeconds: lastAddedLastRestSeconds > 0 ? lastAddedLastRestSeconds : nil,
-                distanceGoalMode: lastAddedUsesOpenDistance ? .open : .fixed,
-                targetPaceSecondsPerKm: lastAddedTargetPace > 0 ? Double(lastAddedTargetPace) : nil,
-                targetTimeSeconds: lastAddedTargetTime > 0 ? Double(lastAddedTargetTime) : nil
-            )
-        )
+        segments.append(WorkoutPlanSupport.nextSegmentForAppend(from: segments))
         persistSegments()
     }
 
@@ -1088,17 +1078,7 @@ private struct IntervalSetupView: View {
     }
 
     private func addSegment() {
-        segments.append(
-            DistanceSegment(
-                distanceMeters: lastAddedDistanceMeters,
-                repeatCount: lastAddedRepeatCount > 0 ? lastAddedRepeatCount : nil,
-                restSeconds: lastAddedRestSeconds > 0 ? lastAddedRestSeconds : nil,
-                lastRestSeconds: lastAddedLastRestSeconds > 0 ? lastAddedLastRestSeconds : nil,
-                distanceGoalMode: lastAddedUsesOpenDistance ? .open : .fixed,
-                targetPaceSecondsPerKm: lastAddedTargetPace > 0 ? Double(lastAddedTargetPace) : nil,
-                targetTimeSeconds: lastAddedTargetTime > 0 ? Double(lastAddedTargetTime) : nil
-            )
-        )
+        segments.append(WorkoutPlanSupport.nextSegmentForAppend(from: segments))
         segments = normalizedSegments(segments)
     }
 

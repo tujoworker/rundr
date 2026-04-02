@@ -1364,6 +1364,42 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(workoutPlan.trackingMode, .dual)
     }
 
+    func testWorkoutPlanSupportNextSegmentForAppendCopiesLastSegment() {
+        let first = DistanceSegment(distanceMeters: 200, repeatCount: 2, restSeconds: 20)
+        let last = DistanceSegment(
+            distanceMeters: 800,
+            repeatCount: 4,
+            restSeconds: 45,
+            lastRestSeconds: 90,
+            distanceGoalMode: .open,
+            targetPaceSecondsPerKm: 315,
+            targetTimeSeconds: 240
+        )
+
+        let next = WorkoutPlanSupport.nextSegmentForAppend(from: [first, last])
+
+        XCTAssertEqual(next.distanceMeters, last.distanceMeters)
+        XCTAssertEqual(next.repeatCount, last.repeatCount)
+        XCTAssertEqual(next.restSeconds, last.restSeconds)
+        XCTAssertEqual(next.lastRestSeconds, last.lastRestSeconds)
+        XCTAssertEqual(next.distanceGoalMode, last.distanceGoalMode)
+        XCTAssertEqual(next.targetPaceSecondsPerKm, last.targetPaceSecondsPerKm)
+        XCTAssertEqual(next.targetTimeSeconds, last.targetTimeSeconds)
+        XCTAssertNotEqual(next.id, last.id)
+    }
+
+    func testWorkoutPlanSupportNextSegmentForAppendUsesDefaultWhenSegmentsEmpty() {
+        let next = WorkoutPlanSupport.nextSegmentForAppend(from: [])
+
+        XCTAssertEqual(next.distanceMeters, DistanceSegment.default.distanceMeters)
+        XCTAssertEqual(next.repeatCount, DistanceSegment.default.repeatCount)
+        XCTAssertEqual(next.restSeconds, DistanceSegment.default.restSeconds)
+        XCTAssertEqual(next.lastRestSeconds, DistanceSegment.default.lastRestSeconds)
+        XCTAssertEqual(next.distanceGoalMode, DistanceSegment.default.distanceGoalMode)
+        XCTAssertEqual(next.targetPaceSecondsPerKm, DistanceSegment.default.targetPaceSecondsPerKm)
+        XCTAssertEqual(next.targetTimeSeconds, DistanceSegment.default.targetTimeSeconds)
+    }
+
     func testSettingsStoreApplySettingsSyncRecordUpdatesEditableCompanionState() {
         let keys = [
             "trackingMode",

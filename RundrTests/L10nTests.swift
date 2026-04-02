@@ -30,4 +30,13 @@ final class L10nTests: XCTestCase {
     func testYesLabelExistsForConfirmationActions() {
         XCTAssertEqual(L10n.yes, "Yes")
     }
+
+    func testDeletePlanStringsExistForCompanionEditorMenu() {
+        XCTAssertEqual(L10n.deletePlan, "Delete Plan")
+        XCTAssertEqual(L10n.deletePlanConfirmMessage, "This plan will be permanently deleted.")
+    }
+
+    func testUsedCountFormatsAsCompactBadgeText() {
+        XCTAssertEqual(L10n.usedCount(3), "3x")
+    }
 }

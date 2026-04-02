@@ -135,6 +135,8 @@
 "This Session" = "このセッション";
 "More" = "その他";
 "Yes" = "はい";
+"Delete Plan" = "プランを削除";
+"This plan will be permanently deleted." = "このプランは完全に削除されます。";
 "Delete Session" = "セッションを削除";
 "This session will be permanently deleted." = "このセッションは完全に削除されます。";
 "Loaded from %@" = "%@から読み込み";

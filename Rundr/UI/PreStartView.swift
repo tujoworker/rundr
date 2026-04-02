@@ -823,6 +823,7 @@ struct IntervalLibraryView: View {
 }
 
 private struct IntervalSetupView: View {
+    @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var settings: SettingsStore
     @Environment(\.appTheme) private var theme
 
@@ -856,6 +857,8 @@ private struct IntervalSetupView: View {
     @State private var lastAddedTargetTime: Int = 0
     @State private var showsOpenDistanceGPSBanner = false
     @State private var isUseActivityConfirmationPresented = false
+    @State private var isDeleteConfirmationPresented = false
+    @State private var isActionMenuPresented = false
     @StateObject private var locationPermissionRequester = LocationPermissionRequester()
 
     private var distanceLabel: String {
@@ -870,6 +873,14 @@ private struct IntervalSetupView: View {
             return segments.isEmpty || segments.contains { !$0.usesOpenDistance && $0.distanceMeters <= 0 }
         }
         return false
+    }
+
+    private var canDeletePreset: Bool {
+        storedPresetID != nil
+    }
+
+    private var actionMenuTitle: String {
+        subtitle ?? headerTitle
     }
 
     @ViewBuilder
@@ -928,25 +939,6 @@ private struct IntervalSetupView: View {
                     if trackingMode.usesManualIntervals {
                         intervalsSection
                     }
-
-                    Button {
-                        isUseActivityConfirmationPresented = true
-                    } label: {
-                        Text(L10n.useSessionSettings)
-                            .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, Tokens.Spacing.md)
-                    }
-                    .accentRoundedButtonChrome(
-                        accentColor: settings.primaryAccentColor,
-                        cornerRadius: Tokens.Radius.pill,
-                        lineWidth: Tokens.LineWidth.thick
-                    )
-                    .buttonStyle(.plain)
-                    .disabled(isContinueDisabled)
-                    .opacity(isContinueDisabled ? 0.5 : 1)
-                    .padding(.top, Tokens.Spacing.lg)
-                    .padding(.horizontal, Tokens.Spacing.xs)
                 }
                 .padding(.horizontal, Tokens.Spacing.md)
                 .padding(.vertical, Tokens.Spacing.md)
@@ -955,6 +947,15 @@ private struct IntervalSetupView: View {
         .tint(settings.primaryAccentColor)
         .background(Color.clear)
         .toolbar(.visible, for: .navigationBar)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    isActionMenuPresented = true
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
+            }
+        }
         .onAppear(perform: loadSnapshot)
         .sheet(isPresented: Binding(
             get: { editingSegmentID != nil },
@@ -979,12 +980,33 @@ private struct IntervalSetupView: View {
             )
         }
         .alert(L10n.useActivityConfirmationTitle, isPresented: $isUseActivityConfirmationPresented) {
-            Button(L10n.useSessionSettings) {
+            Button(L10n.yes) {
                 continueToGetReady()
             }
             Button(L10n.cancel, role: .cancel) {}
         } message: {
             Text(L10n.useActivityConfirmationMessage)
+        }
+        .alert(L10n.deletePlan, isPresented: $isDeleteConfirmationPresented) {
+            Button(L10n.delete, role: .destructive) {
+                deletePreset()
+            }
+            Button(L10n.cancel, role: .cancel) {}
+        } message: {
+            Text(L10n.deletePlanConfirmMessage)
+        }
+        .confirmationDialog(actionMenuTitle, isPresented: $isActionMenuPresented) {
+            Button(L10n.reusePlan) {
+                isUseActivityConfirmationPresented = true
+            }
+
+            if canDeletePreset {
+                Button(L10n.deletePlan, role: .destructive) {
+                    isDeleteConfirmationPresented = true
+                }
+            }
+
+            Button(L10n.cancel, role: .cancel) {}
         }
     }
 
@@ -1028,6 +1050,12 @@ private struct IntervalSetupView: View {
             IntervalPreset.sanitizeTitle(customTitle),
             storedPresetID
         )
+    }
+
+    private func deletePreset() {
+        guard let storedPresetID else { return }
+        settings.deleteIntervalPreset(id: storedPresetID)
+        dismiss()
     }
 
     private func currentWorkoutPlan() -> WorkoutPlanSnapshot {
@@ -1991,12 +2019,12 @@ private struct SettingsCardRow: View {
     @Environment(\.appTheme) private var theme
 
     var body: some View {
-        HStack(alignment: .center, spacing: Tokens.Spacing.xl) {
+        HStack(alignment: .center, spacing: Tokens.Spacing.md) {
             Image(systemName: icon)
                 .font(.system(size: Tokens.FontSize.xl, weight: .semibold))
                 .symbolRenderingMode(.monochrome)
                 .foregroundStyle(settings.primaryAccentColor)
-                .frame(width: 28)
+                .frame(width: Tokens.FontSize.xl)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
@@ -2017,7 +2045,7 @@ private struct SettingsCardRow: View {
             }
             .layoutPriority(1)
 
-            Spacer(minLength: Tokens.Spacing.lg)
+            Spacer(minLength: Tokens.Spacing.sm)
 
             if showsChevron {
                 Image(systemName: "chevron.right")
@@ -2025,8 +2053,8 @@ private struct SettingsCardRow: View {
                     .foregroundStyle(theme.text.subtle)
             }
         }
-        .padding(.horizontal, Tokens.Spacing.xxxl)
-        .padding(.vertical, Tokens.Spacing.xxxl)
+        .padding(.horizontal, Tokens.Spacing.xxl)
+        .padding(.vertical, Tokens.Spacing.xl)
         .background(theme.background.history)
         .cornerRadius(Tokens.Radius.medium)
     }

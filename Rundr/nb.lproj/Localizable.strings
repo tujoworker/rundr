@@ -135,6 +135,8 @@
 "This Session" = "Denne økta";
 "More" = "Mer";
 "Yes" = "Ja";
+"Delete Plan" = "Slett plan";
+"This plan will be permanently deleted." = "Denne planen blir permanent slettet.";
 "Delete Session" = "Slett økt";
 "This session will be permanently deleted." = "Denne økta blir permanent slettet.";
 "Loaded from %@" = "Lastet fra %@";

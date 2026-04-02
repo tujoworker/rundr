@@ -936,6 +936,10 @@ private struct CompanionPresetRowView: View {
         HStack(alignment: .top, spacing: Tokens.Spacing.md) {
             VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
                 HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.md) {
+                    if usageCount > 0 {
+                        CompanionPresetUsageBadge(count: usageCount)
+                    }
+
                     Text(title)
                         .font(.title3.weight(.semibold))
                         .foregroundStyle(theme.text.neutral)
@@ -950,19 +954,27 @@ private struct CompanionPresetRowView: View {
 
                 HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
                     CompanionMetricPill(title: L10n.intervalsTitle, value: subtitle)
-
-                    if usageCount > 0 {
-                        Text(L10n.usedCount(usageCount))
-                            .font(.caption.weight(.semibold))
-                            .foregroundStyle(theme.text.subtle)
-                            .padding(.top, Tokens.Spacing.xxs)
-                    }
                 }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, Tokens.Spacing.xs)
         .padding(.bottom, Tokens.Spacing.sm)
+    }
+}
+
+private struct CompanionPresetUsageBadge: View {
+    let count: Int
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        Text(L10n.usedCount(count))
+            .font(.system(size: Tokens.FontSize.sm, weight: .semibold, design: .rounded))
+            .foregroundStyle(theme.text.subtle)
+            .padding(.horizontal, Tokens.Spacing.sm)
+            .padding(.vertical, Tokens.Spacing.xxxs)
+            .background(theme.background.statusBadge)
+            .clipShape(Capsule(style: .continuous))
     }
 }
 
@@ -991,6 +1003,11 @@ private struct CompanionWorkoutEditorView: View {
     @State private var addSegmentBounceTrigger = 0
     @State private var hasLoadedSnapshot = false
     @State private var isUseActivityConfirmationPresented = false
+    @State private var isDeleteConfirmationPresented = false
+
+    private var canDeletePreset: Bool {
+        storedPresetID != nil
+    }
 
     private var customTitleRowContentInsets: EdgeInsets {
         EdgeInsets(
@@ -1122,18 +1139,36 @@ private struct CompanionWorkoutEditorView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button(L10n.useSessionSettings) {
-                    isUseActivityConfirmationPresented = true
+                Menu {
+                    Button(L10n.reusePlan) {
+                        isUseActivityConfirmationPresented = true
+                    }
+
+                    if canDeletePreset {
+                        Button(L10n.deletePlan, role: .destructive) {
+                            isDeleteConfirmationPresented = true
+                        }
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
                 }
             }
         }
         .alert(L10n.useActivityConfirmationTitle, isPresented: $isUseActivityConfirmationPresented) {
-            Button(L10n.useSessionSettings) {
+            Button(L10n.yes) {
                 commitWorkoutPlan()
             }
             Button(L10n.cancel, role: .cancel) {}
         } message: {
             Text(L10n.useActivityConfirmationMessage)
+        }
+        .alert(L10n.deletePlan, isPresented: $isDeleteConfirmationPresented) {
+            Button(L10n.delete, role: .destructive) {
+                deletePreset()
+            }
+            Button(L10n.cancel, role: .cancel) {}
+        } message: {
+            Text(L10n.deletePlanConfirmMessage)
         }
         .onAppear(perform: loadSnapshot)
         .onChange(of: trackingMode) { _, newValue in
@@ -1227,6 +1262,12 @@ private struct CompanionWorkoutEditorView: View {
         let workoutPlan = currentWorkoutPlan()
         settings.distanceUnit = distanceUnit
         onContinue(workoutPlan, IntervalPreset.sanitizeTitle(customTitle), storedPresetID)
+        dismiss()
+    }
+
+    private func deletePreset() {
+        guard let storedPresetID else { return }
+        settings.deleteIntervalPreset(id: storedPresetID)
         dismiss()
     }
 

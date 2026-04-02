@@ -135,6 +135,8 @@
 "This Session" = "Diese Einheit";
 "More" = "Mehr";
 "Yes" = "Ja";
+"Delete Plan" = "Plan löschen";
+"This plan will be permanently deleted." = "Dieser Plan wird unwiderruflich gelöscht.";
 "Delete Session" = "Session löschen";
 "This session will be permanently deleted." = "Diese Session wird unwiderruflich gelöscht.";
 "Loaded from %@" = "Geladen aus %@";

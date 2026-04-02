@@ -2019,12 +2019,12 @@ private struct SettingsCardRow: View {
     @Environment(\.appTheme) private var theme
 
     var body: some View {
-        HStack(alignment: .center, spacing: Tokens.Spacing.md) {
+        HStack(alignment: .center, spacing: Tokens.Spacing.xl) {
             Image(systemName: icon)
                 .font(.system(size: Tokens.FontSize.xl, weight: .semibold))
                 .symbolRenderingMode(.monochrome)
                 .foregroundStyle(settings.primaryAccentColor)
-                .frame(width: Tokens.FontSize.xl)
+                .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
@@ -2045,7 +2045,7 @@ private struct SettingsCardRow: View {
             }
             .layoutPriority(1)
 
-            Spacer(minLength: Tokens.Spacing.sm)
+            Spacer(minLength: Tokens.Spacing.lg)
 
             if showsChevron {
                 Image(systemName: "chevron.right")
@@ -2053,8 +2053,8 @@ private struct SettingsCardRow: View {
                     .foregroundStyle(theme.text.subtle)
             }
         }
-        .padding(.horizontal, Tokens.Spacing.xxl)
-        .padding(.vertical, Tokens.Spacing.xl)
+        .padding(.horizontal, Tokens.Spacing.xxxl)
+        .padding(.vertical, Tokens.Spacing.xxxl)
         .background(theme.background.history)
         .cornerRadius(Tokens.Radius.medium)
     }

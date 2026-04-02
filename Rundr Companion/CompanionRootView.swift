@@ -68,6 +68,21 @@ private struct CompanionWorkoutsView: View {
         sessions.count > visibleSessionCount
     }
 
+    private var workoutsCellContentInsets: EdgeInsets {
+        let baseInsets = Tokens.ContentInsets.companionCard
+
+        return EdgeInsets(
+            top: baseInsets.top,
+            leading: baseInsets.leading + (baseInsets.leading / 2),
+            bottom: baseInsets.bottom,
+            trailing: baseInsets.trailing
+        )
+    }
+
+    private var workoutsSectionHeaderLeadingInset: CGFloat {
+        Tokens.ContentInsets.companionCard.leading / 2
+    }
+
     var body: some View {
         NavigationStack {
             List {
@@ -79,6 +94,7 @@ private struct CompanionWorkoutsView: View {
                     } header: {
                         CompanionHomeSectionHeader(title: L10n.liveOnAppleWatch)
                     }
+                    .listSectionSeparator(.hidden)
                 }
 
                 if settings.trackingMode.usesManualIntervals {
@@ -89,7 +105,7 @@ private struct CompanionWorkoutsView: View {
                             } label: {
                                 HStack(spacing: 0) {
                                     CompanionSegmentRow(segment: segment, distanceUnit: settings.distanceUnit)
-                                        .padding(Tokens.ContentInsets.companionCard)
+                                        .padding(workoutsCellContentInsets)
                                     Spacer(minLength: 0)
                                 }
                                 .contentShape(Rectangle())
@@ -130,10 +146,13 @@ private struct CompanionWorkoutsView: View {
                         }
                         .buttonStyle(.plain)
                         .listRowInsets(Tokens.ListRowInsets.card)
+                        .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
                     } header: {
                         CompanionHomeSectionHeader(title: L10n.intervalsTitle)
+                            .padding(.leading, workoutsSectionHeaderLeadingInset)
                     }
+                    .listSectionSeparator(.hidden)
                 }
 
                 Section {
@@ -142,8 +161,10 @@ private struct CompanionWorkoutsView: View {
                             .font(.subheadline)
                             .foregroundStyle(theme.text.subtle)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.leading, Tokens.Spacing.xl)
-                            .listRowCardChrome(rowInsets: Tokens.ListRowInsets.card)
+                            .listRowCardChrome(
+                                rowInsets: Tokens.ListRowInsets.card,
+                                contentInsets: workoutsCellContentInsets
+                            )
                     } else {
                         ForEach(visibleSessions, id: \.id) { session in
                             Button {
@@ -151,7 +172,7 @@ private struct CompanionWorkoutsView: View {
                             } label: {
                                 HStack(spacing: 0) {
                                     CompanionSessionRow(session: session)
-                                        .padding(Tokens.ContentInsets.companionCard)
+                                        .padding(workoutsCellContentInsets)
                                     Spacer(minLength: 0)
                                 }
                                 .contentShape(Rectangle())
@@ -178,12 +199,15 @@ private struct CompanionWorkoutsView: View {
                             .font(.headline)
                             .foregroundStyle(settings.primaryAccentColor)
                             .frame(maxWidth: .infinity)
+                            .listRowSeparator(.hidden)
                             .listRowBackground(Color.clear)
                         }
                     }
                 } header: {
                     CompanionHomeSectionHeader(title: L10n.syncedSessions)
+                        .padding(.leading, workoutsSectionHeaderLeadingInset)
                 }
+                .listSectionSeparator(.hidden)
             }
             .onAppear(perform: syncLastAddedValues)
             .navigationDestination(item: $selectedSegment) { segment in
@@ -2294,7 +2318,7 @@ private extension View {
     @ViewBuilder
     func companionListBackground() -> some View {
         self
-            .listStyle(.insetGrouped)
+            .listStyle(.plain)
             .scrollContentBackground(.hidden)
             .background {
                 CompanionListBackgroundView()
@@ -2307,7 +2331,13 @@ private extension View {
     }
 
     func themedCompanionSettingsList() -> some View {
-        self.companionListBackground()
+        self
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background {
+                CompanionListBackgroundView()
+                    .ignoresSafeArea()
+            }
     }
 
     func listRowCardChrome(

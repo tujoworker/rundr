@@ -1126,14 +1126,13 @@ private struct CompanionWorkoutEditorView: View {
                             contentInsets: EdgeInsets()
                         )
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button {
+                            Button(role: .destructive) {
                                 withAnimation {
                                     deleteSegment(segment)
                                 }
                             } label: {
                                 Label(L10n.delete, systemImage: "trash")
                             }
-                            .tint(settings.primaryAccentColor)
                         }
                         .contentShape(Rectangle())
                     }

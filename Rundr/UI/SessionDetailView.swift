@@ -9,7 +9,7 @@ struct SessionDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appTheme) private var theme
 
-    @State private var showConfirmedPhoneSyncMessage = false
+    @State private var isActionMenuPresented = false
     @State private var isDeleteConfirmationPresented = false
 
     private var sortedLaps: [Lap] {
@@ -127,40 +127,25 @@ struct SessionDetailView: View {
                     .multilineTextAlignment(.leading)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                    if !isPendingPhoneSync {
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                showConfirmedPhoneSyncMessage.toggle()
-                            }
-                        } label: {
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 9, weight: .bold))
-                                .foregroundStyle(theme.text.neutral)
-                                .frame(width: 18, height: 18)
-                                .background(
-                                    Circle()
-                                        .fill(settings.primaryAccentColor.opacity(Tokens.Opacity.foregroundBody))
-                                )
-                                .accessibilityLabel(L10n.phoneSyncConfirmedTitle)
-                                .padding(Tokens.Spacing.sm)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
+                    Button {
+                        isActionMenuPresented = true
+                    } label: {
+                        Image(systemName: "ellipsis")
+                            .font(.system(size: 9, weight: .bold))
+                            .foregroundStyle(theme.text.neutral)
+                            .frame(width: 18, height: 18)
+                            .background(
+                                Circle()
+                                    .fill(settings.primaryAccentColor.opacity(Tokens.Opacity.foregroundBody))
+                            )
+                            .accessibilityLabel(L10n.more)
+                            .padding(Tokens.Spacing.sm)
+                            .contentShape(Rectangle())
                     }
+                    .buttonStyle(.plain)
                 }
                 .padding(.leading, Tokens.Spacing.md + Tokens.Spacing.xs)
                 .padding(.trailing, Tokens.Spacing.xs)
-
-                if isPendingPhoneSync {
-                    SessionDetailPendingPhoneSyncBanner()
-                        .padding(.horizontal, Tokens.Spacing.xs)
-                        .padding(.bottom, Tokens.Spacing.xs)
-                } else if showConfirmedPhoneSyncMessage {
-                    SessionDetailConfirmedPhoneSyncBanner(tint: settings.primaryAccentColor)
-                        .padding(.horizontal, Tokens.Spacing.xs)
-                        .padding(.bottom, Tokens.Spacing.xs)
-                        .transition(.opacity.combined(with: .move(edge: .top)))
-                }
 
                 SessionStatsView(items: sessionStats)
 
@@ -179,29 +164,21 @@ struct SessionDetailView: View {
                     )
                 }
 
-                Button(action: onUseSessionSettings) {
-                    Text(L10n.redoActivity)
-                        .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, Tokens.Spacing.md)
-                }
-                .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor)
-                .buttonStyle(.plain)
-                .padding(.top, Tokens.Spacing.lg)
-                .padding(.horizontal, Tokens.Spacing.xs)
+                Text(L10n.importStatus)
+                    .font(.caption.bold())
+                    .foregroundStyle(theme.text.subtle)
+                    .padding(.horizontal, Tokens.Spacing.xs)
+                    .padding(.top, Tokens.Spacing.lg)
 
-                Button(role: .destructive) {
-                    isDeleteConfirmationPresented = true
-                } label: {
-                    Text(L10n.deleteSession)
-                        .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, Tokens.Spacing.md)
+                if isPendingPhoneSync {
+                    SessionDetailPendingPhoneSyncBanner()
+                        .padding(.horizontal, Tokens.Spacing.xs)
+                        .padding(.bottom, Tokens.Spacing.xs)
+                } else {
+                    SessionDetailConfirmedPhoneSyncBanner(tint: settings.primaryAccentColor)
+                        .padding(.horizontal, Tokens.Spacing.xs)
+                        .padding(.bottom, Tokens.Spacing.xs)
                 }
-                .destructiveFillButtonChrome(tintColor: .red)
-                .buttonStyle(.plain)
-                .padding(.top, Tokens.Spacing.lg)
-                .padding(.horizontal, Tokens.Spacing.xs)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(Tokens.Spacing.md)
@@ -212,6 +189,13 @@ struct SessionDetailView: View {
             AppScreenBackground(accentColor: settings.primaryAccentColor)
         }
         .toolbar(.visible, for: .navigationBar)
+        .confirmationDialog(L10n.more, isPresented: $isActionMenuPresented) {
+            Button(L10n.redoActivity, action: onUseSessionSettings)
+            Button(L10n.deleteSession, role: .destructive) {
+                isDeleteConfirmationPresented = true
+            }
+            Button(L10n.cancel, role: .cancel) {}
+        }
         .alert(L10n.deleteSession, isPresented: $isDeleteConfirmationPresented) {
             Button(L10n.delete, role: .destructive) {
                 persistence.deleteSession(session)

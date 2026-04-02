@@ -127,10 +127,11 @@
 "This workout is saved on your Watch. It will appear in Rundr on your phone when your watch and phone connect." = "このワークアウトはApple Watchに保存されています。WatchとiPhoneが接続されると、iPhone上のRundrに表示されます。";
 "On your iPhone" = "iPhoneに保存済み";
 "Rundr on your iPhone already has this workout." = "iPhone上のRundrにはこのワークアウトがすでに保存されています。";
-"Use Activity" = "アクティビティを使用";
+"Use Session Plan" = "セッションプランを使用";
 "Use this session plan?" = "このセッションプランを使いますか？";
 "This replaces your current Session Plan." = "現在のセッションプランはこれで置き換わります。";
-"Redo Activity" = "アクティビティをやり直す";
+"Reuse Session Plan" = "セッションプランを再利用";
+"More" = "その他";
 "Delete Session" = "セッションを削除";
 "This session will be permanently deleted." = "このセッションは完全に削除されます。";
 "Loaded from %@" = "%@から読み込み";

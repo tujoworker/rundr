@@ -127,10 +127,11 @@
 "This workout is saved on your Watch. It will appear in Rundr on your phone when your watch and phone connect." = "Dieses Training ist auf deiner Apple Watch gespeichert. Es erscheint in Rundr auf dem iPhone, sobald sich Apple Watch und iPhone verbinden.";
 "On your iPhone" = "Auf dem iPhone";
 "Rundr on your iPhone already has this workout." = "Rundr auf dem iPhone enthält dieses Training bereits.";
-"Use Activity" = "Aktivität nutzen";
+"Use Session Plan" = "Trainingsplan verwenden";
 "Use this session plan?" = "Diesen Trainingsplan verwenden?";
 "This replaces your current Session Plan." = "Dadurch wird dein aktueller Trainingsplan ersetzt.";
-"Redo Activity" = "Aktivität wiederholen";
+"Reuse Session Plan" = "Trainingsplan erneut verwenden";
+"More" = "Mehr";
 "Delete Session" = "Session löschen";
 "This session will be permanently deleted." = "Diese Session wird unwiderruflich gelöscht.";
 "Loaded from %@" = "Geladen aus %@";

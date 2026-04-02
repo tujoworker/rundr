@@ -88,8 +88,9 @@ private struct CompanionWorkoutsView: View {
                             } label: {
                                 CompanionSegmentRow(segment: segment, distanceUnit: settings.distanceUnit)
                                     .padding(.leading, Tokens.Spacing.xl)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
                             }
-                            .buttonStyle(.plain)
+                            .buttonStyle(CompanionNoPressOpacityButtonStyle())
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) {
                                     deleteSegment(segment)
@@ -103,6 +104,7 @@ private struct CompanionWorkoutsView: View {
                                     ? theme.background.emphasisAction(settings.primaryAccentColor)
                                     : nil
                             )
+                            .contentShape(Rectangle())
                         }
 
                         Button {
@@ -961,6 +963,12 @@ private struct CompanionWorkoutEditorView: View {
 }
 
 private struct CompanionSegmentRow: View {
+    private struct MetricItem: Identifiable {
+        let id = UUID()
+        let title: String
+        let value: String
+    }
+
     let segment: DistanceSegment
     let distanceUnit: DistanceUnit
     @Environment(\.appTheme) private var theme
@@ -1007,6 +1015,29 @@ private struct CompanionSegmentRow: View {
         segment.targetTimeSeconds != nil || segment.targetPaceSecondsPerKm != nil
     }
 
+    private var metricItems: [MetricItem] {
+        var items: [MetricItem] = [
+            MetricItem(title: L10n.repeats, value: repeatValue),
+            MetricItem(title: L10n.rest, value: restValue)
+        ]
+
+        if showsLastRest {
+            items.append(MetricItem(title: L10n.lastRest, value: lastRestValue))
+        }
+
+        if showsTarget {
+            items.append(MetricItem(title: targetLabel, value: targetValue))
+        }
+
+        return items
+    }
+
+    private var metricRows: [[MetricItem]] {
+        stride(from: 0, to: metricItems.count, by: 3).map { start in
+            Array(metricItems[start..<min(start + 3, metricItems.count)])
+        }
+    }
+
     var body: some View {
         HStack(alignment: .top, spacing: Tokens.Spacing.md) {
             VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
@@ -1022,14 +1053,13 @@ private struct CompanionSegmentRow: View {
                         .foregroundStyle(theme.text.subtle)
                 }
 
-                HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
-                    CompanionMetricPill(title: L10n.repeats, value: repeatValue)
-                    CompanionMetricPill(title: L10n.rest, value: restValue)
-                    if showsLastRest {
-                        CompanionMetricPill(title: L10n.lastRest, value: lastRestValue)
-                    }
-                    if showsTarget {
-                        CompanionMetricPill(title: targetLabel, value: targetValue)
+                VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
+                    ForEach(Array(metricRows.enumerated()), id: \.offset) { _, row in
+                        HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
+                            ForEach(row) { item in
+                                CompanionMetricPill(title: item.title, value: item.value)
+                            }
+                        }
                     }
                 }
             }
@@ -2194,6 +2224,12 @@ private extension View {
 
     func companionCardChrome() -> some View {
         self
+    }
+}
+
+private struct CompanionNoPressOpacityButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
     }
 }
 

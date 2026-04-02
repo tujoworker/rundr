@@ -210,7 +210,7 @@ struct PreStartView: View {
                     .padding(.top, Tokens.Spacing.xl)
                 }
 
-                Text(L10n.settings)
+                Text(L10n.more)
                     .font(.headline.weight(.semibold))
                     .foregroundStyle(theme.text.neutral)
                     .padding(.horizontal, Tokens.Spacing.sm)

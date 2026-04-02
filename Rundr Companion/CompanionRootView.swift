@@ -73,9 +73,9 @@ private struct CompanionWorkoutsView: View {
 
         return EdgeInsets(
             top: baseInsets.top,
-            leading: baseInsets.leading + (baseInsets.leading / 2),
+            leading: baseInsets.leading * 2,
             bottom: baseInsets.bottom,
-            trailing: baseInsets.trailing
+            trailing: baseInsets.trailing * 2
         )
     }
 

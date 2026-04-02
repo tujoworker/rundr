@@ -220,10 +220,9 @@ struct AppTheme {
         /// Use the symbol's built-in colours.
         var original: AppIconStyleToken { .original }
 
-        /// Settings row icons use original symbol colours in dark mode
-        /// and a monochrome neutral tint in light mode.
+        /// Settings row icons use the symbol's built-in colours when available.
         var settingsRow: AppIconStyleToken {
-            isDark ? original : neutral
+            original
         }
     }
 

@@ -406,6 +406,28 @@ private struct CompanionPresetLibraryView: View {
         )
     }
 
+    private func titleComponents(
+        workoutPlan: WorkoutPlanSnapshot,
+        customTitle: String? = nil,
+        fallbackTitle: String? = nil
+    ) -> (title: String, repeatCount: Int?) {
+        let normalizedSegments = WorkoutPlanSupport.normalizedSegments(workoutPlan.distanceSegments)
+        let repeatCount = normalizedSegments.count == 1 ? normalizedSegments.first?.repeatCount : nil
+
+        let title: String
+        if let customTitle, !customTitle.isEmpty {
+            title = customTitle
+        } else if let firstSegment = normalizedSegments.first, normalizedSegments.count == 1 {
+            title = firstSegment.usesOpenDistance
+                ? L10n.openDistance
+                : Formatters.distanceString(meters: firstSegment.distanceMeters, unit: settings.distanceUnit)
+        } else {
+            title = fallbackTitle ?? workoutPlan.displayTitle(unit: settings.distanceUnit)
+        }
+
+        return (title, repeatCount)
+    }
+
     var body: some View {
         List {
             Section {
@@ -431,13 +453,19 @@ private struct CompanionPresetLibraryView: View {
                     )
                 } else {
                     ForEach(settings.intervalPresets) { preset in
+                        let titleComponents = titleComponents(
+                            workoutPlan: preset.workoutPlan,
+                            customTitle: preset.trimmedCustomTitle
+                        )
+
                         Button {
                             selectedRoute = .saved(preset.id)
                         } label: {
                             HStack(spacing: 0) {
                                 CompanionPresetRowView(
-                                    title: preset.displayTitle(unit: settings.distanceUnit),
+                                    title: titleComponents.title,
                                     subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
+                                    repeatCount: titleComponents.repeatCount,
                                     usageCount: settings.presetUsageCount(for: preset.workoutPlan)
                                 )
                                 .padding(browseCellContentInsets)
@@ -471,13 +499,19 @@ private struct CompanionPresetLibraryView: View {
                     .listRowBackground(Color.clear)
 
                 ForEach(SettingsStore.predefinedIntervalPresets) { preset in
+                    let titleComponents = titleComponents(
+                        workoutPlan: preset.workoutPlan,
+                        fallbackTitle: preset.title
+                    )
+
                     Button {
                         selectedRoute = .predefined(preset.id)
                     } label: {
                         HStack(spacing: 0) {
                             CompanionPresetRowView(
-                                title: preset.title,
+                                title: titleComponents.title,
                                 subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
+                                repeatCount: titleComponents.repeatCount,
                                 usageCount: settings.presetUsageCount(for: preset.workoutPlan)
                             )
                             .padding(browseCellContentInsets)
@@ -929,6 +963,7 @@ private struct CompanionMetricPill: View {
 private struct CompanionPresetRowView: View {
     let title: String
     let subtitle: String
+    let repeatCount: Int?
     let usageCount: Int
     @Environment(\.appTheme) private var theme
 
@@ -936,6 +971,10 @@ private struct CompanionPresetRowView: View {
         HStack(alignment: .top, spacing: Tokens.Spacing.md) {
             VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
                 HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.md) {
+                    if let repeatCount, repeatCount > 0 {
+                        CompanionPresetUsageBadge(count: repeatCount)
+                    }
+
                     if usageCount > 0 {
                         CompanionPresetUsageBadge(count: usageCount)
                     }
@@ -966,15 +1005,19 @@ private struct CompanionPresetRowView: View {
 private struct CompanionPresetUsageBadge: View {
     let count: Int
     @Environment(\.appTheme) private var theme
+    private let opticalLift: CGFloat = 2
 
     var body: some View {
         Text(L10n.usedCount(count))
             .font(.system(size: Tokens.FontSize.sm, weight: .semibold, design: .rounded))
-            .foregroundStyle(theme.text.subtle)
+            .foregroundStyle(theme.text.bold)
             .padding(.horizontal, Tokens.Spacing.sm)
             .padding(.vertical, Tokens.Spacing.xxxs)
-            .background(theme.background.statusBadge)
+            .background(theme.background.bold)
             .clipShape(Capsule(style: .continuous))
+            .alignmentGuide(.firstTextBaseline) { dimensions in
+                dimensions[.firstTextBaseline] + opticalLift
+            }
     }
 }
 

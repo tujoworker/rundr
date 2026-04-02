@@ -1760,13 +1760,19 @@ private struct CompanionSessionDetailView: View {
     }
 
     private var sessionStats: [CompanionSessionStatItem] {
+        let firstSegment = session.snapshotWorkoutPlan.distanceSegments.first
         var items: [CompanionSessionStatItem] = [
             CompanionSessionStatItem(label: L10n.laps, value: String(session.activeLapCount)),
-            CompanionSessionStatItem(label: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds)),
-            CompanionSessionStatItem(label: L10n.mode, value: session.mode == .distanceDistance ? L10n.manualLabel : session.mode.displayName)
+            CompanionSessionStatItem(label: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds))
         ]
 
+        if let targetTime = firstSegment?.targetTimeSeconds {
+            items.append(CompanionSessionStatItem(label: L10n.targetTimeLabel, value: Formatters.compactTimeString(from: targetTime)))
+        }
+
+        let primaryDistanceForPace: Double
         if session.mode.usesManualIntervals && !sessionUsesOpenIntervals {
+            primaryDistanceForPace = session.totalDistanceMeters
             items.append(
                 CompanionSessionStatItem(
                     label: L10n.distance,
@@ -1775,8 +1781,9 @@ private struct CompanionSessionDetailView: View {
                         : L10n.dash
                 )
             )
-        } else {
+        } else if session.mode == .gps || (session.mode == .dual && sessionUsesOpenIntervals) {
             let gpsDistance = session.totalGPSDistanceMeters ?? session.totalDistanceMeters
+            primaryDistanceForPace = gpsDistance
             items.append(
                 CompanionSessionStatItem(
                     label: L10n.gpsDistanceLabel,
@@ -1785,7 +1792,35 @@ private struct CompanionSessionDetailView: View {
                         : L10n.dash
                 )
             )
+        } else {
+            primaryDistanceForPace = session.totalDistanceMeters
         }
+
+        if session.mode == .dual && !sessionUsesOpenIntervals {
+            items.append(
+                CompanionSessionStatItem(
+                    label: L10n.gpsDistanceLabel,
+                    value: session.totalGPSDistanceMeters.flatMap { gpsDistanceMeters in
+                        gpsDistanceMeters > 0
+                            ? Formatters.distanceString(meters: gpsDistanceMeters, unit: settings.distanceUnit)
+                            : nil
+                    } ?? L10n.dash
+                )
+            )
+        }
+
+        items.append(
+            CompanionSessionStatItem(
+                label: L10n.averagePaceLabel,
+                value: primaryDistanceForPace > 0
+                    ? Formatters.paceString(
+                        distanceMeters: primaryDistanceForPace,
+                        durationSeconds: session.activeDurationSeconds,
+                        unit: settings.distanceUnit
+                    )
+                    : L10n.dash
+            )
+        )
 
         return items
     }
@@ -1793,18 +1828,20 @@ private struct CompanionSessionDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
-                VStack(alignment: .leading, spacing: Tokens.Spacing.xxxs) {
-                    Text(headerTitle.dayText)
+                HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.sm) {
+                    Text(L10n.details)
                         .font(.title2.weight(.semibold))
                         .foregroundStyle(theme.text.neutral)
+                        .padding(.leading, Tokens.ContentInsets.companionCard.leading + Tokens.Spacing.sm + Tokens.Spacing.xs)
+
+                    Spacer(minLength: 0)
 
                     Text(headerTitle.timeText)
                         .font(.subheadline)
                         .foregroundStyle(theme.text.subtle)
+                        .padding(.trailing, Tokens.ContentInsets.companionCard.leading + Tokens.Spacing.sm + Tokens.Spacing.xs)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.leading, Tokens.ContentInsets.companionCard.leading + Tokens.Spacing.sm + Tokens.Spacing.xs)
-                .padding(.trailing, Tokens.Spacing.xs)
 
                 CompanionSessionStatsView(items: sessionStats)
 
@@ -1823,19 +1860,9 @@ private struct CompanionSessionDetailView: View {
             .padding(Tokens.Spacing.md)
             .padding(.vertical, Tokens.Spacing.xs)
         }
-        .navigationTitle("")
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationTitle(headerTitle.dayText)
+        .navigationBarTitleDisplayMode(.large)
         .toolbar {
-            ToolbarItem(placement: .principal) {
-                HStack(spacing: 0) {
-                    Text(headerTitle.dayText)
-                        .font(.title2.weight(.semibold))
-                        .foregroundStyle(theme.text.neutral)
-                    Spacer(minLength: 0)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button(L10n.redoActivity) {
@@ -2051,6 +2078,7 @@ private struct CompanionSessionLapRow: View {
                 }
             }
             .padding(.top, isRestLap ? 0 : Tokens.Spacing.sm)
+            .padding(.bottom, isRestLap ? 0 : Tokens.Spacing.sm)
 
             LazyVGrid(columns: columns, alignment: .leading, spacing: Tokens.Spacing.lg) {
                 ForEach(detailItems) { item in

@@ -107,6 +107,7 @@
 
 /* Session Detail */
 "Session" = "Training";
+"Details" = "Details";
 "Stats" = "Statistiken";
 "Rest" = "Pause";
 "Laps" = "Runden";
@@ -116,6 +117,7 @@
 "Manual Distance" = "Manuelle Distanz";
 "GPS Distance" = "GPS-Distanz";
 "GPS Pace" = "GPS-Tempo";
+"Average Pace" = "Durchschnittstempo";
 "Heart Rate" = "Herzfrequenz";
 "Target Time" = "Zielzeit";
 "Target Pace" = "Zieltempo";

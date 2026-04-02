@@ -107,6 +107,7 @@
 
 /* Session Detail */
 "Session" = "セッション";
+"Details" = "詳細";
 "Stats" = "統計";
 "Rest" = "レスト";
 "Laps" = "ラップ";
@@ -116,6 +117,7 @@
 "Manual Distance" = "手動距離";
 "GPS Distance" = "GPS距離";
 "GPS Pace" = "GPSペース";
+"Average Pace" = "平均ペース";
 "Heart Rate" = "心拍数";
 "Target Time" = "目標タイム";
 "Target Pace" = "目標ペース";

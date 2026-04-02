@@ -77,6 +77,29 @@ struct SessionDetailView: View {
             )
         }
 
+        let primaryDistanceForPace: Double
+
+        if session.mode.usesManualIntervals && !sessionUsesOpenIntervals {
+            primaryDistanceForPace = session.totalDistanceMeters
+        } else if session.mode == .gps || (session.mode == .dual && sessionUsesOpenIntervals) {
+            primaryDistanceForPace = session.totalGPSDistanceMeters ?? session.totalDistanceMeters
+        } else {
+            primaryDistanceForPace = session.totalDistanceMeters
+        }
+
+        items.append(
+            SessionStatItem(
+                label: L10n.averagePaceLabel,
+                value: primaryDistanceForPace > 0
+                    ? Formatters.paceString(
+                        distanceMeters: primaryDistanceForPace,
+                        durationSeconds: session.activeDurationSeconds,
+                        unit: settings.distanceUnit
+                    )
+                    : L10n.dash
+            )
+        )
+
         return items
     }
 

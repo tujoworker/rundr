@@ -107,6 +107,7 @@
 
 /* Session Detail */
 "Session" = "Økt";
+"Details" = "Detaljer";
 "Stats" = "Statistikk";
 "Rest" = "Hvile";
 "Laps" = "Runder";
@@ -116,6 +117,7 @@
 "Manual Distance" = "Manuell distanse";
 "GPS Distance" = "GPS-distanse";
 "GPS Pace" = "GPS-tempo";
+"Average Pace" = "Gjennomsnittstempo";
 "Heart Rate" = "Puls";
 "Target Time" = "Måltid";
 "Target Pace" = "Måltempo";

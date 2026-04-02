@@ -135,6 +135,12 @@ enum Tokens {
         static let fillDestructive: Double = 0.10
         /// 0.18 – screen gradient end, dark overlay base
         static let fillGradientEnd: Double = 0.18
+        /// 0.28 – darker-mode bottom accent presence in app background
+        static let fillGradientAccentBottom: Double = 0.28
+        /// 0.20 – full-screen background shading
+        static let fillScreenShade: Double = 0.20
+        /// 0.14 – extra top-of-screen darkening
+        static let fillScreenShadeTopBoost: Double = 0.14
         /// 0.15 – card background, circle fills
         static let fillCard: Double = 0.15
         /// 0.12 – input fields, subtle containers

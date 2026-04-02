@@ -13,8 +13,19 @@ struct AppScreenBackground: View {
                     theme.appGradientStart(accent: accentColor),
                     theme.appGradientEnd(accent: accentColor)
                 ],
-                startPoint: .topLeading,
-                endPoint: .bottom
+                startPoint: theme.appGradientStartPoint,
+                endPoint: theme.appGradientEndPoint
+            )
+
+            theme.appBackgroundShade(accent: accentColor)
+
+            LinearGradient(
+                colors: [
+                    theme.appBackgroundTopShade(accent: accentColor),
+                    .clear
+                ],
+                startPoint: .top,
+                endPoint: .center
             )
         }
         .ignoresSafeArea()

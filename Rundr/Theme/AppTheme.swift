@@ -230,12 +230,32 @@ struct AppTheme {
 
     /// Start colour of the full-screen app gradient.
     func appGradientStart(accent: Color) -> Color {
-        isDark ? accent.opacity(Tokens.Opacity.fillGradientEnd) : accent.opacity(0.22)
+        isDark ? accent.opacity(Tokens.Opacity.fillGradientAccentBottom) : accent.opacity(0.22)
     }
 
     /// End colour of the full-screen app gradient.
     func appGradientEnd(accent: Color) -> Color {
         isDark ? background.app(accent) : .clear
+    }
+
+    /// Start point of the full-screen app gradient.
+    var appGradientStartPoint: UnitPoint {
+        isDark ? .bottom : .topLeading
+    }
+
+    /// End point of the full-screen app gradient.
+    var appGradientEndPoint: UnitPoint {
+        isDark ? .top : .bottom
+    }
+
+    /// Base accent-tinted shading applied to full-screen watch backgrounds in light mode.
+    func appBackgroundShade(accent: Color) -> Color {
+        isDark ? .clear : accent.opacity(Tokens.Opacity.fillScreenShade)
+    }
+
+    /// Stronger accent-tinted shading reserved for the very top in light mode.
+    func appBackgroundTopShade(accent: Color) -> Color {
+        isDark ? .clear : accent.opacity(Tokens.Opacity.fillScreenShadeTopBoost)
     }
 }
 

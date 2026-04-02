@@ -260,7 +260,7 @@ final class AppearanceModeTests: XCTestCase {
 
         assertEqualComponents(
             try rgbaComponents(for: darkTheme.appGradientStart(accent: accent)),
-            [0.8, 0.4, 0.2, Tokens.Opacity.fillGradientEnd],
+            [0.8, 0.4, 0.2, Tokens.Opacity.fillGradientAccentBottom],
             accuracy: 0.001
         )
         assertEqualComponents(
@@ -283,6 +283,43 @@ final class AppearanceModeTests: XCTestCase {
         assertEqualComponents(
             try rgbaComponents(for: lightTheme.appGradientEnd(accent: accent)),
             [0, 0, 0, 0],
+            accuracy: 0.001
+        )
+    }
+
+    func testAppThemeUsesModeSpecificGradientDirections() {
+        let darkTheme = AppTheme(colorScheme: .dark)
+        let lightTheme = AppTheme(colorScheme: .light)
+
+        XCTAssertEqual(darkTheme.appGradientStartPoint, .bottom)
+        XCTAssertEqual(darkTheme.appGradientEndPoint, .top)
+        XCTAssertEqual(lightTheme.appGradientStartPoint, .topLeading)
+        XCTAssertEqual(lightTheme.appGradientEndPoint, .bottom)
+    }
+
+    func testAppThemeUsesSharedScreenShadeTokens() throws {
+        let darkTheme = AppTheme(colorScheme: .dark)
+        let lightTheme = AppTheme(colorScheme: .light)
+        let accent = Color(red: 0.8, green: 0.4, blue: 0.2)
+
+        assertEqualComponents(
+            try rgbaComponents(for: darkTheme.appBackgroundShade(accent: accent)),
+            [0, 0, 0, 0],
+            accuracy: 0.001
+        )
+        assertEqualComponents(
+            try rgbaComponents(for: lightTheme.appBackgroundShade(accent: accent)),
+            [0.8, 0.4, 0.2, Tokens.Opacity.fillScreenShade],
+            accuracy: 0.001
+        )
+        assertEqualComponents(
+            try rgbaComponents(for: darkTheme.appBackgroundTopShade(accent: accent)),
+            [0, 0, 0, 0],
+            accuracy: 0.001
+        )
+        assertEqualComponents(
+            try rgbaComponents(for: lightTheme.appBackgroundTopShade(accent: accent)),
+            [0.8, 0.4, 0.2, Tokens.Opacity.fillScreenShadeTopBoost],
             accuracy: 0.001
         )
     }

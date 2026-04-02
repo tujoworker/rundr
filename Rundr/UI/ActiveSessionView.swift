@@ -846,6 +846,10 @@ struct PlaceholderLapCardView: View {
     var accentColor: Color = .blue
     @Environment(\.appTheme) private var theme
 
+    private var borderColor: Color {
+        theme.isDark ? theme.stroke.neutral : theme.stroke.emphasis(accentColor)
+    }
+
     var body: some View {
         HStack(spacing: Tokens.Spacing.sm) {
             Text("1")
@@ -874,7 +878,7 @@ struct PlaceholderLapCardView: View {
         .overlay(
             RoundedRectangle(cornerRadius: Tokens.Radius.xl)
                 .inset(by: Tokens.LineWidth.thin)
-                .stroke(theme.stroke.neutral, lineWidth: Tokens.LineWidth.medium)
+                .stroke(borderColor, lineWidth: Tokens.LineWidth.medium)
         )
     }
 }
@@ -895,6 +899,10 @@ struct LapCardView: View {
         }
 
         return theme.background.emphasisCard(accentColor)
+    }
+
+    private var borderColor: Color {
+        theme.isDark ? theme.stroke.neutral : theme.stroke.emphasis(accentColor)
     }
 
     var body: some View {
@@ -946,7 +954,7 @@ struct LapCardView: View {
         .overlay(
             RoundedRectangle(cornerRadius: Tokens.Radius.xl)
                 .inset(by: !isRest ? Tokens.LineWidth.thin : 0)
-                .stroke(theme.stroke.neutral, lineWidth: !isRest ? Tokens.LineWidth.medium : 0)
+                .stroke(borderColor, lineWidth: !isRest ? Tokens.LineWidth.medium : 0)
         )
     }
 }

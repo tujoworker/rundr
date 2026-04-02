@@ -1125,7 +1125,7 @@ private struct CompanionWorkoutEditorView: View {
                         )
                         .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                             Button {
-                                withAnimation(.snappy(duration: 0.3, extraBounce: 0.12)) {
+                                withAnimation {
                                     deleteSegment(segment)
                                 }
                             } label: {

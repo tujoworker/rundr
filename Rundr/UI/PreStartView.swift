@@ -812,6 +812,7 @@ struct IntervalLibraryView: View {
             } header: {
                 Text(L10n.predefined)
                     .foregroundStyle(theme.text.neutral)
+                    .padding(.top, Tokens.Spacing.lg)
             }
         }
         .tint(settings.primaryAccentColor)

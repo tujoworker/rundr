@@ -42,6 +42,14 @@ final class AppearanceModeTests: XCTestCase {
         )
     }
 
+    func testAppThemeUsesWhiteEmphasisTextForAccentSurfacesInBothModes() throws {
+        let darkTheme = AppTheme(colorScheme: .dark)
+        let lightTheme = AppTheme(colorScheme: .light)
+
+        XCTAssertEqual(try rgbaComponents(for: darkTheme.text.emphasis), [1, 1, 1, 1])
+        XCTAssertEqual(try rgbaComponents(for: lightTheme.text.emphasis), [1, 1, 1, 1])
+    }
+
     func testAppThemeUsesDifferentNeutralBackgroundColorsForDarkAndLightModes() throws {
         let darkTheme = AppTheme(colorScheme: .dark)
         let lightTheme = AppTheme(colorScheme: .light)

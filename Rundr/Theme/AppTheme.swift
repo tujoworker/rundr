@@ -222,7 +222,7 @@ struct AppTheme {
 
         /// Settings row icons use the symbol's built-in colours when available.
         var settingsRow: AppIconStyleToken {
-            original
+            isDark ? original : neutral
         }
     }
 

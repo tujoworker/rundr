@@ -216,7 +216,7 @@ struct ActiveSessionView: View {
                     .monospacedDigit()
                     .minimumScaleFactor(0.45)
                     .lineLimit(1)
-                    .foregroundStyle(theme.text.neutral)
+                    .foregroundStyle(theme.text.emphasis)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .frame(maxWidth: .infinity)
                     .padding(.horizontal, Tokens.Spacing.md)
@@ -256,11 +256,11 @@ struct ActiveSessionView: View {
         HStack(spacing: Tokens.Spacing.xs) {
             Image(systemName: "heart.fill")
                 .font(.system(size: Tokens.FontSize.xs, weight: .semibold))
-                .foregroundStyle(theme.text.neutral)
+                .foregroundStyle(theme.text.emphasis)
 
             Text(Formatters.heartRateString(bpm: workoutController.currentHeartRate))
                 .font(.system(size: Tokens.FontSize.sm, weight: .bold, design: .rounded))
-                .foregroundStyle(theme.text.neutral)
+                .foregroundStyle(theme.text.emphasis)
                 .monospacedDigit()
         }
     }
@@ -1074,7 +1074,7 @@ private struct WorkoutControlIcon: View {
         .overlay {
             Image(systemName: systemName)
                 .font(.system(size: iconFontSize, weight: .bold))
-                .foregroundStyle(theme.text.neutral)
+                .foregroundStyle(theme.text.emphasis)
         }
         .frame(width: size, height: size)
         .shadow(color: (isSecondary ? Color.gray : baseColor).opacity(Tokens.Opacity.shadow), radius: Tokens.Radius.small, y: 2)

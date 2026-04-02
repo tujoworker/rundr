@@ -182,6 +182,7 @@ enum L10n {
     static let miles = String(localized: "Miles", comment: "Unit")
 
     // MARK: - Primary Color
+    static let gold = String(localized: "Gold", comment: "Color")
     static let blue = String(localized: "Blue", comment: "Color")
     static let green = String(localized: "Green", comment: "Color")
     static let yellow = String(localized: "Yellow", comment: "Color")

@@ -7,7 +7,7 @@ enum L10n {
     // MARK: - PreStart
     static let pressActionButton = String(localized: "Press the Action Button", comment: "PreStart hint")
     static let settings = String(localized: "Settings", comment: "Settings section")
-    static let more = String(localized: "More", comment: "PreStart section for settings and app information")
+    static let preferences = String(localized: "Preferences", comment: "Section, tab, and screen title for app settings and related information")
     static let workouts = String(localized: "Workouts", comment: "Companion tab title")
     static let browser = String(localized: "Browse", comment: "Companion tab title")
     static let adjustSettings = String(localized: "Adjust Interval", comment: "History setup title")

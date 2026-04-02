@@ -202,7 +202,6 @@ struct PreStartView: View {
                         SettingsCardRow(
                             icon: "square.grid.2x2",
                             title: L10n.browse,
-                            usesActionBackground: false,
                             showsChevron: true
                         )
                     }
@@ -210,7 +209,7 @@ struct PreStartView: View {
                     .padding(.top, Tokens.Spacing.xl)
                 }
 
-                Text(L10n.more)
+                Text(L10n.preferences)
                     .font(.headline.weight(.semibold))
                     .foregroundStyle(theme.text.neutral)
                     .padding(.horizontal, Tokens.Spacing.sm)
@@ -2007,15 +2006,16 @@ private struct SettingsCardRow: View {
     let icon: String
     let title: String
     var value: String? = nil
-    var usesActionBackground: Bool = true
     var showsChevron: Bool = false
+    @EnvironmentObject var settings: SettingsStore
     @Environment(\.appTheme) private var theme
 
     var body: some View {
         HStack(alignment: .center, spacing: Tokens.Spacing.xl) {
             Image(systemName: icon)
                 .font(.system(size: Tokens.FontSize.xl, weight: .semibold))
-                .appIconStyle(theme.icon.settingsRow, theme: theme)
+                .symbolRenderingMode(.monochrome)
+                .foregroundStyle(settings.primaryAccentColor)
                 .frame(width: 28)
 
             VStack(alignment: .leading, spacing: 3) {
@@ -2047,10 +2047,8 @@ private struct SettingsCardRow: View {
         }
         .padding(.horizontal, Tokens.Spacing.xxxl)
         .padding(.vertical, Tokens.Spacing.xxxl)
-        .background(
-            RoundedRectangle(cornerRadius: Tokens.Radius.xxxxl, style: .continuous)
-                .fill(usesActionBackground ? theme.background.neutralAction : theme.background.neutral)
-        )
+        .background(theme.background.history)
+        .cornerRadius(Tokens.Radius.medium)
     }
 }
 

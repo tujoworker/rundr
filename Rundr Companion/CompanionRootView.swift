@@ -19,7 +19,7 @@ struct CompanionRootView: View {
 
             CompanionSettingsView()
                 .tabItem {
-                    Label(L10n.settings, systemImage: "paintpalette")
+                    Label(L10n.preferences, systemImage: "ellipsis.circle")
                 }
         }
         .tint(settings.primaryAccentColor)
@@ -336,9 +336,24 @@ private struct CompanionPresetLibraryView: View {
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
 
+    private var browseCellContentInsets: EdgeInsets {
+        let baseInsets = Tokens.ContentInsets.companionCard
+
+        return EdgeInsets(
+            top: baseInsets.top,
+            leading: baseInsets.leading * 2,
+            bottom: baseInsets.bottom,
+            trailing: baseInsets.trailing * 2
+        )
+    }
+
+    private var browseSectionHeaderLeadingInset: CGFloat {
+        Tokens.ContentInsets.companionCard.leading / 2
+    }
+
     var body: some View {
         List {
-            Section(L10n.myIntervals) {
+            Section {
                 if settings.intervalPresets.isEmpty {
                     VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                         Text(L10n.noSavedIntervalsYet)
@@ -350,7 +365,10 @@ private struct CompanionPresetLibraryView: View {
                             .foregroundStyle(theme.text.subtle)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .listRowCardChrome()
+                    .listRowCardChrome(
+                        rowInsets: Tokens.ListRowInsets.card,
+                        contentInsets: browseCellContentInsets
+                    )
                 } else {
                     ForEach(settings.intervalPresets) { preset in
                         NavigationLink {
@@ -377,7 +395,7 @@ private struct CompanionPresetLibraryView: View {
                                     subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
                                     usageCount: settings.presetUsageCount(for: preset.workoutPlan)
                                 )
-                                .padding(Tokens.ContentInsets.companionCard)
+                                .padding(browseCellContentInsets)
                                 Spacer(minLength: 0)
                             }
                             .contentShape(Rectangle())
@@ -390,15 +408,21 @@ private struct CompanionPresetLibraryView: View {
                             } label: {
                                 Label(L10n.delete, systemImage: "trash")
                             }
-                            .tint(.red)
                         }
-                        .listRowCardChrome(contentInsets: EdgeInsets())
+                        .listRowCardChrome(
+                            rowInsets: Tokens.ListRowInsets.card,
+                            contentInsets: EdgeInsets()
+                        )
                         .contentShape(Rectangle())
                     }
                 }
+            } header: {
+                CompanionHomeSectionHeader(title: L10n.myIntervals)
+                    .padding(.leading, browseSectionHeaderLeadingInset)
             }
+            .listSectionSeparator(.hidden)
 
-            Section(L10n.predefined) {
+            Section {
                 ForEach(SettingsStore.predefinedIntervalPresets) { preset in
                     NavigationLink {
                         CompanionWorkoutEditorView(
@@ -427,20 +451,28 @@ private struct CompanionPresetLibraryView: View {
                                 subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
                                 usageCount: settings.presetUsageCount(for: preset.workoutPlan)
                             )
-                            .padding(Tokens.ContentInsets.companionCard)
+                            .padding(browseCellContentInsets)
                             Spacer(minLength: 0)
                         }
                         .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .listRowCardChrome(contentInsets: EdgeInsets())
+                    .listRowCardChrome(
+                        rowInsets: Tokens.ListRowInsets.card,
+                        contentInsets: EdgeInsets()
+                    )
                     .contentShape(Rectangle())
                 }
+            } header: {
+                CompanionHomeSectionHeader(title: L10n.predefined)
+                    .padding(.leading, browseSectionHeaderLeadingInset)
             }
+            .listSectionSeparator(.hidden)
         }
         .navigationTitle(L10n.browser)
         .navigationBarTitleDisplayMode(.large)
+        .toolbarBackground(.hidden, for: .navigationBar)
         .themedCompanionList()
     }
 }
@@ -461,6 +493,7 @@ private struct CompanionSettingsView: View {
                             systemImage: "location"
                         )
                     }
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
 
                     NavigationLink {
                         CompanionDistanceUnitSettingsDetailView()
@@ -471,6 +504,7 @@ private struct CompanionSettingsView: View {
                             systemImage: "ruler"
                         )
                     }
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
 
                     NavigationLink {
                         CompanionRestModeSettingsDetailView()
@@ -481,6 +515,7 @@ private struct CompanionSettingsView: View {
                             systemImage: "figure.cooldown"
                         )
                     }
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
 
                     NavigationLink {
                         CompanionAppearanceSettingsDetailView()
@@ -491,6 +526,7 @@ private struct CompanionSettingsView: View {
                             systemImage: "circle.lefthalf.filled"
                         )
                     }
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
 
                     NavigationLink {
                         CompanionColorSettingsDetailView()
@@ -498,13 +534,13 @@ private struct CompanionSettingsView: View {
                         CompanionSettingsNavigationRow(
                             title: L10n.color,
                             value: settings.primaryColor.displayName,
-                            tintColor: settings.primaryColor.color,
                             systemImage: "paintpalette.fill"
                         )
                     }
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
                 }
             }
-            .navigationTitle(L10n.settings)
+            .navigationTitle(L10n.preferences)
             .navigationBarTitleDisplayMode(.large)
             .themedCompanionSettingsList()
         }
@@ -532,14 +568,16 @@ private struct CompanionTrackingModeSettingsDetailView: View {
 
                             Spacer()
 
-                            if settings.trackingMode == mode {
-                                Image(systemName: "checkmark")
-                                    .font(.body.weight(.semibold))
-                                    .foregroundStyle(settings.primaryAccentColor)
-                            }
+                            CompanionSelectionCheckmark(
+                                isSelected: settings.trackingMode == mode,
+                                tint: settings.primaryAccentColor
+                            )
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.detailRowContentInsets)
                 }
             }
         }
@@ -566,14 +604,16 @@ private struct CompanionDistanceUnitSettingsDetailView: View {
 
                             Spacer()
 
-                            if settings.distanceUnit == unit {
-                                Image(systemName: "checkmark")
-                                    .font(.body.weight(.semibold))
-                                    .foregroundStyle(settings.primaryAccentColor)
-                            }
+                            CompanionSelectionCheckmark(
+                                isSelected: settings.distanceUnit == unit,
+                                tint: settings.primaryAccentColor
+                            )
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.detailRowContentInsets)
                 }
             }
         }
@@ -600,14 +640,16 @@ private struct CompanionRestModeSettingsDetailView: View {
 
                             Spacer()
 
-                            if settings.restMode == mode {
-                                Image(systemName: "checkmark")
-                                    .font(.body.weight(.semibold))
-                                    .foregroundStyle(settings.primaryAccentColor)
-                            }
+                            CompanionSelectionCheckmark(
+                                isSelected: settings.restMode == mode,
+                                tint: settings.primaryAccentColor
+                            )
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.detailRowContentInsets)
                 }
             }
         }
@@ -647,14 +689,16 @@ private struct CompanionAppearanceSettingsDetailView: View {
 
                             Spacer()
 
-                            if settings.appearanceMode == mode {
-                                Image(systemName: "checkmark")
-                                    .font(.body.weight(.semibold))
-                                    .foregroundStyle(settings.primaryAccentColor)
-                            }
+                            CompanionSelectionCheckmark(
+                                isSelected: settings.appearanceMode == mode,
+                                tint: settings.primaryAccentColor
+                            )
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.detailRowContentInsets)
                 }
             }
         }
@@ -685,14 +729,16 @@ private struct CompanionColorSettingsDetailView: View {
 
                             Spacer()
 
-                            if settings.primaryColor == color {
-                                Image(systemName: "checkmark")
-                                    .font(.body.weight(.semibold))
-                                    .foregroundStyle(settings.primaryAccentColor)
-                            }
+                            CompanionSelectionCheckmark(
+                                isSelected: settings.primaryColor == color,
+                                tint: settings.primaryAccentColor
+                            )
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.detailRowContentInsets)
                 }
             }
         }
@@ -707,20 +753,21 @@ private struct CompanionSettingsNavigationRow: View {
     let value: String
     var tintColor: Color? = nil
     let systemImage: String
+    @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
 
-    var body: some View {
-        let iconTint = tintColor ?? theme.text.neutral
+    private var iconBackgroundColor: Color {
+        theme.background.neutralInteraction
+    }
 
+    var body: some View {
         HStack(spacing: Tokens.Spacing.md) {
             ZStack {
                 RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
-                    .fill(iconTint.opacity(theme.isDark ? Tokens.Opacity.fillAccent : 0.14))
+                    .fill(iconBackgroundColor)
                     .frame(width: 28, height: 28)
 
-                Image(systemName: systemImage)
-                    .font(.system(size: Tokens.FontSize.md, weight: .semibold))
-                    .foregroundStyle(iconTint)
+                companionSettingsIcon
             }
 
             Text(title)
@@ -731,6 +778,55 @@ private struct CompanionSettingsNavigationRow: View {
             Text(value)
                 .foregroundStyle(theme.text.subtle)
         }
+    }
+
+    @ViewBuilder
+    private var companionSettingsIcon: some View {
+        let iconTint = tintColor ?? settings.primaryAccentColor
+        let icon = Image(systemName: systemImage)
+            .font(.system(size: Tokens.FontSize.md, weight: .semibold))
+
+        icon
+            .symbolRenderingMode(.monochrome)
+            .foregroundStyle(iconTint)
+    }
+}
+
+private enum CompanionPreferencesStyle {
+    static var overviewRowContentInsets: EdgeInsets {
+        let baseInsets = Tokens.ContentInsets.companionCard
+        let horizontalInset = baseInsets.leading
+
+        return EdgeInsets(
+            top: Tokens.Spacing.xxxl,
+            leading: horizontalInset,
+            bottom: Tokens.Spacing.xxxl,
+            trailing: horizontalInset
+        )
+    }
+
+    static var detailRowContentInsets: EdgeInsets {
+        let horizontalInset = Tokens.ContentInsets.companionCard.leading
+
+        return EdgeInsets(
+            top: Tokens.Spacing.xxxl,
+            leading: horizontalInset,
+            bottom: Tokens.Spacing.xxxl,
+            trailing: horizontalInset
+        )
+    }
+}
+
+private struct CompanionSelectionCheckmark: View {
+    let isSelected: Bool
+    let tint: Color
+
+    var body: some View {
+        Image(systemName: "checkmark")
+            .font(.body.weight(.semibold))
+            .foregroundStyle(tint)
+            .opacity(isSelected ? 1 : 0)
+            .frame(width: 18, alignment: .trailing)
     }
 }
 
@@ -759,25 +855,35 @@ private struct CompanionPresetRowView: View {
     @Environment(\.appTheme) private var theme
 
     var body: some View {
-        HStack(spacing: Tokens.Spacing.md) {
-            VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
-                Text(title)
-                    .font(.headline.weight(.semibold))
-                    .foregroundStyle(theme.text.neutral)
+        HStack(alignment: .top, spacing: Tokens.Spacing.md) {
+            VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
+                HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.md) {
+                    Text(title)
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(theme.text.neutral)
 
-                Text(subtitle)
-                    .font(.subheadline)
-                    .foregroundStyle(theme.text.subtle)
-            }
+                    Spacer(minLength: Tokens.Spacing.md)
 
-            Spacer(minLength: Tokens.Spacing.md)
+                    Image(systemName: "chevron.right")
+                        .font(.headline.weight(.semibold))
+                        .foregroundStyle(theme.text.subtle)
+                }
 
-            if usageCount > 0 {
-                Text(L10n.usedCount(usageCount))
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(theme.text.subtle)
+                HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
+                    CompanionMetricPill(title: L10n.intervalsTitle, value: subtitle)
+
+                    if usageCount > 0 {
+                        Text(L10n.usedCount(usageCount))
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(theme.text.subtle)
+                            .padding(.top, Tokens.Spacing.xxs)
+                    }
+                }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, Tokens.Spacing.xs)
+        .padding(.bottom, Tokens.Spacing.sm)
     }
 }
 
@@ -2348,6 +2454,18 @@ private extension View {
         modifier(CompanionListRowChrome(rowInsets: rowInsets, contentInsets: contentInsets, fillColor: fillColor))
     }
 
+    func companionSettingsOptionRowChrome(
+        rowInsets: EdgeInsets = EdgeInsets(
+            top: 0,
+            leading: Tokens.ListRowInsets.companionCard.leading,
+            bottom: 0,
+            trailing: Tokens.ListRowInsets.companionCard.trailing
+        ),
+        contentInsets: EdgeInsets
+    ) -> some View {
+        modifier(CompanionSettingsOptionRowChrome(rowInsets: rowInsets, contentInsets: contentInsets))
+    }
+
     func companionCardChrome() -> some View {
         self
     }
@@ -2375,6 +2493,17 @@ private struct CompanionListRowChrome: ViewModifier {
             .listRowInsets(rowInsets)
             .listRowSeparator(.hidden)
             .listRowBackground(Color.clear)
+    }
+}
+
+private struct CompanionSettingsOptionRowChrome: ViewModifier {
+    let rowInsets: EdgeInsets
+    let contentInsets: EdgeInsets
+
+    func body(content: Content) -> some View {
+        content
+            .padding(contentInsets)
+            .listRowInsets(rowInsets)
     }
 }
 

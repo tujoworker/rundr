@@ -1827,8 +1827,8 @@ private struct CompanionSessionDetailView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, Tokens.Spacing.md)
                 }
-                .accentRoundedButtonChrome(accentColor: settings.primaryAccentColor)
-                .buttonStyle(.plain)
+                    .buttonStyle(.borderedProminent)
+                    .tint(settings.primaryAccentColor)
                 .padding(.top, Tokens.Spacing.lg)
                 .padding(.horizontal, Tokens.Spacing.xs)
 
@@ -1840,8 +1840,8 @@ private struct CompanionSessionDetailView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, Tokens.Spacing.md)
                 }
-                .destructiveFillButtonChrome(tintColor: .red)
-                .buttonStyle(.plain)
+                .buttonStyle(.bordered)
+                .tint(.red)
                 .padding(.top, Tokens.Spacing.lg)
                 .padding(.horizontal, Tokens.Spacing.xs)
             }
@@ -1933,12 +1933,26 @@ private struct CompanionSessionLapRow: View {
         Tokens.FontSize.xxl + Tokens.Spacing.xs
     }
 
-    private var restInlineTitle: String {
-        "\(L10n.rest) • \(Formatters.compactTimeString(from: lap.durationSeconds))"
-    }
-
     private var activeHeaderTime: String {
         Formatters.compactTimeString(from: lap.durationSeconds)
+    }
+
+    private var rowInsets: EdgeInsets {
+        if isRestLap {
+            return EdgeInsets(
+                top: Tokens.ContentInsets.companionCard.top,
+                leading: Tokens.ContentInsets.companionCard.leading + Tokens.Spacing.sm,
+                bottom: Tokens.ContentInsets.companionCard.bottom,
+                trailing: Tokens.ContentInsets.companionCard.trailing
+            )
+        }
+
+        return EdgeInsets(
+            top: Tokens.ContentInsets.companionCard.top + Tokens.Spacing.sm,
+            leading: Tokens.ContentInsets.companionCard.leading + Tokens.Spacing.sm,
+            bottom: Tokens.ContentInsets.companionCard.bottom + Tokens.Spacing.sm,
+            trailing: Tokens.ContentInsets.companionCard.trailing
+        )
     }
 
     private var detailItems: [CompanionSessionStatItem] {
@@ -2002,10 +2016,14 @@ private struct CompanionSessionLapRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
-            HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.sm) {
+            HStack(alignment: isRestLap ? .center : .firstTextBaseline, spacing: Tokens.Spacing.sm) {
                 if isRestLap {
-                    Text(restInlineTitle)
+                    Text(L10n.rest)
                         .font(.headline.weight(.semibold))
+                        .foregroundStyle(theme.text.historyRest)
+
+                    Text(Formatters.compactTimeString(from: lap.durationSeconds))
+                        .font(.headline.weight(.regular))
                         .foregroundStyle(theme.text.historyRest)
                 } else {
                     Text(badgeTitle)
@@ -2049,14 +2067,7 @@ private struct CompanionSessionLapRow: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(
-            EdgeInsets(
-                top: Tokens.ContentInsets.companionCard.top + Tokens.Spacing.sm,
-                leading: Tokens.ContentInsets.companionCard.leading + Tokens.Spacing.sm,
-                bottom: Tokens.ContentInsets.companionCard.bottom + Tokens.Spacing.sm,
-                trailing: Tokens.ContentInsets.companionCard.trailing
-            )
-        )
+        .padding(rowInsets)
         .background(isRestLap ? theme.background.historyRest : theme.background.history)
         .cornerRadius(Tokens.Radius.companionListCell)
         .padding(.horizontal, Tokens.Spacing.xs)

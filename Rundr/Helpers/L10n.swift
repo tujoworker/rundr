@@ -13,7 +13,7 @@ enum L10n {
     static let browse = String(localized: "Browse", comment: "Browse saved intervals")
     static let workoutPlan = String(localized: "Workout Plan", comment: "Companion workout editor title")
     static let usedWhenStartingOnAppleWatch = String(localized: "Used when you start on Apple Watch.", comment: "Companion current workout summary")
-    static let intervalsTitle = String(localized: "Intervals", comment: "Intervals section title")
+    static let intervalsTitle = String(localized: "Session Plan", comment: "Session plan section title")
     static let myIntervals = String(localized: "My intervals", comment: "Interval library title")
     static let predefined = String(localized: "Predefined", comment: "Predefined interval section")
     static let title = String(localized: "Title", comment: "Preset title label")

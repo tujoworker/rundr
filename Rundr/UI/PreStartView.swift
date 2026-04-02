@@ -866,6 +866,7 @@ private struct IntervalSetupView: View {
     @State private var lastAddedTargetPace: Int = 0
     @State private var lastAddedTargetTime: Int = 0
     @State private var showsOpenDistanceGPSBanner = false
+    @State private var isTrackingModeDialogPresented = false
     @StateObject private var locationPermissionRequester = LocationPermissionRequester()
 
     private var distanceLabel: String {
@@ -941,6 +942,17 @@ private struct IntervalSetupView: View {
                         IntervalTitleField(text: $customTitle)
                     }
 
+                    Button {
+                        isTrackingModeDialogPresented = true
+                    } label: {
+                        SettingsCardRow(
+                            icon: "location",
+                            title: L10n.mode,
+                            value: trackingMode.displayName
+                        )
+                    }
+                    .buttonStyle(.plain)
+
                     if trackingMode.usesManualIntervals {
                         intervalsSection
                     }
@@ -993,6 +1005,18 @@ private struct IntervalSetupView: View {
                 onDistanceModeChanged: handleEditingDistanceModeChanged,
                 onDone: { commitSegmentEdit() }
             )
+        }
+        .confirmationDialog(L10n.mode, isPresented: $isTrackingModeDialogPresented) {
+            ForEach(TrackingMode.allCases) { mode in
+                Button(mode.displayName) {
+                    trackingMode = WorkoutPlanSupport.resolvedTrackingMode(
+                        requestedTrackingMode: mode,
+                        segments: segments,
+                        currentTrackingMode: trackingMode
+                    )
+                }
+            }
+            Button(L10n.cancel, role: .cancel) {}
         }
     }
 

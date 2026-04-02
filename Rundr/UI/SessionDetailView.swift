@@ -125,7 +125,8 @@ struct SessionDetailView: View {
                         .buttonStyle(.plain)
                     }
                 }
-                .padding(.horizontal, Tokens.Spacing.xs)
+                .padding(.leading, Tokens.Spacing.md + Tokens.Spacing.xs)
+                .padding(.trailing, Tokens.Spacing.xs)
 
                 if isPendingPhoneSync {
                     SessionDetailPendingPhoneSyncBanner()
@@ -139,6 +140,12 @@ struct SessionDetailView: View {
                 }
 
                 SessionStatsView(items: sessionStats)
+
+                Text(L10n.laps)
+                    .font(.caption.bold())
+                    .foregroundStyle(theme.text.subtle)
+                    .padding(.horizontal, Tokens.Spacing.xs)
+                    .padding(.top, Tokens.Spacing.xs)
 
                 ForEach(sortedLaps, id: \.id) { lap in
                     LapRowView(
@@ -327,7 +334,7 @@ struct LapRowView: View {
             paceDistanceMeters = lap.distanceMeters > 0 ? lap.distanceMeters : nil
         }
 
-        if trackingMode.usesManualIntervals || isOpenInterval {
+        if isOpenInterval {
             items.append(
                 SessionStatItem(
                     label: L10n.pace,

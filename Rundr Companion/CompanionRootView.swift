@@ -1818,38 +1818,39 @@ private struct CompanionSessionDetailView: View {
                 ForEach(sortedLaps, id: \.id) { lap in
                     CompanionSessionLapRow(lap: lap, trackingMode: session.mode, distanceUnit: settings.distanceUnit)
                 }
-
-                Button {
-                    settings.apply(workoutPlan: session.snapshotWorkoutPlan)
-                } label: {
-                    Text(L10n.redoActivity)
-                        .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, Tokens.Spacing.md)
-                }
-                    .buttonStyle(.borderedProminent)
-                    .tint(settings.primaryAccentColor)
-                .padding(.top, Tokens.Spacing.lg)
-                .padding(.horizontal, Tokens.Spacing.xs)
-
-                Button(role: .destructive) {
-                    isDeleteConfirmationPresented = true
-                } label: {
-                    Text(L10n.deleteSession)
-                        .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, Tokens.Spacing.md)
-                }
-                .buttonStyle(.bordered)
-                .tint(.red)
-                .padding(.top, Tokens.Spacing.lg)
-                .padding(.horizontal, Tokens.Spacing.xs)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(Tokens.Spacing.md)
             .padding(.vertical, Tokens.Spacing.xs)
         }
-        .navigationTitle(headerTitle.dayText)
+        .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                HStack(spacing: 0) {
+                    Text(headerTitle.dayText)
+                        .font(.title2.weight(.semibold))
+                        .foregroundStyle(theme.text.neutral)
+                    Spacer(minLength: 0)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+            }
+
+            ToolbarItem(placement: .topBarTrailing) {
+                Menu {
+                    Button(L10n.redoActivity) {
+                        settings.apply(workoutPlan: session.snapshotWorkoutPlan)
+                        dismiss()
+                    }
+
+                    Button(L10n.deleteSession, role: .destructive) {
+                        isDeleteConfirmationPresented = true
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
+            }
+        }
         .background(Color.clear)
         .alert(L10n.deleteSession, isPresented: $isDeleteConfirmationPresented) {
             Button(L10n.delete, role: .destructive) {
@@ -2049,6 +2050,7 @@ private struct CompanionSessionLapRow: View {
                         .foregroundStyle(theme.text.neutral)
                 }
             }
+            .padding(.top, isRestLap ? 0 : Tokens.Spacing.sm)
 
             LazyVGrid(columns: columns, alignment: .leading, spacing: Tokens.Spacing.lg) {
                 ForEach(detailItems) { item in

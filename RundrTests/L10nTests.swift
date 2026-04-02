@@ -11,6 +11,10 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.useSessionSettings, "Use Session Plan")
     }
 
+    func testUseActivityConfirmationTitleUsesShortPlanWording() {
+        XCTAssertEqual(L10n.useActivityConfirmationTitle, "Use this plan?")
+    }
+
     func testRedoActivityLabelUsesReuseSessionPlanWording() {
         XCTAssertEqual(L10n.redoActivity, "Reuse Session Plan")
     }

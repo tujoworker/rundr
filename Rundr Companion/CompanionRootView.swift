@@ -2301,7 +2301,7 @@ private struct CompanionSessionDetailView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Button(L10n.redoActivity) {
+                    Button(L10n.reusePlan) {
                         isReuseConfirmationPresented = true
                     }
 

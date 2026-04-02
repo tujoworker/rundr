@@ -80,7 +80,19 @@ private struct CompanionWorkoutsView: View {
     }
 
     private var workoutsSectionHeaderLeadingInset: CGFloat {
-        Tokens.ContentInsets.companionCard.leading / 2
+        Tokens.ContentInsets.companionCard.leading * 2
+    }
+
+    private var workoutsRowInsets: EdgeInsets {
+        let baseInsets = Tokens.ListRowInsets.card
+        let horizontalInset = (Tokens.Spacing.xxl + Tokens.Spacing.xxxl) / 2
+
+        return EdgeInsets(
+            top: baseInsets.top,
+            leading: horizontalInset,
+            bottom: baseInsets.bottom,
+            trailing: horizontalInset
+        )
     }
 
     var body: some View {
@@ -90,7 +102,7 @@ private struct CompanionWorkoutsView: View {
                     Section {
                         CompanionLiveWorkoutCard(state: liveWorkoutState)
                             .padding(.leading, Tokens.Spacing.xl)
-                            .listRowCardChrome(rowInsets: Tokens.ListRowInsets.card)
+                            .listRowCardChrome(rowInsets: workoutsRowInsets)
                     } header: {
                         CompanionHomeSectionHeader(title: L10n.liveOnAppleWatch)
                     }
@@ -120,7 +132,7 @@ private struct CompanionWorkoutsView: View {
                                 }
                             }
                             .listRowCardChrome(
-                                rowInsets: Tokens.ListRowInsets.card,
+                                rowInsets: workoutsRowInsets,
                                 contentInsets: EdgeInsets(),
                                 fillColor: flashingSegmentIDs.contains(segment.id)
                                     ? theme.background.emphasisAction(settings.primaryAccentColor)
@@ -145,7 +157,7 @@ private struct CompanionWorkoutsView: View {
                             .padding(.vertical, Tokens.Spacing.xs)
                         }
                         .buttonStyle(.plain)
-                        .listRowInsets(Tokens.ListRowInsets.card)
+                        .listRowInsets(workoutsRowInsets)
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
                     } header: {
@@ -162,7 +174,7 @@ private struct CompanionWorkoutsView: View {
                             .foregroundStyle(theme.text.subtle)
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .listRowCardChrome(
-                                rowInsets: Tokens.ListRowInsets.card,
+                                rowInsets: workoutsRowInsets,
                                 contentInsets: workoutsCellContentInsets
                             )
                     } else {
@@ -186,7 +198,7 @@ private struct CompanionWorkoutsView: View {
                                     Label(L10n.delete, systemImage: "trash")
                                 }
                             }
-                            .listRowCardChrome(rowInsets: Tokens.ListRowInsets.card, contentInsets: EdgeInsets())
+                            .listRowCardChrome(rowInsets: workoutsRowInsets, contentInsets: EdgeInsets())
                         }
 
                         if canLoadMoreSessions {
@@ -333,8 +345,14 @@ private struct CompanionBrowserView: View {
 }
 
 private struct CompanionPresetLibraryView: View {
+    private enum PresetRoute: Hashable {
+        case saved(UUID)
+        case predefined(String)
+    }
+
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
+    @State private var selectedRoute: PresetRoute?
 
     private var browseCellContentInsets: EdgeInsets {
         let baseInsets = Tokens.ContentInsets.companionCard
@@ -348,7 +366,19 @@ private struct CompanionPresetLibraryView: View {
     }
 
     private var browseSectionHeaderLeadingInset: CGFloat {
-        Tokens.ContentInsets.companionCard.leading / 2
+        Tokens.ContentInsets.companionCard.leading * 2
+    }
+
+    private var browseRowInsets: EdgeInsets {
+        let baseInsets = Tokens.ListRowInsets.card
+        let horizontalInset = (Tokens.Spacing.xxl + Tokens.Spacing.xxxl) / 2
+
+        return EdgeInsets(
+            top: baseInsets.top,
+            leading: horizontalInset,
+            bottom: baseInsets.bottom,
+            trailing: horizontalInset
+        )
     }
 
     var body: some View {
@@ -366,28 +396,13 @@ private struct CompanionPresetLibraryView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .listRowCardChrome(
-                        rowInsets: Tokens.ListRowInsets.card,
+                        rowInsets: browseRowInsets,
                         contentInsets: browseCellContentInsets
                     )
                 } else {
                     ForEach(settings.intervalPresets) { preset in
-                        NavigationLink {
-                            CompanionWorkoutEditorView(
-                                headerTitle: L10n.adjustSettings,
-                                subtitle: preset.trimmedCustomTitle ?? L10n.presetCountSummary(preset.workoutPlan.distanceSegments.count),
-                                initialWorkoutPlan: preset.workoutPlan,
-                                initialCustomTitle: preset.customTitle,
-                                initialStoredPresetID: preset.id,
-                                showsCustomTitle: true,
-                                autoSaveOnSegmentDone: true
-                            ) { workoutPlan, customTitle, storedPresetID in
-                                _ = settings.saveIntervalPreset(
-                                    workoutPlan,
-                                    customTitle: customTitle,
-                                    existingPresetID: storedPresetID ?? preset.id
-                                )
-                                settings.apply(workoutPlan: workoutPlan)
-                            }
+                        Button {
+                            selectedRoute = .saved(preset.id)
                         } label: {
                             HStack(spacing: 0) {
                                 CompanionPresetRowView(
@@ -410,7 +425,7 @@ private struct CompanionPresetLibraryView: View {
                             }
                         }
                         .listRowCardChrome(
-                            rowInsets: Tokens.ListRowInsets.card,
+                            rowInsets: browseRowInsets,
                             contentInsets: EdgeInsets()
                         )
                         .contentShape(Rectangle())
@@ -424,26 +439,8 @@ private struct CompanionPresetLibraryView: View {
 
             Section {
                 ForEach(SettingsStore.predefinedIntervalPresets) { preset in
-                    NavigationLink {
-                        CompanionWorkoutEditorView(
-                            headerTitle: L10n.adjustSettings,
-                            subtitle: preset.title,
-                            initialWorkoutPlan: preset.workoutPlan,
-                            initialCustomTitle: preset.title,
-                            initialStoredPresetID: nil,
-                            showsCustomTitle: true,
-                            autoSaveOnSegmentDone: true
-                        ) { workoutPlan, customTitle, storedPresetID in
-                            let normalizedTitle = IntervalPreset.sanitizeTitle(customTitle)
-                            if IntervalPresetSignature(workoutPlan: workoutPlan) != preset.signature || normalizedTitle != nil {
-                                _ = settings.saveIntervalPreset(
-                                    workoutPlan,
-                                    customTitle: normalizedTitle,
-                                    existingPresetID: storedPresetID
-                                )
-                            }
-                            settings.apply(workoutPlan: workoutPlan)
-                        }
+                    Button {
+                        selectedRoute = .predefined(preset.id)
                     } label: {
                         HStack(spacing: 0) {
                             CompanionPresetRowView(
@@ -459,7 +456,7 @@ private struct CompanionPresetLibraryView: View {
                     .buttonStyle(.plain)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .listRowCardChrome(
-                        rowInsets: Tokens.ListRowInsets.card,
+                        rowInsets: browseRowInsets,
                         contentInsets: EdgeInsets()
                     )
                     .contentShape(Rectangle())
@@ -473,6 +470,56 @@ private struct CompanionPresetLibraryView: View {
         .navigationTitle(L10n.browser)
         .navigationBarTitleDisplayMode(.large)
         .toolbarBackground(.hidden, for: .navigationBar)
+        .navigationDestination(item: $selectedRoute) { route in
+            switch route {
+            case let .saved(presetID):
+                if let preset = settings.intervalPresets.first(where: { $0.id == presetID }) {
+                    CompanionWorkoutEditorView(
+                        headerTitle: L10n.adjustSettings,
+                        subtitle: preset.trimmedCustomTitle ?? L10n.presetCountSummary(preset.workoutPlan.distanceSegments.count),
+                        initialWorkoutPlan: preset.workoutPlan,
+                        initialCustomTitle: preset.customTitle,
+                        initialStoredPresetID: preset.id,
+                        showsCustomTitle: true,
+                        autoSaveOnSegmentDone: true
+                    ) { workoutPlan, customTitle, storedPresetID in
+                        _ = settings.saveIntervalPreset(
+                            workoutPlan,
+                            customTitle: customTitle,
+                            existingPresetID: storedPresetID ?? preset.id
+                        )
+                        settings.apply(workoutPlan: workoutPlan)
+                    }
+                } else {
+                    EmptyView()
+                }
+
+            case let .predefined(presetID):
+                if let preset = SettingsStore.predefinedIntervalPresets.first(where: { $0.id == presetID }) {
+                    CompanionWorkoutEditorView(
+                        headerTitle: L10n.adjustSettings,
+                        subtitle: preset.title,
+                        initialWorkoutPlan: preset.workoutPlan,
+                        initialCustomTitle: preset.title,
+                        initialStoredPresetID: nil,
+                        showsCustomTitle: true,
+                        autoSaveOnSegmentDone: true
+                    ) { workoutPlan, customTitle, storedPresetID in
+                        let normalizedTitle = IntervalPreset.sanitizeTitle(customTitle)
+                        if IntervalPresetSignature(workoutPlan: workoutPlan) != preset.signature || normalizedTitle != nil {
+                            _ = settings.saveIntervalPreset(
+                                workoutPlan,
+                                customTitle: normalizedTitle,
+                                existingPresetID: storedPresetID
+                            )
+                        }
+                        settings.apply(workoutPlan: workoutPlan)
+                    }
+                } else {
+                    EmptyView()
+                }
+            }
+        }
         .themedCompanionList()
     }
 }
@@ -868,6 +915,7 @@ private struct CompanionPresetRowView: View {
                         .font(.headline.weight(.semibold))
                         .foregroundStyle(theme.text.subtle)
                 }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
                     CompanionMetricPill(title: L10n.intervalsTitle, value: subtitle)

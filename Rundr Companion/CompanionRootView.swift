@@ -2175,6 +2175,7 @@ private struct CompanionSessionDetailView: View {
     @EnvironmentObject private var persistence: PersistenceManager
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appTheme) private var theme
+    @State private var isReuseConfirmationPresented = false
     @State private var isDeleteConfirmationPresented = false
 
     private var sortedLaps: [Lap] {
@@ -2301,8 +2302,7 @@ private struct CompanionSessionDetailView: View {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button(L10n.redoActivity) {
-                        settings.apply(workoutPlan: session.snapshotWorkoutPlan)
-                        dismiss()
+                        isReuseConfirmationPresented = true
                     }
 
                     Button(L10n.deleteSession, role: .destructive) {
@@ -2312,6 +2312,15 @@ private struct CompanionSessionDetailView: View {
                     Image(systemName: "ellipsis.circle")
                 }
             }
+        }
+        .alert(L10n.useActivityConfirmationTitle, isPresented: $isReuseConfirmationPresented) {
+            Button(L10n.yes) {
+                settings.apply(workoutPlan: session.snapshotWorkoutPlan)
+                dismiss()
+            }
+            Button(L10n.cancel, role: .cancel) {}
+        } message: {
+            Text(L10n.useActivityConfirmationMessage)
         }
         .alert(L10n.deleteSession, isPresented: $isDeleteConfirmationPresented) {
             Button(L10n.delete, role: .destructive) {

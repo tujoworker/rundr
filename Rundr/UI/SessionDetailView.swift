@@ -191,7 +191,7 @@ struct SessionDetailView: View {
         }
         .toolbar(.visible, for: .navigationBar)
         .confirmationDialog(L10n.thisSession, isPresented: $isActionMenuPresented, titleVisibility: .visible) {
-            Button(L10n.redoActivity) {
+            Button(L10n.reusePlan) {
                 isReuseConfirmationPresented = true
             }
             Button(L10n.deleteSession, role: .destructive) {

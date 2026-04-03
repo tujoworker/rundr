@@ -1288,6 +1288,30 @@ private struct CompanionLegalSectionCard: View {
 }
 
 private extension CompanionHelpTopic {
+    static var distanceType: CompanionHelpTopic {
+        CompanionHelpTopic(
+            icon: "road.lanes",
+            title: L10n.helpDistanceTypeTitle,
+            body: nil,
+            sections: [
+                CompanionHelpSection(
+                    title: L10n.helpDistanceTypeFixedHeading,
+                    body: L10n.helpDistanceTypeFixedBody,
+                    example: nil,
+                    tip: nil
+                ),
+                CompanionHelpSection(
+                    title: L10n.helpDistanceTypeOpenHeading,
+                    body: L10n.helpDistanceTypeOpenBody,
+                    example: L10n.helpDistanceTypeOpenExample,
+                    tip: nil
+                )
+            ],
+            example: nil,
+            tip: nil
+        )
+    }
+
     static var restMode: CompanionHelpTopic {
         CompanionHelpTopic(
             icon: "figure.walk.motion",
@@ -2208,6 +2232,7 @@ private struct CompanionSegmentEditorView: View {
     @State private var segment: DistanceSegment
     @State private var distanceText: String
     @State private var hasCommitted = false
+    @State private var isDistanceTypeHelpPresented = false
     @State private var isLastRestInfoPresented = false
     @State private var editableField: EditableField?
     @State private var bouncingField: EditableField?
@@ -2235,16 +2260,11 @@ private struct CompanionSegmentEditorView: View {
     ]
 
     private var editorRowInsets: EdgeInsets {
-        Tokens.ListRowInsets.card
+        CompanionPreferencesStyle.detailRowInsets
     }
 
     private var editorRowContentInsets: EdgeInsets {
-        EdgeInsets(
-            top: Tokens.Spacing.xxxxl,
-            leading: Tokens.Spacing.xxxl,
-            bottom: Tokens.Spacing.xxxxl,
-            trailing: Tokens.Spacing.xxxl
-        )
+        CompanionPreferencesStyle.detailRowContentInsets
     }
 
     private var canConfigureLastRest: Bool {
@@ -2270,12 +2290,31 @@ private struct CompanionSegmentEditorView: View {
     var body: some View {
         List {
             Section {
-                Picker(L10n.distanceType, selection: $segment.distanceGoalMode) {
-                    Text(L10n.fixedDistance).tag(DistanceGoalMode.fixed)
-                    Text(L10n.openDistance).tag(DistanceGoalMode.open)
+                HStack(spacing: Tokens.Spacing.md) {
+                    HStack(spacing: Tokens.Spacing.xs) {
+                        Text(L10n.distanceType)
+
+                        Button {
+                            isDistanceTypeHelpPresented = true
+                        } label: {
+                            Image(systemName: "questionmark.circle")
+                                .font(.system(size: Tokens.FontSize.lg, weight: .semibold))
+                                .foregroundStyle(theme.text.subtle)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(L10n.helpDistanceTypeTitle)
+                    }
+
+                    Spacer(minLength: Tokens.Spacing.md)
+
+                    Picker("", selection: $segment.distanceGoalMode) {
+                        Text(L10n.fixedDistance).tag(DistanceGoalMode.fixed)
+                        Text(L10n.openDistance).tag(DistanceGoalMode.open)
+                    }
+                    .labelsHidden()
                 }
                 .padding(.trailing, Tokens.Spacing.sm)
-                .listRowCardChrome(
+                .companionSettingsOptionRowChrome(
                     rowInsets: editorRowInsets,
                     contentInsets: editorRowContentInsets
                 )
@@ -2291,7 +2330,7 @@ private struct CompanionSegmentEditorView: View {
                             field: .distance
                         )
                     }
-                    .listRowCardChrome(
+                    .companionSettingsOptionRowChrome(
                         rowInsets: editorRowInsets,
                         contentInsets: editorRowContentInsets
                     )
@@ -2315,7 +2354,7 @@ private struct CompanionSegmentEditorView: View {
                         field: .repeats
                     )
                 }
-                .listRowCardChrome(
+                .companionSettingsOptionRowChrome(
                     rowInsets: editorRowInsets,
                     contentInsets: editorRowContentInsets
                 )
@@ -2332,7 +2371,7 @@ private struct CompanionSegmentEditorView: View {
                         field: .rest
                     )
                 }
-                .listRowCardChrome(
+                .companionSettingsOptionRowChrome(
                     rowInsets: editorRowInsets,
                     contentInsets: editorRowContentInsets
                 )
@@ -2359,7 +2398,7 @@ private struct CompanionSegmentEditorView: View {
                         field: .lastRest
                     )
                 }
-                .listRowCardChrome(
+                .companionSettingsOptionRowChrome(
                     rowInsets: editorRowInsets,
                     contentInsets: editorRowContentInsets
                 )
@@ -2383,7 +2422,7 @@ private struct CompanionSegmentEditorView: View {
                         field: .time
                     )
                 }
-                .listRowCardChrome(
+                .companionSettingsOptionRowChrome(
                     rowInsets: editorRowInsets,
                     contentInsets: editorRowContentInsets
                 )
@@ -2410,7 +2449,7 @@ private struct CompanionSegmentEditorView: View {
                             field: .pace
                         )
                     }
-                    .listRowCardChrome(
+                    .companionSettingsOptionRowChrome(
                         rowInsets: editorRowInsets,
                         contentInsets: editorRowContentInsets
                     )
@@ -2431,7 +2470,7 @@ private struct CompanionSegmentEditorView: View {
                 }
             }
         }
-        .themedCompanionList()
+        .themedCompanionSettingsList()
         .onAppear(perform: normalizeEditingState)
         .onChange(of: segment.distanceGoalMode) { _, _ in
             segment.targetPaceSecondsPerKm = SegmentEditorValueRules.normalizedTargetPace(
@@ -2465,6 +2504,21 @@ private struct CompanionSegmentEditorView: View {
             )
             .presentationDetents([.medium, .large])
             .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $isDistanceTypeHelpPresented) {
+            NavigationStack {
+                List {
+                    Section {
+                        CompanionHelpCard(topic: .distanceType)
+                            .listRowInsets(CompanionPreferencesStyle.detailRowInsets)
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                    }
+                }
+                .navigationTitle(L10n.distanceType)
+                .navigationBarTitleDisplayMode(.inline)
+                .themedCompanionSettingsList()
+            }
         }
     }
 

@@ -953,6 +953,27 @@ private struct CompanionHelpView: View {
                 tip: nil
             ),
             CompanionHelpTopic(
+                icon: "square.and.arrow.up.on.square",
+                title: L10n.helpSharingTitle,
+                body: L10n.helpSharingBody,
+                sections: [
+                    CompanionHelpSection(
+                        title: L10n.helpSharingSendHeading,
+                        body: L10n.helpSharingSendBody,
+                        example: nil,
+                        tip: nil
+                    ),
+                    CompanionHelpSection(
+                        title: L10n.helpSharingReceiveHeading,
+                        body: L10n.helpSharingReceiveBody,
+                        example: L10n.helpSharingReceiveExample,
+                        tip: nil
+                    )
+                ],
+                example: nil,
+                tip: L10n.helpSharingTip
+            ),
+            CompanionHelpTopic(
                 icon: "figure.walk.motion",
                 title: L10n.helpRestTitle,
                 body: L10n.helpRestBody,

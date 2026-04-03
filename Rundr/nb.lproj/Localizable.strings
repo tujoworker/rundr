@@ -236,6 +236,14 @@
 "Session Plan" = "Øktplan";
 "Rundr keeps one current Session Plan. Loading a plan from predefined session plans or from a past session in History replaces the one you have now." = "Rundr har bare én gjeldende øktplan om gangen. Når du laster en plan fra forhåndsdefinerte øktplaner eller fra en tidligere økt i historikken, erstatter den planen du har nå.";
 "Load last week's 6 × 400 m from History, then adjust one rest before your next run." = "Last inn forrige ukes 6 × 400 m fra historikken, og juster deretter én hvilepause før neste økt.";
+"Sharing" = "Deling";
+"Rundr exports plans and past sessions as files from the iPhone share sheet. Use Share Plan in Adjust Interval to send a plan, or Share Session in a past session detail view to send a session." = "Rundr eksporterer planer og tidligere økter som filer fra delingsarket på iPhone. Bruk Del plan i Juster intervall for å sende en plan, eller Del økt i detaljvisningen for en tidligere økt for å sende en økt.";
+"Send" = "Send";
+"On iPhone, Apple's share sheet shows the available ways to send the file. Apple documents that AirDrop can send documents to nearby Apple devices, and that AirDrop requires Wi-Fi and Bluetooth to be turned on." = "På iPhone viser Apples delingsark de tilgjengelige måtene å sende fila på. Apple dokumenterer at AirDrop kan sende dokumenter til Apple-enheter i nærheten, og at AirDrop krever at Wi‑Fi og Bluetooth er slått på.";
+"Receive" = "Motta";
+"Apple documents that you accept AirDrop transfers from the AirDrop notification, and that some received files may be saved in the Files app. In Rundr, you can import a received Rundr file from More > Import File." = "Apple dokumenterer at du godtar AirDrop-overføringer fra AirDrop-varslet, og at noen mottatte filer kan bli lagret i Filer-appen. I Rundr kan du importere en mottatt Rundr-fil fra Mer > Importer fil.";
+"If the file is saved in Files instead of opening in Rundr, open Rundr and use More > Import File." = "Hvis fila lagres i Filer i stedet for å åpnes direkte i Rundr, åpner du Rundr og bruker Mer > Importer fil.";
+"For AirDrop, Apple says the devices must be within 30 feet (10 meters), both devices need Wi-Fi and Bluetooth turned on, and the receiver must allow Contacts Only or Everyone for 10 Minutes." = "For AirDrop sier Apple at enhetene må være innenfor 10 meter, begge enhetene må ha Wi‑Fi og Bluetooth slått på, og mottakeren må tillate Bare kontakter eller Alle i 10 minutter.";
 "Mark as Rest" = "Marker som hvile";
 "Mark as Rest turns the current lap into rest. That rest stays attached to the lap you just finished, so it remains part of the workout." = "«Marker som hvile» gjør den gjeldende runden om til hvile. Den hvilen forblir knyttet til runden du nettopp fullførte, så den blir værende som en del av økta.";
 "With Timed Rest" = "Med tidsstyrt hvile";

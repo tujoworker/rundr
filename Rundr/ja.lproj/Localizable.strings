@@ -234,6 +234,14 @@
 "Session Plan" = "セッションプラン";
 "Rundr keeps one current Session Plan. Loading a plan from predefined session plans or from a past session in History replaces the one you have now." = "Rundrで現在使えるセッションプランは1つだけです。あらかじめ用意されたセッションプランや履歴の過去セッションからプランを読み込むと、今のプランはその内容に置き換わります。";
 "Load last week's 6 × 400 m from History, then adjust one rest before your next run." = "先週の6 × 400 mを履歴から読み込み、次のランの前にレストをひとつだけ調整します。";
+"Sharing" = "共有";
+"Rundr exports plans and past sessions as files from the iPhone share sheet. Use Share Plan in Adjust Interval to send a plan, or Share Session in a past session detail view to send a session." = "RundrはiPhoneの共有シートから、プランや過去のセッションをファイルとして書き出せます。プランを送るには「Adjust Interval」で「Share Plan」を使い、セッションを送るには過去セッションの詳細画面で「Share Session」を使います。";
+"Send" = "送信";
+"On iPhone, Apple's share sheet shows the available ways to send the file. Apple documents that AirDrop can send documents to nearby Apple devices, and that AirDrop requires Wi-Fi and Bluetooth to be turned on." = "iPhoneでは、Appleの共有シートにそのファイルを送れる方法が表示されます。Appleは、AirDropで近くのAppleデバイスに書類を送れること、そしてAirDropにはWi‑FiとBluetoothの両方が必要だと案内しています。";
+"Receive" = "受信";
+"Apple documents that you accept AirDrop transfers from the AirDrop notification, and that some received files may be saved in the Files app. In Rundr, you can import a received Rundr file from More > Import File." = "Appleは、AirDropの受信はAirDrop通知から承認すること、また受け取ったファイルの一部はFilesアプリに保存される場合があると案内しています。Rundrでは、受け取ったRundrファイルを「More > Import File」から取り込めます。";
+"If the file is saved in Files instead of opening in Rundr, open Rundr and use More > Import File." = "ファイルがRundrで直接開かずFilesに保存された場合は、Rundrを開いて「More > Import File」を使ってください。";
+"For AirDrop, Apple says the devices must be within 30 feet (10 meters), both devices need Wi-Fi and Bluetooth turned on, and the receiver must allow Contacts Only or Everyone for 10 Minutes." = "AirDropについてAppleは、デバイス同士が約10メートル以内にあり、両方のデバイスでWi‑FiとBluetoothがオンになっていて、受信側が「連絡先のみ」または「10分間すべての人」を許可している必要があると案内しています。";
 "Mark as Rest" = "レストとしてマーク";
 "Mark as Rest turns the current lap into rest. That rest stays attached to the lap you just finished, so it remains part of the workout." = "「レストとしてマーク」は現在のラップをレストに切り替えます。そのレストは直前に終えた同じラップにひもづいたままなので、ワークアウトの一部として残ります。";
 "With Timed Rest" = "時間指定のレスト";

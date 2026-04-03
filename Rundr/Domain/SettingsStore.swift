@@ -116,6 +116,16 @@ struct PredefinedIntervalPreset: Identifiable, Equatable {
     }
 }
 
+struct WorkoutPlanOriginReference: Equatable {
+    enum Source: Equatable {
+        case savedPreset(UUID)
+        case predefinedPreset(String)
+    }
+
+    let source: Source
+    let title: String
+}
+
 struct IntervalPresetSignature: Codable, Equatable {
     let trackingMode: TrackingMode
     let distanceLapDistanceMeters: Double?
@@ -481,6 +491,26 @@ final class SettingsStore: ObservableObject {
         }
 
         return IntervalPreset.generatedTitle(for: normalizedPlan)
+    }
+
+    func currentWorkoutPlanOriginReference() -> WorkoutPlanOriginReference? {
+        if let originPlanID = workoutPlanOriginID,
+           let preset = intervalPresets.first(where: { $0.workoutPlan.originPlanID == originPlanID }) {
+            return WorkoutPlanOriginReference(
+                source: .savedPreset(preset.id),
+                title: preset.customTitle ?? IntervalPreset.generatedTitle(for: preset.workoutPlan)
+            )
+        }
+
+        let signature = IntervalPresetSignature(workoutPlan: currentWorkoutPlan)
+        if let preset = Self.predefinedIntervalPresets.first(where: { $0.signature == signature }) {
+            return WorkoutPlanOriginReference(
+                source: .predefinedPreset(preset.id),
+                title: preset.title
+            )
+        }
+
+        return nil
     }
 
     func storeSessionIntervalPresetIfUnique(_ workoutPlan: WorkoutPlanSnapshot) {

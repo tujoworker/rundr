@@ -60,6 +60,12 @@ struct CompanionRootView: View {
     }
 }
 
+private enum CompanionPresetRoute: Hashable {
+    case new
+    case saved(UUID)
+    case predefined(String)
+}
+
 private struct CompanionWorkoutsView: View {
     @EnvironmentObject private var syncManager: WatchConnectivitySyncManager
     @EnvironmentObject private var persistence: PersistenceManager
@@ -69,6 +75,7 @@ private struct CompanionWorkoutsView: View {
     @State private var visibleSessionCount = 2
     @State private var selectedSegment: DistanceSegment?
     @State private var selectedSession: Session?
+    @State private var selectedOriginRoute: CompanionPresetRoute?
     @State private var lastAddedDistanceMeters: Double = DistanceSegment.default.distanceMeters
     @State private var lastAddedUsesOpenDistance = false
     @State private var lastAddedRepeatCount: Int = 0
@@ -118,6 +125,10 @@ private struct CompanionWorkoutsView: View {
         segmentEditMode.isEditing
     }
 
+    private var currentWorkoutPlanOrigin: WorkoutPlanOriginReference? {
+        settings.currentWorkoutPlanOriginReference()
+    }
+
     var body: some View {
         NavigationStack {
             List {
@@ -162,6 +173,41 @@ private struct CompanionWorkoutsView: View {
                         .padding(.trailing, workoutsSectionHeaderLeadingInset)
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
+
+                        if let currentWorkoutPlanOrigin {
+                            Button {
+                                switch currentWorkoutPlanOrigin.source {
+                                case let .savedPreset(id):
+                                    selectedOriginRoute = .saved(id)
+                                case let .predefinedPreset(id):
+                                    selectedOriginRoute = .predefined(id)
+                                }
+                            } label: {
+                                HStack(alignment: .center, spacing: Tokens.Spacing.md) {
+                                    VStack(alignment: .leading, spacing: Tokens.Spacing.xxs) {
+                                        Text(L10n.source)
+                                            .font(.caption.weight(.medium))
+                                            .foregroundStyle(theme.text.subtle)
+
+                                        Text(currentWorkoutPlanOrigin.title)
+                                            .font(.headline.weight(.semibold))
+                                            .foregroundStyle(settings.primaryAccentColor)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                    }
+
+                                    Image(systemName: "chevron.right")
+                                        .font(.headline.weight(.semibold))
+                                        .foregroundStyle(theme.text.subtle)
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .listRowCardChrome(
+                                rowInsets: workoutsRowInsets,
+                                contentInsets: workoutsCellContentInsets
+                            )
+                        }
 
                         ForEach(segments) { segment in
                             Button {
@@ -294,6 +340,9 @@ private struct CompanionWorkoutsView: View {
                     deleteSegment(segmentToDelete, keepsAtLeastOne: false)
                 }
             }
+            .navigationDestination(item: $selectedOriginRoute) { route in
+                CompanionPresetRouteDestinationView(route: route, onUseActivity: {})
+            }
             .navigationDestination(isPresented: Binding(
                 get: { selectedSession != nil },
                 set: { isPresented in
@@ -424,15 +473,9 @@ private struct CompanionBrowserView: View {
 }
 
 private struct CompanionPresetLibraryView: View {
-    private enum PresetRoute: Hashable {
-        case new
-        case saved(UUID)
-        case predefined(String)
-    }
-
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
-    @State private var selectedRoute: PresetRoute?
+    @State private var selectedRoute: CompanionPresetRoute?
     let onUseActivity: () -> Void
 
     private var browseCellContentInsets: EdgeInsets {
@@ -604,86 +647,97 @@ private struct CompanionPresetLibraryView: View {
         .navigationBarTitleDisplayMode(.large)
         .toolbarBackground(.hidden, for: .navigationBar)
         .navigationDestination(item: $selectedRoute) { route in
-            switch route {
-            case .new:
+            CompanionPresetRouteDestinationView(route: route, onUseActivity: onUseActivity)
+        }
+        .themedCompanionList()
+    }
+}
+
+private struct CompanionPresetRouteDestinationView: View {
+    let route: CompanionPresetRoute
+    let onUseActivity: () -> Void
+
+    @EnvironmentObject private var settings: SettingsStore
+
+    var body: some View {
+        switch route {
+        case .new:
+            CompanionWorkoutEditorView(
+                headerTitle: L10n.newInterval,
+                subtitle: nil,
+                initialWorkoutPlan: WorkoutPlanSnapshot(trackingMode: .distanceDistance),
+                initialCustomTitle: nil,
+                initialCustomDescription: nil,
+                initialStoredPresetID: nil,
+                showsCustomTitle: true,
+                autoSaveOnSegmentDone: true
+            ) { workoutPlan, customTitle, customDescription, storedPresetID in
+                _ = settings.saveIntervalPreset(
+                    workoutPlan,
+                    customTitle: customTitle,
+                    existingPresetID: storedPresetID,
+                    customDescription: customDescription,
+                    updatesDescription: true
+                )
+                settings.apply(workoutPlan: workoutPlan)
+                onUseActivity()
+            }
+
+        case let .saved(presetID):
+            if let preset = settings.intervalPresets.first(where: { $0.id == presetID }) {
                 CompanionWorkoutEditorView(
-                    headerTitle: L10n.newInterval,
-                    subtitle: nil,
-                    initialWorkoutPlan: WorkoutPlanSnapshot(trackingMode: .distanceDistance),
-                    initialCustomTitle: nil,
-                    initialCustomDescription: nil,
-                    initialStoredPresetID: nil,
+                    headerTitle: L10n.adjustSettings,
+                    subtitle: preset.trimmedCustomTitle ?? L10n.presetCountSummary(preset.workoutPlan.distanceSegments.count),
+                    initialWorkoutPlan: preset.workoutPlan,
+                    initialCustomTitle: preset.customTitle,
+                    initialCustomDescription: preset.customDescription,
+                    initialStoredPresetID: preset.id,
                     showsCustomTitle: true,
                     autoSaveOnSegmentDone: true
                 ) { workoutPlan, customTitle, customDescription, storedPresetID in
                     _ = settings.saveIntervalPreset(
                         workoutPlan,
                         customTitle: customTitle,
-                        existingPresetID: storedPresetID,
+                        existingPresetID: storedPresetID ?? preset.id,
                         customDescription: customDescription,
                         updatesDescription: true
                     )
                     settings.apply(workoutPlan: workoutPlan)
                     onUseActivity()
                 }
+            } else {
+                EmptyView()
+            }
 
-            case let .saved(presetID):
-                if let preset = settings.intervalPresets.first(where: { $0.id == presetID }) {
-                    CompanionWorkoutEditorView(
-                        headerTitle: L10n.adjustSettings,
-                        subtitle: preset.trimmedCustomTitle ?? L10n.presetCountSummary(preset.workoutPlan.distanceSegments.count),
-                        initialWorkoutPlan: preset.workoutPlan,
-                        initialCustomTitle: preset.customTitle,
-                        initialCustomDescription: preset.customDescription,
-                        initialStoredPresetID: preset.id,
-                        showsCustomTitle: true,
-                        autoSaveOnSegmentDone: true
-                    ) { workoutPlan, customTitle, customDescription, storedPresetID in
+        case let .predefined(presetID):
+            if let preset = SettingsStore.predefinedIntervalPresets.first(where: { $0.id == presetID }) {
+                CompanionWorkoutEditorView(
+                    headerTitle: L10n.adjustSettings,
+                    subtitle: preset.title,
+                    initialWorkoutPlan: preset.workoutPlan,
+                    initialCustomTitle: preset.title,
+                    initialCustomDescription: nil,
+                    initialStoredPresetID: nil,
+                    showsCustomTitle: true,
+                    autoSaveOnSegmentDone: true
+                ) { workoutPlan, customTitle, customDescription, storedPresetID in
+                    let normalizedTitle = IntervalPreset.sanitizeTitle(customTitle)
+                    if IntervalPresetSignature(workoutPlan: workoutPlan) != preset.signature || normalizedTitle != nil {
                         _ = settings.saveIntervalPreset(
                             workoutPlan,
-                            customTitle: customTitle,
-                            existingPresetID: storedPresetID ?? preset.id,
+                            customTitle: normalizedTitle,
+                            existingPresetID: storedPresetID,
                             customDescription: customDescription,
                             updatesDescription: true
                         )
-                        settings.apply(workoutPlan: workoutPlan)
-                        onUseActivity()
                     }
-                } else {
-                    EmptyView()
+                    settings.apply(workoutPlan: workoutPlan)
+                    onUseActivity()
                 }
-
-            case let .predefined(presetID):
-                if let preset = SettingsStore.predefinedIntervalPresets.first(where: { $0.id == presetID }) {
-                    CompanionWorkoutEditorView(
-                        headerTitle: L10n.adjustSettings,
-                        subtitle: preset.title,
-                        initialWorkoutPlan: preset.workoutPlan,
-                        initialCustomTitle: preset.title,
-                        initialCustomDescription: nil,
-                        initialStoredPresetID: nil,
-                        showsCustomTitle: true,
-                        autoSaveOnSegmentDone: true
-                    ) { workoutPlan, customTitle, customDescription, storedPresetID in
-                        let normalizedTitle = IntervalPreset.sanitizeTitle(customTitle)
-                        if IntervalPresetSignature(workoutPlan: workoutPlan) != preset.signature || normalizedTitle != nil {
-                            _ = settings.saveIntervalPreset(
-                                workoutPlan,
-                                customTitle: normalizedTitle,
-                                existingPresetID: storedPresetID,
-                                customDescription: customDescription,
-                                updatesDescription: true
-                            )
-                        }
-                        settings.apply(workoutPlan: workoutPlan)
-                        onUseActivity()
-                    }
-                } else {
-                    EmptyView()
-                }
+            } else {
+                EmptyView()
             }
         }
-        .themedCompanionList()
     }
 }
 
@@ -828,7 +882,6 @@ private struct CompanionSettingsView: View {
         }
     }
 }
-
 private struct CompanionIntroView: View {
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme

@@ -1579,6 +1579,44 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(store.title(for: workoutPlan), "Four by Four")
     }
 
+    func testSettingsStoreCurrentWorkoutPlanOriginReferenceReturnsSavedPresetTitle() {
+        let keys = ["intervalPresetsJSON", "workoutPlanOriginID", "distanceSegmentsJSON", "trackingMode", "distanceDistanceMeters", "restMode"]
+        keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
+        defer { keys.forEach { UserDefaults.standard.removeObject(forKey: $0) } }
+
+        let store = SettingsStore()
+        let workoutPlan = WorkoutPlanSnapshot(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+            restMode: .manual
+        )
+
+        let preset = try? XCTUnwrap(store.saveIntervalPreset(workoutPlan, customTitle: "Track Sixes"))
+        store.apply(workoutPlan: preset?.workoutPlan ?? workoutPlan)
+
+        XCTAssertEqual(
+            store.currentWorkoutPlanOriginReference(),
+            WorkoutPlanOriginReference(source: .savedPreset(preset?.id ?? UUID()), title: "Track Sixes")
+        )
+    }
+
+    func testSettingsStoreCurrentWorkoutPlanOriginReferenceReturnsPredefinedTitle() {
+        let keys = ["intervalPresetsJSON", "workoutPlanOriginID", "distanceSegmentsJSON", "trackingMode", "distanceDistanceMeters", "restMode"]
+        keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
+        defer { keys.forEach { UserDefaults.standard.removeObject(forKey: $0) } }
+
+        let store = SettingsStore()
+        let preset = SettingsStore.predefinedIntervalPresets[0]
+
+        store.apply(workoutPlan: preset.workoutPlan)
+
+        XCTAssertEqual(
+            store.currentWorkoutPlanOriginReference(),
+            WorkoutPlanOriginReference(source: .predefinedPreset(preset.id), title: preset.title)
+        )
+    }
+
     func testSettingsStoreTitleUsesSavedPresetTitleWhenMatched() {
         UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON")
         defer { UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON") }

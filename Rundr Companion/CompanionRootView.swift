@@ -136,6 +136,7 @@ private struct CompanionWorkoutsView: View {
                             }
                         }
                         .padding(.leading, workoutsSectionHeaderLeadingInset)
+                        .padding(.trailing, workoutsSectionHeaderLeadingInset)
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
 

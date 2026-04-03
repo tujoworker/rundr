@@ -15,8 +15,25 @@ struct RundrPlanTransfer: Codable, Equatable {
     var schemaVersion: Int = 1
     var autor: String?
     var title: String?
+    var description: String?
     var sharedAt: Date
     var workoutPlan: WorkoutPlanSnapshot
+
+    init(
+        schemaVersion: Int = 1,
+        autor: String? = nil,
+        title: String? = nil,
+        description: String? = nil,
+        sharedAt: Date = Date(),
+        workoutPlan: WorkoutPlanSnapshot
+    ) {
+        self.schemaVersion = schemaVersion
+        self.autor = autor
+        self.title = title
+        self.description = description
+        self.sharedAt = sharedAt
+        self.workoutPlan = workoutPlan
+    }
 
     init(
         schemaVersion: Int = 1,
@@ -25,17 +42,21 @@ struct RundrPlanTransfer: Codable, Equatable {
         sharedAt: Date = Date(),
         workoutPlan: WorkoutPlanSnapshot
     ) {
-        self.schemaVersion = schemaVersion
-        self.autor = autor
-        self.title = title
-        self.sharedAt = sharedAt
-        self.workoutPlan = workoutPlan
+        self.init(
+            schemaVersion: schemaVersion,
+            autor: autor,
+            title: title,
+            description: nil,
+            sharedAt: sharedAt,
+            workoutPlan: workoutPlan
+        )
     }
 
     private enum CodingKeys: String, CodingKey {
         case schemaVersion
         case autor
         case title
+        case description
         case sharedAt
         case workoutPlan
     }
@@ -45,6 +66,7 @@ struct RundrPlanTransfer: Codable, Equatable {
         schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? 1
         autor = try container.decodeIfPresent(String.self, forKey: .autor)
         title = try container.decodeIfPresent(String.self, forKey: .title)
+        description = try container.decodeIfPresent(String.self, forKey: .description)
         sharedAt = try container.decodeIfPresent(Date.self, forKey: .sharedAt) ?? Date(timeIntervalSince1970: 0)
         workoutPlan = try container.decode(WorkoutPlanSnapshot.self, forKey: .workoutPlan)
     }
@@ -54,6 +76,7 @@ struct RundrPlanTransfer: Codable, Equatable {
         try container.encode(schemaVersion, forKey: .schemaVersion)
         try container.encodeIfPresent(autor, forKey: .autor)
         try container.encodeIfPresent(title, forKey: .title)
+        try container.encodeIfPresent(description, forKey: .description)
         try container.encode(sharedAt, forKey: .sharedAt)
         try container.encode(workoutPlan, forKey: .workoutPlan)
     }

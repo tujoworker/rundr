@@ -4,33 +4,46 @@ import SwiftUI
 struct IntervalPreset: Codable, Identifiable, Equatable {
     var id: UUID
     var customTitle: String?
+    var customDescription: String?
     var workoutPlan: WorkoutPlanSnapshot
     var createdAt: Date
     var updatedAt: Date
     var lastSharedAt: Date?
     var lastImportedAt: Date?
+    var myRating: Double?
+    var communityRating: Double?
 
     init(
         id: UUID = UUID(),
         customTitle: String? = nil,
+        customDescription: String? = nil,
         workoutPlan: WorkoutPlanSnapshot,
         createdAt: Date = Date(),
         updatedAt: Date = Date(),
         lastSharedAt: Date? = nil,
-        lastImportedAt: Date? = nil
+        lastImportedAt: Date? = nil,
+        myRating: Double? = nil,
+        communityRating: Double? = nil
     ) {
         let normalizedWorkoutPlan = IntervalPreset.normalizedWorkoutPlan(workoutPlan)
         self.id = id
         self.customTitle = IntervalPreset.storedTitle(for: normalizedWorkoutPlan, preferredTitle: customTitle)
+        self.customDescription = IntervalPreset.sanitizeDescription(customDescription)
         self.workoutPlan = normalizedWorkoutPlan
         self.createdAt = createdAt
         self.updatedAt = updatedAt
         self.lastSharedAt = lastSharedAt
         self.lastImportedAt = lastImportedAt
+        self.myRating = myRating
+        self.communityRating = communityRating
     }
 
     var trimmedCustomTitle: String? {
         IntervalPreset.sanitizeTitle(customTitle)
+    }
+
+    var trimmedCustomDescription: String? {
+        IntervalPreset.sanitizeDescription(customDescription)
     }
 
     var signature: IntervalPresetSignature {
@@ -54,6 +67,12 @@ struct IntervalPreset: Codable, Identifiable, Equatable {
     static func sanitizeTitle(_ title: String?) -> String? {
         guard let title else { return nil }
         let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
+
+    static func sanitizeDescription(_ description: String?) -> String? {
+        guard let description else { return nil }
+        let trimmed = description.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
     }
 
@@ -463,13 +482,16 @@ final class SettingsStore: ObservableObject {
         _ workoutPlan: WorkoutPlanSnapshot,
         customTitle: String? = nil,
         existingPresetID: UUID? = nil,
-        importedAt: Date? = nil
+        importedAt: Date? = nil,
+        customDescription: String? = nil,
+        updatesDescription: Bool = false
     ) -> IntervalPreset? {
         var normalizedPlan = IntervalPreset.normalizedWorkoutPlan(workoutPlan)
         guard normalizedPlan.trackingMode.usesManualIntervals else { return nil }
 
         normalizedPlan.originPlanID = normalizedPlan.originPlanID ?? UUID()
         let title = IntervalPreset.storedTitle(for: normalizedPlan, preferredTitle: customTitle)
+        let description = IntervalPreset.sanitizeDescription(customDescription)
         let timestamp = importedAt ?? Date()
         let signature = IntervalPresetSignature(workoutPlan: normalizedPlan)
         var presets = intervalPresets
@@ -478,6 +500,9 @@ final class SettingsStore: ObservableObject {
            let existingIndex = presets.firstIndex(where: { $0.id == existingPresetID }) {
             if let duplicateIndex = presets.firstIndex(where: { $0.id != existingPresetID && $0.signature == signature }) {
                 presets[duplicateIndex].customTitle = title
+                if updatesDescription {
+                    presets[duplicateIndex].customDescription = description
+                }
                 presets[duplicateIndex].updatedAt = timestamp
                 if let importedAt {
                     presets[duplicateIndex].lastImportedAt = importedAt
@@ -488,6 +513,9 @@ final class SettingsStore: ObservableObject {
             }
 
             presets[existingIndex].customTitle = title
+            if updatesDescription {
+                presets[existingIndex].customDescription = description
+            }
             presets[existingIndex].workoutPlan = normalizedPlan
             presets[existingIndex].updatedAt = timestamp
             if let importedAt {
@@ -499,6 +527,9 @@ final class SettingsStore: ObservableObject {
 
         if let duplicateIndex = presets.firstIndex(where: { $0.signature == signature }) {
             presets[duplicateIndex].customTitle = title
+            if updatesDescription {
+                presets[duplicateIndex].customDescription = description
+            }
             presets[duplicateIndex].updatedAt = timestamp
             if let importedAt {
                 presets[duplicateIndex].lastImportedAt = importedAt
@@ -509,6 +540,7 @@ final class SettingsStore: ObservableObject {
 
         let preset = IntervalPreset(
             customTitle: title,
+            customDescription: updatesDescription ? description : nil,
             workoutPlan: normalizedPlan,
             createdAt: timestamp,
             updatedAt: timestamp,

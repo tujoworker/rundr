@@ -1513,6 +1513,62 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(updatedPreset?.trimmedCustomTitle, "Tempo")
     }
 
+    func testSettingsStoreSaveIntervalPresetStoresDescriptionAndRatingPlaceholders() {
+        UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON")
+        defer { UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON") }
+
+        let store = SettingsStore()
+        let workoutPlan = WorkoutPlanSnapshot(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+            restMode: .manual
+        )
+
+        let preset = store.saveIntervalPreset(
+            workoutPlan,
+            customTitle: "Track",
+            customDescription: "  Fast 400s with short rest.  ",
+            updatesDescription: true
+        )
+
+        XCTAssertEqual(preset?.trimmedCustomDescription, "Fast 400s with short rest.")
+        XCTAssertNil(preset?.myRating)
+        XCTAssertNil(preset?.communityRating)
+        XCTAssertEqual(store.intervalPresets.first?.trimmedCustomDescription, "Fast 400s with short rest.")
+    }
+
+    func testSettingsStoreUpdatingExistingPresetCanClearDescription() {
+        UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON")
+        defer { UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON") }
+
+        let store = SettingsStore()
+        let workoutPlan = WorkoutPlanSnapshot(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+            restMode: .manual
+        )
+
+        let preset = store.saveIntervalPreset(
+            workoutPlan,
+            customTitle: "Track",
+            customDescription: "Description",
+            updatesDescription: true
+        )
+
+        let updatedPreset = store.saveIntervalPreset(
+            workoutPlan,
+            customTitle: "Track",
+            existingPresetID: preset?.id,
+            customDescription: "   ",
+            updatesDescription: true
+        )
+
+        XCTAssertNil(updatedPreset?.trimmedCustomDescription)
+        XCTAssertNil(store.intervalPresets.first?.trimmedCustomDescription)
+    }
+
     func testSettingsStoreTitleUsesPredefinedPresetTitleWhenMatched() {
         UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON")
         defer { UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON") }
@@ -1901,12 +1957,15 @@ final class ModelTests: XCTestCase {
         let preset = store.saveIntervalPreset(
             workoutPlan,
             customTitle: "Imported Track",
-            importedAt: importedAt
+            importedAt: importedAt,
+            customDescription: "Imported description",
+            updatesDescription: true
         )
 
         XCTAssertEqual(preset?.lastImportedAt, importedAt)
         XCTAssertEqual(preset?.createdAt, importedAt)
         XCTAssertEqual(preset?.updatedAt, importedAt)
+        XCTAssertEqual(preset?.trimmedCustomDescription, "Imported description")
         XCTAssertNil(preset?.lastSharedAt)
     }
 

@@ -613,14 +613,17 @@ private struct CompanionPresetLibraryView: View {
                     subtitle: nil,
                     initialWorkoutPlan: WorkoutPlanSnapshot(trackingMode: .distanceDistance),
                     initialCustomTitle: nil,
+                    initialCustomDescription: nil,
                     initialStoredPresetID: nil,
                     showsCustomTitle: true,
                     autoSaveOnSegmentDone: true
-                ) { workoutPlan, customTitle, storedPresetID in
+                ) { workoutPlan, customTitle, customDescription, storedPresetID in
                     _ = settings.saveIntervalPreset(
                         workoutPlan,
                         customTitle: customTitle,
-                        existingPresetID: storedPresetID
+                        existingPresetID: storedPresetID,
+                        customDescription: customDescription,
+                        updatesDescription: true
                     )
                     settings.apply(workoutPlan: workoutPlan)
                     onUseActivity()
@@ -633,14 +636,17 @@ private struct CompanionPresetLibraryView: View {
                         subtitle: preset.trimmedCustomTitle ?? L10n.presetCountSummary(preset.workoutPlan.distanceSegments.count),
                         initialWorkoutPlan: preset.workoutPlan,
                         initialCustomTitle: preset.customTitle,
+                        initialCustomDescription: preset.customDescription,
                         initialStoredPresetID: preset.id,
                         showsCustomTitle: true,
                         autoSaveOnSegmentDone: true
-                    ) { workoutPlan, customTitle, storedPresetID in
+                    ) { workoutPlan, customTitle, customDescription, storedPresetID in
                         _ = settings.saveIntervalPreset(
                             workoutPlan,
                             customTitle: customTitle,
-                            existingPresetID: storedPresetID ?? preset.id
+                            existingPresetID: storedPresetID ?? preset.id,
+                            customDescription: customDescription,
+                            updatesDescription: true
                         )
                         settings.apply(workoutPlan: workoutPlan)
                         onUseActivity()
@@ -656,16 +662,19 @@ private struct CompanionPresetLibraryView: View {
                         subtitle: preset.title,
                         initialWorkoutPlan: preset.workoutPlan,
                         initialCustomTitle: preset.title,
+                        initialCustomDescription: nil,
                         initialStoredPresetID: nil,
                         showsCustomTitle: true,
                         autoSaveOnSegmentDone: true
-                    ) { workoutPlan, customTitle, storedPresetID in
+                    ) { workoutPlan, customTitle, customDescription, storedPresetID in
                         let normalizedTitle = IntervalPreset.sanitizeTitle(customTitle)
                         if IntervalPresetSignature(workoutPlan: workoutPlan) != preset.signature || normalizedTitle != nil {
                             _ = settings.saveIntervalPreset(
                                 workoutPlan,
                                 customTitle: normalizedTitle,
-                                existingPresetID: storedPresetID
+                                existingPresetID: storedPresetID,
+                                customDescription: customDescription,
+                                updatesDescription: true
                             )
                         }
                         settings.apply(workoutPlan: workoutPlan)
@@ -2049,16 +2058,18 @@ private struct CompanionWorkoutEditorView: View {
     let subtitle: String?
     let initialWorkoutPlan: WorkoutPlanSnapshot
     let initialCustomTitle: String?
+    let initialCustomDescription: String?
     let initialStoredPresetID: UUID?
     let showsCustomTitle: Bool
     let autoSaveOnSegmentDone: Bool
-    let onContinue: (WorkoutPlanSnapshot, String?, UUID?) -> Void
+    let onContinue: (WorkoutPlanSnapshot, String?, String?, UUID?) -> Void
 
     @State private var trackingMode: TrackingMode = .distanceDistance
     @State private var restMode: RestMode = .manual
     @State private var distanceUnit: DistanceUnit = .km
     @State private var segments: [DistanceSegment] = []
     @State private var customTitle: String = ""
+    @State private var customDescription: String = ""
     @State private var storedPresetID: UUID?
     @State private var selectedSegment: DistanceSegment?
     @State private var showsOpenDistanceBanner = false
@@ -2109,6 +2120,38 @@ private struct CompanionWorkoutEditorView: View {
                         if !customTitle.isEmpty {
                             Button {
                                 customTitle = ""
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(theme.text.subtle)
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.leading, Tokens.Spacing.sm)
+                            .padding(.trailing, Tokens.Spacing.xxs)
+                            .padding(.vertical, Tokens.Spacing.xxs)
+                        }
+                    }
+                    .listRowCardChrome(
+                        rowInsets: CompanionSessionPlanStyle.rowInsets,
+                        contentInsets: customTitleRowContentInsets
+                    )
+
+                    HStack(spacing: Tokens.Spacing.xs) {
+                        TextField(
+                            "",
+                            text: $customDescription,
+                            prompt: Text(L10n.optionalDescriptionPlaceholder)
+                                .foregroundStyle(theme.text.subtle),
+                            axis: .vertical
+                        )
+                        .lineLimit(1...3)
+                        .multilineTextAlignment(.leading)
+                        .font(.subheadline)
+                        .foregroundStyle(theme.text.neutral)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                        if !customDescription.isEmpty {
+                            Button {
+                                customDescription = ""
                             } label: {
                                 Image(systemName: "xmark.circle.fill")
                                     .foregroundStyle(theme.text.subtle)
@@ -2229,6 +2272,7 @@ private struct CompanionWorkoutEditorView: View {
                         transferCoordinator.sharePlan(
                             workoutPlan: currentWorkoutPlan(),
                             title: IntervalPreset.sanitizeTitle(customTitle),
+                            description: IntervalPreset.sanitizeDescription(customDescription),
                             settings: settings
                         )
                     } label: {
@@ -2283,6 +2327,7 @@ private struct CompanionWorkoutEditorView: View {
         distanceUnit = settings.distanceUnit
         segments = snapshot.distanceSegments.isEmpty ? [.default] : snapshot.distanceSegments
         customTitle = initialCustomTitle ?? ""
+        customDescription = initialCustomDescription ?? ""
         storedPresetID = initialStoredPresetID
         ensuresDualModeForOpenIntervals(showBanner: false)
     }
@@ -2353,18 +2398,26 @@ private struct CompanionWorkoutEditorView: View {
         let savedPreset = settings.saveIntervalPreset(
             currentWorkoutPlan(),
             customTitle: customTitle,
-            existingPresetID: storedPresetID
+            existingPresetID: storedPresetID,
+            customDescription: customDescription,
+            updatesDescription: true
         )
         storedPresetID = savedPreset?.id ?? storedPresetID
         if let savedPreset {
             customTitle = savedPreset.customTitle ?? customTitle
+            customDescription = savedPreset.customDescription ?? customDescription
         }
     }
 
     private func commitWorkoutPlan() {
         let workoutPlan = currentWorkoutPlan()
         settings.distanceUnit = distanceUnit
-        onContinue(workoutPlan, IntervalPreset.sanitizeTitle(customTitle), storedPresetID)
+        onContinue(
+            workoutPlan,
+            IntervalPreset.sanitizeTitle(customTitle),
+            IntervalPreset.sanitizeDescription(customDescription),
+            storedPresetID
+        )
         dismiss()
     }
 

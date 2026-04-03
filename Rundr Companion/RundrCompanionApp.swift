@@ -78,12 +78,13 @@ final class CompanionTransferCoordinator: ObservableObject {
         isImporterPresented = true
     }
 
-    func sharePlan(workoutPlan: WorkoutPlanSnapshot, title: String?, settings: SettingsStore) {
+    func sharePlan(workoutPlan: WorkoutPlanSnapshot, title: String?, description: String?, settings: SettingsStore) {
         let resolvedTitle = IntervalPreset.sanitizeTitle(title) ?? settings.title(for: workoutPlan)
         let sharedAt = Date()
         let payload = RundrPlanTransfer(
             autor: planAutor(for: workoutPlan),
             title: resolvedTitle,
+            description: IntervalPreset.sanitizeDescription(description),
             sharedAt: sharedAt,
             workoutPlan: workoutPlan
         )
@@ -128,7 +129,9 @@ final class CompanionTransferCoordinator: ObservableObject {
                 guard settings.saveIntervalPreset(
                     planTransfer.workoutPlan,
                     customTitle: planTransfer.title,
-                    importedAt: Date()
+                    importedAt: Date(),
+                    customDescription: planTransfer.description,
+                    updatesDescription: true
                 ) != nil else {
                     throw CompanionTransferError.invalidPlan
                 }

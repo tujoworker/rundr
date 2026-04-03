@@ -4,7 +4,7 @@
 "Press the Action Button" = "Drücke die Aktions-Taste";
 "Settings" = "Einstellungen";
 "Preferences" = "Einstellungen";
-"Sync Light/Dark Mode" = "Hell-/Dunkelmodus synchronisieren";
+"Sync" = "Synchronisieren";
 "When off, iPhone and Apple Watch keep separate appearance settings." = "Wenn dies aus ist, behalten iPhone und Apple Watch getrennte Darstellungsmodi.";
 "Adjust Interval" = "Intervall anpassen";
 "Browse" = "Durchsuchen";
@@ -16,6 +16,7 @@
 "Predefined" = "Vordefiniert";
 "Title" = "Titel";
 "Title (optional)" = "Titel (optional)";
+"Description (optional)" = "Beschreibung (optional)";
 "No saved intervals yet" = "Noch keine gespeicherten Intervalle";
 "Open a predefined interval to save your own version." = "Öffne ein vordefiniertes Intervall, um deine eigene Version zu speichern.";
 "Tracking Mode" = "Tracking-Modus";

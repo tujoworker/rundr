@@ -4,7 +4,7 @@
 "Press the Action Button" = "アクションボタンを押す";
 "Settings" = "設定";
 "Preferences" = "環境設定";
-"Sync Light/Dark Mode" = "ライト/ダークモードを同期";
+"Sync" = "同期";
 "When off, iPhone and Apple Watch keep separate appearance settings." = "オフにすると、iPhoneとApple Watchは外観設定を別々に保ちます。";
 "Adjust Interval" = "インターバルを調整";
 "Browse" = "ブラウズ";
@@ -16,6 +16,7 @@
 "Predefined" = "プリセット";
 "Title" = "タイトル";
 "Title (optional)" = "タイトル（任意）";
+"Description (optional)" = "説明（任意）";
 "No saved intervals yet" = "保存済みインターバルなし";
 "Open a predefined interval to save your own version." = "プリセットのインターバルを開いて、自分用のバージョンを保存してください。";
 "Tracking Mode" = "トラッキングモード";

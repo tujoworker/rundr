@@ -247,6 +247,7 @@ final class SessionSyncTests: XCTestCase {
         let transfer = RundrPlanTransfer(
             autor: "preset",
             title: "Track Night",
+            description: "Fast 400s with short rest.",
             sharedAt: sharedAt,
             workoutPlan: WorkoutPlanSnapshot(
                 trackingMode: .distanceDistance,
@@ -263,6 +264,7 @@ final class SessionSyncTests: XCTestCase {
         XCTAssertEqual(decoded, transfer)
         XCTAssertEqual(decoded.schemaVersion, 1)
         XCTAssertEqual(decoded.autor, "preset")
+        XCTAssertEqual(decoded.description, "Fast 400s with short rest.")
         XCTAssertEqual(decoded.sharedAt, sharedAt)
         XCTAssertEqual(decoded.workoutPlan.originPlanID, originPlanID)
     }
@@ -304,6 +306,7 @@ final class SessionSyncTests: XCTestCase {
 
         XCTAssertEqual(decoded.sharedAt, Date(timeIntervalSince1970: 0))
         XCTAssertEqual(decoded.title, "Track Night")
+        XCTAssertNil(decoded.description)
     }
 
     // MARK: - Helpers

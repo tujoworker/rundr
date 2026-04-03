@@ -732,14 +732,6 @@ private struct CompanionSettingsView: View {
                     }
                     .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
 
-                    CompanionSettingsToggleRow(
-                        title: L10n.syncAppearanceMode,
-                        detail: L10n.syncAppearanceModeDetail,
-                        systemImage: "circle.lefthalf.filled",
-                        isOn: $settings.syncAppearanceMode
-                    )
-                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
-
                     NavigationLink {
                         CompanionColorSettingsDetailView()
                     } label: {
@@ -1753,6 +1745,16 @@ private struct CompanionAppearanceSettingsDetailView: View {
                     .buttonStyle(.plain)
                     .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.detailRowContentInsets)
                 }
+            }
+
+            Section {
+                CompanionSettingsToggleRow(
+                    title: L10n.syncAppearanceMode,
+                    detail: L10n.syncAppearanceModeDetail,
+                    systemImage: "circle.lefthalf.filled",
+                    isOn: $settings.syncAppearanceMode
+                )
+                .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.detailRowContentInsets)
             }
         }
         .navigationTitle(L10n.appearance)

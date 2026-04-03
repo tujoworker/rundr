@@ -202,8 +202,7 @@ struct PreStartView: View {
                         SettingsCardRow(
                             icon: "square.grid.2x2",
                             title: L10n.browse,
-                            showsChevron: true,
-                            usesWidePadding: true
+                            showsChevron: true
                         )
                     }
                     .buttonStyle(.plain)
@@ -2017,37 +2016,16 @@ private struct SettingsCardRow: View {
     let title: String
     var value: String? = nil
     var showsChevron: Bool = false
-    var usesWidePadding: Bool = false
     @EnvironmentObject var settings: SettingsStore
     @Environment(\.appTheme) private var theme
 
-    private var rowSpacing: CGFloat {
-        horizontalPadding
-    }
-
-    private var iconWidth: CGFloat {
-        usesWidePadding ? 28 : Tokens.FontSize.xl
-    }
-
-    private var spacerMinLength: CGFloat {
-        usesWidePadding ? Tokens.Spacing.lg : Tokens.Spacing.sm
-    }
-
-    private var horizontalPadding: CGFloat {
-        usesWidePadding ? Tokens.Spacing.xxxl : Tokens.Spacing.xxl
-    }
-
-    private var verticalPadding: CGFloat {
-        usesWidePadding ? Tokens.Spacing.xxxl : Tokens.Spacing.xl
-    }
-
     var body: some View {
-        HStack(alignment: .center, spacing: rowSpacing) {
+        HStack(alignment: .center, spacing: Tokens.Spacing.xxl) {
             Image(systemName: icon)
                 .font(.system(size: Tokens.FontSize.xl, weight: .semibold))
                 .symbolRenderingMode(.monochrome)
                 .foregroundStyle(settings.primaryAccentColor)
-                .frame(width: iconWidth)
+                .frame(width: Tokens.FontSize.xl)
 
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
@@ -2068,7 +2046,7 @@ private struct SettingsCardRow: View {
             }
             .layoutPriority(1)
 
-            Spacer(minLength: spacerMinLength)
+            Spacer(minLength: Tokens.Spacing.sm)
 
             if showsChevron {
                 Image(systemName: "chevron.right")
@@ -2076,8 +2054,8 @@ private struct SettingsCardRow: View {
                     .foregroundStyle(theme.text.subtle)
             }
         }
-        .padding(.horizontal, horizontalPadding)
-        .padding(.vertical, verticalPadding)
+        .padding(.horizontal, Tokens.Spacing.xxl)
+        .padding(.vertical, Tokens.Spacing.xl)
         .background(theme.background.history)
         .cornerRadius(Tokens.Radius.medium)
     }

@@ -149,6 +149,12 @@ struct IntervalPresetSegmentSignature: Codable, Equatable {
     }
 }
 
+enum CompanionPresetBadgeResolver {
+    static func badgeCount(usageCount: Int) -> Int? {
+        usageCount > 0 ? usageCount : nil
+    }
+}
+
 enum SettingsSyncApplicationContext {
     case iPhoneCompanion
     case watchApp

@@ -536,7 +536,6 @@ private struct CompanionPresetLibraryView: View {
                                 CompanionPresetRowView(
                                     title: titleComponents.title,
                                     subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
-                                    repeatCount: titleComponents.repeatCount,
                                     usageCount: settings.presetUsageCount(for: preset.workoutPlan)
                                 )
                                 .padding(browseCellContentInsets)
@@ -583,7 +582,6 @@ private struct CompanionPresetLibraryView: View {
                             CompanionPresetRowView(
                                 title: titleComponents.title,
                                 subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
-                                repeatCount: nil,
                                 usageCount: settings.presetUsageCount(for: preset.workoutPlan)
                             )
                             .padding(browseCellContentInsets)
@@ -1990,7 +1988,6 @@ private struct CompanionMetricPill: View {
 private struct CompanionPresetRowView: View {
     let title: String
     let subtitle: String
-    let repeatCount: Int?
     let usageCount: Int
     @Environment(\.appTheme) private var theme
 
@@ -1998,12 +1995,8 @@ private struct CompanionPresetRowView: View {
         HStack(alignment: .top, spacing: Tokens.Spacing.md) {
             VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
                 HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.md) {
-                    if let repeatCount, repeatCount > 0 {
-                        CompanionPresetUsageBadge(count: repeatCount)
-                    }
-
-                    if usageCount > 0 {
-                        CompanionPresetUsageBadge(count: usageCount)
+                    if let badgeCount = CompanionPresetBadgeResolver.badgeCount(usageCount: usageCount) {
+                        CompanionPresetUsageBadge(count: badgeCount)
                     }
 
                     Text(title)

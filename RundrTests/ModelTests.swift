@@ -2106,6 +2106,11 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(store.presetUsageCount(for: planB), 1)
     }
 
+    func testCompanionPresetBadgeResolverUsesUsageCountOnly() {
+        XCTAssertNil(CompanionPresetBadgeResolver.badgeCount(usageCount: 0))
+        XCTAssertEqual(CompanionPresetBadgeResolver.badgeCount(usageCount: 3), 3)
+    }
+
     @MainActor
     func testNavigationCoordinatorReplacingPreStartClearsSessionDetailPath() {
         let coordinator = NavigationCoordinator()

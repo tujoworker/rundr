@@ -169,6 +169,7 @@ private struct CompanionWorkoutsView: View {
                                     ? theme.background.emphasisAction(settings.primaryAccentColor)
                                     : nil
                             )
+                            .animation(.easeInOut(duration: 0.25), value: flashingSegmentIDs.contains(segment.id))
                             .contentShape(Rectangle())
                         }
                         .onMove(perform: moveSegments)
@@ -372,7 +373,7 @@ private struct CompanionWorkoutsView: View {
 
         guard !changedOrAdded.isEmpty else { return }
 
-        withAnimation(.easeOut(duration: 0.15)) {
+        withAnimation(.easeInOut(duration: 0.25)) {
             flashingSegmentIDs.formUnion(changedOrAdded)
         }
 

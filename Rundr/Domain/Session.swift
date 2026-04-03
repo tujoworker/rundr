@@ -377,6 +377,32 @@ extension IntervalPreset {
     }
 }
 
+enum WorkoutPlanListTitleResolver {
+    static func title(
+        for workoutPlan: WorkoutPlanSnapshot,
+        customTitle: String? = nil,
+        fallbackTitle: String? = nil,
+        unit: DistanceUnit
+    ) -> String {
+        if let customTitle = IntervalPreset.sanitizeTitle(customTitle) {
+            return customTitle
+        }
+
+        if let fallbackTitle, !fallbackTitle.isEmpty {
+            return fallbackTitle
+        }
+
+        let normalizedSegments = WorkoutPlanSupport.normalizedSegments(workoutPlan.distanceSegments)
+        if let firstSegment = normalizedSegments.first, normalizedSegments.count == 1 {
+            return firstSegment.usesOpenDistance
+                ? L10n.openDistance
+                : Formatters.distanceString(meters: firstSegment.distanceMeters, unit: unit)
+        }
+
+        return workoutPlan.displayTitle(unit: unit)
+    }
+}
+
 extension WorkoutPlanSnapshot {
     var matchSignature: WorkoutPlanMatchSignature {
         WorkoutPlanMatchSignature(workoutPlan: self)

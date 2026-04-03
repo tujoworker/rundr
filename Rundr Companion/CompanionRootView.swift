@@ -509,22 +509,13 @@ private struct CompanionPresetLibraryView: View {
         workoutPlan: WorkoutPlanSnapshot,
         customTitle: String? = nil,
         fallbackTitle: String? = nil
-    ) -> (title: String, repeatCount: Int?) {
-        let normalizedSegments = WorkoutPlanSupport.normalizedSegments(workoutPlan.distanceSegments)
-        let repeatCount = normalizedSegments.count == 1 ? normalizedSegments.first?.repeatCount : nil
-
-        let title: String
-        if let customTitle, !customTitle.isEmpty {
-            title = customTitle
-        } else if let firstSegment = normalizedSegments.first, normalizedSegments.count == 1 {
-            title = firstSegment.usesOpenDistance
-                ? L10n.openDistance
-                : Formatters.distanceString(meters: firstSegment.distanceMeters, unit: settings.distanceUnit)
-        } else {
-            title = fallbackTitle ?? workoutPlan.displayTitle(unit: settings.distanceUnit)
-        }
-
-        return (title, repeatCount)
+    ) -> String {
+        WorkoutPlanListTitleResolver.title(
+            for: workoutPlan,
+            customTitle: customTitle,
+            fallbackTitle: fallbackTitle,
+            unit: settings.distanceUnit
+        )
     }
 
     var body: some View {
@@ -567,7 +558,7 @@ private struct CompanionPresetLibraryView: View {
                     )
                 } else {
                     ForEach(settings.intervalPresets) { preset in
-                        let titleComponents = titleComponents(
+                        let title = titleComponents(
                             workoutPlan: preset.workoutPlan,
                             customTitle: preset.trimmedCustomTitle
                         )
@@ -577,7 +568,7 @@ private struct CompanionPresetLibraryView: View {
                         } label: {
                             HStack(spacing: 0) {
                                 CompanionPresetRowView(
-                                    title: titleComponents.title,
+                                    title: title,
                                     subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
                                     usageCount: settings.presetUsageCount(for: preset.workoutPlan)
                                 )
@@ -613,7 +604,7 @@ private struct CompanionPresetLibraryView: View {
                     .listRowBackground(Color.clear)
 
                 ForEach(SettingsStore.predefinedIntervalPresets) { preset in
-                    let titleComponents = titleComponents(
+                    let title = titleComponents(
                         workoutPlan: preset.workoutPlan,
                         fallbackTitle: preset.title
                     )
@@ -623,7 +614,7 @@ private struct CompanionPresetLibraryView: View {
                     } label: {
                         HStack(spacing: 0) {
                             CompanionPresetRowView(
-                                title: titleComponents.title,
+                                title: title,
                                 subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
                                 usageCount: settings.presetUsageCount(for: preset.workoutPlan)
                             )

@@ -1579,6 +1579,33 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(store.title(for: workoutPlan), "Four by Four")
     }
 
+    func testWorkoutPlanListTitleResolverUsesFallbackTitleBeforeSingleSegmentDistance() {
+        let preset = SettingsStore.predefinedIntervalPresets[0]
+
+        XCTAssertEqual(
+            WorkoutPlanListTitleResolver.title(
+                for: preset.workoutPlan,
+                fallbackTitle: preset.title,
+                unit: .km
+            ),
+            "Four by Four"
+        )
+    }
+
+    func testWorkoutPlanListTitleResolverPrefersCustomTitleOverFallbackTitle() {
+        let preset = SettingsStore.predefinedIntervalPresets[0]
+
+        XCTAssertEqual(
+            WorkoutPlanListTitleResolver.title(
+                for: preset.workoutPlan,
+                customTitle: "Custom Fours",
+                fallbackTitle: preset.title,
+                unit: .km
+            ),
+            "Custom Fours"
+        )
+    }
+
     func testSettingsStoreCurrentWorkoutPlanOriginReferenceReturnsSavedPresetTitle() {
         let keys = ["intervalPresetsJSON", "workoutPlanOriginID", "distanceSegmentsJSON", "trackingMode", "distanceDistanceMeters", "restMode"]
         keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }

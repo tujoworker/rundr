@@ -905,27 +905,7 @@ private struct CompanionHelpView: View {
                 example: nil,
                 tip: nil
             ),
-            CompanionHelpTopic(
-                icon: "location.circle",
-                title: L10n.helpTrackingModeTitle,
-                body: nil,
-                sections: [
-                    CompanionHelpSection(
-                        title: L10n.helpTrackingModeManualHeading,
-                        body: L10n.helpTrackingModeManualBody,
-                        example: nil,
-                        tip: nil
-                    ),
-                    CompanionHelpSection(
-                        title: L10n.helpTrackingModeDualHeading,
-                        body: L10n.helpTrackingModeDualBody,
-                        example: nil,
-                        tip: nil
-                    )
-                ],
-                example: nil,
-                tip: nil
-            ),
+            .trackingMode,
             CompanionHelpTopic(
                 icon: "heart.text.square",
                 title: L10n.helpAppleHealthTitle,
@@ -1144,6 +1124,50 @@ private struct CompanionHelpSection: Identifiable {
     let tip: String?
 }
 
+private extension CompanionHelpTopic {
+    static var restMode: CompanionHelpTopic {
+        CompanionHelpTopic(
+            icon: "figure.walk.motion",
+            title: L10n.helpRestTitle,
+            body: L10n.helpRestBody,
+            sections: [
+                CompanionHelpSection(
+                    title: L10n.helpRestTimedHeading,
+                    body: L10n.helpRestTimedBody,
+                    example: nil,
+                    tip: nil
+                )
+            ],
+            example: nil,
+            tip: L10n.helpRestTip
+        )
+    }
+
+    static var trackingMode: CompanionHelpTopic {
+        CompanionHelpTopic(
+            icon: "location.circle",
+            title: L10n.helpTrackingModeTitle,
+            body: nil,
+            sections: [
+                CompanionHelpSection(
+                    title: L10n.helpTrackingModeManualHeading,
+                    body: L10n.helpTrackingModeManualBody,
+                    example: nil,
+                    tip: nil
+                ),
+                CompanionHelpSection(
+                    title: L10n.helpTrackingModeDualHeading,
+                    body: L10n.helpTrackingModeDualBody,
+                    example: nil,
+                    tip: nil
+                )
+            ],
+            example: nil,
+            tip: nil
+        )
+    }
+}
+
 private struct CompanionTrackingModeSettingsDetailView: View {
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
@@ -1176,6 +1200,13 @@ private struct CompanionTrackingModeSettingsDetailView: View {
                     .buttonStyle(.plain)
                     .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.detailRowContentInsets)
                 }
+            }
+
+            Section {
+                CompanionHelpCard(topic: .trackingMode)
+                    .listRowInsets(CompanionPreferencesStyle.detailRowInsets)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
             }
         }
         .navigationTitle(L10n.mode)
@@ -1248,6 +1279,13 @@ private struct CompanionRestModeSettingsDetailView: View {
                     .buttonStyle(.plain)
                     .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.detailRowContentInsets)
                 }
+            }
+
+            Section {
+                CompanionHelpCard(topic: .restMode)
+                    .listRowInsets(CompanionPreferencesStyle.detailRowInsets)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
             }
         }
         .navigationTitle(L10n.restMode)
@@ -1392,6 +1430,15 @@ private struct CompanionSettingsNavigationRow: View {
 }
 
 private enum CompanionPreferencesStyle {
+    static var detailRowInsets: EdgeInsets {
+        EdgeInsets(
+            top: 0,
+            leading: Tokens.ListRowInsets.companionCard.leading,
+            bottom: 0,
+            trailing: Tokens.ListRowInsets.companionCard.trailing
+        )
+    }
+
     static var overviewRowContentInsets: EdgeInsets {
         let baseInsets = Tokens.ContentInsets.companionCard
         let horizontalInset = baseInsets.leading

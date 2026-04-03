@@ -1709,7 +1709,79 @@ final class ModelTests: XCTestCase {
             deviceSource: "iphone"
         )
 
-        store.apply(settingsSyncRecord: record)
+        store.apply(settingsSyncRecord: record, context: .iPhoneCompanion)
+
+        XCTAssertTrue(store.syncAppearanceMode)
+        XCTAssertEqual(store.appearanceMode, .dark)
+    }
+
+    func testSettingsStoreApplySettingsSyncRecordDoesNotReEnableIPhoneAppearanceSyncToggle() {
+        let keys = [
+            "appearanceMode",
+            "syncAppearanceMode",
+            "currentWorkoutPlanCreatedAt",
+            "currentWorkoutPlanUpdatedAt"
+        ]
+        keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
+        defer { keys.forEach { UserDefaults.standard.removeObject(forKey: $0) } }
+
+        let store = SettingsStore()
+        store.appearanceMode = .dark
+        store.syncAppearanceMode = false
+
+        let record = SettingsSyncRecord(
+            trackingMode: .distanceDistance,
+            distanceDistanceMeters: 400,
+            distanceUnit: .km,
+            primaryColor: .blue,
+            restMode: .manual,
+            lapAlerts: true,
+            restAlerts: true,
+            appearanceMode: .light,
+            syncAppearanceMode: true,
+            distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+            intervalPresets: [],
+            updatedAt: Date(),
+            deviceSource: "watch"
+        )
+
+        store.apply(settingsSyncRecord: record, context: .iPhoneCompanion)
+
+        XCTAssertFalse(store.syncAppearanceMode)
+        XCTAssertEqual(store.appearanceMode, .dark)
+    }
+
+    func testSettingsStoreApplySettingsSyncRecordUpdatesWatchAppearanceSyncPreference() {
+        let keys = [
+            "appearanceMode",
+            "syncAppearanceMode",
+            "currentWorkoutPlanCreatedAt",
+            "currentWorkoutPlanUpdatedAt"
+        ]
+        keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
+        defer { keys.forEach { UserDefaults.standard.removeObject(forKey: $0) } }
+
+        let store = SettingsStore()
+        store.appearanceMode = .dark
+        store.syncAppearanceMode = true
+
+        let record = SettingsSyncRecord(
+            trackingMode: .distanceDistance,
+            distanceDistanceMeters: 400,
+            distanceUnit: .km,
+            primaryColor: .blue,
+            restMode: .manual,
+            lapAlerts: true,
+            restAlerts: true,
+            appearanceMode: .light,
+            syncAppearanceMode: false,
+            distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+            intervalPresets: [],
+            updatedAt: Date(),
+            deviceSource: "iphone"
+        )
+
+        store.apply(settingsSyncRecord: record, context: .watchApp)
 
         XCTAssertFalse(store.syncAppearanceMode)
         XCTAssertEqual(store.appearanceMode, .dark)

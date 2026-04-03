@@ -124,6 +124,47 @@ struct IntervalPresetSegmentSignature: Codable, Equatable {
     }
 }
 
+enum SettingsSyncApplicationContext {
+    case iPhoneCompanion
+    case watchApp
+
+    static var current: SettingsSyncApplicationContext {
+        #if os(iOS)
+        .iPhoneCompanion
+        #else
+        .watchApp
+        #endif
+    }
+}
+
+enum SettingsSyncAppearancePolicy {
+    static func resolvedLocalSyncAppearanceMode(
+        currentValue: Bool,
+        incomingValue: Bool,
+        context: SettingsSyncApplicationContext
+    ) -> Bool {
+        switch context {
+        case .iPhoneCompanion:
+            currentValue
+        case .watchApp:
+            incomingValue
+        }
+    }
+
+    static func shouldApplyIncomingAppearance(
+        localSyncAppearanceMode: Bool,
+        incomingSyncAppearanceMode: Bool,
+        context: SettingsSyncApplicationContext
+    ) -> Bool {
+        switch context {
+        case .iPhoneCompanion:
+            localSyncAppearanceMode && incomingSyncAppearanceMode
+        case .watchApp:
+            incomingSyncAppearanceMode
+        }
+    }
+}
+
 final class SettingsStore: ObservableObject {
     private static let defaultDistanceSegmentID = UUID(uuidString: "7FA5A34F-E9E7-45E7-A60A-C071132B6B52")!
 
@@ -349,7 +390,10 @@ final class SettingsStore: ObservableObject {
         )
     }
 
-    func apply(settingsSyncRecord: SettingsSyncRecord) {
+    func apply(
+        settingsSyncRecord: SettingsSyncRecord,
+        context: SettingsSyncApplicationContext = .current
+    ) {
         trackingMode = settingsSyncRecord.trackingMode
         distanceDistanceMeters = settingsSyncRecord.distanceDistanceMeters
         distanceUnit = settingsSyncRecord.distanceUnit
@@ -357,8 +401,17 @@ final class SettingsStore: ObservableObject {
         restMode = settingsSyncRecord.restMode
         lapAlerts = settingsSyncRecord.lapAlerts
         restAlerts = settingsSyncRecord.restAlerts
-        syncAppearanceMode = settingsSyncRecord.syncAppearanceMode
-        if settingsSyncRecord.syncAppearanceMode {
+        let resolvedSyncAppearanceMode = SettingsSyncAppearancePolicy.resolvedLocalSyncAppearanceMode(
+            currentValue: syncAppearanceMode,
+            incomingValue: settingsSyncRecord.syncAppearanceMode,
+            context: context
+        )
+        syncAppearanceMode = resolvedSyncAppearanceMode
+        if SettingsSyncAppearancePolicy.shouldApplyIncomingAppearance(
+            localSyncAppearanceMode: resolvedSyncAppearanceMode,
+            incomingSyncAppearanceMode: settingsSyncRecord.syncAppearanceMode,
+            context: context
+        ) {
             appearanceMode = settingsSyncRecord.appearanceMode
         }
         distanceSegments = settingsSyncRecord.distanceSegments

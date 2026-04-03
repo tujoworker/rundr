@@ -2117,18 +2117,18 @@ private struct CompanionWorkoutEditorView: View {
                         .foregroundStyle(theme.text.neutral)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                        if !customTitle.isEmpty {
-                            Button {
-                                customTitle = ""
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(theme.text.subtle)
-                            }
-                            .buttonStyle(.plain)
-                            .padding(.leading, Tokens.Spacing.sm)
-                            .padding(.trailing, Tokens.Spacing.xxs)
-                            .padding(.vertical, Tokens.Spacing.xxs)
+                        Button {
+                            customTitle = ""
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(theme.text.subtle)
+                                .opacity(customTitle.isEmpty ? 0 : 1)
                         }
+                        .buttonStyle(.plain)
+                        .disabled(customTitle.isEmpty)
+                        .padding(.leading, Tokens.Spacing.sm)
+                        .padding(.trailing, Tokens.Spacing.xxs)
+                        .padding(.vertical, Tokens.Spacing.xxs)
                     }
                     .listRowCardChrome(
                         rowInsets: CompanionSessionPlanStyle.rowInsets,
@@ -2149,18 +2149,18 @@ private struct CompanionWorkoutEditorView: View {
                         .foregroundStyle(theme.text.neutral)
                         .frame(maxWidth: .infinity, alignment: .leading)
 
-                        if !customDescription.isEmpty {
-                            Button {
-                                customDescription = ""
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(theme.text.subtle)
-                            }
-                            .buttonStyle(.plain)
-                            .padding(.leading, Tokens.Spacing.sm)
-                            .padding(.trailing, Tokens.Spacing.xxs)
-                            .padding(.vertical, Tokens.Spacing.xxs)
+                        Button {
+                            customDescription = ""
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(theme.text.subtle)
+                                .opacity(customDescription.isEmpty ? 0 : 1)
                         }
+                        .buttonStyle(.plain)
+                        .disabled(customDescription.isEmpty)
+                        .padding(.leading, Tokens.Spacing.sm)
+                        .padding(.trailing, Tokens.Spacing.xxs)
+                        .padding(.vertical, Tokens.Spacing.xxs)
                     }
                     .listRowCardChrome(
                         rowInsets: CompanionSessionPlanStyle.rowInsets,

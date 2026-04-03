@@ -17,6 +17,10 @@
 "Title" = "Tittel";
 "Title (optional)" = "Tittel (valgfri)";
 "Description (optional)" = "Beskrivelse (valgfri)";
+"Four by Four" = "Fire ganger fire";
+"Threshold Sixes" = "Terskel-seksere";
+"Thousand Repeats" = "Tusenmeterdrag";
+"Four Hundred Repeats" = "Firehundremeterdrag";
 "No saved intervals yet" = "Ingen lagrede intervaller ennå";
 "Open a predefined interval to save your own version." = "Åpne et forhåndsdefinert intervall for å lagre din egen versjon.";
 "Tracking Mode" = "Sporingsmodus";

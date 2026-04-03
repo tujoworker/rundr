@@ -17,6 +17,10 @@
 "Title" = "Title";
 "Title (optional)" = "Title (optional)";
 "Description (optional)" = "Description (optional)";
+"Four by Four" = "Four by Four";
+"Threshold Sixes" = "Threshold Sixes";
+"Thousand Repeats" = "Thousand Repeats";
+"Four Hundred Repeats" = "Four Hundred Repeats";
 "No saved intervals yet" = "No saved intervals yet";
 "Open a predefined interval to save your own version." = "Open a predefined interval to save your own version.";
 "Tracking Mode" = "Tracking Mode";

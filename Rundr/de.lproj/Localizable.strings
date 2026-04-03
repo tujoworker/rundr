@@ -17,6 +17,10 @@
 "Title" = "Titel";
 "Title (optional)" = "Titel (optional)";
 "Description (optional)" = "Beschreibung (optional)";
+"Four by Four" = "Vier mal Vier";
+"Threshold Sixes" = "Schwellen-Sechser";
+"Thousand Repeats" = "Tausender-Wiederholungen";
+"Four Hundred Repeats" = "Vierhundert-Wiederholungen";
 "No saved intervals yet" = "Noch keine gespeicherten Intervalle";
 "Open a predefined interval to save your own version." = "Öffne ein vordefiniertes Intervall, um deine eigene Version zu speichern.";
 "Tracking Mode" = "Tracking-Modus";

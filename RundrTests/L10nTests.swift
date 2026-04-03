@@ -93,6 +93,13 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.optionalDescriptionPlaceholder, "Description (optional)")
     }
 
+    func testPredefinedWorkoutTitlesExist() {
+        XCTAssertEqual(L10n.predefinedFourByFourTitle, "Four by Four")
+        XCTAssertEqual(L10n.predefinedThresholdSixesTitle, "Threshold Sixes")
+        XCTAssertEqual(L10n.predefinedThousandRepeatsTitle, "Thousand Repeats")
+        XCTAssertEqual(L10n.predefinedFourHundredRepeatsTitle, "Four Hundred Repeats")
+    }
+
     func testUsedCountFormatsAsCompactBadgeText() {
         XCTAssertEqual(L10n.usedCount(3), "3x")
     }

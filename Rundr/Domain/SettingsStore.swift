@@ -281,32 +281,46 @@ final class SettingsStore: ObservableObject {
 
     static let predefinedIntervalPresets: [PredefinedIntervalPreset] = [
         PredefinedIntervalPreset(
-            id: "sixByFourHundred",
-            title: "6 × 400 m",
+            id: "fourByFour",
+            title: L10n.predefinedFourByFourTitle,
             workoutPlan: WorkoutPlanSnapshot(
-                trackingMode: .distanceDistance,
-                distanceLapDistanceMeters: 400,
-                distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+                trackingMode: .dual,
+                distanceLapDistanceMeters: 0,
+                distanceSegments: [
+                    DistanceSegment(distanceMeters: 0, repeatCount: 4, restSeconds: 180, distanceGoalMode: .open, targetTimeSeconds: 240)
+                ],
                 restMode: .manual
             )
         ),
         PredefinedIntervalPreset(
-            id: "eightByTwoHundred",
-            title: "8 × 200 m",
+            id: "thresholdSixes",
+            title: L10n.predefinedThresholdSixesTitle,
             workoutPlan: WorkoutPlanSnapshot(
-                trackingMode: .distanceDistance,
-                distanceLapDistanceMeters: 200,
-                distanceSegments: [DistanceSegment(distanceMeters: 200, repeatCount: 8, restSeconds: 45)],
+                trackingMode: .dual,
+                distanceLapDistanceMeters: 0,
+                distanceSegments: [
+                    DistanceSegment(distanceMeters: 0, repeatCount: 5, restSeconds: 60, distanceGoalMode: .open, targetTimeSeconds: 360)
+                ],
                 restMode: .manual
             )
         ),
         PredefinedIntervalPreset(
-            id: "threeByOneK",
-            title: "3 × 1 km",
+            id: "thousandRepeats",
+            title: L10n.predefinedThousandRepeatsTitle,
             workoutPlan: WorkoutPlanSnapshot(
                 trackingMode: .distanceDistance,
                 distanceLapDistanceMeters: 1000,
-                distanceSegments: [DistanceSegment(distanceMeters: 1000, repeatCount: 3, restSeconds: 120)],
+                distanceSegments: [DistanceSegment(distanceMeters: 1000, repeatCount: 6, restSeconds: 90)],
+                restMode: .manual
+            )
+        ),
+        PredefinedIntervalPreset(
+            id: "fourHundredRepeats",
+            title: L10n.predefinedFourHundredRepeatsTitle,
+            workoutPlan: WorkoutPlanSnapshot(
+                trackingMode: .distanceDistance,
+                distanceLapDistanceMeters: 400,
+                distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 10, restSeconds: 60)],
                 restMode: .manual
             )
         )

@@ -1576,7 +1576,7 @@ final class ModelTests: XCTestCase {
         let store = SettingsStore()
         let workoutPlan = SettingsStore.predefinedIntervalPresets[0].workoutPlan
 
-        XCTAssertEqual(store.title(for: workoutPlan), "6 × 400 m")
+        XCTAssertEqual(store.title(for: workoutPlan), "Four by Four")
     }
 
     func testSettingsStoreTitleUsesSavedPresetTitleWhenMatched() {

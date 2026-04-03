@@ -3,7 +3,9 @@ import SwiftUI
 import UIKit
 
 struct CompanionRootView: View {
+    @EnvironmentObject private var persistence: PersistenceManager
     @EnvironmentObject private var settings: SettingsStore
+    @EnvironmentObject private var transferCoordinator: CompanionTransferCoordinator
     @State private var selectedTab: CompanionTab = .workouts
 
     private enum CompanionTab: Hashable {
@@ -35,6 +37,26 @@ struct CompanionRootView: View {
                 }
         }
         .tint(settings.primaryAccentColor)
+        .sheet(item: $transferCoordinator.sharePayload, onDismiss: transferCoordinator.cleanupSharedFile) { payload in
+            CompanionShareSheet(activityItems: [payload.url])
+        }
+        .fileImporter(
+            isPresented: $transferCoordinator.isImporterPresented,
+            allowedContentTypes: [.rundrPlan, .rundrSession]
+        ) { result in
+            transferCoordinator.handleImportResult(result, settings: settings, persistence: persistence)
+        }
+        .alert(item: $transferCoordinator.notice) { notice in
+            Alert(
+                title: Text(notice.title),
+                message: Text(notice.message),
+                dismissButton: .default(Text(L10n.ok))
+            )
+        }
+        .onOpenURL { url in
+            guard url.isFileURL else { return }
+            transferCoordinator.importTransfer(from: url, settings: settings, persistence: persistence)
+        }
     }
 }
 
@@ -625,6 +647,7 @@ private struct CompanionPresetLibraryView: View {
 
 private struct CompanionSettingsView: View {
     @EnvironmentObject private var settings: SettingsStore
+    @EnvironmentObject private var transferCoordinator: CompanionTransferCoordinator
 
     var body: some View {
         NavigationStack {
@@ -687,6 +710,18 @@ private struct CompanionSettingsView: View {
                 }
 
                 Section {
+                    Button {
+                        transferCoordinator.presentImporter()
+                    } label: {
+                        CompanionSettingsNavigationRow(
+                            title: L10n.importFile,
+                            value: "",
+                            systemImage: "square.and.arrow.down"
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
+
                     NavigationLink {
                         CompanionIntroView()
                     } label: {
@@ -1803,6 +1838,7 @@ private struct CompanionPresetUsageBadge: View {
 private struct CompanionWorkoutEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var settings: SettingsStore
+    @EnvironmentObject private var transferCoordinator: CompanionTransferCoordinator
     @Environment(\.appTheme) private var theme
 
     let headerTitle: String
@@ -1984,6 +2020,14 @@ private struct CompanionWorkoutEditorView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
+                    Button(L10n.sharePlan) {
+                        transferCoordinator.sharePlan(
+                            workoutPlan: currentWorkoutPlan(),
+                            title: IntervalPreset.sanitizeTitle(customTitle),
+                            settings: settings
+                        )
+                    }
+
                     Button(L10n.useItNow) {
                         isUseActivityConfirmationPresented = true
                     }
@@ -3120,6 +3164,7 @@ private struct CompanionSessionDetailView: View {
     let session: Session
     @EnvironmentObject private var settings: SettingsStore
     @EnvironmentObject private var persistence: PersistenceManager
+    @EnvironmentObject private var transferCoordinator: CompanionTransferCoordinator
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appTheme) private var theme
     @State private var isReuseConfirmationPresented = false
@@ -3250,6 +3295,10 @@ private struct CompanionSessionDetailView: View {
                 Menu {
                     Button(L10n.reusePlan) {
                         isReuseConfirmationPresented = true
+                    }
+
+                    Button(L10n.shareSession) {
+                        transferCoordinator.shareSession(session)
                     }
 
                     Button(L10n.deleteSession, role: .destructive) {

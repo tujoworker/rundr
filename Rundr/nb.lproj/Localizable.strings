@@ -132,6 +132,17 @@
 "This replaces your current Session Plan." = "Dette erstatter den nåværende øktplanen din.";
 "Reuse Plan" = "Bruk plan på nytt";
 "Use it now" = "Bruk den nå";
+"Share Plan" = "Del plan";
+"Share Session" = "Del økt";
+"Import File" = "Importer fil";
+"Plan Imported" = "Plan importert";
+"The plan was added to My intervals." = "Planen ble lagt til i Mine intervaller.";
+"Session Imported" = "Økt importert";
+"The session was added to your history." = "Økta ble lagt til i historikken din.";
+"Couldn't Open File" = "Kunne ikke åpne filen";
+"This file could not be imported." = "Denne fila kunne ikke importeres.";
+"Couldn't Share" = "Kunne ikke dele";
+"This item could not be prepared for sharing." = "Dette elementet kunne ikke klargjøres for deling.";
 "Reuse Session Plan" = "Bruk øktplan på nytt";
 "This Session" = "Denne økta";
 "More" = "Mer";

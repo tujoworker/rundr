@@ -132,6 +132,17 @@
 "This replaces your current Session Plan." = "現在のセッションプランはこれで置き換わります。";
 "Reuse Plan" = "プランを再利用";
 "Use it now" = "今すぐ使う";
+"Share Plan" = "プランを共有";
+"Share Session" = "セッションを共有";
+"Import File" = "ファイルを読み込む";
+"Plan Imported" = "プランを読み込みました";
+"The plan was added to My intervals." = "プランをマイインターバルに追加しました。";
+"Session Imported" = "セッションを読み込みました";
+"The session was added to your history." = "セッションを履歴に追加しました。";
+"Couldn't Open File" = "ファイルを開けませんでした";
+"This file could not be imported." = "このファイルは読み込めませんでした。";
+"Couldn't Share" = "共有できませんでした";
+"This item could not be prepared for sharing." = "この項目は共有用に準備できませんでした。";
 "Reuse Session Plan" = "セッションプランを再利用";
 "This Session" = "このセッション";
 "More" = "その他";

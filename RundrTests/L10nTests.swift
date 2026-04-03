@@ -27,6 +27,14 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.useItNow, "Use it now")
     }
 
+    func testCompanionTransferLabelsExist() {
+        XCTAssertEqual(L10n.sharePlan, "Share Plan")
+        XCTAssertEqual(L10n.shareSession, "Share Session")
+        XCTAssertEqual(L10n.importFile, "Import File")
+        XCTAssertEqual(L10n.planImportedTitle, "Plan Imported")
+        XCTAssertEqual(L10n.sessionImportedTitle, "Session Imported")
+    }
+
     func testThisSessionLabelExistsForActionMenuTitle() {
         XCTAssertEqual(L10n.thisSession, "This Session")
     }

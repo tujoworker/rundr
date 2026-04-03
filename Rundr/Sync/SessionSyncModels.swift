@@ -11,6 +11,19 @@ struct SessionSyncEnvelope: Codable, Equatable {
     var session: SessionSyncRecord
 }
 
+struct RundrPlanTransfer: Codable, Equatable {
+    var schemaVersion: Int = 1
+    var autor: String?
+    var title: String?
+    var workoutPlan: WorkoutPlanSnapshot
+}
+
+struct RundrSessionTransfer: Codable, Equatable {
+    var schemaVersion: Int = 1
+    var autor: String?
+    var session: SessionSyncRecord
+}
+
 struct SessionSyncRecord: Codable, Equatable, Identifiable {
     var id: UUID
     var startedAt: Date

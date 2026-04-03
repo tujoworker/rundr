@@ -227,6 +227,38 @@ final class SessionSyncTests: XCTestCase {
         XCTAssertEqual(decoded, envelope)
     }
 
+    func testRundrPlanTransferRoundTrip() throws {
+        let transfer = RundrPlanTransfer(
+            autor: "preset",
+            title: "Track Night",
+            workoutPlan: WorkoutPlanSnapshot(
+                trackingMode: .distanceDistance,
+                distanceLapDistanceMeters: 400,
+                distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+                restMode: .manual
+            )
+        )
+
+        let data = try JSONEncoder().encode(transfer)
+        let decoded = try JSONDecoder().decode(RundrPlanTransfer.self, from: data)
+
+        XCTAssertEqual(decoded, transfer)
+        XCTAssertEqual(decoded.schemaVersion, 1)
+        XCTAssertEqual(decoded.autor, "preset")
+    }
+
+    func testRundrSessionTransferRoundTrip() throws {
+        let record = makeSessionSyncRecord(id: UUID(), updatedAt: Date(), deviceSource: "watch")
+        let transfer = RundrSessionTransfer(autor: "Sender Device", session: record)
+
+        let data = try JSONEncoder().encode(transfer)
+        let decoded = try JSONDecoder().decode(RundrSessionTransfer.self, from: data)
+
+        XCTAssertEqual(decoded, transfer)
+        XCTAssertEqual(decoded.autor, "Sender Device")
+        XCTAssertEqual(decoded.session.id, record.id)
+    }
+
     // MARK: - Helpers
 
     private func makeSession(id: UUID, updatedAt: Date, deviceSource: String) -> Session {

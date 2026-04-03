@@ -132,6 +132,17 @@
 "This replaces your current Session Plan." = "Dadurch wird dein aktueller Trainingsplan ersetzt.";
 "Reuse Plan" = "Plan erneut verwenden";
 "Use it now" = "Jetzt verwenden";
+"Share Plan" = "Plan teilen";
+"Share Session" = "Einheit teilen";
+"Import File" = "Datei importieren";
+"Plan Imported" = "Plan importiert";
+"The plan was added to My intervals." = "Der Plan wurde zu Meine Intervalle hinzugefügt.";
+"Session Imported" = "Einheit importiert";
+"The session was added to your history." = "Die Einheit wurde zu deinem Verlauf hinzugefügt.";
+"Couldn't Open File" = "Datei konnte nicht geöffnet werden";
+"This file could not be imported." = "Diese Datei konnte nicht importiert werden.";
+"Couldn't Share" = "Teilen nicht möglich";
+"This item could not be prepared for sharing." = "Dieses Element konnte nicht zum Teilen vorbereitet werden.";
 "Reuse Session Plan" = "Trainingsplan erneut verwenden";
 "This Session" = "Diese Einheit";
 "More" = "Mehr";

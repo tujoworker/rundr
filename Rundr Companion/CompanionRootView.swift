@@ -1984,7 +1984,7 @@ private struct CompanionWorkoutEditorView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Button(L10n.reusePlan) {
+                    Button(L10n.useItNow) {
                         isUseActivityConfirmationPresented = true
                     }
 

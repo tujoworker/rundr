@@ -23,6 +23,10 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.reusePlan, "Reuse Plan")
     }
 
+    func testUseItNowLabelExistsForCompanionAdjustIntervalAction() {
+        XCTAssertEqual(L10n.useItNow, "Use it now")
+    }
+
     func testThisSessionLabelExistsForActionMenuTitle() {
         XCTAssertEqual(L10n.thisSession, "This Session")
     }

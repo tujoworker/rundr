@@ -2173,21 +2173,27 @@ private struct CompanionWorkoutEditorView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Button(L10n.sharePlan) {
+                    Button {
+                        isUseActivityConfirmationPresented = true
+                    } label: {
+                        Label(L10n.useItNow, systemImage: "play.fill")
+                    }
+
+                    Button {
                         transferCoordinator.sharePlan(
                             workoutPlan: currentWorkoutPlan(),
                             title: IntervalPreset.sanitizeTitle(customTitle),
                             settings: settings
                         )
-                    }
-
-                    Button(L10n.useItNow) {
-                        isUseActivityConfirmationPresented = true
+                    } label: {
+                        Label(L10n.sharePlan, systemImage: "square.and.arrow.up")
                     }
 
                     if canDeletePreset {
-                        Button(L10n.deletePlan, role: .destructive) {
+                        Button(role: .destructive) {
                             isDeleteConfirmationPresented = true
+                        } label: {
+                            Label(L10n.deletePlan, systemImage: "trash")
                         }
                     }
                 } label: {
@@ -2768,8 +2774,10 @@ private struct CompanionSegmentEditorView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Button(L10n.deleteInterval, role: .destructive) {
+                    Button(role: .destructive) {
                         deleteSegment()
+                    } label: {
+                        Label(L10n.deleteInterval, systemImage: "trash")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")
@@ -3447,20 +3455,28 @@ private struct CompanionSessionDetailView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Button(L10n.reusePlan) {
+                    Button {
                         isReuseConfirmationPresented = true
+                    } label: {
+                        Label(L10n.reusePlan, systemImage: "arrow.clockwise")
                     }
 
-                    Button(L10n.shareSession) {
+                    Button {
                         transferCoordinator.shareSession(session)
+                    } label: {
+                        Label(L10n.shareSession, systemImage: "square.and.arrow.up")
                     }
 
-                    Button(L10n.showMatchingSessions) {
+                    Button {
                         matchingSourceSession = session
+                    } label: {
+                        Label(L10n.showMatchingSessions, systemImage: "line.3.horizontal.decrease.circle")
                     }
 
-                    Button(L10n.deleteSession, role: .destructive) {
+                    Button(role: .destructive) {
                         isDeleteConfirmationPresented = true
+                    } label: {
+                        Label(L10n.deleteSession, systemImage: "trash")
                     }
                 } label: {
                     Image(systemName: "ellipsis.circle")

@@ -227,23 +227,23 @@ struct PreStartView: View {
                 .buttonStyle(.plain)
 
                 Button {
-                    isDistanceUnitDialogPresented = true
-                } label: {
-                    SettingsCardRow(
-                        icon: "ruler",
-                        title: L10n.unit,
-                        value: settings.distanceUnit.displayName
-                    )
-                }
-                .buttonStyle(.plain)
-
-                Button {
                     isRestModeDialogPresented = true
                 } label: {
                     SettingsCardRow(
                         icon: "figure.cooldown",
                         title: L10n.restMode,
                         value: settings.restMode.displayName
+                    )
+                }
+                .buttonStyle(.plain)
+
+                Button {
+                    isDistanceUnitDialogPresented = true
+                } label: {
+                    SettingsCardRow(
+                        icon: "ruler",
+                        title: L10n.unit,
+                        value: settings.distanceUnit.displayName
                     )
                 }
                 .buttonStyle(.plain)

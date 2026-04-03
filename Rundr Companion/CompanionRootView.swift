@@ -610,23 +610,23 @@ private struct CompanionSettingsView: View {
                     .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
 
                     NavigationLink {
-                        CompanionDistanceUnitSettingsDetailView()
-                    } label: {
-                        CompanionSettingsNavigationRow(
-                            title: L10n.unit,
-                            value: settings.distanceUnit.displayName,
-                            systemImage: "ruler"
-                        )
-                    }
-                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
-
-                    NavigationLink {
                         CompanionRestModeSettingsDetailView()
                     } label: {
                         CompanionSettingsNavigationRow(
                             title: L10n.restMode,
                             value: settings.restMode.displayName,
                             systemImage: "figure.cooldown"
+                        )
+                    }
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
+
+                    NavigationLink {
+                        CompanionDistanceUnitSettingsDetailView()
+                    } label: {
+                        CompanionSettingsNavigationRow(
+                            title: L10n.unit,
+                            value: settings.distanceUnit.displayName,
+                            systemImage: "ruler"
                         )
                     }
                     .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)

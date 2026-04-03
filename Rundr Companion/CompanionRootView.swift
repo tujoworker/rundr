@@ -1117,6 +1117,22 @@ private struct CompanionHelpOverviewCard: View {
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
 
+    private var tocItemFill: Color {
+        theme.isDark ? .clear : theme.background.neutralAction
+    }
+
+    private var tocItemStroke: Color {
+        theme.isDark ? theme.stroke.callout : .clear
+    }
+
+    private var tocCardFill: Color {
+        theme.isDark ? .clear : theme.background.history
+    }
+
+    private var tocCardStroke: Color {
+        theme.isDark ? theme.stroke.neutral : .clear
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
             HStack(alignment: .center, spacing: Tokens.Spacing.lg) {
@@ -1144,21 +1160,17 @@ private struct CompanionHelpOverviewCard: View {
                                 .font(.system(size: Tokens.FontSize.lg, weight: .medium, design: .rounded))
                                 .foregroundStyle(theme.text.neutral)
                                 .frame(maxWidth: .infinity, alignment: .leading)
-
-                            Image(systemName: "arrow.down.right")
-                                .font(.system(size: Tokens.FontSize.sm, weight: .semibold))
-                                .foregroundStyle(theme.text.subtle)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal, Tokens.Spacing.lg)
                         .padding(.vertical, Tokens.Spacing.md)
                         .background(
                             RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
-                                .fill(theme.background.neutralAction)
+                                .fill(tocItemFill)
                         )
                         .overlay(
                             RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
-                                .stroke(theme.stroke.callout, lineWidth: Tokens.LineWidth.thin)
+                                .stroke(tocItemStroke, lineWidth: Tokens.LineWidth.thin)
                         )
                     }
                     .buttonStyle(.plain)
@@ -1169,11 +1181,11 @@ private struct CompanionHelpOverviewCard: View {
         .padding(Tokens.Spacing.xxxl)
         .background(
             RoundedRectangle(cornerRadius: Tokens.Radius.companionListCell, style: .continuous)
-                .fill(theme.background.history)
+                .fill(tocCardFill)
         )
         .overlay(
             RoundedRectangle(cornerRadius: Tokens.Radius.companionListCell, style: .continuous)
-                .stroke(theme.stroke.neutral, lineWidth: Tokens.LineWidth.thin)
+                .stroke(tocCardStroke, lineWidth: Tokens.LineWidth.thin)
         )
     }
 }

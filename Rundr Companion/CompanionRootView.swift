@@ -126,10 +126,18 @@ private struct CompanionWorkoutsView: View {
 
                 if settings.trackingMode.usesManualIntervals {
                     Section {
-                        CompanionHomeSectionHeader(title: L10n.intervalsTitle)
-                            .padding(.leading, workoutsSectionHeaderLeadingInset)
-                            .listRowSeparator(.hidden)
-                            .listRowBackground(Color.clear)
+                        HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.md) {
+                            CompanionHomeSectionHeader(title: L10n.intervalsTitle)
+
+                            Spacer(minLength: Tokens.Spacing.md)
+
+                            if canReorderSegments {
+                                EditButton()
+                            }
+                        }
+                        .padding(.leading, workoutsSectionHeaderLeadingInset)
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
 
                         ForEach(segments) { segment in
                             Button {
@@ -281,13 +289,6 @@ private struct CompanionWorkoutsView: View {
             .navigationTitle(L10n.workouts)
             .navigationBarTitleDisplayMode(.large)
             .toolbarBackground(.hidden, for: .navigationBar)
-            .toolbar {
-                if canReorderSegments {
-                    ToolbarItem(placement: .topBarLeading) {
-                        EditButton()
-                    }
-                }
-            }
             .themedCompanionList()
         }
     }

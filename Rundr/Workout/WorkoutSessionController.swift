@@ -226,7 +226,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     func getReady() {
         runState = .ready
         clearRecoverySnapshot()
-        playHaptic(.notification)
+        playHaptic(.click)
     }
 
     func start() async {

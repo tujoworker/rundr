@@ -55,6 +55,16 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.runState, .ready)
     }
 
+    func testGetReadyUsesClickHaptic() {
+        let controller = makeController()
+        var haptics: [WKHapticType] = []
+        controller.hapticFeedbackHandler = { haptics.append($0) }
+
+        controller.getReady()
+
+        XCTAssertEqual(haptics, [.click])
+    }
+
     // MARK: - Heart Rate Updates
 
     func testHeartRateUpdate() {
@@ -137,6 +147,16 @@ final class WorkoutControllerTests: XCTestCase {
 
         XCTAssertEqual(controller.completedLaps.count, 1,
                        "Second action-button lap within 1 s should be ignored")
+    }
+
+    func testMarkLapKeepsNotificationHaptic() {
+        let controller = makeStartedController()
+        var haptics: [WKHapticType] = []
+        controller.hapticFeedbackHandler = { haptics.append($0) }
+
+        controller.markLap()
+
+        XCTAssertEqual(haptics, [.notification])
     }
 
     func testActionButtonIntentResumesPausedWorkout() async throws {

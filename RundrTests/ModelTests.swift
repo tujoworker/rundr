@@ -1623,6 +1623,8 @@ final class ModelTests: XCTestCase {
             "distanceSegmentsJSON",
             "intervalPresetsJSON",
             "workoutPlanOriginID",
+            "currentWorkoutPlanCreatedAt",
+            "currentWorkoutPlanUpdatedAt",
             "primaryColor",
             "restMode",
             "pauseMode",
@@ -1680,7 +1682,9 @@ final class ModelTests: XCTestCase {
     func testSettingsStoreApplySettingsSyncRecordKeepsLocalAppearanceWhenAppearanceSyncDisabled() {
         let keys = [
             "appearanceMode",
-            "syncAppearanceMode"
+            "syncAppearanceMode",
+            "currentWorkoutPlanCreatedAt",
+            "currentWorkoutPlanUpdatedAt"
         ]
         keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
         defer { keys.forEach { UserDefaults.standard.removeObject(forKey: $0) } }
@@ -1714,7 +1718,9 @@ final class ModelTests: XCTestCase {
     func testSettingsStoreMakeSettingsSyncRecordIncludesAppearanceSyncPreference() {
         let keys = [
             "appearanceMode",
-            "syncAppearanceMode"
+            "syncAppearanceMode",
+            "currentWorkoutPlanCreatedAt",
+            "currentWorkoutPlanUpdatedAt"
         ]
         keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
         defer { keys.forEach { UserDefaults.standard.removeObject(forKey: $0) } }
@@ -1727,6 +1733,39 @@ final class ModelTests: XCTestCase {
 
         XCTAssertEqual(record.appearanceMode, .dark)
         XCTAssertFalse(record.syncAppearanceMode)
+    }
+
+    func testSettingsStoreInitializesCurrentWorkoutPlanTimestamps() {
+        let keys = [
+            "currentWorkoutPlanCreatedAt",
+            "currentWorkoutPlanUpdatedAt"
+        ]
+        keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
+        defer { keys.forEach { UserDefaults.standard.removeObject(forKey: $0) } }
+
+        let store = SettingsStore()
+
+        XCTAssertLessThanOrEqual(store.currentWorkoutPlanCreatedAt, store.currentWorkoutPlanUpdatedAt)
+        XCTAssertGreaterThan(store.currentWorkoutPlanCreatedAt.timeIntervalSince1970, 0)
+    }
+
+    func testSettingsStoreEditingWorkoutPlanUpdatesUpdatedAtButKeepsCreatedAt() {
+        let keys = [
+            "trackingMode",
+            "currentWorkoutPlanCreatedAt",
+            "currentWorkoutPlanUpdatedAt"
+        ]
+        keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
+        defer { keys.forEach { UserDefaults.standard.removeObject(forKey: $0) } }
+
+        let store = SettingsStore()
+        let createdAt = store.currentWorkoutPlanCreatedAt
+        let initialUpdatedAt = store.currentWorkoutPlanUpdatedAt
+
+        store.trackingMode = .dual
+
+        XCTAssertEqual(store.currentWorkoutPlanCreatedAt, createdAt)
+        XCTAssertGreaterThanOrEqual(store.currentWorkoutPlanUpdatedAt, initialUpdatedAt)
     }
 
     func testSettingsStoreSaveIntervalPresetIgnoresGPSPlan() {

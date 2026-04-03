@@ -127,8 +127,8 @@ struct IntervalPresetSegmentSignature: Codable, Equatable {
 final class SettingsStore: ObservableObject {
     private static let defaultDistanceSegmentID = UUID(uuidString: "7FA5A34F-E9E7-45E7-A60A-C071132B6B52")!
 
-    @AppStorage("trackingMode") var trackingMode: TrackingMode = .distanceDistance
-    @AppStorage("distanceDistanceMeters") var distanceDistanceMeters: Double = 400
+    @AppStorage("trackingMode") private var trackingModeRaw: String = TrackingMode.distanceDistance.rawValue
+    @AppStorage("distanceDistanceMeters") private var distanceDistanceMetersValue: Double = 400
     @AppStorage("distanceUnit") var distanceUnit: DistanceUnit = .km
     @AppStorage("primaryColor") private var primaryColorRaw: String = "blue"
     @AppStorage("restMode") private var restModeRaw: String = RestMode.manual.rawValue
@@ -138,10 +138,44 @@ final class SettingsStore: ObservableObject {
     @AppStorage("restAlerts") var restAlerts: Bool = true
     @AppStorage("appearanceMode") private var appearanceModeRaw: String = AppearanceMode.system.rawValue
     @AppStorage("syncAppearanceMode") var syncAppearanceMode: Bool = true
+    @AppStorage("currentWorkoutPlanCreatedAt") private var currentWorkoutPlanCreatedAtInterval: Double = 0
+    @AppStorage("currentWorkoutPlanUpdatedAt") private var currentWorkoutPlanUpdatedAtInterval: Double = 0
+
+    init() {
+        ensureCurrentWorkoutPlanTimestamps()
+    }
+
+    var trackingMode: TrackingMode {
+        get { TrackingMode(rawValue: trackingModeRaw) ?? .distanceDistance }
+        set {
+            guard newValue != trackingMode else { return }
+            trackingModeRaw = newValue.rawValue
+            touchCurrentWorkoutPlan()
+        }
+    }
+
+    var distanceDistanceMeters: Double {
+        get { distanceDistanceMetersValue }
+        set {
+            guard newValue != distanceDistanceMetersValue else { return }
+            distanceDistanceMetersValue = newValue
+            touchCurrentWorkoutPlan()
+        }
+    }
 
     var appearanceMode: AppearanceMode {
         get { AppearanceMode(rawValue: appearanceModeRaw) ?? .system }
         set { appearanceModeRaw = newValue.rawValue }
+    }
+
+    var currentWorkoutPlanCreatedAt: Date {
+        ensureCurrentWorkoutPlanTimestamps()
+        return Date(timeIntervalSince1970: currentWorkoutPlanCreatedAtInterval)
+    }
+
+    var currentWorkoutPlanUpdatedAt: Date {
+        ensureCurrentWorkoutPlanTimestamps()
+        return Date(timeIntervalSince1970: currentWorkoutPlanUpdatedAtInterval)
     }
 
     var primaryColor: PrimaryColorOption {
@@ -160,8 +194,10 @@ final class SettingsStore: ObservableObject {
             return .manual
         }
         set {
+            guard newValue != restMode else { return }
             restModeRaw = newValue.rawValue
             legacyRestModeRaw = newValue.rawValue
+            touchCurrentWorkoutPlan()
         }
     }
 
@@ -226,6 +262,8 @@ final class SettingsStore: ObservableObject {
             return segments
         }
         set {
+            let existingSegments = distanceSegments
+            guard newValue != existingSegments else { return }
             if let data = try? JSONEncoder().encode(newValue),
                let json = String(data: data, encoding: .utf8) {
                 distanceSegmentsJSON = json
@@ -236,6 +274,7 @@ final class SettingsStore: ObservableObject {
             } else if let first = newValue.first {
                 distanceDistanceMeters = first.distanceMeters
             }
+            touchCurrentWorkoutPlan()
         }
     }
 
@@ -266,7 +305,12 @@ final class SettingsStore: ObservableObject {
 
     var workoutPlanOriginID: UUID? {
         get { UUID(uuidString: workoutPlanOriginIDRaw) }
-        set { workoutPlanOriginIDRaw = newValue?.uuidString ?? "" }
+        set {
+            let newRawValue = newValue?.uuidString ?? ""
+            guard newRawValue != workoutPlanOriginIDRaw else { return }
+            workoutPlanOriginIDRaw = newRawValue
+            touchCurrentWorkoutPlan()
+        }
     }
 
     func apply(workoutPlan: WorkoutPlanSnapshot) {
@@ -460,6 +504,25 @@ final class SettingsStore: ObservableObject {
         }
 
         intervalPresetsJSON = json
+    }
+
+    private func ensureCurrentWorkoutPlanTimestamps() {
+        guard currentWorkoutPlanCreatedAtInterval <= 0 || currentWorkoutPlanUpdatedAtInterval <= 0 else {
+            return
+        }
+
+        let now = Date().timeIntervalSince1970
+        if currentWorkoutPlanCreatedAtInterval <= 0 {
+            currentWorkoutPlanCreatedAtInterval = now
+        }
+        if currentWorkoutPlanUpdatedAtInterval <= 0 {
+            currentWorkoutPlanUpdatedAtInterval = now
+        }
+    }
+
+    private func touchCurrentWorkoutPlan() {
+        ensureCurrentWorkoutPlanTimestamps()
+        currentWorkoutPlanUpdatedAtInterval = Date().timeIntervalSince1970
     }
 
     private func duplicateIndexAdjusted(from duplicateIndex: Int, removedIndex: Int) -> Int {

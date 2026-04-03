@@ -284,6 +284,7 @@ enum L10n {
     static let aboutFlexibleSessionsBody = String(localized: "You can build fixed intervals, open intervals, pacing goals, rest blocks, and repeat structures that match the way you actually train. If a session works well, save it and bring it back later.", comment: "Companion about card body")
     static let aboutKeepMomentumTitle = String(localized: "Made to keep momentum", comment: "Companion about card title")
     static let aboutKeepMomentumBody = String(localized: "Rundr keeps planning, running, and reviewing connected. Set things up on iPhone, run from Apple Watch, then come back to your synced history when you want to repeat a favorite session or tune the next one.", comment: "Companion about card body")
+    static let helpOverviewTitle = String(localized: "Overview", comment: "Companion help table of contents title")
     static let example = String(localized: "Example", comment: "Help card callout label")
     static let tip = String(localized: "Tip", comment: "Help card callout label")
     static let helpSessionPlanTitle = String(localized: "Session Plan", comment: "Companion help card title")

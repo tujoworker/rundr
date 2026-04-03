@@ -982,6 +982,7 @@ private struct CompanionHelpView: View {
     private var topics: [CompanionHelpTopic] {
         [
             CompanionHelpTopic(
+                id: L10n.helpSessionPlanTitle,
                 icon: "square.stack.3d.down.right",
                 title: L10n.helpSessionPlanTitle,
                 body: L10n.helpSessionPlanBody,
@@ -990,6 +991,7 @@ private struct CompanionHelpView: View {
                 tip: nil
             ),
             CompanionHelpTopic(
+                id: L10n.helpRestTitle,
                 icon: "figure.walk.motion",
                 title: L10n.helpRestTitle,
                 body: L10n.helpRestBody,
@@ -1005,6 +1007,7 @@ private struct CompanionHelpView: View {
                 tip: L10n.helpRestTip
             ),
             CompanionHelpTopic(
+                id: L10n.helpAutoRestTitle,
                 icon: "figure.run.circle",
                 title: L10n.helpAutoRestTitle,
                 body: L10n.helpAutoRestBody,
@@ -1013,6 +1016,7 @@ private struct CompanionHelpView: View {
                 tip: nil
             ),
             CompanionHelpTopic(
+                id: L10n.helpDistanceTypeTitle,
                 icon: "road.lanes",
                 title: L10n.helpDistanceTypeTitle,
                 body: nil,
@@ -1035,6 +1039,7 @@ private struct CompanionHelpView: View {
             ),
             .trackingMode,
             CompanionHelpTopic(
+                id: L10n.helpAppleHealthTitle,
                 icon: "heart.text.square",
                 title: L10n.helpAppleHealthTitle,
                 body: L10n.helpAppleHealthBody,
@@ -1043,6 +1048,7 @@ private struct CompanionHelpView: View {
                 tip: nil
             ),
             CompanionHelpTopic(
+                id: L10n.helpAppleActivityTitle,
                 icon: "chart.line.uptrend.xyaxis",
                 title: L10n.helpAppleActivityTitle,
                 body: L10n.helpAppleActivityBody,
@@ -1051,6 +1057,7 @@ private struct CompanionHelpView: View {
                 tip: L10n.helpAppleActivityTip
             ),
             CompanionHelpTopic(
+                id: L10n.helpSharingTitle,
                 icon: "square.and.arrow.up.on.square",
                 title: L10n.helpSharingTitle,
                 body: L10n.helpSharingBody,
@@ -1075,14 +1082,23 @@ private struct CompanionHelpView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Tokens.Spacing.xxxl) {
-                ForEach(topics) { topic in
-                    CompanionHelpCard(topic: topic)
+        ScrollViewReader { proxy in
+            ScrollView {
+                VStack(alignment: .leading, spacing: Tokens.Spacing.xxxl) {
+                    CompanionHelpOverviewCard(topics: topics) { topicID in
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            proxy.scrollTo(topicID, anchor: .top)
+                        }
+                    }
+
+                    ForEach(topics) { topic in
+                        CompanionHelpCard(topic: topic)
+                            .id(topic.id)
+                    }
                 }
+                .padding(.horizontal, Tokens.Spacing.xxxl)
+                .padding(.vertical, Tokens.Spacing.xxxl)
             }
-            .padding(.horizontal, Tokens.Spacing.xxxl)
-            .padding(.vertical, Tokens.Spacing.xxxl)
         }
         .background {
             CompanionListBackgroundView()
@@ -1092,6 +1108,73 @@ private struct CompanionHelpView: View {
         .navigationBarTitleDisplayMode(.inline)
         .tint(settings.primaryAccentColor)
         .foregroundStyle(theme.text.neutral)
+    }
+}
+
+private struct CompanionHelpOverviewCard: View {
+    let topics: [CompanionHelpTopic]
+    let onSelectTopic: (String) -> Void
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
+            HStack(alignment: .center, spacing: Tokens.Spacing.lg) {
+                Image(systemName: "list.bullet.rectangle")
+                    .font(.system(size: Tokens.FontSize.xxl, weight: .semibold))
+                    .foregroundStyle(settings.primaryAccentColor)
+
+                Text(L10n.helpOverviewTitle)
+                    .font(.system(size: Tokens.FontSize.xl, weight: .semibold, design: .rounded))
+                    .foregroundStyle(theme.text.neutral)
+            }
+
+            VStack(alignment: .leading, spacing: Tokens.Spacing.sm) {
+                ForEach(topics) { topic in
+                    Button {
+                        onSelectTopic(topic.id)
+                    } label: {
+                        HStack(alignment: .center, spacing: Tokens.Spacing.md) {
+                            Image(systemName: topic.icon)
+                                .font(.system(size: Tokens.FontSize.md, weight: .semibold))
+                                .foregroundStyle(settings.primaryAccentColor)
+                                .frame(width: Tokens.FontSize.xl, alignment: .center)
+
+                            Text(topic.title)
+                                .font(.system(size: Tokens.FontSize.lg, weight: .medium, design: .rounded))
+                                .foregroundStyle(theme.text.neutral)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                            Image(systemName: "arrow.down.right")
+                                .font(.system(size: Tokens.FontSize.sm, weight: .semibold))
+                                .foregroundStyle(theme.text.subtle)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, Tokens.Spacing.lg)
+                        .padding(.vertical, Tokens.Spacing.md)
+                        .background(
+                            RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
+                                .fill(theme.background.neutralAction)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
+                                .stroke(theme.stroke.callout, lineWidth: Tokens.LineWidth.thin)
+                        )
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(Tokens.Spacing.xxxl)
+        .background(
+            RoundedRectangle(cornerRadius: Tokens.Radius.companionListCell, style: .continuous)
+                .fill(theme.background.history)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Tokens.Radius.companionListCell, style: .continuous)
+                .stroke(theme.stroke.neutral, lineWidth: Tokens.LineWidth.thin)
+        )
     }
 }
 
@@ -1353,7 +1436,7 @@ private struct CompanionIntroPage {
 }
 
 private struct CompanionHelpTopic: Identifiable {
-    let id = UUID()
+    let id: String
     let icon: String
     let title: String
     let body: String?
@@ -1415,6 +1498,7 @@ private struct CompanionLegalSectionCard: View {
 private extension CompanionHelpTopic {
     static var distanceType: CompanionHelpTopic {
         CompanionHelpTopic(
+            id: L10n.helpDistanceTypeTitle,
             icon: "road.lanes",
             title: L10n.helpDistanceTypeTitle,
             body: nil,
@@ -1439,6 +1523,7 @@ private extension CompanionHelpTopic {
 
     static var restMode: CompanionHelpTopic {
         CompanionHelpTopic(
+            id: L10n.helpRestTitle,
             icon: "figure.walk.motion",
             title: L10n.helpRestTitle,
             body: L10n.helpRestBody,
@@ -1457,6 +1542,7 @@ private extension CompanionHelpTopic {
 
     static var trackingMode: CompanionHelpTopic {
         CompanionHelpTopic(
+            id: L10n.helpTrackingModeTitle,
             icon: "location.circle",
             title: L10n.helpTrackingModeTitle,
             body: nil,
@@ -1721,6 +1807,8 @@ private struct CompanionSettingsNavigationRow: View {
                     .foregroundStyle(theme.text.subtle)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 
     @ViewBuilder

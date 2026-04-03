@@ -52,6 +52,7 @@ final class L10nTests: XCTestCase {
 
     func testCompanionHelpLabelsExist() {
         XCTAssertEqual(L10n.help, "Help")
+        XCTAssertEqual(L10n.helpOverviewTitle, "Overview")
         XCTAssertEqual(L10n.helpSessionPlanTitle, "Session Plan")
         XCTAssertEqual(L10n.helpSharingTitle, "Sharing")
         XCTAssertEqual(L10n.helpSharingSendHeading, "Send")

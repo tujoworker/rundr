@@ -496,6 +496,7 @@ private struct CompanionPresetLibraryView: View {
 
             Section {
                 CompanionHomeSectionHeader(title: L10n.predefined)
+                    .padding(.top, Tokens.Spacing.xxxl)
                     .padding(.leading, browseSectionHeaderLeadingInset)
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
@@ -2228,6 +2229,7 @@ private struct CompanionSegmentEditorView: View {
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appTheme) private var theme
+    @EnvironmentObject private var settings: SettingsStore
 
     @State private var segment: DistanceSegment
     @State private var distanceText: String
@@ -2298,8 +2300,8 @@ private struct CompanionSegmentEditorView: View {
                             isDistanceTypeHelpPresented = true
                         } label: {
                             Image(systemName: "questionmark.circle")
-                                .font(.system(size: Tokens.FontSize.lg, weight: .semibold))
-                                .foregroundStyle(theme.text.subtle)
+                                .font(.system(size: Tokens.FontSize.xl, weight: .semibold))
+                                .foregroundStyle(theme.isDark ? theme.text.subtle : settings.primaryAccentColor)
                         }
                         .buttonStyle(.plain)
                         .accessibilityLabel(L10n.helpDistanceTypeTitle)

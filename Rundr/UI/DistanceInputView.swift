@@ -169,7 +169,7 @@ struct NumericKeypadEditorScreen: View {
 
                         Text(text.isEmpty ? " " : text)
                             .font(.system(size: 32, weight: .bold, design: .rounded))
-                            .foregroundStyle(theme.text.neutral)
+                            .foregroundStyle(theme.text.emphasis)
                             .monospacedDigit()
                             .minimumScaleFactor(0.7)
                             .lineLimit(1)
@@ -210,7 +210,16 @@ struct NumericKeypadEditorScreen: View {
                             Button(L10n.done) {
                                 onDone()
                             }
+                            .font(.system(size: Tokens.FontSize.lg, weight: .bold, design: .rounded))
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, Tokens.Spacing.xl)
                             .padding(.top, Tokens.Spacing.xs)
+                            .accentRoundedButtonChrome(
+                                accentColor: accentColor,
+                                cornerRadius: Tokens.Radius.pill,
+                                lineWidth: Tokens.LineWidth.thick
+                            )
+                            .buttonStyle(.plain)
                         }
                         .padding(.horizontal, Tokens.Spacing.xl)
                         .padding(.vertical, Tokens.Spacing.xl)

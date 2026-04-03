@@ -1032,6 +1032,81 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(matches.map(\.id), [matchingSession.id])
     }
 
+    @MainActor
+    func testPersistenceManagerFetchMatchingSessionsExcludesSourceAndKeepsNewestFirst() {
+        let persistence = PersistenceManager(inMemory: true)
+        let workoutPlan = WorkoutPlanSnapshot(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+            restMode: .manual,
+            originPlanID: UUID()
+        )
+        let sourceSession = Session(
+            id: UUID(),
+            startedAt: Date().addingTimeInterval(-1800),
+            endedAt: Date().addingTimeInterval(-1200),
+            durationSeconds: 600,
+            mode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            totalDistanceMeters: 2400,
+            averageSpeedMetersPerSecond: 4,
+            totalLaps: 6,
+            snapshotTrackingMode: .distanceDistance,
+            snapshotDistanceDistanceMeters: 400,
+            snapshotWorkoutPlan: workoutPlan
+        )
+        let olderMatch = Session(
+            id: UUID(),
+            startedAt: Date().addingTimeInterval(-3600),
+            endedAt: Date().addingTimeInterval(-3000),
+            durationSeconds: 600,
+            mode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            totalDistanceMeters: 2400,
+            averageSpeedMetersPerSecond: 4,
+            totalLaps: 6,
+            snapshotTrackingMode: .distanceDistance,
+            snapshotDistanceDistanceMeters: 400,
+            snapshotWorkoutPlan: WorkoutPlanSnapshot(
+                trackingMode: .distanceDistance,
+                distanceLapDistanceMeters: 400,
+                distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+                restMode: .manual,
+                originPlanID: UUID()
+            )
+        )
+        let newerMatch = Session(
+            id: UUID(),
+            startedAt: Date().addingTimeInterval(-900),
+            endedAt: Date().addingTimeInterval(-300),
+            durationSeconds: 600,
+            mode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            totalDistanceMeters: 2400,
+            averageSpeedMetersPerSecond: 4,
+            totalLaps: 6,
+            snapshotTrackingMode: .distanceDistance,
+            snapshotDistanceDistanceMeters: 400,
+            snapshotWorkoutPlan: WorkoutPlanSnapshot(
+                trackingMode: .distanceDistance,
+                distanceLapDistanceMeters: 400,
+                distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+                restMode: .manual,
+                originPlanID: UUID()
+            )
+        )
+
+        persistence.saveSession(sourceSession)
+        persistence.saveSession(olderMatch)
+        persistence.saveSession(newerMatch)
+
+        let matches = persistence.fetchMatchingSessions(for: sourceSession)
+
+        XCTAssertEqual(matches.map(\.id), [newerMatch.id, olderMatch.id])
+        XCTAssertFalse(matches.contains(where: { $0.id == sourceSession.id }))
+    }
+
     func testCompletedSessionTransferStoreTracksPendingSessionIDs() {
         let suiteName = "CompletedSessionTransferStoreTests-\(UUID().uuidString)"
         guard let userDefaults = UserDefaults(suiteName: suiteName) else {

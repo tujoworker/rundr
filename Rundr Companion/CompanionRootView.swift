@@ -756,7 +756,9 @@ private struct CompanionSettingsView: View {
                     }
                     .buttonStyle(.plain)
                     .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
+                }
 
+                Section {
                     NavigationLink {
                         CompanionIntroView()
                     } label: {
@@ -988,27 +990,6 @@ private struct CompanionHelpView: View {
                 tip: nil
             ),
             CompanionHelpTopic(
-                icon: "square.and.arrow.up.on.square",
-                title: L10n.helpSharingTitle,
-                body: L10n.helpSharingBody,
-                sections: [
-                    CompanionHelpSection(
-                        title: L10n.helpSharingSendHeading,
-                        body: L10n.helpSharingSendBody,
-                        example: nil,
-                        tip: nil
-                    ),
-                    CompanionHelpSection(
-                        title: L10n.helpSharingReceiveHeading,
-                        body: L10n.helpSharingReceiveBody,
-                        example: L10n.helpSharingReceiveExample,
-                        tip: nil
-                    )
-                ],
-                example: nil,
-                tip: L10n.helpSharingTip
-            ),
-            CompanionHelpTopic(
                 icon: "figure.walk.motion",
                 title: L10n.helpRestTitle,
                 body: L10n.helpRestBody,
@@ -1068,6 +1049,27 @@ private struct CompanionHelpView: View {
                 sections: [],
                 example: nil,
                 tip: L10n.helpAppleActivityTip
+            ),
+            CompanionHelpTopic(
+                icon: "square.and.arrow.up.on.square",
+                title: L10n.helpSharingTitle,
+                body: L10n.helpSharingBody,
+                sections: [
+                    CompanionHelpSection(
+                        title: L10n.helpSharingSendHeading,
+                        body: L10n.helpSharingSendBody,
+                        example: nil,
+                        tip: nil
+                    ),
+                    CompanionHelpSection(
+                        title: L10n.helpSharingReceiveHeading,
+                        body: L10n.helpSharingReceiveBody,
+                        example: L10n.helpSharingReceiveExample,
+                        tip: nil
+                    )
+                ],
+                example: nil,
+                tip: L10n.helpSharingTip
             )
         ]
     }
@@ -1945,35 +1947,30 @@ private struct CompanionWorkoutEditorView: View {
         List {
             if showsCustomTitle {
                 Section {
-                    HStack(spacing: Tokens.Spacing.md) {
-                        Text(L10n.title)
-                            .font(.body)
-                            .foregroundStyle(theme.text.subtle)
+                    HStack(spacing: Tokens.Spacing.xs) {
+                        TextField(
+                            "",
+                            text: $customTitle,
+                            prompt: Text(L10n.optionalTitlePlaceholder)
+                                .foregroundStyle(theme.text.subtle)
+                        )
+                        .textInputAutocapitalization(.words)
+                        .multilineTextAlignment(.leading)
+                        .font(.body.weight(.medium))
+                        .foregroundStyle(theme.text.neutral)
+                        .frame(maxWidth: .infinity, alignment: .leading)
 
-                        HStack(spacing: Tokens.Spacing.xs) {
-                            TextField(
-                                "",
-                                text: $customTitle,
-                                prompt: Text(L10n.optionalTitlePlaceholder)
+                        if !customTitle.isEmpty {
+                            Button {
+                                customTitle = ""
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
                                     .foregroundStyle(theme.text.subtle)
-                            )
-                            .textInputAutocapitalization(.words)
-                            .multilineTextAlignment(.trailing)
-                            .font(.body.weight(.medium))
-                            .foregroundStyle(theme.text.neutral)
-
-                            if !customTitle.isEmpty {
-                                Button {
-                                    customTitle = ""
-                                } label: {
-                                    Image(systemName: "xmark.circle.fill")
-                                        .foregroundStyle(theme.text.subtle)
-                                }
-                                .buttonStyle(.plain)
-                                .padding(.leading, Tokens.Spacing.sm)
-                                .padding(.trailing, Tokens.Spacing.xxs)
-                                .padding(.vertical, Tokens.Spacing.xxs)
                             }
+                            .buttonStyle(.plain)
+                            .padding(.leading, Tokens.Spacing.sm)
+                            .padding(.trailing, Tokens.Spacing.xxs)
+                            .padding(.vertical, Tokens.Spacing.xxs)
                         }
                     }
                     .listRowCardChrome(

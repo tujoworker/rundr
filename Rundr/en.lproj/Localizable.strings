@@ -1,0 +1,314 @@
+/* English translations for Rundr */
+
+/* PreStart */
+"Press the Action Button" = "Press the Action Button";
+"Settings" = "Settings";
+"Preferences" = "Preferences";
+"Adjust Interval" = "Adjust Interval";
+"Browse" = "Browse";
+"Session Plan" = "Session Plan";
+"Intervals" = "Intervals";
+"My intervals" = "My intervals";
+"New Interval" = "New Interval";
+"Add Interval" = "Add Interval";
+"Predefined" = "Predefined";
+"Title" = "Title";
+"Title (optional)" = "Title (optional)";
+"No saved intervals yet" = "No saved intervals yet";
+"Open a predefined interval to save your own version." = "Open a predefined interval to save your own version.";
+"Tracking Mode" = "Tracking Mode";
+"Distance" = "Distance";
+"Distance (meters)" = "Distance (meters)";
+"Distance (feet)" = "Distance (feet)";
+"Distance (m)" = "Distance (m)";
+"Distance (ft)" = "Distance (ft)";
+"Distance Type" = "Distance Type";
+"Fixed" = "Fixed";
+"Open" = "Open";
+"Repeats" = "Repeats";
+"Rest" = "Rest";
+"Last Rest" = "Last Rest";
+"Add Last Rest" = "Add Last Rest";
+"Repeats Required" = "Repeats Required";
+"Add repeats to this interval before adding a last rest." = "Add repeats to this interval before adding a last rest.";
+"GPS Required" = "GPS Required";
+"Open intervals uses GPS to meassure distance. This activity has switched to Dual Mode." = "Open intervals uses GPS to meassure distance. This activity has switched to Dual Mode.";
+"Enable GPS Access" = "Enable GPS Access";
+"Unit" = "Unit";
+"Color" = "Color";
+"Mark as Rest" = "Mark as Rest";
+"Mark as Rest (Auto)" = "Mark as Rest (Auto)";
+"Resting" = "Resting";
+"Resting for %@" = "Resting for %@";
+"%@ (%@)" = "%@ (%@)";
+"Manual" = "Manual";
+"Auto-detect" = "Auto-detect";
+"e.g. 400" = "e.g. 400";
+"e.g. 1320" = "e.g. 1320";
+"Location Required" = "Location Required";
+"OK" = "OK";
+"GPS-based modes need location access. The mode was switched back to Distance." = "GPS-based modes need location access. The mode was switched back to Distance.";
+"Cancel" = "Cancel";
+"Distance Unit" = "Distance Unit";
+"Primary Color" = "Primary Color";
+"Done" = "Done";
+"Delete Interval" = "Delete Interval";
+"s" = "s";
+"m" = "m";
+
+/* Active Session */
+"Edit Lap" = "Edit Lap";
+"This lap will be treated as rest." = "This lap will be treated as rest.";
+"Delete Lap" = "Delete Lap";
+"Lap %d" = "Lap %d";
+"Rest %ds" = "Rest %ds";
+"Undo \"Mark as Rest\"" = "Undo \"Mark as Rest\"";
+"Pause" = "Pause";
+"Resume" = "Resume";
+"Paused" = "Paused";
+"End" = "End";
+"End Workout" = "End Workout";
+"Are you sure?" = "Are you sure?";
+"Delete" = "Delete";
+"Active" = "Active";
+
+/* Pace / Units */
+"/km" = "/km";
+"/mi" = "/mi";
+"—" = "—";
+"--" = "--";
+
+/* Home */
+"Get Ready" = "Get Ready";
+"No sessions yet" = "No sessions yet";
+"Load More" = "Load More";
+"Continue" = "Continue";
+"Laps: %d • %@" = "Laps: %d • %@";
+"Time: %@ • %@" = "Time: %@ • %@";
+"From Apple Watch" = "From Apple Watch";
+"Imported Session" = "Imported Session";
+"Delivered from Apple Watch and saved on iPhone." = "Delivered from Apple Watch and saved on iPhone.";
+"Source" = "Source";
+"Import Status" = "Import Status";
+"Import Complete" = "Import Complete";
+"Unknown Source" = "Unknown Source";
+"Imported from %@" = "Imported from %@";
+
+/* Root / Health */
+"Session not found" = "Session not found";
+"Rundr needs:" = "Rundr needs:";
+"Health Access" = "Health Access";
+"Not now" = "Not now";
+"Health data not available on this device." = "Health data not available on this device.";
+"Health access was not granted." = "Health access was not granted.";
+"This build is missing Apple Health permission setup." = "This build is missing Apple Health permission setup.";
+"Resume?" = "Resume?";
+"Rundr found an unfinished activity. If you continue, it opens paused so you can choose when to resume." = "Rundr found an unfinished activity. If you continue, it opens paused so you can choose when to resume.";
+"Continue Workout" = "Continue Workout";
+"Discard Workout" = "Discard Workout";
+"Status" = "Status";
+"Started" = "Started";
+
+/* Session Detail */
+"Session" = "Session";
+"Details" = "Details";
+"Stats" = "Stats";
+"Rest" = "Rest";
+"Laps" = "Laps";
+"Duration" = "Duration";
+"Ended" = "Ended";
+"Summary" = "Summary";
+"Manual Distance" = "Manual Distance";
+"GPS Distance" = "GPS Distance";
+"GPS Pace" = "GPS Pace";
+"Average Pace" = "Average Pace";
+"Heart Rate" = "Heart Rate";
+"Target Time" = "Target Time";
+"Target Pace" = "Target Pace";
+"Still sending to iPhone" = "Still sending to iPhone";
+"This workout is saved on your Watch. It will appear in Rundr on your phone when your watch and phone connect." = "This workout is saved on your Watch. It will appear in Rundr on your phone when your watch and phone connect.";
+"On your iPhone" = "On your iPhone";
+"Rundr on your iPhone already has this workout." = "Rundr on your iPhone already has this workout.";
+"Use Session Plan" = "Use Session Plan";
+"Use this plan?" = "Use this plan?";
+"This replaces your current Session Plan." = "This replaces your current Session Plan.";
+"Reuse Plan" = "Reuse Plan";
+"Use it now" = "Use it now";
+"Share Plan" = "Share Plan";
+"Share Session" = "Share Session";
+"Import File" = "Import File";
+"Plan Imported" = "Plan Imported";
+"The plan was added to My intervals." = "The plan was added to My intervals.";
+"Session Imported" = "Session Imported";
+"The session was added to your history." = "The session was added to your history.";
+"Couldn't Open File" = "Couldn't Open File";
+"This file could not be imported." = "This file could not be imported.";
+"Couldn't Share" = "Couldn't Share";
+"This item could not be prepared for sharing." = "This item could not be prepared for sharing.";
+"Reuse Session Plan" = "Reuse Session Plan";
+"This Session" = "This Session";
+"More" = "More";
+"Yes" = "Yes";
+"Delete Plan" = "Delete Plan";
+"This plan will be permanently deleted." = "This plan will be permanently deleted.";
+"Delete Session" = "Delete Session";
+"This session will be permanently deleted." = "This session will be permanently deleted.";
+"Loaded from %@" = "Loaded from %@";
+"%d saved" = "%d saved";
+
+/* Tracking Mode */
+"GPS" = "GPS";
+"Dual" = "Dual";
+"Distance" = "Distance";
+"GPS: %@" = "GPS: %@";
+
+/* Distance Unit */
+"Kilometers" = "Kilometers";
+"Miles" = "Miles";
+
+/* Primary Color */
+"Gold" = "Gold";
+"Blue" = "Blue";
+"Green" = "Green";
+"Yellow" = "Yellow";
+"Red" = "Red";
+"Pink" = "Pink";
+"Violet" = "Violet";
+"White" = "White";
+"Dark" = "Dark";
+
+/* Lap Type */
+"Activity" = "Activity";
+
+/* Intents */
+"Start Intervals" = "Start Intervals";
+"Start a intervals workout." = "Start a intervals workout.";
+"Workout" = "Workout";
+"Intervals" = "Intervals";
+"Lap" = "Lap";
+
+/* Target */
+"Target" = "Target";
+"Pace" = "Pace";
+"Time" = "Time";
+"Off" = "Off";
+"On" = "On";
+"Alerts" = "Alerts";
+"%@ in %@" = "%@ in %@";
+
+/* Preset usage */
+"%dx" = "%dx";
+"%@ \U2022 %@" = "%@ \U2022 %@";
+
+/* Distance/Unit suffixes - "m" is used for both minutes and meters */
+"km" = "km";
+"m" = "m";
+"mi" = "mi";
+"ft" = "ft";
+
+/* Companion */
+"Waiting for Watch\U2026" = "Waiting for Watch\U2026";
+"Live on Apple Watch" = "Live on Apple Watch";
+"Sessions" = "Sessions";
+"Start an intervals session on Apple Watch." = "Start an intervals session on Apple Watch.";
+"Other" = "Other";
+"Help" = "Help";
+"About Rundr" = "About Rundr";
+"Intro" = "Intro";
+"About" = "About";
+"A quick intro to how Rundr fits around your Apple Watch runs." = "A quick intro to how Rundr fits around your Apple Watch runs.";
+"Start where it matters" = "Start where it matters";
+"Build your Session Plan on iPhone, or load one from a predefined list, then head to Apple Watch when you are ready to run." = "Build your Session Plan on iPhone, or load one from a predefined list, then head to Apple Watch when you are ready to run.";
+"Plan with precision" = "Plan with precision";
+"Use your Session Plan for precise manual distance, or keep it together with GPS in Dual." = "Use your Session Plan for precise manual distance, or keep it together with GPS in Dual.";
+"Mark every lap" = "Mark every lap";
+"Each lap should be marked with a button press on Apple Watch, or with the Action Button when your watch supports it. That keeps your workout structure clean and stores the laps in Apple Health." = "Each lap should be marked with a button press on Apple Watch, or with the Action Button when your watch supports it. That keeps your workout structure clean and stores the laps in Apple Health.";
+"Rest belongs to the lap flow" = "Rest belongs to the lap flow";
+"Rest is tied to a lap, so your workout history stays readable. Rundr can also detect rest automatically, which helps when you want the watch to follow the rhythm of the session with less manual work." = "Rest is tied to a lap, so your workout history stays readable. Rundr can also detect rest automatically, which helps when you want the watch to follow the rhythm of the session with less manual work.";
+"Bring good sessions back" = "Bring good sessions back";
+"When the run is done, your session is waiting on iPhone for review. Reuse the ones that worked, adjust the ones that did not, and keep moving without rebuilding everything from scratch." = "When the run is done, your session is waiting on iPhone for review. Reuse the ones that worked, adjust the ones that did not, and keep moving without rebuilding everything from scratch.";
+"Rundr is built for interval days." = "Rundr is built for interval days.";
+"It is a running app designed around Apple Watch first, with iPhone handling the setup and the follow-up. The goal is simple: make structured runs feel easier to start, easier to follow, and easier to return to." = "It is a running app designed around Apple Watch first, with iPhone handling the setup and the follow-up. The goal is simple: make structured runs feel easier to start, easier to follow, and easier to return to.";
+"Flexible when your workout is not one-size-fits-all" = "Flexible when your workout is not one-size-fits-all";
+"You can build fixed intervals, open intervals, pacing goals, rest blocks, and repeat structures that match the way you actually train. If a session works well, save it and bring it back later." = "You can build fixed intervals, open intervals, pacing goals, rest blocks, and repeat structures that match the way you actually train. If a session works well, save it and bring it back later.";
+"Made to keep momentum" = "Made to keep momentum";
+"Rundr keeps planning, running, and reviewing connected. Set things up on iPhone, run from Apple Watch, then come back to your synced history when you want to repeat a favorite session or tune the next one." = "Rundr keeps planning, running, and reviewing connected. Set things up on iPhone, run from Apple Watch, then come back to your synced history when you want to repeat a favorite session or tune the next one.";
+"Example" = "Example";
+"Tip" = "Tip";
+"Session Plan" = "Session Plan";
+"Rundr keeps one current Session Plan. Loading a plan from predefined session plans or from a past session in History replaces the one you have now." = "Rundr keeps one current Session Plan. Loading a plan from predefined session plans or from a past session in History replaces the one you have now.";
+"Load last week's 6 × 400 m from History, then adjust one rest before your next run." = "Load last week's 6 × 400 m from History, then adjust one rest before your next run.";
+"Sharing" = "Sharing";
+"Rundr exports plans and past sessions as files from the iPhone share sheet. Use Share Plan in Adjust Interval to send a plan, or Share Session in a past session detail view to send a session." = "Rundr exports plans and past sessions as files from the iPhone share sheet. Use Share Plan in Adjust Interval to send a plan, or Share Session in a past session detail view to send a session.";
+"Send" = "Send";
+"On iPhone, Apple's share sheet shows the available ways to send the file. Apple documents that AirDrop can send documents to nearby Apple devices, and that AirDrop requires Wi-Fi and Bluetooth to be turned on." = "On iPhone, Apple's share sheet shows the available ways to send the file. Apple documents that AirDrop can send documents to nearby Apple devices, and that AirDrop requires Wi-Fi and Bluetooth to be turned on.";
+"Receive" = "Receive";
+"Apple documents that you accept AirDrop transfers from the AirDrop notification, and that some received files may be saved in the Files app. In Rundr, you can import a received Rundr file from More > Import File." = "Apple documents that you accept AirDrop transfers from the AirDrop notification, and that some received files may be saved in the Files app. In Rundr, you can import a received Rundr file from More > Import File.";
+"If the file is saved in Files instead of opening in Rundr, open Rundr and use More > Import File." = "If the file is saved in Files instead of opening in Rundr, open Rundr and use More > Import File.";
+"For AirDrop, Apple says the devices must be within 30 feet (10 meters), both devices need Wi-Fi and Bluetooth turned on, and the receiver must allow Contacts Only or Everyone for 10 Minutes." = "For AirDrop, Apple says the devices must be within 30 feet (10 meters), both devices need Wi-Fi and Bluetooth turned on, and the receiver must allow Contacts Only or Everyone for 10 Minutes.";
+"Mark as Rest" = "Mark as Rest";
+"Mark as Rest turns the current lap into rest. That rest stays attached to the lap you just finished, so it remains part of the workout." = "Mark as Rest turns the current lap into rest. That rest stays attached to the lap you just finished, so it remains part of the workout.";
+"With Timed Rest" = "With Timed Rest";
+"Rundr starts rest after the lap and warns in the last 5 seconds if Rest Alerts is enabled in Settings. When passed, the next lap does not start by itself. The target rest is a guide, and you still decide when the next lap begins." = "Rundr starts rest after the lap and warns in the last 5 seconds if Rest Alerts is enabled in Settings. When passed, the next lap does not start by itself. The target rest is a guide, and you still decide when the next lap begins.";
+"Use Manual when you want to choose exactly when Mark as Rest starts and ends. Use Auto-detect when you want Rundr to enter rest after you stop and end it again when you move." = "Use Manual when you want to choose exactly when Mark as Rest starts and ends. Use Auto-detect when you want Rundr to enter rest after you stop and end it again when you move.";
+"How Auto-detect Works" = "How Auto-detect Works";
+"Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap." = "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap.";
+"Finish a 400 m rep, stop at the rail, and the current lap becomes rest. When you are ready for the next rep, press lap to start the next lap." = "Finish a 400 m rep, stop at the rail, and the current lap becomes rest. When you are ready for the next rep, press lap to start the next lap.";
+"Distance Type" = "Distance Type";
+"Fixed" = "Fixed";
+"Use Fixed when the lap has a known distance, like 400 m or 1 km." = "Use Fixed when the lap has a known distance, like 400 m or 1 km.";
+"Open" = "Open";
+"Use Open when you want to use target time instead and define how long the lap should last, rather than how far it should be." = "Use Open when you want to use target time instead and define how long the lap should last, rather than how far it should be.";
+"Choose Open for 45 s with 15 s rest." = "Choose Open for 45 s with 15 s rest.";
+"Tracking Mode" = "Tracking Mode";
+"Manual" = "Manual";
+"Manual uses your Session Plan and manual lap presses without GPS distance. Use it for fixed-distance intervals when you want full control and precise measurement and statistics." = "Manual uses your Session Plan and manual lap presses without GPS distance. Use it for fixed-distance intervals when you want full control and precise measurement and statistics.";
+"Dual" = "Dual";
+"Dual keeps the Session Plan and also records GPS distance. Use it when you want time-based laps. Open distance needs GPS, so Rundr uses Dual there." = "Dual keeps the Session Plan and also records GPS distance. Use it when you want time-based laps. Open distance needs GPS, so Rundr uses Dual there.";
+"Apple Health" = "Apple Health";
+"Apple Health lets Rundr save workouts, laps, heart rate, energy, and GPS routes when available, and read the workout data it needs back. Turn it on when you want your runs to stay in Apple's fitness history." = "Apple Health lets Rundr save workouts, laps, heart rate, energy, and GPS routes when available, and read the workout data it needs back. Turn it on when you want your runs to stay in Apple's fitness history.";
+"Enable Health access if you want one session to appear in Rundr, Health, and Fitness instead of living only inside the app." = "Enable Health access if you want one session to appear in Rundr, Health, and Fitness instead of living only inside the app.";
+"Apple Activity" = "Apple Activity";
+"Your laps and workout details can also appear in Apple's Activity and Fitness views because Rundr saves the session as a workout with interval activities. That is useful for sharing, checking the route, or reviewing the workout outside Rundr." = "Your laps and workout details can also appear in Apple's Activity and Fitness views because Rundr saves the session as a workout with interval activities. That is useful for sharing, checking the route, or reviewing the workout outside Rundr.";
+"After syncing, you can open the workout in Apple's Activity or Fitness view, share it from there, or import it into other fitness apps that support it." = "After syncing, you can open the workout in Apple's Activity or Fitness view, share it from there, or import it into other fitness apps that support it.";
+"Page %d of %d" = "Page %d of %d";
+"Heart Rate %d bpm" = "Heart Rate %d bpm";
+"Idle" = "Idle";
+"Ready" = "Ready";
+"Ending" = "Ending";
+
+/* Appearance */
+"Appearance" = "Appearance";
+"System" = "System";
+"Light" = "Light";
+"Dark Mode" = "Dark Mode";
+"Workouts" = "Workouts";
+"Browse" = "Browse";
+"Workout Plan" = "Workout Plan";
+"Used when you start on Apple Watch." = "Used when you start on Apple Watch.";
+"Edit Interval" = "Edit Interval";
+"Manual" = "Manual";
+"%d segments" = "%d segments";
+"Unlimited" = "Unlimited";
+
+/* Legal */
+"Privacy Policy" = "Privacy Policy";
+"Terms of Use" = "Terms of Use";
+"What Rundr Stores" = "What Rundr Stores";
+"Rundr can store your session plans, workout history, app settings, and ongoing workout state on your devices. If you allow Apple Health access, Rundr can read and write workout data such as workouts, laps, heart rate, active energy, running distance, body mass used for calorie estimates, and GPS route data when available." = "Rundr can store your session plans, workout history, app settings, and ongoing workout state on your devices. If you allow Apple Health access, Rundr can read and write workout data such as workouts, laps, heart rate, active energy, running distance, body mass used for calorie estimates, and GPS route data when available.";
+"How Rundr Uses Data" = "How Rundr Uses Data";
+"Rundr uses this data to run structured workouts, show your history, restore unfinished sessions, calculate workout metrics, sync between Apple Watch and iPhone, and save workouts back to Apple Health when you choose to enable that integration." = "Rundr uses this data to run structured workouts, show your history, restore unfinished sessions, calculate workout metrics, sync between Apple Watch and iPhone, and save workouts back to Apple Health when you choose to enable that integration.";
+"Storage and Sync" = "Storage and Sync";
+"Rundr does not require an account. Based on the current app design, your workout data is stored locally on your devices and transferred between Apple Watch and iPhone using Apple's system frameworks. Rundr does not use third-party advertising or analytics SDKs." = "Rundr does not require an account. Based on the current app design, your workout data is stored locally on your devices and transferred between Apple Watch and iPhone using Apple's system frameworks. Rundr does not use third-party advertising or analytics SDKs.";
+"Permissions and Choices" = "Permissions and Choices";
+"You can decide whether to grant Health and location access. If you deny permissions, features such as GPS distance, route recording, heart-rate display, calorie estimates, and Apple Health saving may be limited or unavailable. You can change permissions later in Apple's Settings app." = "You can decide whether to grant Health and location access. If you deny permissions, features such as GPS distance, route recording, heart-rate display, calorie estimates, and Apple Health saving may be limited or unavailable. You can change permissions later in Apple's Settings app.";
+"Using Rundr" = "Using Rundr";
+"Rundr is a fitness and workout planning app for structured running sessions on Apple Watch and iPhone. It is provided for personal use and does not promise specific training results, uninterrupted availability, or error-free data." = "Rundr is a fitness and workout planning app for structured running sessions on Apple Watch and iPhone. It is provided for personal use and does not promise specific training results, uninterrupted availability, or error-free data.";
+"Not Medical Advice" = "Not Medical Advice";
+"Rundr is not medical advice and is not intended to diagnose, treat, monitor, or prevent illness or injury. Health and workout data can be incomplete, delayed, or inaccurate. Speak with a qualified medical professional before relying on the app for health or training decisions." = "Rundr is not medical advice and is not intended to diagnose, treat, monitor, or prevent illness or injury. Health and workout data can be incomplete, delayed, or inaccurate. Speak with a qualified medical professional before relying on the app for health or training decisions.";
+"Train Safely" = "Train Safely";
+"You are responsible for using Rundr safely, staying aware of traffic, surfaces, weather, surroundings, and your own condition, and following local laws and rules wherever you train. Stop using the app immediately if you feel pain, dizziness, distress, or that continued exercise may be unsafe." = "You are responsible for using Rundr safely, staying aware of traffic, surfaces, weather, surroundings, and your own condition, and following local laws and rules wherever you train. Stop using the app immediately if you feel pain, dizziness, distress, or that continued exercise may be unsafe.";
+"Your Responsibility" = "Your Responsibility";
+"You use Rundr at your own risk. To the fullest extent permitted by law, you are responsible for your training choices and for any accident, injury, damage, loss, or other harmful event that happens while using the app." = "You use Rundr at your own risk. To the fullest extent permitted by law, you are responsible for your training choices and for any accident, injury, damage, loss, or other harmful event that happens while using the app.";
+"Availability and Updates" = "Availability and Updates";
+"Some features depend on Apple Watch, Apple Health, location services, and other Apple systems being available. Features may change over time. If these terms are updated in a future release, continued use of Rundr means you accept the updated terms." = "Some features depend on Apple Watch, Apple Health, location services, and other Apple systems being available. Features may change over time. If these terms are updated in a future release, continued use of Rundr means you accept the updated terms.";

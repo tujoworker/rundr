@@ -164,6 +164,7 @@
 		F80845E9FC8FEA57AA0E6D7F /* PreStartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreStartView.swift; sourceTree = "<group>"; };
 		FC5AEA32CF41F4A95EA655A2 /* SessionDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionDetailView.swift; sourceTree = "<group>"; };
 		L10nFileRef /* L10n.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = L10n.swift; sourceTree = "<group>"; };
+		LocalizableStringsEnRef /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		LocalizableStringsDeRef /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		LocalizableStringsJaRef /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		LocalizableStringsNbRef /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -580,6 +581,7 @@
 		LocalizableStringsGroupRef /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
+				LocalizableStringsEnRef /* en */,
 				LocalizableStringsDeRef /* de */,
 				LocalizableStringsJaRef /* ja */,
 				LocalizableStringsNbRef /* nb */,

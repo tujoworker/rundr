@@ -252,23 +252,10 @@ struct RootView: View {
                                 SessionDetailView(
                                     session: session,
                                     onUseSessionSettings: {
-                                        coordinator.goToHistorySetup(id: session.id)
+                                        applyHistorySessionPlan(session)
                                     },
                                     onShowMatchingSessions: {
                                         coordinator.goToMatchingSessions(id: session.id)
-                                    }
-                                )
-                            } else {
-                                Text(L10n.sessionNotFound)
-                            }
-                        case .historySetup(let sessionID):
-                            if let session = persistence.fetchSession(id: sessionID) {
-                                HistorySessionSetupView(
-                                    session: session,
-                                    onContinue: { workoutPlan in
-                                        settings.apply(workoutPlan: workoutPlan)
-                                        workoutController.getReady()
-                                        coordinator.goToPreStart(replacingPath: true)
                                     }
                                 )
                             } else {
@@ -348,6 +335,12 @@ struct RootView: View {
         workoutController.lapAlertsEnabled = settings.lapAlerts
         workoutController.restAlertsEnabled = settings.restAlerts
         coordinator.goToActiveSession()
+    }
+
+    private func applyHistorySessionPlan(_ session: Session) {
+        settings.apply(workoutPlan: session.snapshotWorkoutPlan)
+        workoutController.getReady()
+        coordinator.goToPreStart(replacingPath: true)
     }
 
     private func discardRecoveredWorkout() {

@@ -1739,4 +1739,15 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(store.presetUsageCount(for: planA), 2)
         XCTAssertEqual(store.presetUsageCount(for: planB), 1)
     }
+
+    @MainActor
+    func testNavigationCoordinatorReplacingPreStartClearsSessionDetailPath() {
+        let coordinator = NavigationCoordinator()
+        let sessionID = UUID()
+
+        coordinator.goToSessionDetail(id: sessionID)
+        coordinator.goToPreStart(replacingPath: true)
+
+        XCTAssertEqual(coordinator.path, [.preStart])
+    }
 }

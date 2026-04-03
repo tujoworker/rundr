@@ -682,30 +682,6 @@ private struct SegmentRow: View {
     }
 }
 
-struct HistorySessionSetupView: View {
-    let session: Session
-    let onContinue: (WorkoutPlanSnapshot) -> Void
-
-    private var sourceTitle: String {
-        Formatters.historySessionDateTimeString(from: session.startedAt)
-    }
-
-    var body: some View {
-        IntervalSetupView(
-            headerTitle: L10n.adjustSettings,
-            subtitle: L10n.loadedFromSession(sourceTitle),
-            initialWorkoutPlan: session.snapshotWorkoutPlan,
-            initialCustomTitle: nil,
-            initialStoredPresetID: nil,
-            showsCustomTitle: false,
-            autoSaveOnSegmentDone: false,
-            onContinue: { workoutPlan, _, _ in
-                onContinue(workoutPlan)
-            }
-        )
-    }
-}
-
 struct IntervalLibraryView: View {
     @EnvironmentObject var settings: SettingsStore
     @EnvironmentObject var coordinator: NavigationCoordinator
@@ -1017,7 +993,7 @@ private struct IntervalSetupView: View {
             Text(L10n.deletePlanConfirmMessage)
         }
         .confirmationDialog(actionMenuTitle, isPresented: $isActionMenuPresented) {
-            Button(L10n.reusePlan) {
+            Button(L10n.useItNow) {
                 isUseActivityConfirmationPresented = true
             }
 

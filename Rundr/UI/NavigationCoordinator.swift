@@ -37,10 +37,6 @@ final class NavigationCoordinator: ObservableObject {
         path.append(.sessionDetail(id))
     }
 
-    func goToHistorySetup(id: UUID) {
-        path.append(.historySetup(id))
-    }
-
     func goToMatchingSessions(id: UUID) {
         path.append(.matchingSessions(id))
     }

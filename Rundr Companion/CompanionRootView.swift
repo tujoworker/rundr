@@ -3322,6 +3322,7 @@ private struct CompanionSessionDetailView: View {
     @Environment(\.appTheme) private var theme
     @State private var isReuseConfirmationPresented = false
     @State private var isDeleteConfirmationPresented = false
+    @State private var matchingSourceSession: Session?
 
     private var sortedLaps: [Lap] {
         session.laps.sorted { $0.startedAt < $1.startedAt }
@@ -3450,6 +3451,10 @@ private struct CompanionSessionDetailView: View {
                         isReuseConfirmationPresented = true
                     }
 
+                    Button(L10n.showMatchingSessions) {
+                        matchingSourceSession = session
+                    }
+
                     Button(L10n.shareSession) {
                         transferCoordinator.shareSession(session)
                     }
@@ -3480,6 +3485,73 @@ private struct CompanionSessionDetailView: View {
         } message: {
             Text(L10n.deleteSessionConfirmMessage)
         }
+        .navigationDestination(item: $matchingSourceSession) { sourceSession in
+            CompanionMatchingSessionsView(sourceSession: sourceSession)
+        }
+    }
+}
+
+private struct CompanionMatchingSessionsView: View {
+    let sourceSession: Session
+
+    @EnvironmentObject private var persistence: PersistenceManager
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
+
+    @State private var matchingSessions: [Session] = []
+
+    private var sectionTitle: String {
+        settings.title(for: sourceSession.snapshotWorkoutPlan)
+    }
+
+    var body: some View {
+        List {
+            Section {
+                if matchingSessions.isEmpty {
+                    Text(L10n.noOtherMatchingSessionsYet)
+                        .font(.subheadline)
+                        .foregroundStyle(theme.text.subtle)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .listRowCardChrome(
+                            rowInsets: CompanionSessionPlanStyle.rowInsets,
+                            contentInsets: CompanionSessionPlanStyle.cellContentInsets
+                        )
+                } else {
+                    ForEach(matchingSessions, id: \.id) { session in
+                        NavigationLink {
+                            CompanionSessionDetailView(session: session)
+                        } label: {
+                            HStack(spacing: 0) {
+                                CompanionSessionRow(session: session)
+                                    .padding(CompanionSessionPlanStyle.cellContentInsets)
+                                Spacer(minLength: 0)
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .contentShape(Rectangle())
+                        .listRowCardChrome(
+                            rowInsets: CompanionSessionPlanStyle.rowInsets,
+                            contentInsets: EdgeInsets()
+                        )
+                    }
+                }
+            } header: {
+                CompanionHomeSectionHeader(title: sectionTitle)
+                    .padding(.leading, CompanionSessionPlanStyle.sectionHeaderLeadingInset)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+            }
+        }
+        .navigationTitle(L10n.matchingSessions)
+        .navigationBarTitleDisplayMode(.large)
+        .toolbarBackground(.hidden, for: .navigationBar)
+        .themedCompanionList()
+        .onAppear(perform: loadMatchingSessions)
+    }
+
+    private func loadMatchingSessions() {
+        matchingSessions = persistence.fetchMatchingSessions(for: sourceSession)
     }
 }
 

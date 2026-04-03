@@ -322,6 +322,10 @@ struct PreStartView: View {
                 isGPSPermissionAlertPresented = true
             }
         }
+        .onChange(of: settings.distanceSegments) { _, _ in
+            guard editingSegmentID == nil else { return }
+            syncSegmentsFromSettings()
+        }
         .onChange(of: settings.distanceUnit) {
             // Segments are stored in meters; no conversion needed on unit change
         }
@@ -401,6 +405,18 @@ struct PreStartView: View {
     private func persistSegments() {
         segments = normalizedSegments(segments)
         settings.distanceSegments = segments
+    }
+
+    private func syncSegmentsFromSettings() {
+        segments = settings.distanceSegments
+        lastAddedDistanceMeters = settings.distanceSegments.last?.distanceMeters ?? 400
+        lastAddedUsesOpenDistance = settings.distanceSegments.last?.usesOpenDistance ?? false
+        lastAddedRepeatCount = settings.distanceSegments.last?.repeatCount ?? 0
+        lastAddedRestSeconds = settings.distanceSegments.last?.restSeconds ?? 0
+        lastAddedLastRestSeconds = settings.distanceSegments.last?.lastRestSeconds ?? 0
+        lastAddedTargetPace = Int(settings.distanceSegments.last?.targetPaceSecondsPerKm ?? 0)
+        lastAddedTargetTime = Int(settings.distanceSegments.last?.targetTimeSeconds ?? 0)
+        ensureDualModeForOpenDistanceSegments(showBanner: false)
     }
 
     private func normalizedSegments(_ input: [DistanceSegment]) -> [DistanceSegment] {

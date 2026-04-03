@@ -1412,6 +1412,36 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(next.targetTimeSeconds, DistanceSegment.default.targetTimeSeconds)
     }
 
+    func testWorkoutPlanSupportReorderedSegmentsMovesSegmentToNewPosition() {
+        let first = DistanceSegment(distanceMeters: 200, repeatCount: 4, restSeconds: 30)
+        let second = DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 45)
+        let third = DistanceSegment(distanceMeters: 800, repeatCount: nil, restSeconds: 60)
+
+        let reordered = WorkoutPlanSupport.reorderedSegments(
+            [first, second, third],
+            fromOffsets: IndexSet(integer: 0),
+            toOffset: 3
+        )
+
+        XCTAssertEqual(reordered.map(\.distanceMeters), [400, 800, 200])
+    }
+
+    func testWorkoutPlanSupportReorderedSegmentsRenormalizesIntermediateRepeatCounts() {
+        let first = DistanceSegment(distanceMeters: 200, repeatCount: nil, restSeconds: 30)
+        let second = DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 45)
+        let third = DistanceSegment(distanceMeters: 800, repeatCount: nil, restSeconds: 60)
+
+        let reordered = WorkoutPlanSupport.reorderedSegments(
+            [first, second, third],
+            fromOffsets: IndexSet(integer: 2),
+            toOffset: 0
+        )
+
+        XCTAssertEqual(reordered[0].repeatCount, 1)
+        XCTAssertEqual(reordered[1].repeatCount, 1)
+        XCTAssertEqual(reordered[2].repeatCount, 6)
+    }
+
     func testSettingsStoreApplySettingsSyncRecordUpdatesEditableCompanionState() {
         let keys = [
             "trackingMode",

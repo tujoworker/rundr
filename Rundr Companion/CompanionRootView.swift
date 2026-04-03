@@ -42,6 +42,7 @@ private struct CompanionWorkoutsView: View {
     @EnvironmentObject private var syncManager: WatchConnectivitySyncManager
     @EnvironmentObject private var persistence: PersistenceManager
     @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.editMode) private var editMode
     @Environment(\.appTheme) private var theme
     @Query(sort: [SortDescriptor(\Session.startedAt, order: .reverse)]) private var sessions: [Session]
     @State private var visibleSessionCount = 2
@@ -87,6 +88,14 @@ private struct CompanionWorkoutsView: View {
 
     private var workoutsRowInsets: EdgeInsets { CompanionSessionPlanStyle.rowInsets }
 
+    private var canReorderSegments: Bool {
+        settings.trackingMode.usesManualIntervals && segments.count > 1
+    }
+
+    private var isReorderingSegments: Bool {
+        editMode?.wrappedValue.isEditing == true
+    }
+
     var body: some View {
         NavigationStack {
             List {
@@ -124,6 +133,7 @@ private struct CompanionWorkoutsView: View {
 
                         ForEach(segments) { segment in
                             Button {
+                                guard !isReorderingSegments else { return }
                                 selectedSegment = segment
                             } label: {
                                 HStack(spacing: 0) {
@@ -153,6 +163,7 @@ private struct CompanionWorkoutsView: View {
                             )
                             .contentShape(Rectangle())
                         }
+                        .onMove(perform: moveSegments)
 
                         Button {
                             animateSegmentAddition()
@@ -270,6 +281,13 @@ private struct CompanionWorkoutsView: View {
             .navigationTitle(L10n.workouts)
             .navigationBarTitleDisplayMode(.large)
             .toolbarBackground(.hidden, for: .navigationBar)
+            .toolbar {
+                if canReorderSegments {
+                    ToolbarItem(placement: .topBarLeading) {
+                        EditButton()
+                    }
+                }
+            }
             .themedCompanionList()
         }
     }
@@ -296,6 +314,14 @@ private struct CompanionWorkoutsView: View {
         var updatedSegments = segments
         updatedSegments.append(WorkoutPlanSupport.nextSegmentForAppend(from: updatedSegments))
         settings.distanceSegments = WorkoutPlanSupport.normalizedSegments(updatedSegments)
+    }
+
+    private func moveSegments(fromOffsets: IndexSet, toOffset: Int) {
+        settings.distanceSegments = WorkoutPlanSupport.reorderedSegments(
+            segments,
+            fromOffsets: fromOffsets,
+            toOffset: toOffset
+        )
     }
 
     private func deleteSegment(_ segment: DistanceSegment, keepsAtLeastOne: Bool = true) {
@@ -1585,13 +1611,7 @@ private struct CompanionSettingsNavigationRow: View {
 
     var body: some View {
         HStack(spacing: Tokens.Spacing.md) {
-            ZStack {
-                RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
-                    .fill(iconBackgroundColor)
-                    .frame(width: 28, height: 28)
-
-                companionSettingsIcon
-            }
+            CompanionSettingsLeadingIcon(systemImage: systemImage, tintColor: tintColor)
 
             Text(title)
                 .foregroundStyle(theme.text.neutral)
@@ -1602,6 +1622,38 @@ private struct CompanionSettingsNavigationRow: View {
                 Text(value)
                     .foregroundStyle(theme.text.subtle)
             }
+        }
+    }
+
+    @ViewBuilder
+    private var companionSettingsIcon: some View {
+        let iconTint = tintColor ?? settings.primaryAccentColor
+        let icon = Image(systemName: systemImage)
+            .font(.system(size: Tokens.FontSize.md, weight: .semibold))
+
+        icon
+            .symbolRenderingMode(.monochrome)
+            .foregroundStyle(iconTint)
+    }
+}
+
+private struct CompanionSettingsLeadingIcon: View {
+    let systemImage: String
+    var tintColor: Color? = nil
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
+
+    private var iconBackgroundColor: Color {
+        theme.background.neutralInteraction
+    }
+
+    var body: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
+                .fill(iconBackgroundColor)
+                .frame(width: 28, height: 28)
+
+            companionSettingsIcon
         }
     }
 
@@ -1745,6 +1797,7 @@ private struct CompanionPresetUsageBadge: View {
 
 private struct CompanionWorkoutEditorView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.editMode) private var editMode
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
 
@@ -1772,6 +1825,14 @@ private struct CompanionWorkoutEditorView: View {
 
     private var canDeletePreset: Bool {
         storedPresetID != nil
+    }
+
+    private var canReorderSegments: Bool {
+        trackingMode.usesManualIntervals && segments.count > 1
+    }
+
+    private var isReorderingSegments: Bool {
+        editMode?.wrappedValue.isEditing == true
     }
 
     private var customTitleRowContentInsets: EdgeInsets {
@@ -1830,6 +1891,7 @@ private struct CompanionWorkoutEditorView: View {
                 Section {
                     ForEach(segments) { segment in
                         Button {
+                            guard !isReorderingSegments else { return }
                             selectedSegment = segment
                         } label: {
                             HStack(spacing: 0) {
@@ -1856,6 +1918,7 @@ private struct CompanionWorkoutEditorView: View {
                         }
                         .contentShape(Rectangle())
                     }
+                    .onMove(perform: moveSegments)
 
                     Button {
                         animateSegmentAddition()
@@ -1904,6 +1967,12 @@ private struct CompanionWorkoutEditorView: View {
             }
         }
         .toolbar {
+            if canReorderSegments {
+                ToolbarItem(placement: .topBarLeading) {
+                    EditButton()
+                }
+            }
+
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button(L10n.reusePlan) {
@@ -1969,6 +2038,15 @@ private struct CompanionWorkoutEditorView: View {
     private func addSegment() {
         segments.append(WorkoutPlanSupport.nextSegmentForAppend(from: segments))
         segments = WorkoutPlanSupport.normalizedSegments(segments)
+        persistPresetAfterEditIfNeeded()
+    }
+
+    private func moveSegments(fromOffsets: IndexSet, toOffset: Int) {
+        segments = WorkoutPlanSupport.reorderedSegments(
+            segments,
+            fromOffsets: fromOffsets,
+            toOffset: toOffset
+        )
         persistPresetAfterEditIfNeeded()
     }
 
@@ -2225,6 +2303,23 @@ private struct CompanionSegmentEditorView: View {
                 return L10n.pace
             }
         }
+
+        var systemImage: String {
+            switch self {
+            case .distance:
+                return "ruler"
+            case .repeats:
+                return "repeat"
+            case .rest:
+                return "figure.cooldown"
+            case .lastRest:
+                return "flag.checkered"
+            case .time:
+                return "stopwatch"
+            case .pace:
+                return "speedometer"
+            }
+        }
     }
 
     @Environment(\.dismiss) private var dismiss
@@ -2293,6 +2388,8 @@ private struct CompanionSegmentEditorView: View {
         List {
             Section {
                 HStack(spacing: Tokens.Spacing.md) {
+                    CompanionSettingsLeadingIcon(systemImage: "road.lanes")
+
                     HStack(spacing: Tokens.Spacing.xs) {
                         Text(L10n.distanceType)
 
@@ -2527,6 +2624,8 @@ private struct CompanionSegmentEditorView: View {
     @ViewBuilder
     private func editableStepperContent(title: String, value: String, field: EditableField) -> some View {
         HStack(spacing: Tokens.Spacing.md) {
+            CompanionSettingsLeadingIcon(systemImage: field.systemImage)
+
             Text(title)
 
             Spacer(minLength: Tokens.Spacing.md)
@@ -3486,11 +3585,13 @@ private struct CompanionListRowChrome: ViewModifier {
 private struct CompanionSettingsOptionRowChrome: ViewModifier {
     let rowInsets: EdgeInsets
     let contentInsets: EdgeInsets
+    @Environment(\.appTheme) private var theme
 
     func body(content: Content) -> some View {
         content
             .padding(contentInsets)
             .listRowInsets(rowInsets)
+            .listRowBackground(theme.background.history)
     }
 }
 

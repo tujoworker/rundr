@@ -39,6 +39,24 @@ enum WorkoutPlanSupport {
         return normalized
     }
 
+    static func reorderedSegments(
+        _ input: [DistanceSegment],
+        fromOffsets: IndexSet,
+        toOffset: Int
+    ) -> [DistanceSegment] {
+        let segments = input.isEmpty ? [.default] : input
+        let movingSegments = fromOffsets.sorted().map { segments[$0] }
+        let remainingSegments = segments.enumerated().compactMap { index, segment in
+            fromOffsets.contains(index) ? nil : segment
+        }
+        let removedBeforeDestination = fromOffsets.filter { $0 < toOffset }.count
+        let insertionIndex = max(0, min(toOffset - removedBeforeDestination, remainingSegments.count))
+
+        var reorderedSegments = remainingSegments
+        reorderedSegments.insert(contentsOf: movingSegments, at: insertionIndex)
+        return normalizedSegments(reorderedSegments)
+    }
+
     static func nextSegmentForAppend(from segments: [DistanceSegment]) -> DistanceSegment {
         let source = segments.last ?? .default
         return DistanceSegment(

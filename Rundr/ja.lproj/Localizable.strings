@@ -17,10 +17,15 @@
 "Title" = "タイトル";
 "Title (optional)" = "タイトル（任意）";
 "Description (optional)" = "説明（任意）";
+"45/15" = "45/15";
 "Four by Four" = "4分4本";
 "Threshold Sixes" = "閾値6分走";
 "Thousand Repeats" = "1000mレペティション";
+"30/15" = "30/15";
+"Pyramid" = "ピラミッド";
 "Four Hundred Repeats" = "400mレペティション";
+"Structured Fartlek" = "構成ファルトレク";
+"Long Twelves" = "12分ロングインターバル";
 "No saved intervals yet" = "保存済みインターバルなし";
 "Open a predefined interval to save your own version." = "プリセットのインターバルを開いて、自分用のバージョンを保存してください。";
 "Tracking Mode" = "トラッキングモード";

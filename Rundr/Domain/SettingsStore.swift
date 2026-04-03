@@ -339,6 +339,85 @@ final class SettingsStore: ObservableObject {
                 distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 10, restSeconds: 60)],
                 restMode: .manual
             )
+        ),
+        PredefinedIntervalPreset(
+            id: "fortyFiveFifteens",
+            title: L10n.predefinedFortyFiveFifteensTitle,
+            workoutPlan: WorkoutPlanSnapshot(
+                trackingMode: .dual,
+                distanceLapDistanceMeters: 0,
+                distanceSegments: [
+                    DistanceSegment(distanceMeters: 0, repeatCount: 20, restSeconds: 15, lastRestSeconds: 90, distanceGoalMode: .open, targetTimeSeconds: 45),
+                    DistanceSegment(distanceMeters: 0, repeatCount: 20, restSeconds: 15, distanceGoalMode: .open, targetTimeSeconds: 45)
+                ],
+                restMode: .manual
+            )
+        ),
+        PredefinedIntervalPreset(
+            id: "thirtyFifteens",
+            title: L10n.predefinedThirtyFifteensTitle,
+            workoutPlan: WorkoutPlanSnapshot(
+                trackingMode: .dual,
+                distanceLapDistanceMeters: 0,
+                distanceSegments: [
+                    DistanceSegment(distanceMeters: 0, repeatCount: 10, restSeconds: 15, lastRestSeconds: 120, distanceGoalMode: .open, targetTimeSeconds: 30),
+                    DistanceSegment(distanceMeters: 0, repeatCount: 10, restSeconds: 15, distanceGoalMode: .open, targetTimeSeconds: 30)
+                ],
+                restMode: .manual
+            )
+        ),
+        PredefinedIntervalPreset(
+            id: "pyramid",
+            title: L10n.predefinedPyramidTitle,
+            workoutPlan: WorkoutPlanSnapshot(
+                trackingMode: .dual,
+                distanceLapDistanceMeters: 0,
+                distanceSegments: [
+                    DistanceSegment(distanceMeters: 0, repeatCount: 1, lastRestSeconds: 60, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(distanceMeters: 0, repeatCount: 1, lastRestSeconds: 120, distanceGoalMode: .open, targetTimeSeconds: 120),
+                    DistanceSegment(distanceMeters: 0, repeatCount: 1, lastRestSeconds: 180, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(distanceMeters: 0, repeatCount: 1, lastRestSeconds: 240, distanceGoalMode: .open, targetTimeSeconds: 240),
+                    DistanceSegment(distanceMeters: 0, repeatCount: 1, lastRestSeconds: 180, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(distanceMeters: 0, repeatCount: 1, lastRestSeconds: 120, distanceGoalMode: .open, targetTimeSeconds: 120),
+                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60)
+                ],
+                restMode: .manual
+            )
+        ),
+        PredefinedIntervalPreset(
+            id: "structuredFartlek",
+            title: L10n.predefinedStructuredFartlekTitle,
+            workoutPlan: WorkoutPlanSnapshot(
+                trackingMode: .dual,
+                distanceLapDistanceMeters: 0,
+                distanceSegments: [
+                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
+                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
+                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
+                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
+                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
+                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
+                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180)
+                ],
+                restMode: .manual
+            )
+        ),
+        PredefinedIntervalPreset(
+            id: "longTwelves",
+            title: L10n.predefinedLongTwelvesTitle,
+            workoutPlan: WorkoutPlanSnapshot(
+                trackingMode: .dual,
+                distanceLapDistanceMeters: 0,
+                distanceSegments: [
+                    DistanceSegment(distanceMeters: 0, repeatCount: 3, restSeconds: 180, distanceGoalMode: .open, targetTimeSeconds: 720)
+                ],
+                restMode: .manual
+            )
         )
     ]
 

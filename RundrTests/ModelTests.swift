@@ -1439,6 +1439,39 @@ final class ModelTests: XCTestCase {
         XCTAssertTrue(store.intervalPresets.isEmpty)
     }
 
+    func testPredefinedIntervalPresetsIncludeExpandedRepresentableLibrary() {
+        XCTAssertEqual(
+            SettingsStore.predefinedIntervalPresets.map(\.id),
+            [
+                "fourByFour",
+                "thresholdSixes",
+                "thousandRepeats",
+                "fourHundredRepeats",
+                "fortyFiveFifteens",
+                "thirtyFifteens",
+                "pyramid",
+                "structuredFartlek",
+                "longTwelves"
+            ]
+        )
+    }
+
+    func testFortyFiveFifteensPresetUsesTwoOpenSetsWithSetRest() {
+        let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "fortyFiveFifteens" }))
+        let segments = preset?.workoutPlan.distanceSegments ?? []
+
+        XCTAssertEqual(preset?.workoutPlan.trackingMode, .dual)
+        XCTAssertEqual(segments.count, 2)
+        XCTAssertEqual(segments.first?.distanceGoalMode, .open)
+        XCTAssertEqual(segments.first?.targetTimeSeconds, 45)
+        XCTAssertEqual(segments.first?.repeatCount, 20)
+        XCTAssertEqual(segments.first?.restSeconds, 15)
+        XCTAssertEqual(segments.first?.lastRestSeconds, 90)
+        XCTAssertEqual(segments.last?.targetTimeSeconds, 45)
+        XCTAssertEqual(segments.last?.repeatCount, 20)
+        XCTAssertEqual(segments.last?.restSeconds, 15)
+    }
+
     func testSettingsStoreAssignsGeneratedTitleWhenSavingPresetWithoutCustomTitle() {
         UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON")
         defer { UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON") }

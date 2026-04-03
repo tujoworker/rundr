@@ -17,10 +17,15 @@
 "Title" = "Title";
 "Title (optional)" = "Title (optional)";
 "Description (optional)" = "Description (optional)";
+"45/15" = "45/15";
 "Four by Four" = "Four by Four";
 "Threshold Sixes" = "Threshold Sixes";
 "Thousand Repeats" = "Thousand Repeats";
+"30/15" = "30/15";
+"Pyramid" = "Pyramid";
 "Four Hundred Repeats" = "Four Hundred Repeats";
+"Structured Fartlek" = "Structured Fartlek";
+"Long Twelves" = "Long Twelves";
 "No saved intervals yet" = "No saved intervals yet";
 "Open a predefined interval to save your own version." = "Open a predefined interval to save your own version.";
 "Tracking Mode" = "Tracking Mode";

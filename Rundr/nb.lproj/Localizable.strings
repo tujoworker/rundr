@@ -17,10 +17,15 @@
 "Title" = "Tittel";
 "Title (optional)" = "Tittel (valgfri)";
 "Description (optional)" = "Beskrivelse (valgfri)";
+"45/15" = "45/15";
 "Four by Four" = "Fire ganger fire";
 "Threshold Sixes" = "Terskel-seksere";
 "Thousand Repeats" = "Tusenmeterdrag";
+"30/15" = "30/15";
+"Pyramid" = "Pyramide";
 "Four Hundred Repeats" = "Firehundremeterdrag";
+"Structured Fartlek" = "Strukturert fartslek";
+"Long Twelves" = "Lange tolvere";
 "No saved intervals yet" = "Ingen lagrede intervaller ennå";
 "Open a predefined interval to save your own version." = "Åpne et forhåndsdefinert intervall for å lagre din egen versjon.";
 "Tracking Mode" = "Sporingsmodus";

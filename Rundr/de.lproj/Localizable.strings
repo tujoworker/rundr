@@ -17,10 +17,15 @@
 "Title" = "Titel";
 "Title (optional)" = "Titel (optional)";
 "Description (optional)" = "Beschreibung (optional)";
+"45/15" = "45/15";
 "Four by Four" = "Vier mal Vier";
 "Threshold Sixes" = "Schwellen-Sechser";
 "Thousand Repeats" = "Tausender-Wiederholungen";
+"30/15" = "30/15";
+"Pyramid" = "Pyramide";
 "Four Hundred Repeats" = "Vierhundert-Wiederholungen";
+"Structured Fartlek" = "Strukturiertes Fahrtspiel";
+"Long Twelves" = "Lange Zwölfer";
 "No saved intervals yet" = "Noch keine gespeicherten Intervalle";
 "Open a predefined interval to save your own version." = "Öffne ein vordefiniertes Intervall, um deine eigene Version zu speichern.";
 "Tracking Mode" = "Tracking-Modus";

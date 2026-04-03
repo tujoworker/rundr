@@ -36,6 +36,14 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.deletePlanConfirmMessage, "This plan will be permanently deleted.")
     }
 
+    func testCompanionHelpLabelsExist() {
+        XCTAssertEqual(L10n.help, "Help")
+        XCTAssertEqual(L10n.helpSessionPlanTitle, "Session Plan")
+        XCTAssertEqual(L10n.helpTrackingModeTitle, "Tracking Mode")
+        XCTAssertEqual(L10n.helpDistanceTypeFixedHeading, "Fixed")
+        XCTAssertEqual(L10n.helpTrackingModeDualHeading, "Dual")
+    }
+
     func testUsedCountFormatsAsCompactBadgeText() {
         XCTAssertEqual(L10n.usedCount(3), "3x")
     }

@@ -62,6 +62,8 @@ enum Tokens {
         static let inlineAdjustButton: CGFloat = 54
         /// 32 pt – prominent add controls in companion list rows.
         static let companionAddIcon: CGFloat = 32
+        /// 112 pt – companion intro feature badge.
+        static let companionFeatureBadge: CGFloat = 112
     }
 
     // MARK: Corner Radius

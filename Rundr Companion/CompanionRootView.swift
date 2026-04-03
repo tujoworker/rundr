@@ -653,12 +653,479 @@ private struct CompanionSettingsView: View {
                     }
                     .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
                 }
+
+                Section(L10n.other) {
+                    NavigationLink {
+                        CompanionIntroView()
+                    } label: {
+                        CompanionSettingsNavigationRow(
+                            title: L10n.intro,
+                            value: "",
+                            systemImage: "sparkles"
+                        )
+                    }
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
+
+                    NavigationLink {
+                        CompanionHelpView()
+                    } label: {
+                        CompanionSettingsNavigationRow(
+                            title: L10n.help,
+                            value: "",
+                            systemImage: "questionmark.circle"
+                        )
+                    }
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
+
+                    NavigationLink {
+                        CompanionAboutDetailView()
+                    } label: {
+                        CompanionSettingsNavigationRow(
+                            title: L10n.about,
+                            value: "",
+                            systemImage: "info.circle"
+                        )
+                    }
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
+                }
             }
             .navigationTitle(L10n.preferences)
             .navigationBarTitleDisplayMode(.large)
             .themedCompanionSettingsList()
         }
     }
+}
+
+private struct CompanionIntroView: View {
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
+    @State private var selectedPage = 0
+
+    private var pages: [CompanionIntroPage] {
+        [
+            CompanionIntroPage(
+                icon: "applewatch",
+                title: L10n.introStartOnWatchTitle,
+                body: L10n.introStartOnWatchBody
+            ),
+            CompanionIntroPage(
+                icon: "figure.run.circle",
+                title: L10n.introLapsTitle,
+                body: L10n.introLapsBody
+            ),
+            CompanionIntroPage(
+                icon: "figure.walk.motion",
+                title: L10n.introRestTitle,
+                body: L10n.introRestBody
+            ),
+            CompanionIntroPage(
+                icon: "arrow.trianglehead.2.clockwise.rotate.90",
+                title: L10n.introSyncAndRepeatTitle,
+                body: L10n.introSyncAndRepeatBody
+            )
+        ]
+    }
+
+    var body: some View {
+        TabView(selection: $selectedPage) {
+            ForEach(Array(pages.enumerated()), id: \.offset) { index, page in
+                GeometryReader { proxy in
+                    ScrollView {
+                        VStack(spacing: Tokens.Spacing.xxxxl) {
+                            Spacer(minLength: Tokens.Spacing.xxxxl)
+
+                            ZStack {
+                                Circle()
+                                    .fill(theme.background.emphasisAction(settings.primaryAccentColor))
+
+                                Image(systemName: page.icon)
+                                    .font(.system(size: 46, weight: .semibold))
+                                    .foregroundStyle(theme.text.emphasis)
+                            }
+                            .frame(
+                                width: Tokens.ControlSize.companionFeatureBadge,
+                                height: Tokens.ControlSize.companionFeatureBadge
+                            )
+
+                            VStack(spacing: Tokens.Spacing.xl) {
+                                Text(page.title)
+                                    .font(.title.bold())
+                                    .foregroundStyle(theme.text.neutral)
+                                    .multilineTextAlignment(.center)
+
+                                Text(page.body)
+                                    .font(.title3.weight(.regular))
+                                    .foregroundStyle(theme.text.subtle)
+                                    .multilineTextAlignment(.center)
+                                    .fixedSize(horizontal: false, vertical: true)
+                            }
+                            .padding(.horizontal, Tokens.Spacing.xxxxl)
+
+                            Spacer(minLength: Tokens.Spacing.xxxxl)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(minHeight: proxy.size.height)
+                        .padding(.vertical, Tokens.Spacing.xxxxl)
+                    }
+                    .background {
+                        CompanionListBackgroundView()
+                            .ignoresSafeArea()
+                    }
+                }
+                .tag(index)
+            }
+        }
+        .tabViewStyle(.page(indexDisplayMode: .always))
+        .navigationTitle(L10n.intro)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+private struct CompanionAboutDetailView: View {
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Tokens.Spacing.xxxxl) {
+                VStack(alignment: .leading, spacing: Tokens.Spacing.xl) {
+                    Text(L10n.aboutRundrHeadline)
+                        .font(.title.bold())
+                        .foregroundStyle(theme.text.neutral)
+
+                    Text(L10n.aboutRundrBodyOne)
+                        .font(.title3.weight(.regular))
+                        .foregroundStyle(theme.text.subtle)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                CompanionAboutCard(
+                    icon: "flag.pattern.checkered",
+                    title: L10n.aboutRunWithWatchTitle,
+                    bodyText: L10n.aboutRunWithWatchBody
+                )
+
+                CompanionAboutCard(
+                    icon: "slider.horizontal.3",
+                    title: L10n.aboutFlexibleSessionsTitle,
+                    bodyText: L10n.aboutFlexibleSessionsBody
+                )
+
+                CompanionAboutCard(
+                    icon: "clock.arrow.trianglehead.counterclockwise.rotate.90",
+                    title: L10n.aboutKeepMomentumTitle,
+                    bodyText: L10n.aboutKeepMomentumBody
+                )
+            }
+            .padding(.horizontal, Tokens.Spacing.xxxl)
+            .padding(.vertical, Tokens.Spacing.xxxl)
+        }
+        .background {
+            CompanionListBackgroundView()
+                .ignoresSafeArea()
+        }
+        .navigationTitle(L10n.about)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+private struct CompanionHelpView: View {
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
+
+    private var topics: [CompanionHelpTopic] {
+        [
+            CompanionHelpTopic(
+                icon: "square.stack.3d.down.right",
+                title: L10n.helpSessionPlanTitle,
+                body: L10n.helpSessionPlanBody,
+                sections: [],
+                example: L10n.helpSessionPlanExample,
+                tip: nil
+            ),
+            CompanionHelpTopic(
+                icon: "figure.walk.motion",
+                title: L10n.helpRestTitle,
+                body: L10n.helpRestBody,
+                sections: [
+                    CompanionHelpSection(
+                        title: L10n.helpRestTimedHeading,
+                        body: L10n.helpRestTimedBody,
+                        example: nil,
+                        tip: nil
+                    )
+                ],
+                example: nil,
+                tip: L10n.helpRestTip
+            ),
+            CompanionHelpTopic(
+                icon: "figure.run.circle",
+                title: L10n.helpAutoRestTitle,
+                body: L10n.helpAutoRestBody,
+                sections: [],
+                example: L10n.helpAutoRestExample,
+                tip: nil
+            ),
+            CompanionHelpTopic(
+                icon: "road.lanes",
+                title: L10n.helpDistanceTypeTitle,
+                body: nil,
+                sections: [
+                    CompanionHelpSection(
+                        title: L10n.helpDistanceTypeFixedHeading,
+                        body: L10n.helpDistanceTypeFixedBody,
+                        example: nil,
+                        tip: nil
+                    ),
+                    CompanionHelpSection(
+                        title: L10n.helpDistanceTypeOpenHeading,
+                        body: L10n.helpDistanceTypeOpenBody,
+                        example: L10n.helpDistanceTypeOpenExample,
+                        tip: nil
+                    )
+                ],
+                example: nil,
+                tip: nil
+            ),
+            CompanionHelpTopic(
+                icon: "location.circle",
+                title: L10n.helpTrackingModeTitle,
+                body: nil,
+                sections: [
+                    CompanionHelpSection(
+                        title: L10n.helpTrackingModeManualHeading,
+                        body: L10n.helpTrackingModeManualBody,
+                        example: nil,
+                        tip: nil
+                    ),
+                    CompanionHelpSection(
+                        title: L10n.helpTrackingModeDualHeading,
+                        body: L10n.helpTrackingModeDualBody,
+                        example: nil,
+                        tip: nil
+                    ),
+                    CompanionHelpSection(
+                        title: L10n.helpTrackingModeGPSHeading,
+                        body: L10n.helpTrackingModeGPSBody,
+                        example: nil,
+                        tip: nil
+                    )
+                ],
+                example: nil,
+                tip: nil
+            ),
+            CompanionHelpTopic(
+                icon: "heart.text.square",
+                title: L10n.helpAppleHealthTitle,
+                body: L10n.helpAppleHealthBody,
+                sections: [],
+                example: L10n.helpAppleHealthExample,
+                tip: nil
+            ),
+            CompanionHelpTopic(
+                icon: "chart.line.uptrend.xyaxis",
+                title: L10n.helpAppleActivityTitle,
+                body: L10n.helpAppleActivityBody,
+                sections: [],
+                example: nil,
+                tip: L10n.helpAppleActivityTip
+            )
+        ]
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Tokens.Spacing.xxxl) {
+                ForEach(topics) { topic in
+                    CompanionHelpCard(topic: topic)
+                }
+            }
+            .padding(.horizontal, Tokens.Spacing.xxxl)
+            .padding(.vertical, Tokens.Spacing.xxxl)
+        }
+        .background {
+            CompanionListBackgroundView()
+                .ignoresSafeArea()
+        }
+        .navigationTitle(L10n.help)
+        .navigationBarTitleDisplayMode(.inline)
+        .tint(settings.primaryAccentColor)
+        .foregroundStyle(theme.text.neutral)
+    }
+}
+
+private struct CompanionAboutCard: View {
+    let icon: String
+    let title: String
+    let bodyText: String
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
+            HStack(alignment: .center, spacing: Tokens.Spacing.lg) {
+                Image(systemName: icon)
+                    .font(.system(size: Tokens.FontSize.xxl, weight: .semibold))
+                    .foregroundStyle(settings.primaryAccentColor)
+
+                Text(title)
+                    .font(.system(size: Tokens.FontSize.xl, weight: .semibold, design: .rounded))
+                    .foregroundStyle(theme.text.neutral)
+            }
+
+            Text(bodyText)
+                .font(.title3.weight(.regular))
+                .foregroundStyle(theme.text.subtle)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(Tokens.Spacing.xxxl)
+        .background(
+            RoundedRectangle(cornerRadius: Tokens.Radius.companionListCell, style: .continuous)
+                .fill(theme.background.history)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Tokens.Radius.companionListCell, style: .continuous)
+                .stroke(theme.stroke.neutral, lineWidth: Tokens.LineWidth.thin)
+        )
+    }
+}
+
+private struct CompanionHelpCard: View {
+    let topic: CompanionHelpTopic
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
+            HStack(alignment: .center, spacing: Tokens.Spacing.lg) {
+                Image(systemName: topic.icon)
+                    .font(.system(size: Tokens.FontSize.xxl, weight: .semibold))
+                    .foregroundStyle(settings.primaryAccentColor)
+
+                Text(topic.title)
+                    .font(.system(size: Tokens.FontSize.xl, weight: .semibold, design: .rounded))
+                    .foregroundStyle(theme.text.neutral)
+            }
+
+            if let body = topic.body {
+                Text(body)
+                    .font(.title3.weight(.regular))
+                    .foregroundStyle(theme.text.subtle)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            ForEach(topic.sections) { section in
+                CompanionHelpSectionView(section: section)
+            }
+
+            if let example = topic.example {
+                CompanionHelpHighlight(
+                    label: L10n.example,
+                    text: example
+                )
+            }
+
+            if let tip = topic.tip {
+                CompanionHelpHighlight(
+                    label: L10n.tip,
+                    text: tip
+                )
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(Tokens.Spacing.xxxl)
+        .background(
+            RoundedRectangle(cornerRadius: Tokens.Radius.companionListCell, style: .continuous)
+                .fill(theme.background.history)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Tokens.Radius.companionListCell, style: .continuous)
+                .stroke(theme.stroke.neutral, lineWidth: Tokens.LineWidth.thin)
+        )
+    }
+}
+
+private struct CompanionHelpSectionView: View {
+    let section: CompanionHelpSection
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.sm) {
+            Text(section.title)
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(theme.text.neutral)
+                .padding(.top, Tokens.Spacing.md)
+
+            Text(section.body)
+                .font(.title3.weight(.regular))
+                .foregroundStyle(theme.text.subtle)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if let example = section.example {
+                CompanionHelpHighlight(
+                    label: L10n.example,
+                    text: example
+                )
+            }
+
+            if let tip = section.tip {
+                CompanionHelpHighlight(
+                    label: L10n.tip,
+                    text: tip
+                )
+            }
+        }
+    }
+}
+
+private struct CompanionHelpHighlight: View {
+    let label: String
+    let text: String
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+            Text(label)
+                .font(.system(size: Tokens.FontSize.md, weight: .semibold, design: .rounded))
+                .foregroundStyle(theme.text.neutral)
+
+            Text(text)
+                .font(.system(size: Tokens.FontSize.lg, weight: .regular, design: .default))
+                .foregroundStyle(theme.text.subtle)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(Tokens.Spacing.lg)
+        .background(
+            RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
+                .fill(theme.background.neutralAction)
+        )
+    }
+}
+
+private struct CompanionIntroPage {
+    let icon: String
+    let title: String
+    let body: String
+}
+
+private struct CompanionHelpTopic: Identifiable {
+    let id = UUID()
+    let icon: String
+    let title: String
+    let body: String?
+    let sections: [CompanionHelpSection]
+    let example: String?
+    let tip: String?
+}
+
+private struct CompanionHelpSection: Identifiable {
+    let id = UUID()
+    let title: String
+    let body: String
+    let example: String?
+    let tip: String?
 }
 
 private struct CompanionTrackingModeSettingsDetailView: View {
@@ -864,7 +1331,7 @@ private struct CompanionColorSettingsDetailView: View {
 
 private struct CompanionSettingsNavigationRow: View {
     let title: String
-    let value: String
+    var value: String? = nil
     var tintColor: Color? = nil
     let systemImage: String
     @EnvironmentObject private var settings: SettingsStore
@@ -889,8 +1356,10 @@ private struct CompanionSettingsNavigationRow: View {
 
             Spacer()
 
-            Text(value)
-                .foregroundStyle(theme.text.subtle)
+            if let value, !value.isEmpty {
+                Text(value)
+                    .foregroundStyle(theme.text.subtle)
+            }
         }
     }
 

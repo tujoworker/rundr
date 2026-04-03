@@ -128,6 +128,13 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(TrackingMode.distanceDistance.displayName, "Manual")
     }
 
+    func testCompanionAboutStringsExistForInfoScreens() {
+        XCTAssertEqual(L10n.aboutRundr, "About Rundr")
+        XCTAssertEqual(L10n.intro, "Intro")
+        XCTAssertEqual(L10n.about, "About")
+        XCTAssertEqual(L10n.introPageLabel(2, 3), "Page 2 of 3")
+    }
+
     func testTrackingModeAllCases() {
         XCTAssertEqual(TrackingMode.allCases.count, 3)
         XCTAssertEqual(TrackingMode.allCases.last, .gps)

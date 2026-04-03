@@ -908,12 +908,6 @@ private struct CompanionHelpView: View {
                         body: L10n.helpTrackingModeDualBody,
                         example: nil,
                         tip: nil
-                    ),
-                    CompanionHelpSection(
-                        title: L10n.helpTrackingModeGPSHeading,
-                        body: L10n.helpTrackingModeGPSBody,
-                        example: nil,
-                        tip: nil
                     )
                 ],
                 example: nil,
@@ -1140,7 +1134,7 @@ private struct CompanionTrackingModeSettingsDetailView: View {
     var body: some View {
         List {
             Section {
-                ForEach(TrackingMode.allCases) { mode in
+                ForEach(TrackingMode.visibleCases) { mode in
                     Button {
                         settings.trackingMode = WorkoutPlanSupport.resolvedTrackingMode(
                             requestedTrackingMode: mode,
@@ -1155,7 +1149,7 @@ private struct CompanionTrackingModeSettingsDetailView: View {
                             Spacer()
 
                             CompanionSelectionCheckmark(
-                                isSelected: settings.trackingMode == mode,
+                                isSelected: settings.trackingMode.visibleSelection == mode,
                                 tint: settings.primaryAccentColor
                             )
                         }

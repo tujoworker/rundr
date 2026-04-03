@@ -123,9 +123,14 @@ final class ModelTests: XCTestCase {
     // MARK: - TrackingMode
 
     func testTrackingModeDisplayNames() {
-        XCTAssertEqual(TrackingMode.gps.displayName, "GPS")
+        XCTAssertEqual(TrackingMode.gps.displayName, "Dual")
         XCTAssertEqual(TrackingMode.dual.displayName, "Dual")
         XCTAssertEqual(TrackingMode.distanceDistance.displayName, "Manual")
+    }
+
+    func testTrackingModeVisibleCasesHideGPSOnlyMode() {
+        XCTAssertEqual(TrackingMode.visibleCases, [.distanceDistance, .dual])
+        XCTAssertFalse(TrackingMode.visibleCases.contains(.gps))
     }
 
     func testCompanionAboutStringsExistForInfoScreens() {

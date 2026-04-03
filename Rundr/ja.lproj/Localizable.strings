@@ -243,8 +243,6 @@
 "Manual uses your Session Plan and manual lap presses without GPS distance. Use it for fixed-distance intervals when you want full control and precise measurement and statistics." = "Manualはセッションプランと手動ラップを使い、GPS距離は使いません。距離固定のインターバルで、しっかり自分で管理しつつ、正確な計測と統計を使いたいときに向いています。";
 "Dual" = "Dual";
 "Dual keeps the Session Plan and also records GPS distance. Use it when you want time-based laps. Open distance needs GPS, so Rundr uses Dual there." = "Dualはセッションプランを保ったままGPS距離も記録します。時間ベースのラップにしたいときに使います。Open距離にはGPSが必要なので、その場合RundrはDualを使います。";
-"GPS" = "GPS";
-"GPS is best for a regular run where you want distance without manual interval structure." = "GPSは、手動のインターバル構成なしで距離を記録したい通常のランに向いています。";
 "Apple Health" = "Apple Health";
 "Apple Health lets Rundr save workouts, laps, heart rate, energy, and GPS routes when available, and read the workout data it needs back. Turn it on when you want your runs to stay in Apple's fitness history." = "Apple Healthを使うと、Rundrはワークアウト、ラップ、心拍、消費エネルギー、利用可能なGPSルートを保存し、必要なワークアウトデータを読み戻せます。ランをAppleのフィットネス履歴に残したいなら有効にしておくのが適しています。";
 "Example: enable Health access if you want one session to appear in Rundr, Health, and Fitness instead of living only inside the app." = "例: セッションをアプリ内だけでなくRundr、Health、Fitnessのすべてに表示したいなら、Healthアクセスを有効にします。";

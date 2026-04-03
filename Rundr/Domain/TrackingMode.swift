@@ -9,7 +9,20 @@ enum TrackingMode: String, Codable, CaseIterable, Identifiable {
         [.distanceDistance, .dual, .gps]
     }
 
+    static var visibleCases: [TrackingMode] {
+        [.distanceDistance, .dual]
+    }
+
     var id: String { rawValue }
+
+    var visibleSelection: TrackingMode {
+        switch self {
+        case .gps:
+            return .dual
+        case .dual, .distanceDistance:
+            return self
+        }
+    }
 
     var usesGPSDistance: Bool {
         switch self {
@@ -32,11 +45,11 @@ enum TrackingMode: String, Codable, CaseIterable, Identifiable {
     var displayName: String {
         switch self {
         case .gps:
-            return String(localized: "GPS", comment: "Tracking mode")
+            return L10n.dual
         case .dual:
-            return String(localized: "Dual", comment: "Tracking mode")
+            return L10n.dual
         case .distanceDistance:
-            return String(localized: "Manual", comment: "Tracking mode")
+            return L10n.distanceMode
         }
     }
 }

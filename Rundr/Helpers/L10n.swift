@@ -294,8 +294,6 @@ enum L10n {
     static let helpTrackingModeManualBody = String(localized: "Manual uses your Session Plan and manual lap presses without GPS distance. Use it for fixed-distance intervals when you want full control and precise measurement and statistics.", comment: "Companion help section body")
     static let helpTrackingModeDualHeading = String(localized: "Dual", comment: "Companion help section heading")
     static let helpTrackingModeDualBody = String(localized: "Dual keeps the Session Plan and also records GPS distance. Use it when you want time-based laps. Open distance needs GPS, so Rundr uses Dual there.", comment: "Companion help section body")
-    static let helpTrackingModeGPSHeading = String(localized: "GPS", comment: "Companion help section heading")
-    static let helpTrackingModeGPSBody = String(localized: "GPS is best for a regular run where you want distance without manual interval structure.", comment: "Companion help section body")
     static let helpAppleHealthTitle = String(localized: "Apple Health", comment: "Companion help card title")
     static let helpAppleHealthBody = String(localized: "Apple Health lets Rundr save workouts, laps, heart rate, energy, and GPS routes when available, and read the workout data it needs back. Turn it on when you want your runs to stay in Apple's fitness history.", comment: "Companion help card body")
     static let helpAppleHealthExample = String(localized: "Example: enable Health access if you want one session to appear in Rundr, Health, and Fitness instead of living only inside the app.", comment: "Companion help card example")

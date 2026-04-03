@@ -331,7 +331,7 @@ struct PreStartView: View {
             Text(L10n.gpsModeNeedsLocation)
         }
         .confirmationDialog(L10n.mode, isPresented: $isTrackingModeDialogPresented) {
-            ForEach(TrackingMode.allCases) { mode in
+            ForEach(TrackingMode.visibleCases) { mode in
                 Button(mode.displayName) {
                     settings.trackingMode = mode
                 }

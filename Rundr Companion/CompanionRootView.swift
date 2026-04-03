@@ -1945,8 +1945,18 @@ private struct CompanionWorkoutEditorView: View {
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
                 } header: {
-                    CompanionHomeSectionHeader(title: L10n.intervalsTitle)
-                        .padding(.leading, CompanionSessionPlanStyle.sectionHeaderLeadingInset)
+                    HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.md) {
+                        CompanionHomeSectionHeader(title: L10n.intervalsTitle)
+
+                        Spacer(minLength: Tokens.Spacing.md)
+
+                        if canReorderSegments {
+                            EditButton()
+                                .foregroundStyle(theme.isDark ? theme.text.subtle : settings.primaryAccentColor)
+                        }
+                    }
+                    .padding(.leading, CompanionSessionPlanStyle.sectionHeaderLeadingInset)
+                    .padding(.trailing, CompanionSessionPlanStyle.sectionHeaderLeadingInset)
                 }
                 .listSectionSeparator(.hidden)
             }
@@ -1972,12 +1982,6 @@ private struct CompanionWorkoutEditorView: View {
             }
         }
         .toolbar {
-            if canReorderSegments {
-                ToolbarItem(placement: .topBarLeading) {
-                    EditButton()
-                }
-            }
-
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Button(L10n.reusePlan) {

@@ -29,6 +29,7 @@
 - Prefer small helper properties/functions when they make repeated UI logic clearer.
 - Avoid unrelated refactors while implementing a feature.
 - Keep duplicated flows in sync when the app intentionally mirrors behavior in multiple places, such as the pre-start and interval setup editors.
+- Keep the iPhone companion `Session Plan` list in `Workouts` and the companion `Adjust Interval` editor in sync for shared controls and interactions, especially reorder/edit affordances.
 
 ## Tests
 

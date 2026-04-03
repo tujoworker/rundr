@@ -149,6 +149,8 @@ enum Tokens {
         static let fillInput: Double = 0.12
         /// 0.10 – accent tint on lap cards, subtle borders
         static let fillSubtle: Double = 0.10
+        /// 0.16 – light-mode preset count badges on companion cards
+        static let fillBadge: Double = 0.16
         /// 0.28 – icon / button drop shadows
         static let shadow: Double = 0.28
     }

@@ -54,6 +54,13 @@ struct AppTheme {
             isDark ? .white : .white.opacity(0.96)
         }
 
+        /// Small count badges for preset metadata chips.
+        var countBadge: Color {
+            isDark
+                ? .white.opacity(Tokens.Opacity.foregroundRest)
+                : .black.opacity(Tokens.Opacity.fillBadge)
+        }
+
         /// Rest rows within history surfaces.
         var historyRest: Color {
             .white

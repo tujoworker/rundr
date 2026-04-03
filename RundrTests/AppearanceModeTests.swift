@@ -100,6 +100,22 @@ final class AppearanceModeTests: XCTestCase {
         XCTAssertEqual(try rgbaComponents(for: lightTheme.text.historyRest), [0, 0, 0, 1])
     }
 
+    func testAppThemeUsesModeSpecificCountBadgeBackgrounds() throws {
+        let darkTheme = AppTheme(colorScheme: .dark)
+        let lightTheme = AppTheme(colorScheme: .light)
+
+        assertEqualComponents(
+            try rgbaComponents(for: darkTheme.background.countBadge),
+            [1, 1, 1, Tokens.Opacity.foregroundRest],
+            accuracy: 0.001
+        )
+        assertEqualComponents(
+            try rgbaComponents(for: lightTheme.background.countBadge),
+            [0, 0, 0, Tokens.Opacity.fillBadge],
+            accuracy: 0.001
+        )
+    }
+
     func testAppThemeUsesDifferentNeutralInteractionBackgroundColorsForDarkAndLightModes() throws {
         let darkTheme = AppTheme(colorScheme: .dark)
         let lightTheme = AppTheme(colorScheme: .light)

@@ -1985,7 +1985,7 @@ private struct CompanionPresetUsageBadge: View {
             .foregroundStyle(theme.text.bold)
             .padding(.horizontal, Tokens.Spacing.sm)
             .padding(.vertical, Tokens.Spacing.xxxs)
-            .background(theme.background.bold)
+            .background(theme.background.countBadge)
             .clipShape(Capsule(style: .continuous))
             .alignmentGuide(.firstTextBaseline) { dimensions in
                 dimensions[.firstTextBaseline] + opticalLift

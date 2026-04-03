@@ -31,7 +31,7 @@ struct CompanionRootView: View {
             CompanionSettingsView()
                 .tag(CompanionTab.settings)
                 .tabItem {
-                    Label(L10n.preferences, systemImage: "ellipsis.circle")
+                    Label(L10n.more, systemImage: "ellipsis.circle")
                 }
         }
         .tint(settings.primaryAccentColor)
@@ -689,7 +689,7 @@ private struct CompanionSettingsView: View {
                     .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
                 }
             }
-            .navigationTitle(L10n.preferences)
+            .navigationTitle(L10n.more)
             .navigationBarTitleDisplayMode(.large)
             .themedCompanionSettingsList()
         }

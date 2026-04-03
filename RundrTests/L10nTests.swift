@@ -44,6 +44,10 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.helpTrackingModeDualHeading, "Dual")
     }
 
+    func testMoreLabelExistsForCompanionOverflowTab() {
+        XCTAssertEqual(L10n.more, "More")
+    }
+
     func testUsedCountFormatsAsCompactBadgeText() {
         XCTAssertEqual(L10n.usedCount(3), "3x")
     }

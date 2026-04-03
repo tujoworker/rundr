@@ -201,10 +201,12 @@
 "Intro" = "イントロ";
 "About" = "概要";
 "A quick intro to how Rundr fits around your Apple Watch runs." = "RundrがApple Watchでのランにどう寄り添うかを手短に紹介します。";
-"Start where it makes sense" = "始めやすい場所から始める";
-"Build your session on iPhone when you want to think it through, or head straight to Apple Watch when you are already warming up. Once you start, the watch keeps everything close at hand." = "内容を考えながら組み立てたいときはiPhoneで、すでにウォームアップ中ならそのままApple Watchで始められます。スタートした後は、必要な情報を手元の時計でさっと確認できます。";
-"Mark every lap clearly" = "ラップを毎回はっきり記録する";
-"Each lap should be marked with a button press on Apple Watch, or with the Action Button when your watch supports it. That keeps your workout structure clean, stores the laps in Apple Health, and syncs the same laps back to this app." = "各ラップはApple Watchでのボタン操作、または対応するWatchならアクションボタンで記録するのがおすすめです。そうすることでワークアウトの構成がわかりやすく保たれ、ラップはApple Healthにも保存され、このアプリにも同じ内容で同期されます。";
+"Start where it matters" = "大事なところから始める";
+"Build your Session Plan on iPhone, or load one from a predefined list, then head to Apple Watch when you are ready to run." = "iPhoneでセッションプランを作るか、用意された一覧から読み込み、走る準備ができたらApple Watchへ進めます。";
+"Plan with precision" = "正確に組み立てる";
+"Use your Session Plan for precise manual distance, or keep it together with GPS in Dual." = "正確な手動距離にはセッションプランを使い、必要ならDualでGPSも一緒に使えます。";
+"Mark every lap" = "ラップを毎回記録する";
+"Each lap should be marked with a button press on Apple Watch, or with the Action Button when your watch supports it. That keeps your workout structure clean and stores the laps in Apple Health." = "各ラップはApple Watchでのボタン操作、または対応するWatchならアクションボタンで記録するのがおすすめです。そうすることでワークアウトの構成が整い、ラップはApple Healthにも保存されます。";
 "Rest belongs to the lap flow" = "レストもラップの流れの一部";
 "Rest is tied to a lap, so your workout history stays readable. Rundr can also detect rest automatically, which helps when you want the watch to follow the rhythm of the session with less manual work." = "レストはラップにひもづくので、ワークアウト履歴が読みやすく保たれます。Rundrはレストを自動検出することもでき、手動操作を減らしながらセッションの流れに合わせてWatchを動かしたいときに役立ちます。";
 "Bring good sessions back" = "良かったセッションをまた使える";

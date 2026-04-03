@@ -203,10 +203,12 @@
 "Intro" = "Intro";
 "About" = "Om";
 "A quick intro to how Rundr fits around your Apple Watch runs." = "En kort innføring i hvordan Rundr passer rundt løpene dine med Apple Watch.";
-"Start where it makes sense" = "Start der det passer";
-"Build your session on iPhone when you want to think it through, or head straight to Apple Watch when you are already warming up. Once you start, the watch keeps everything close at hand." = "Sett opp økten på iPhone når du vil tenke gjennom den, eller gå rett til Apple Watch når du allerede er i gang med oppvarmingen. Når du starter, har du alt viktig lett tilgjengelig på håndleddet.";
-"Mark every lap clearly" = "Marker hver runde tydelig";
-"Each lap should be marked with a button press on Apple Watch, or with the Action Button when your watch supports it. That keeps your workout structure clean, stores the laps in Apple Health, and syncs the same laps back to this app." = "Hver runde bør markeres med et knappetrykk på Apple Watch, eller med handlingsknappen når klokken din støtter det. Det holder øktstrukturen ryddig, lagrer rundene i Apple Health og synkroniserer de samme rundene tilbake til denne appen.";
+"Start where it matters" = "Start der det betyr mest";
+"Build your Session Plan on iPhone, or load one from a predefined list, then head to Apple Watch when you are ready to run." = "Bygg øktplanen din på iPhone, eller last en fra en forhåndsdefinert liste, og gå så til Apple Watch når du er klar til å løpe.";
+"Plan with precision" = "Planlegg presist";
+"Use your Session Plan for precise manual distance, or keep it together with GPS in Dual." = "Bruk øktplanen for presis manuell distanse, eller behold den sammen med GPS i Dual.";
+"Mark every lap" = "Marker hver runde";
+"Each lap should be marked with a button press on Apple Watch, or with the Action Button when your watch supports it. That keeps your workout structure clean and stores the laps in Apple Health." = "Hver runde bør markeres med et knappetrykk på Apple Watch, eller med handlingsknappen når klokken din støtter det. Det holder øktstrukturen ryddig og lagrer rundene i Apple Health.";
 "Rest belongs to the lap flow" = "Hvile hører til rundeflyten";
 "Rest is tied to a lap, so your workout history stays readable. Rundr can also detect rest automatically, which helps when you want the watch to follow the rhythm of the session with less manual work." = "Hvile er knyttet til en runde, slik at økthistorikken holder seg lett å lese. Rundr kan også oppdage hvile automatisk, noe som hjelper når du vil at klokken skal følge rytmen i økten med mindre manuelt arbeid.";
 "Bring good sessions back" = "Ta gode økter tilbake";

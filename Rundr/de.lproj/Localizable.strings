@@ -203,10 +203,12 @@
 "Intro" = "Einführung";
 "About" = "Über";
 "A quick intro to how Rundr fits around your Apple Watch runs." = "Ein kurzer Überblick, wie Rundr deine Läufe mit der Apple Watch ergänzt.";
-"Start where it makes sense" = "Starte dort, wo es passt";
-"Build your session on iPhone when you want to think it through, or head straight to Apple Watch when you are already warming up. Once you start, the watch keeps everything close at hand." = "Plane deine Einheit auf dem iPhone, wenn du sie in Ruhe aufsetzen willst, oder geh direkt zur Apple Watch, wenn du schon am Einlaufen bist. Sobald du startest, hast du alles Wichtige direkt am Handgelenk.";
-"Mark every lap clearly" = "Markiere jede Runde eindeutig";
-"Each lap should be marked with a button press on Apple Watch, or with the Action Button when your watch supports it. That keeps your workout structure clean, stores the laps in Apple Health, and syncs the same laps back to this app." = "Jede Runde sollte auf der Apple Watch per Tastendruck markiert werden, oder mit der Aktionstaste, wenn deine Uhr sie unterstützt. So bleibt deine Trainingsstruktur sauber, die Runden werden in Apple Health gespeichert und dieselben Runden zurück in diese App synchronisiert.";
+"Start where it matters" = "Starte dort, wo es zählt";
+"Build your Session Plan on iPhone, or load one from a predefined list, then head to Apple Watch when you are ready to run." = "Erstelle deinen Trainingsplan auf dem iPhone oder lade einen aus einer vorgegebenen Liste, dann geh zur Apple Watch, wenn du startklar bist.";
+"Plan with precision" = "Plane präzise";
+"Use your Session Plan for precise manual distance, or keep it together with GPS in Dual." = "Nutze deinen Trainingsplan für präzise manuelle Distanz oder zusammen mit GPS im Dual-Modus.";
+"Mark every lap" = "Markiere jede Runde";
+"Each lap should be marked with a button press on Apple Watch, or with the Action Button when your watch supports it. That keeps your workout structure clean and stores the laps in Apple Health." = "Jede Runde sollte auf der Apple Watch per Tastendruck markiert werden, oder mit der Aktionstaste, wenn deine Uhr sie unterstützt. So bleibt deine Trainingsstruktur sauber und die Runden werden in Apple Health gespeichert.";
 "Rest belongs to the lap flow" = "Pause gehört zum Rundenablauf";
 "Rest is tied to a lap, so your workout history stays readable. Rundr can also detect rest automatically, which helps when you want the watch to follow the rhythm of the session with less manual work." = "Pausen sind an eine Runde gebunden, damit deine Trainingshistorie lesbar bleibt. Rundr kann Pausen auch automatisch erkennen. Das hilft, wenn die Uhr dem Rhythmus der Einheit mit weniger manueller Eingabe folgen soll.";
 "Bring good sessions back" = "Hol gute Einheiten zurück";

@@ -709,6 +709,11 @@ private struct CompanionIntroView: View {
                 body: L10n.introStartOnWatchBody
             ),
             CompanionIntroPage(
+                icon: "ruler",
+                title: L10n.introPlanTitle,
+                body: L10n.introPlanBody
+            ),
+            CompanionIntroPage(
                 icon: "figure.run.circle",
                 title: L10n.introLapsTitle,
                 body: L10n.introLapsBody

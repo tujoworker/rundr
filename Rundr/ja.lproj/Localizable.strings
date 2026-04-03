@@ -222,12 +222,12 @@
 "Session Plan" = "セッションプラン";
 "Rundr keeps one current Session Plan. Loading a plan from predefined session plans or from a past session in History replaces the one you have now." = "Rundrで現在使えるセッションプランは1つだけです。あらかじめ用意されたセッションプランや履歴の過去セッションからプランを読み込むと、今のプランはその内容に置き換わります。";
 "Example: load last week's 6 × 400 m from History, then adjust one rest before your next run." = "例: 先週の6 × 400 mを履歴から読み込み、次のランの前にレストをひとつだけ調整します。";
-"Rest & Rest Mode" = "レストとレストモード";
-"Rest is always attached to the lap you just finished, so it stays part of the workout." = "レストは必ず直前に終えたラップにひもづくため、ワークアウトの一部として残ります。";
+"Mark as Rest" = "レストとしてマーク";
+"Mark as Rest turns the current lap into rest. That rest stays attached to the lap you just finished, so it remains part of the workout." = "「レストとしてマーク」は現在のラップをレストに切り替えます。そのレストは直前に終えた同じラップにひもづいたままなので、ワークアウトの一部として残ります。";
 "With Timed Rest" = "時間指定のレスト";
 "Rundr starts rest after the lap and warns in the last 5 seconds if Rest Alerts is enabled in Settings. When passed, the next lap does not start by itself. The target rest is a guide, and you still decide when the next lap begins." = "Rundrはラップ後にレストを開始し、設定でRest Alertsが有効なら残り5秒で通知します。目標時間を過ぎても次のラップは自動では始まりません。目標レストは目安であり、次のラップを始めるタイミングは自分で決めます。";
-"Tip: use Manual when you want full control. Use Auto-detect when you want Rundr to enter rest after you stop and end it again when you move." = "ヒント: すべて自分で決めたいならManual、自分が止まったらRundrにレストへ入り、動き出したら終えてほしいならAuto-detectが向いています。";
-"How Auto Rest Works" = "Auto Restの仕組み";
+"Tip: use Manual when you want to choose exactly when Mark as Rest starts and ends. Use Auto-detect when you want Rundr to enter rest after you stop and end it again when you move." = "ヒント: 「レストとしてマーク」をいつ開始していつ終えるかを自分で決めたいならManual、自分が止まったらRundrにレストへ入り、動き出したら終えてほしいならAuto-detectが向いています。";
+"How Auto-detect Works" = "Auto-detectの仕組み";
 "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap." = "Auto Restは、動きを止めたあとに現在のラップをレストとして扱います。そのレストは同じラップにひもづいたままです。Rundrが自動で次のラップを作ることはありません。次のラップは、ラップを押したときに始まります。";
 "Example: finish a 400 m rep, stop at the rail, and the current lap becomes rest. When you are ready for the next rep, press lap to start the next lap." = "例: 400 mの1本を終えて柵のところで止まると、現在のラップがレストになります。次の1本に進む準備ができたら、ラップを押して次のラップを始めます。";
 "Distance Type" = "距離タイプ";

@@ -39,6 +39,8 @@ final class L10nTests: XCTestCase {
     func testCompanionHelpLabelsExist() {
         XCTAssertEqual(L10n.help, "Help")
         XCTAssertEqual(L10n.helpSessionPlanTitle, "Session Plan")
+        XCTAssertEqual(L10n.helpRestTitle, "Mark as Rest")
+        XCTAssertEqual(L10n.helpAutoRestTitle, "How Auto-detect Works")
         XCTAssertEqual(L10n.helpTrackingModeTitle, "Tracking Mode")
         XCTAssertEqual(L10n.helpDistanceTypeFixedHeading, "Fixed")
         XCTAssertEqual(L10n.helpTrackingModeDualHeading, "Dual")

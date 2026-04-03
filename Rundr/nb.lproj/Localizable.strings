@@ -224,12 +224,12 @@
 "Session Plan" = "Øktplan";
 "Rundr keeps one current Session Plan. Loading a plan from predefined session plans or from a past session in History replaces the one you have now." = "Rundr har bare én gjeldende øktplan om gangen. Når du laster en plan fra forhåndsdefinerte øktplaner eller fra en tidligere økt i historikken, erstatter den planen du har nå.";
 "Example: load last week's 6 × 400 m from History, then adjust one rest before your next run." = "Eksempel: Last inn forrige ukes 6 × 400 m fra historikken, og juster deretter én hvilepause før neste økt.";
-"Rest & Rest Mode" = "Hvile og hvilemodus";
-"Rest is always attached to the lap you just finished, so it stays part of the workout." = "Hvile er alltid knyttet til runden du nettopp fullførte, så den forblir en del av økta.";
+"Mark as Rest" = "Marker som hvile";
+"Mark as Rest turns the current lap into rest. That rest stays attached to the lap you just finished, so it remains part of the workout." = "«Marker som hvile» gjør den gjeldende runden om til hvile. Den hvilen forblir knyttet til runden du nettopp fullførte, så den blir værende som en del av økta.";
 "With Timed Rest" = "Med tidsstyrt hvile";
 "Rundr starts rest after the lap and warns in the last 5 seconds if Rest Alerts is enabled in Settings. When passed, the next lap does not start by itself. The target rest is a guide, and you still decide when the next lap begins." = "Rundr starter hvilen etter runden og varsler i de siste 5 sekundene hvis hvilevarsler er aktivert i innstillingene. Når måltiden er passert, starter ikke neste runde av seg selv. Målhvilen er bare en veiledning, og du bestemmer fortsatt selv når neste runde begynner.";
-"Tip: use Manual when you want full control. Use Auto-detect when you want Rundr to enter rest after you stop and end it again when you move." = "Tips: Bruk Manuell når du vil styre alt selv. Bruk Automatisk når du vil at Rundr skal gå inn i hvile når du stopper og avslutte den igjen når du beveger deg.";
-"How Auto Rest Works" = "Slik virker auto-hvile";
+"Tip: use Manual when you want to choose exactly when Mark as Rest starts and ends. Use Auto-detect when you want Rundr to enter rest after you stop and end it again when you move." = "Tips: Bruk Manuell når du vil velge nøyaktig når «Marker som hvile» starter og slutter. Bruk Automatisk når du vil at Rundr skal gå inn i hvile når du stopper og avslutte den igjen når du beveger deg.";
+"How Auto-detect Works" = "Slik virker Automatisk";
 "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap." = "Auto-hvile markerer den gjeldende runden som hvile etter at du har stoppet å bevege deg. Den hvilen forblir knyttet til samme runde. Rundr lager ikke en ny runde av seg selv. Neste runde starter når du trykker runde.";
 "Example: finish a 400 m rep, stop at the rail, and the current lap becomes rest. When you are ready for the next rep, press lap to start the next lap." = "Eksempel: Fullfør en 400-meter, stopp ved gjerdet, og den gjeldende runden blir hvile. Når du er klar for neste drag, trykker du runde for å starte neste runde.";
 "Distance Type" = "Distansetype";

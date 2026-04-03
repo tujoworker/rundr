@@ -687,8 +687,32 @@ private struct CompanionSettingsView: View {
                         )
                     }
                     .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
+
+                    NavigationLink {
+                        CompanionPrivacyPolicyView()
+                    } label: {
+                        CompanionSettingsNavigationRow(
+                            title: L10n.privacyPolicy,
+                            value: "",
+                            systemImage: "hand.raised"
+                        )
+                    }
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
+
+                    NavigationLink {
+                        CompanionTermsOfUseView()
+                    } label: {
+                        CompanionSettingsNavigationRow(
+                            title: L10n.termsOfUse,
+                            value: "",
+                            systemImage: "doc.text"
+                        )
+                    }
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
                 }
             }
+            .navigationTitle(L10n.preferences)
+            .navigationBarTitleDisplayMode(.large)
             .themedCompanionSettingsList()
         }
     }
@@ -946,6 +970,103 @@ private struct CompanionHelpView: View {
     }
 }
 
+private struct CompanionPrivacyPolicyView: View {
+    private let sections: [CompanionLegalSection] = [
+        CompanionLegalSection(
+            icon: "internaldrive",
+            title: L10n.privacyWhatRundrStoresTitle,
+            body: L10n.privacyWhatRundrStoresBody
+        ),
+        CompanionLegalSection(
+            icon: "slider.horizontal.3",
+            title: L10n.privacyHowRundrUsesDataTitle,
+            body: L10n.privacyHowRundrUsesDataBody
+        ),
+        CompanionLegalSection(
+            icon: "arrow.trianglehead.2.clockwise.rotate.90",
+            title: L10n.privacyStorageAndSyncTitle,
+            body: L10n.privacyStorageAndSyncBody
+        ),
+        CompanionLegalSection(
+            icon: "hand.raised",
+            title: L10n.privacyPermissionsTitle,
+            body: L10n.privacyPermissionsBody
+        )
+    ]
+
+    var body: some View {
+        CompanionLegalDetailView(
+            title: L10n.privacyPolicy,
+            sections: sections
+        )
+    }
+}
+
+private struct CompanionTermsOfUseView: View {
+    private let sections: [CompanionLegalSection] = [
+        CompanionLegalSection(
+            icon: "figure.run",
+            title: L10n.termsScopeTitle,
+            body: L10n.termsScopeBody
+        ),
+        CompanionLegalSection(
+            icon: "cross.case",
+            title: L10n.termsMedicalTitle,
+            body: L10n.termsMedicalBody
+        ),
+        CompanionLegalSection(
+            icon: "exclamationmark.triangle",
+            title: L10n.termsSafetyTitle,
+            body: L10n.termsSafetyBody
+        ),
+        CompanionLegalSection(
+            icon: "shield.lefthalf.filled",
+            title: L10n.termsResponsibilityTitle,
+            body: L10n.termsResponsibilityBody
+        ),
+        CompanionLegalSection(
+            icon: "gearshape.2",
+            title: L10n.termsAvailabilityTitle,
+            body: L10n.termsAvailabilityBody
+        )
+    ]
+
+    var body: some View {
+        CompanionLegalDetailView(
+            title: L10n.termsOfUse,
+            sections: sections
+        )
+    }
+}
+
+private struct CompanionLegalDetailView: View {
+    let title: String
+    let sections: [CompanionLegalSection]
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: Tokens.Spacing.xxxl) {
+                ForEach(sections) { section in
+                    CompanionLegalSectionCard(section: section)
+                }
+            }
+            .padding(.horizontal, Tokens.Spacing.xxxl)
+            .padding(.vertical, Tokens.Spacing.xxxl)
+        }
+        .background {
+            CompanionListBackgroundView()
+                .ignoresSafeArea()
+        }
+        .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.inline)
+        .tint(settings.primaryAccentColor)
+        .foregroundStyle(theme.text.neutral)
+        .textSelection(.enabled)
+    }
+}
+
 private struct CompanionAboutCard: View {
     let icon: String
     let title: String
@@ -1122,6 +1243,48 @@ private struct CompanionHelpSection: Identifiable {
     let body: String
     let example: String?
     let tip: String?
+}
+
+private struct CompanionLegalSection: Identifiable {
+    let icon: String
+    let title: String
+    let body: String
+    var id: String { title }
+}
+
+private struct CompanionLegalSectionCard: View {
+    let section: CompanionLegalSection
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
+            HStack(alignment: .center, spacing: Tokens.Spacing.lg) {
+                Image(systemName: section.icon)
+                    .font(.system(size: Tokens.FontSize.xxl, weight: .semibold))
+                    .foregroundStyle(settings.primaryAccentColor)
+
+                Text(section.title)
+                    .font(.system(size: Tokens.FontSize.xl, weight: .semibold, design: .rounded))
+                    .foregroundStyle(theme.text.neutral)
+            }
+
+            Text(section.body)
+                .font(.title3.weight(.regular))
+                .foregroundStyle(theme.text.subtle)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(Tokens.Spacing.xxxl)
+        .background(
+            RoundedRectangle(cornerRadius: Tokens.Radius.companionListCell, style: .continuous)
+                .fill(theme.background.history)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Tokens.Radius.companionListCell, style: .continuous)
+                .stroke(theme.stroke.neutral, lineWidth: Tokens.LineWidth.thin)
+        )
+    }
 }
 
 private extension CompanionHelpTopic {

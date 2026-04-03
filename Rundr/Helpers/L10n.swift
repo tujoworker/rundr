@@ -155,7 +155,7 @@ enum L10n {
     static let useActivityConfirmationTitle = String(localized: "Use this plan?", comment: "Confirmation title before applying a session plan")
     static let useActivityConfirmationMessage = String(localized: "This replaces your current Session Plan.", comment: "Confirmation message before applying a session plan")
     static let reusePlan = String(localized: "Reuse Plan", comment: "Watch session detail action")
-    static let showMatchingSessions = String(localized: "Show Matching Sessions", comment: "Watch session detail action")
+    static let showMatchingSessions = String(localized: "Show Matching", comment: "History session detail action")
     static let useItNow = String(localized: "Use it now", comment: "Companion Adjust Interval action")
     static let sharePlan = String(localized: "Share Plan", comment: "Companion plan sharing action")
     static let shareSession = String(localized: "Share Session", comment: "Companion session sharing action")

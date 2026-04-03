@@ -3451,12 +3451,12 @@ private struct CompanionSessionDetailView: View {
                         isReuseConfirmationPresented = true
                     }
 
-                    Button(L10n.showMatchingSessions) {
-                        matchingSourceSession = session
-                    }
-
                     Button(L10n.shareSession) {
                         transferCoordinator.shareSession(session)
+                    }
+
+                    Button(L10n.showMatchingSessions) {
+                        matchingSourceSession = session
                     }
 
                     Button(L10n.deleteSession, role: .destructive) {

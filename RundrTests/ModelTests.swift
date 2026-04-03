@@ -1376,6 +1376,25 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(store.restMode, .autoDetect)
     }
 
+    func testSettingsStoreUsesStableFallbackDistanceSegmentIdentity() {
+        UserDefaults.standard.removeObject(forKey: "distanceDistanceMeters")
+        UserDefaults.standard.removeObject(forKey: "distanceSegmentsJSON")
+        defer {
+            UserDefaults.standard.removeObject(forKey: "distanceDistanceMeters")
+            UserDefaults.standard.removeObject(forKey: "distanceSegmentsJSON")
+        }
+
+        let store = SettingsStore()
+        store.distanceDistanceMeters = 800
+
+        let firstRead = store.distanceSegments
+        let secondRead = store.distanceSegments
+
+        XCTAssertEqual(firstRead, secondRead)
+        XCTAssertEqual(firstRead.first?.distanceMeters, 800)
+        XCTAssertEqual(firstRead.first?.id, secondRead.first?.id)
+    }
+
     func testSettingsStoreApplyUpgradesGPSOnlyToDualForOpenIntervals() {
         UserDefaults.standard.removeObject(forKey: "trackingMode")
         UserDefaults.standard.removeObject(forKey: "distanceDistanceMeters")

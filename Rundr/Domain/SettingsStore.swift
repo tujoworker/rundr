@@ -125,6 +125,8 @@ struct IntervalPresetSegmentSignature: Codable, Equatable {
 }
 
 final class SettingsStore: ObservableObject {
+    private static let defaultDistanceSegmentID = UUID(uuidString: "7FA5A34F-E9E7-45E7-A60A-C071132B6B52")!
+
     @AppStorage("trackingMode") var trackingMode: TrackingMode = .distanceDistance
     @AppStorage("distanceDistanceMeters") var distanceDistanceMeters: Double = 400
     @AppStorage("distanceUnit") var distanceUnit: DistanceUnit = .km
@@ -212,7 +214,13 @@ final class SettingsStore: ObservableObject {
             guard !distanceSegmentsJSON.isEmpty,
                   let data = distanceSegmentsJSON.data(using: .utf8),
                   let segments = try? JSONDecoder().decode([DistanceSegment].self, from: data) else {
-                return [DistanceSegment(distanceMeters: distanceDistanceMeters, repeatCount: nil)]
+                return [
+                    DistanceSegment(
+                        id: Self.defaultDistanceSegmentID,
+                        distanceMeters: distanceDistanceMeters,
+                        repeatCount: nil
+                    )
+                ]
             }
             return segments
         }

@@ -1118,7 +1118,7 @@ private struct CompanionHelpOverviewCard: View {
     @Environment(\.appTheme) private var theme
 
     private var tocItemFill: Color {
-        theme.isDark ? .clear : theme.background.neutralAction
+        .clear
     }
 
     private var tocItemStroke: Color {
@@ -1126,7 +1126,7 @@ private struct CompanionHelpOverviewCard: View {
     }
 
     private var tocCardFill: Color {
-        theme.isDark ? .clear : theme.background.history
+        .clear
     }
 
     private var tocCardStroke: Color {

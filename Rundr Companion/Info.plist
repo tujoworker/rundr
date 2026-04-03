@@ -18,6 +18,8 @@
 	<string>Rundr</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>LSSupportsOpeningDocumentsInPlace</key>
+	<true/>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>CFBundleDocumentTypes</key>

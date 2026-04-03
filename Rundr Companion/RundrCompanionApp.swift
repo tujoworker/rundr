@@ -240,6 +240,6 @@ struct CompanionShareSheet: UIViewControllerRepresentable {
 }
 
 extension UTType {
-    static let rundrPlan = UTType(importedAs: "com.rundr.plan")
-    static let rundrSession = UTType(importedAs: "com.rundr.session")
+    static let rundrPlan = UTType(exportedAs: "com.rundr.plan")
+    static let rundrSession = UTType(exportedAs: "com.rundr.session")
 }

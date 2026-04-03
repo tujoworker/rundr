@@ -3,6 +3,7 @@ import SwiftUI
 struct SessionDetailView: View {
     let session: Session
     let onUseSessionSettings: () -> Void
+    let onShowMatchingSessions: () -> Void
     @EnvironmentObject var settings: SettingsStore
     @EnvironmentObject var persistence: PersistenceManager
     @EnvironmentObject var syncManager: WatchConnectivitySyncManager
@@ -193,6 +194,9 @@ struct SessionDetailView: View {
         .confirmationDialog(L10n.thisSession, isPresented: $isActionMenuPresented, titleVisibility: .visible) {
             Button(L10n.reusePlan) {
                 isReuseConfirmationPresented = true
+            }
+            Button(L10n.showMatchingSessions) {
+                onShowMatchingSessions()
             }
             Button(L10n.deleteSession, role: .destructive) {
                 isDeleteConfirmationPresented = true

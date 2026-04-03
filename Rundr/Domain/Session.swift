@@ -6,12 +6,14 @@ struct WorkoutPlanSnapshot: Codable, Equatable {
     var distanceLapDistanceMeters: Double?
     var distanceSegments: [DistanceSegment]
     var restMode: RestMode
+    var originPlanID: UUID?
 
     init(
         trackingMode: TrackingMode,
         distanceLapDistanceMeters: Double? = nil,
         distanceSegments: [DistanceSegment] = [.default],
-        restMode: RestMode = .manual
+        restMode: RestMode = .manual,
+        originPlanID: UUID? = nil
     ) {
         let normalizedSegments = distanceSegments.isEmpty ? [.default] : distanceSegments
         if trackingMode == .distanceDistance, normalizedSegments.contains(where: \.usesOpenDistance) {
@@ -24,6 +26,47 @@ struct WorkoutPlanSnapshot: Codable, Equatable {
             : nil
         self.distanceSegments = normalizedSegments
         self.restMode = restMode
+        self.originPlanID = originPlanID
+    }
+}
+
+struct WorkoutPlanMatchSignature: Equatable {
+    let trackingMode: TrackingMode
+    let distanceLapDistanceMeters: Double?
+    let distanceSegments: [WorkoutPlanMatchSegmentSignature]
+    let restMode: RestMode
+
+    init(workoutPlan: WorkoutPlanSnapshot) {
+        let normalizedSegments = WorkoutPlanSupport.normalizedSegments(workoutPlan.distanceSegments)
+        trackingMode = WorkoutPlanSupport.resolvedTrackingMode(
+            requestedTrackingMode: workoutPlan.trackingMode,
+            segments: normalizedSegments
+        )
+        distanceLapDistanceMeters = trackingMode.usesManualIntervals
+            ? (workoutPlan.distanceLapDistanceMeters ?? normalizedSegments.first?.distanceMeters)
+            : nil
+        distanceSegments = normalizedSegments.map(WorkoutPlanMatchSegmentSignature.init(segment:))
+        restMode = workoutPlan.restMode
+    }
+}
+
+struct WorkoutPlanMatchSegmentSignature: Equatable {
+    let distanceMeters: Double
+    let distanceGoalMode: DistanceGoalMode
+    let repeatCount: Int?
+    let restSeconds: Int?
+    let lastRestSeconds: Int?
+    let targetPaceSecondsPerKm: Double?
+    let targetTimeSeconds: Double?
+
+    init(segment: DistanceSegment) {
+        distanceMeters = segment.distanceMeters
+        distanceGoalMode = segment.distanceGoalMode
+        repeatCount = segment.repeatCount
+        restSeconds = segment.restSeconds
+        lastRestSeconds = segment.lastRestSeconds
+        targetPaceSecondsPerKm = segment.targetPaceSecondsPerKm
+        targetTimeSeconds = segment.targetTimeSeconds
     }
 }
 
@@ -335,6 +378,10 @@ extension IntervalPreset {
 }
 
 extension WorkoutPlanSnapshot {
+    var matchSignature: WorkoutPlanMatchSignature {
+        WorkoutPlanMatchSignature(workoutPlan: self)
+    }
+
     func displayTitle(unit: DistanceUnit) -> String {
         let normalizedSegments = WorkoutPlanSupport.normalizedSegments(distanceSegments)
         guard let firstSegment = normalizedSegments.first else {

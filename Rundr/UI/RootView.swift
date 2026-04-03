@@ -235,6 +235,7 @@ struct RootView: View {
                                     distanceLapDistanceMeters: settings.distanceDistanceMeters,
                                     distanceSegments: settings.distanceSegments,
                                     restMode: settings.restMode,
+                                    originPlanID: settings.workoutPlanOriginID,
                                     healthKitManager: healthKitManager
                                 )
                                 workoutController.lapAlertsEnabled = settings.lapAlerts
@@ -252,6 +253,9 @@ struct RootView: View {
                                     session: session,
                                     onUseSessionSettings: {
                                         coordinator.goToHistorySetup(id: session.id)
+                                    },
+                                    onShowMatchingSessions: {
+                                        coordinator.goToMatchingSessions(id: session.id)
                                     }
                                 )
                             } else {
@@ -267,6 +271,12 @@ struct RootView: View {
                                         coordinator.goToPreStart(replacingPath: true)
                                     }
                                 )
+                            } else {
+                                Text(L10n.sessionNotFound)
+                            }
+                        case .matchingSessions(let sessionID):
+                            if let session = persistence.fetchSession(id: sessionID) {
+                                MatchingSessionsView(sourceSession: session)
                             } else {
                                 Text(L10n.sessionNotFound)
                             }

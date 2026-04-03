@@ -228,6 +228,7 @@ final class SessionSyncTests: XCTestCase {
     }
 
     func testRundrPlanTransferRoundTrip() throws {
+        let originPlanID = UUID()
         let transfer = RundrPlanTransfer(
             autor: "preset",
             title: "Track Night",
@@ -235,7 +236,8 @@ final class SessionSyncTests: XCTestCase {
                 trackingMode: .distanceDistance,
                 distanceLapDistanceMeters: 400,
                 distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
-                restMode: .manual
+                restMode: .manual,
+                originPlanID: originPlanID
             )
         )
 
@@ -245,6 +247,7 @@ final class SessionSyncTests: XCTestCase {
         XCTAssertEqual(decoded, transfer)
         XCTAssertEqual(decoded.schemaVersion, 1)
         XCTAssertEqual(decoded.autor, "preset")
+        XCTAssertEqual(decoded.workoutPlan.originPlanID, originPlanID)
     }
 
     func testRundrSessionTransferRoundTrip() throws {

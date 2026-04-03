@@ -741,12 +741,12 @@ struct IntervalLibraryView: View {
                                 showsCustomTitle: true,
                                 autoSaveOnSegmentDone: true,
                                 onContinue: { workoutPlan, customTitle, storedPresetID in
-                                    _ = settings.saveIntervalPreset(
+                                    let savedPreset = settings.saveIntervalPreset(
                                         workoutPlan,
                                         customTitle: customTitle,
                                         existingPresetID: storedPresetID ?? preset.id
                                     )
-                                    settings.apply(workoutPlan: workoutPlan)
+                                    settings.apply(workoutPlan: savedPreset?.workoutPlan ?? workoutPlan)
                                     coordinator.goToPreStart(replacingPath: true)
                                 }
                             )
@@ -803,14 +803,17 @@ struct IntervalLibraryView: View {
                             autoSaveOnSegmentDone: true,
                             onContinue: { workoutPlan, customTitle, storedPresetID in
                                 let normalizedTitle = IntervalPreset.sanitizeTitle(customTitle)
+                                let savedPreset: IntervalPreset?
                                 if IntervalPresetSignature(workoutPlan: workoutPlan) != preset.signature || normalizedTitle != nil {
-                                    _ = settings.saveIntervalPreset(
+                                    savedPreset = settings.saveIntervalPreset(
                                         workoutPlan,
                                         customTitle: normalizedTitle,
                                         existingPresetID: storedPresetID
                                     )
+                                } else {
+                                    savedPreset = nil
                                 }
-                                settings.apply(workoutPlan: workoutPlan)
+                                settings.apply(workoutPlan: savedPreset?.workoutPlan ?? workoutPlan)
                                 coordinator.goToPreStart(replacingPath: true)
                             }
                         )
@@ -857,6 +860,7 @@ private struct IntervalSetupView: View {
     @State private var segments: [DistanceSegment] = []
     @State private var customTitle: String = ""
     @State private var storedPresetID: UUID?
+    @State private var originPlanID: UUID?
     @State private var editingSegmentID: UUID?
     @State private var editingSegmentDistanceText: String = ""
     @State private var editingSegmentUsesOpenDistance = false
@@ -1033,6 +1037,7 @@ private struct IntervalSetupView: View {
         segments = snapshot.distanceSegments.isEmpty ? [.default] : snapshot.distanceSegments
         customTitle = initialCustomTitle ?? ""
         storedPresetID = initialStoredPresetID
+        originPlanID = snapshot.originPlanID
         lastAddedDistanceMeters = segments.last?.distanceMeters ?? DistanceSegment.default.distanceMeters
         lastAddedUsesOpenDistance = segments.last?.usesOpenDistance ?? false
         lastAddedRepeatCount = segments.last?.repeatCount ?? 0
@@ -1062,7 +1067,8 @@ private struct IntervalSetupView: View {
                 trackingMode: trackingMode,
                 distanceLapDistanceMeters: distance,
                 distanceSegments: normalized,
-                restMode: settings.restMode
+                restMode: settings.restMode,
+                originPlanID: originPlanID
             ),
             IntervalPreset.sanitizeTitle(customTitle),
             storedPresetID
@@ -1082,7 +1088,8 @@ private struct IntervalSetupView: View {
             trackingMode: trackingMode,
             distanceLapDistanceMeters: distance,
             distanceSegments: normalized,
-            restMode: settings.restMode
+            restMode: settings.restMode,
+            originPlanID: originPlanID
         )
     }
 
@@ -1095,6 +1102,7 @@ private struct IntervalSetupView: View {
             existingPresetID: storedPresetID
         )
         storedPresetID = savedPreset?.id ?? storedPresetID
+        originPlanID = savedPreset?.workoutPlan.originPlanID ?? originPlanID
         if let savedPreset {
             customTitle = savedPreset.customTitle ?? customTitle
         }

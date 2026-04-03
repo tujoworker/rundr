@@ -40,7 +40,8 @@ struct IntervalPreset: Codable, Identifiable, Equatable {
             ),
             distanceLapDistanceMeters: normalizedSegments.first?.distanceMeters ?? workoutPlan.distanceLapDistanceMeters,
             distanceSegments: normalizedSegments,
-            restMode: .manual
+            restMode: .manual,
+            originPlanID: workoutPlan.originPlanID
         )
     }
 
@@ -170,6 +171,7 @@ final class SettingsStore: ObservableObject {
     @AppStorage("distanceSegmentsJSON") private var distanceSegmentsJSON: String = ""
     @AppStorage("intervalPresetsJSON") private var intervalPresetsJSON: String = ""
     @AppStorage("presetUsageCountsJSON") private var presetUsageCountsJSON: String = ""
+    @AppStorage("workoutPlanOriginID") private var workoutPlanOriginIDRaw: String = ""
 
 
     static let predefinedIntervalPresets: [PredefinedIntervalPreset] = [
@@ -248,8 +250,14 @@ final class SettingsStore: ObservableObject {
             trackingMode: trackingMode,
             distanceLapDistanceMeters: distanceDistanceMeters,
             distanceSegments: distanceSegments,
-            restMode: restMode
+            restMode: restMode,
+            originPlanID: workoutPlanOriginID
         )
+    }
+
+    var workoutPlanOriginID: UUID? {
+        get { UUID(uuidString: workoutPlanOriginIDRaw) }
+        set { workoutPlanOriginIDRaw = newValue?.uuidString ?? "" }
     }
 
     func apply(workoutPlan: WorkoutPlanSnapshot) {
@@ -259,6 +267,7 @@ final class SettingsStore: ObservableObject {
             currentTrackingMode: trackingMode
         )
         restMode = workoutPlan.restMode
+        workoutPlanOriginID = workoutPlan.originPlanID
 
         let segments = workoutPlan.distanceSegments.isEmpty ? [.default] : workoutPlan.distanceSegments
         distanceSegments = segments
@@ -279,6 +288,7 @@ final class SettingsStore: ObservableObject {
             restAlerts: restAlerts,
             appearanceMode: appearanceMode,
             distanceSegments: distanceSegments,
+            workoutPlanOriginID: workoutPlanOriginID,
             intervalPresets: intervalPresets,
             updatedAt: updatedAt,
             deviceSource: deviceSource
@@ -295,6 +305,7 @@ final class SettingsStore: ObservableObject {
         restAlerts = settingsSyncRecord.restAlerts
         appearanceMode = settingsSyncRecord.appearanceMode
         distanceSegments = settingsSyncRecord.distanceSegments
+        workoutPlanOriginID = settingsSyncRecord.workoutPlanOriginID
         persistIntervalPresets(settingsSyncRecord.intervalPresets)
     }
 
@@ -337,9 +348,10 @@ final class SettingsStore: ObservableObject {
         customTitle: String? = nil,
         existingPresetID: UUID? = nil
     ) -> IntervalPreset? {
-        let normalizedPlan = IntervalPreset.normalizedWorkoutPlan(workoutPlan)
+        var normalizedPlan = IntervalPreset.normalizedWorkoutPlan(workoutPlan)
         guard normalizedPlan.trackingMode.usesManualIntervals else { return nil }
 
+        normalizedPlan.originPlanID = normalizedPlan.originPlanID ?? UUID()
         let title = IntervalPreset.storedTitle(for: normalizedPlan, preferredTitle: customTitle)
         let now = Date()
         let signature = IntervalPresetSignature(workoutPlan: normalizedPlan)

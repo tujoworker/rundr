@@ -133,6 +133,7 @@
 "Use this plan?" = "Use this plan?";
 "This replaces your current Session Plan." = "This replaces your current Session Plan.";
 "Reuse Plan" = "Reuse Plan";
+"Show Matching Sessions" = "Show Matching Sessions";
 "Use it now" = "Use it now";
 "Share Plan" = "Share Plan";
 "Share Session" = "Share Session";
@@ -146,6 +147,8 @@
 "Couldn't Share" = "Couldn't Share";
 "This item could not be prepared for sharing." = "This item could not be prepared for sharing.";
 "Reuse Session Plan" = "Reuse Session Plan";
+"Matching Sessions" = "Matching Sessions";
+"No other matching sessions yet" = "No other matching sessions yet";
 "This Session" = "This Session";
 "More" = "More";
 "Yes" = "Yes";

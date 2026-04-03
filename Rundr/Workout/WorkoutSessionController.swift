@@ -33,6 +33,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private(set) var trackingMode: TrackingMode = .gps
     private(set) var distanceLapDistanceMeters: Double = 400
     private(set) var restMode: RestMode = .manual
+    private(set) var originPlanID: UUID?
     var lapAlertsEnabled: Bool = true
     var restAlertsEnabled: Bool = true
 
@@ -158,6 +159,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         distanceLapDistanceMeters: Double,
         distanceSegments: [DistanceSegment] = [.default],
         restMode: RestMode = .manual,
+        originPlanID: UUID? = nil,
         healthKitManager: HealthKitManager
     ) {
         cancelPendingAutoRestDetection()
@@ -166,6 +168,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         self.distanceLapDistanceMeters = distanceLapDistanceMeters
         self.distanceSegments = normalizedSegments
         self.restMode = restMode
+        self.originPlanID = originPlanID
         self.healthKitManager = healthKitManager
         self.currentSegmentIndex = 0
         self.currentSegmentRepeatsDone = 0
@@ -184,6 +187,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         distanceLapDistanceMeters = snapshot.distanceLapDistanceMeters
         distanceSegments = normalizedSegments
         restMode = snapshot.restMode
+        originPlanID = snapshot.originPlanID
         sessionStartDate = snapshot.sessionStartDate
         currentLapStartDate = snapshot.currentLapStartDate
         currentLapDistanceMeters = snapshot.currentLapDistanceMeters
@@ -515,7 +519,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
                 trackingMode: trackingMode,
                 distanceLapDistanceMeters: usesManualIntervals ? distanceLapDistanceMeters : nil,
                 distanceSegments: distanceSegments,
-                restMode: restMode
+                restMode: restMode,
+                originPlanID: originPlanID
             )
         )
 
@@ -536,6 +541,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         sessionStartDate = nil
         currentSessionID = nil
         currentLapStartDate = nil
+        originPlanID = nil
         currentLapDistanceMeters = 0
         currentLapGPSDistanceMeters = 0
         currentLapHeartRateSamples = []
@@ -1028,6 +1034,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             distanceLapDistanceMeters: distanceLapDistanceMeters,
             distanceSegments: distanceSegments,
             restMode: restMode,
+            originPlanID: originPlanID,
             completedLaps: completedLaps.map(OngoingWorkoutLapSnapshot.init(lap:)),
             cumulativeDistanceMeters: cumulativeDistanceMeters,
             currentLapDistanceMeters: currentLapDistanceMeters,

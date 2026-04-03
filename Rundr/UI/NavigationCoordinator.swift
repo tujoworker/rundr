@@ -41,6 +41,10 @@ final class NavigationCoordinator: ObservableObject {
         path.append(.historySetup(id))
     }
 
+    func goToMatchingSessions(id: UUID) {
+        path.append(.matchingSessions(id))
+    }
+
     func sessionEnded() {
         DispatchQueue.main.async {
             self.isShowingActiveSession = false

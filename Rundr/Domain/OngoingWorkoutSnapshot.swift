@@ -55,6 +55,7 @@ struct OngoingWorkoutSnapshot: Codable, Equatable {
     var distanceLapDistanceMeters: Double
     var distanceSegments: [DistanceSegment]
     var restMode: RestMode
+    var originPlanID: UUID? = nil
     var completedLaps: [OngoingWorkoutLapSnapshot]
     var cumulativeDistanceMeters: Double
     var currentLapDistanceMeters: Double
@@ -73,7 +74,8 @@ struct OngoingWorkoutSnapshot: Codable, Equatable {
             trackingMode: trackingMode,
             distanceLapDistanceMeters: trackingMode.usesManualIntervals ? distanceLapDistanceMeters : nil,
             distanceSegments: distanceSegments,
-            restMode: restMode
+            restMode: restMode,
+            originPlanID: originPlanID
         )
     }
 

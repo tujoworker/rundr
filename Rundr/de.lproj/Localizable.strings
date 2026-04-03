@@ -133,6 +133,7 @@
 "Use this plan?" = "Diesen Plan verwenden?";
 "This replaces your current Session Plan." = "Dadurch wird dein aktueller Trainingsplan ersetzt.";
 "Reuse Plan" = "Plan erneut verwenden";
+"Show Matching Sessions" = "Passende Einheiten anzeigen";
 "Use it now" = "Jetzt verwenden";
 "Share Plan" = "Plan teilen";
 "Share Session" = "Einheit teilen";
@@ -146,6 +147,8 @@
 "Couldn't Share" = "Teilen nicht möglich";
 "This item could not be prepared for sharing." = "Dieses Element konnte nicht zum Teilen vorbereitet werden.";
 "Reuse Session Plan" = "Trainingsplan erneut verwenden";
+"Matching Sessions" = "Passende Einheiten";
+"No other matching sessions yet" = "Noch keine weiteren passenden Einheiten.";
 "This Session" = "Diese Einheit";
 "More" = "Mehr";
 "Yes" = "Ja";

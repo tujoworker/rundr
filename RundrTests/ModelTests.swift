@@ -697,6 +697,7 @@ final class ModelTests: XCTestCase {
     }
 
     func testSessionStoresWorkoutPlanSnapshot() {
+        let originPlanID = UUID()
         let snapshot = WorkoutPlanSnapshot(
             trackingMode: .distanceDistance,
             distanceLapDistanceMeters: 400,
@@ -704,7 +705,8 @@ final class ModelTests: XCTestCase {
                 DistanceSegment(distanceMeters: 400, repeatCount: 4, restSeconds: 30),
                 DistanceSegment(distanceMeters: 800, repeatCount: 2, restSeconds: 60)
             ],
-            restMode: .autoDetect
+            restMode: .autoDetect,
+            originPlanID: originPlanID
         )
         let session = Session(
             startedAt: Date(),
@@ -721,6 +723,7 @@ final class ModelTests: XCTestCase {
         )
 
         XCTAssertEqual(session.snapshotWorkoutPlan, snapshot)
+        XCTAssertEqual(session.snapshotWorkoutPlan.originPlanID, originPlanID)
     }
 
     func testSessionWorkoutPlanFallbackForLegacySnapshot() {
@@ -851,6 +854,7 @@ final class ModelTests: XCTestCase {
     }
 
     func testSessionSyncRecordRoundTripPreservesIdentityAndPlan() {
+        let originPlanID = UUID()
         let session = Session(
             id: UUID(),
             startedAt: Date().addingTimeInterval(-600),
@@ -874,7 +878,8 @@ final class ModelTests: XCTestCase {
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 400,
                 distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 5, restSeconds: 30)],
-                restMode: .manual
+                restMode: .manual,
+                originPlanID: originPlanID
             )
         )
 
@@ -884,6 +889,7 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(rebuilt.id, session.id)
         XCTAssertEqual(rebuilt.totalGPSDistanceMeters, session.totalGPSDistanceMeters)
         XCTAssertEqual(rebuilt.snapshotWorkoutPlan, session.snapshotWorkoutPlan)
+        XCTAssertEqual(rebuilt.snapshotWorkoutPlan.originPlanID, originPlanID)
         XCTAssertEqual(rebuilt.laps.count, 1)
         XCTAssertEqual(rebuilt.laps.first?.id, session.laps.first?.id)
     }
@@ -950,6 +956,80 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(storedSession?.totalLaps, 5)
         XCTAssertEqual(storedSession?.laps.count, 2)
         XCTAssertEqual(storedSession?.totalGPSDistanceMeters, 2080)
+    }
+
+    @MainActor
+    func testPersistenceManagerFetchMatchingSessionsReturnsOnlyExactPlanMatches() {
+        let persistence = PersistenceManager(inMemory: true)
+        let sourcePlan = WorkoutPlanSnapshot(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+            restMode: .manual,
+            originPlanID: UUID()
+        )
+        let sourceSession = Session(
+            id: UUID(),
+            startedAt: Date().addingTimeInterval(-1800),
+            endedAt: Date().addingTimeInterval(-1200),
+            durationSeconds: 600,
+            mode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            totalDistanceMeters: 2400,
+            averageSpeedMetersPerSecond: 4,
+            totalLaps: 6,
+            snapshotTrackingMode: .distanceDistance,
+            snapshotDistanceDistanceMeters: 400,
+            snapshotWorkoutPlan: sourcePlan
+        )
+        let matchingSession = Session(
+            id: UUID(),
+            startedAt: Date().addingTimeInterval(-900),
+            endedAt: Date().addingTimeInterval(-300),
+            durationSeconds: 600,
+            mode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            totalDistanceMeters: 2400,
+            averageSpeedMetersPerSecond: 4,
+            totalLaps: 6,
+            snapshotTrackingMode: .distanceDistance,
+            snapshotDistanceDistanceMeters: 400,
+            snapshotWorkoutPlan: WorkoutPlanSnapshot(
+                trackingMode: .distanceDistance,
+                distanceLapDistanceMeters: 400,
+                distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+                restMode: .manual,
+                originPlanID: UUID()
+            )
+        )
+        let differentRestSession = Session(
+            id: UUID(),
+            startedAt: Date().addingTimeInterval(-600),
+            endedAt: Date(),
+            durationSeconds: 600,
+            mode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            totalDistanceMeters: 2400,
+            averageSpeedMetersPerSecond: 4,
+            totalLaps: 6,
+            snapshotTrackingMode: .distanceDistance,
+            snapshotDistanceDistanceMeters: 400,
+            snapshotWorkoutPlan: WorkoutPlanSnapshot(
+                trackingMode: .distanceDistance,
+                distanceLapDistanceMeters: 400,
+                distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+                restMode: .autoDetect,
+                originPlanID: sourcePlan.originPlanID
+            )
+        )
+
+        persistence.saveSession(sourceSession)
+        persistence.saveSession(matchingSession)
+        persistence.saveSession(differentRestSession)
+
+        let matches = persistence.fetchMatchingSessions(for: sourceSession)
+
+        XCTAssertEqual(matches.map(\.id), [matchingSession.id])
     }
 
     func testCompletedSessionTransferStoreTracksPendingSessionIDs() {
@@ -1448,6 +1528,7 @@ final class ModelTests: XCTestCase {
             "distanceDistanceMeters",
             "distanceSegmentsJSON",
             "intervalPresetsJSON",
+            "workoutPlanOriginID",
             "primaryColor",
             "restMode",
             "pauseMode",
@@ -1460,11 +1541,13 @@ final class ModelTests: XCTestCase {
         defer { keys.forEach { UserDefaults.standard.removeObject(forKey: $0) } }
 
         let store = SettingsStore()
+        let originPlanID = UUID()
         let presetPlan = WorkoutPlanSnapshot(
             trackingMode: .distanceDistance,
             distanceLapDistanceMeters: 300,
             distanceSegments: [DistanceSegment(distanceMeters: 300, repeatCount: 8, restSeconds: 30)],
-            restMode: .manual
+            restMode: .manual,
+            originPlanID: originPlanID
         )
         let record = SettingsSyncRecord(
             trackingMode: .dual,
@@ -1476,6 +1559,7 @@ final class ModelTests: XCTestCase {
             restAlerts: true,
             appearanceMode: .light,
             distanceSegments: presetPlan.distanceSegments,
+            workoutPlanOriginID: originPlanID,
             intervalPresets: [IntervalPreset(customTitle: "Track", workoutPlan: presetPlan)],
             updatedAt: Date(),
             deviceSource: "iphone"
@@ -1492,6 +1576,7 @@ final class ModelTests: XCTestCase {
         XCTAssertTrue(store.restAlerts)
         XCTAssertEqual(store.appearanceMode, .light)
         XCTAssertEqual(store.distanceSegments, presetPlan.distanceSegments)
+        XCTAssertEqual(store.workoutPlanOriginID, originPlanID)
         XCTAssertEqual(store.intervalPresets.first?.trimmedCustomTitle, "Track")
     }
 

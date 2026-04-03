@@ -286,6 +286,7 @@ struct SettingsSyncRecord: Codable, Equatable {
     var restAlerts: Bool
     var appearanceMode: AppearanceMode
     var distanceSegments: [DistanceSegment]
+    var workoutPlanOriginID: UUID? = nil
     var intervalPresets: [IntervalPreset]
     var updatedAt: Date
     var deviceSource: String

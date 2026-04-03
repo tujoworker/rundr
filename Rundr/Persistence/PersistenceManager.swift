@@ -77,6 +77,13 @@ final class PersistenceManager: ObservableObject {
         return (try? modelContext.fetch(descriptor)) ?? []
     }
 
+    func fetchMatchingSessions(for session: Session) -> [Session] {
+        let targetSignature = session.snapshotWorkoutPlan.matchSignature
+        return fetchAllSessions().filter { candidate in
+            candidate.id != session.id && candidate.snapshotWorkoutPlan.matchSignature == targetSignature
+        }
+    }
+
     func fetchSession(id: UUID) -> Session? {
         let descriptor = FetchDescriptor<Session>(
             predicate: #Predicate<Session> { $0.id == id }

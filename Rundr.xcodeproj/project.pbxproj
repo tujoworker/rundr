@@ -30,6 +30,7 @@
 		6D0A2E2B5F7C4A1E9B3D1101 /* OngoingWorkoutSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0A2E2B5F7C4A1E9B3D1102 /* OngoingWorkoutSnapshot.swift */; };
 		6D0A2E2B5F7C4A1E9B3D1103 /* OngoingWorkoutStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0A2E2B5F7C4A1E9B3D1104 /* OngoingWorkoutStore.swift */; };
 		6D0A2E2B5F7C4A1E9B3D1105 /* OngoingWorkoutRecoveryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D0A2E2B5F7C4A1E9B3D1106 /* OngoingWorkoutRecoveryView.swift */; };
+		C0D300000000000000000001 /* MatchingSessionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0D300000000000000000002 /* MatchingSessionsView.swift */; };
 		6E02E5DF235633F34728DC8C /* LapType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 586AE861C21CF4145AD81D08 /* LapType.swift */; };
 		7BB47A6891185829ADD4094F /* PreStartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F80845E9FC8FEA57AA0E6D7F /* PreStartView.swift */; };
 		826AF4CE8424BB9A4EF1F5CC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B3C468A8CAAB5486BF89EDC4 /* Assets.xcassets */; };
@@ -130,6 +131,7 @@
 		6D0A2E2B5F7C4A1E9B3D1102 /* OngoingWorkoutSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OngoingWorkoutSnapshot.swift; sourceTree = "<group>"; };
 		6D0A2E2B5F7C4A1E9B3D1104 /* OngoingWorkoutStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OngoingWorkoutStore.swift; sourceTree = "<group>"; };
 		6D0A2E2B5F7C4A1E9B3D1106 /* OngoingWorkoutRecoveryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OngoingWorkoutRecoveryView.swift; sourceTree = "<group>"; };
+		C0D300000000000000000002 /* MatchingSessionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchingSessionsView.swift; sourceTree = "<group>"; };
 		803A3A092975B9BAB810BAB2 /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
 		8912F0A720200E8D9538C4D5 /* StartRunningWorkoutIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartRunningWorkoutIntent.swift; sourceTree = "<group>"; };
 		8B2F9EBC2633B3C17127B2A8 /* ActionButtonCommandStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionButtonCommandStore.swift; sourceTree = "<group>"; };
@@ -230,6 +232,7 @@
 				2DC650870DDC91DB05A48BBA /* HomeView.swift */,
 				E2A1B775A27201FA001C88AF /* HomeViewModel.swift */,
 				FC5AEA32CF41F4A95EA655A2 /* SessionDetailView.swift */,
+				C0D300000000000000000002 /* MatchingSessionsView.swift */,
 				DistanceInputViewFile /* DistanceInputView.swift */,
 				F80845E9FC8FEA57AA0E6D7F /* PreStartView.swift */,
 				02A391721789A00DCE1A52C5 /* ActiveSessionView.swift */,
@@ -504,6 +507,7 @@
 				FD7F3FB0395174CBAF09E673 /* HomeView.swift in Sources */,
 				012B7841E2D242F37F954082 /* HomeViewModel.swift in Sources */,
 				4400B362EFED68F5CCBD88CF /* SessionDetailView.swift in Sources */,
+				C0D300000000000000000001 /* MatchingSessionsView.swift in Sources */,
 				DistanceInputViewRef /* DistanceInputView.swift in Sources */,
 				7BB47A6891185829ADD4094F /* PreStartView.swift in Sources */,
 				1C5FBAD9B17FA11B1506817D /* ActiveSessionView.swift in Sources */,

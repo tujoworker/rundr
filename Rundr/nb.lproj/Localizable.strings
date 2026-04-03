@@ -133,6 +133,7 @@
 "Use this plan?" = "Bruke denne planen?";
 "This replaces your current Session Plan." = "Dette erstatter den nåværende øktplanen din.";
 "Reuse Plan" = "Bruk plan på nytt";
+"Show Matching Sessions" = "Vis matchende økter";
 "Use it now" = "Bruk den nå";
 "Share Plan" = "Del plan";
 "Share Session" = "Del økt";
@@ -146,6 +147,8 @@
 "Couldn't Share" = "Kunne ikke dele";
 "This item could not be prepared for sharing." = "Dette elementet kunne ikke klargjøres for deling.";
 "Reuse Session Plan" = "Bruk øktplan på nytt";
+"Matching Sessions" = "Matchende økter";
+"No other matching sessions yet" = "Ingen andre matchende økter ennå";
 "This Session" = "Denne økta";
 "More" = "Mer";
 "Yes" = "Ja";

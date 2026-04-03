@@ -654,7 +654,7 @@ private struct CompanionSettingsView: View {
                     .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
                 }
 
-                Section(L10n.other) {
+                Section {
                     NavigationLink {
                         CompanionIntroView()
                     } label: {
@@ -689,8 +689,6 @@ private struct CompanionSettingsView: View {
                     .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
                 }
             }
-            .navigationTitle(L10n.more)
-            .navigationBarTitleDisplayMode(.large)
             .themedCompanionSettingsList()
         }
     }
@@ -729,6 +727,23 @@ private struct CompanionIntroView: View {
                 body: L10n.introSyncAndRepeatBody
             )
         ]
+    }
+
+    private var pageIndicatorView: some View {
+        HStack(spacing: Tokens.Spacing.sm) {
+            ForEach(Array(pages.enumerated()), id: \.offset) { index, _ in
+                Circle()
+                    .fill(index == selectedPage ? theme.text.neutral : theme.text.subtle)
+                    .frame(
+                        width: index == selectedPage ? Tokens.Spacing.sm : Tokens.Spacing.xs,
+                        height: index == selectedPage ? Tokens.Spacing.sm : Tokens.Spacing.xs
+                    )
+            }
+        }
+        .padding(.horizontal, Tokens.Spacing.md)
+        .padding(.vertical, Tokens.Spacing.sm)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(L10n.introPageLabel(selectedPage + 1, pages.count))
     }
 
     var body: some View {
@@ -780,7 +795,11 @@ private struct CompanionIntroView: View {
                 .tag(index)
             }
         }
-        .tabViewStyle(.page(indexDisplayMode: .always))
+        .tabViewStyle(.page(indexDisplayMode: .never))
+        .safeAreaInset(edge: .bottom) {
+            pageIndicatorView
+                .padding(.bottom, Tokens.Spacing.lg)
+        }
         .navigationTitle(L10n.intro)
         .navigationBarTitleDisplayMode(.inline)
     }
@@ -803,12 +822,6 @@ private struct CompanionAboutDetailView: View {
                         .foregroundStyle(theme.text.subtle)
                         .fixedSize(horizontal: false, vertical: true)
                 }
-
-                CompanionAboutCard(
-                    icon: "flag.pattern.checkered",
-                    title: L10n.aboutRunWithWatchTitle,
-                    bodyText: L10n.aboutRunWithWatchBody
-                )
 
                 CompanionAboutCard(
                     icon: "slider.horizontal.3",
@@ -1099,6 +1112,10 @@ private struct CompanionHelpHighlight: View {
         .background(
             RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
                 .fill(theme.background.neutralAction)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: Tokens.Radius.large, style: .continuous)
+                .stroke(theme.stroke.callout, lineWidth: Tokens.LineWidth.thin)
         )
     }
 }

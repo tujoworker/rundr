@@ -264,8 +264,6 @@ enum L10n {
     static let introSyncAndRepeatBody = String(localized: "When the run is done, your session is waiting on iPhone for review. Reuse the ones that worked, adjust the ones that did not, and keep moving without rebuilding everything from scratch.", comment: "Companion intro page body")
     static let aboutRundrHeadline = String(localized: "Rundr is built for interval days.", comment: "Companion about headline")
     static let aboutRundrBodyOne = String(localized: "It is a running app designed around Apple Watch first, with iPhone handling the setup and the follow-up. The goal is simple: make structured runs feel easier to start, easier to follow, and easier to return to.", comment: "Companion about body")
-    static let aboutRunWithWatchTitle = String(localized: "Run with your watch in front", comment: "Companion about card title")
-    static let aboutRunWithWatchBody = String(localized: "The watch is where Rundr shines. It gives you the next cue at a glance, keeps the important controls large, and stays readable when your attention belongs on the workout instead of the screen.", comment: "Companion about card body")
     static let aboutFlexibleSessionsTitle = String(localized: "Flexible when your workout is not one-size-fits-all", comment: "Companion about card title")
     static let aboutFlexibleSessionsBody = String(localized: "You can build fixed intervals, open intervals, pacing goals, rest blocks, and repeat structures that match the way you actually train. If a session works well, save it and bring it back later.", comment: "Companion about card body")
     static let aboutKeepMomentumTitle = String(localized: "Made to keep momentum", comment: "Companion about card title")

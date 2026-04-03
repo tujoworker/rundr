@@ -213,8 +213,6 @@
 "When the run is done, your session is waiting on iPhone for review. Reuse the ones that worked, adjust the ones that did not, and keep moving without rebuilding everything from scratch." = "ランが終わると、セッションはiPhoneで振り返れる状態になります。うまくいったものは再利用し、合わなかったものは少し調整して、毎回ゼロから作り直さずに次へ進めます。";
 "Rundr is built for interval days." = "Rundrはインターバルの日のために作られています。";
 "It is a running app designed around Apple Watch first, with iPhone handling the setup and the follow-up. The goal is simple: make structured runs feel easier to start, easier to follow, and easier to return to." = "Apple Watchを中心に設計されたランニングアプリで、iPhoneは準備と振り返りを担当します。目指しているのは、構成のあるランを始めやすく、追いやすく、また戻ってきやすくすることです。";
-"Run with your watch in front" = "主役はApple Watch";
-"The watch is where Rundr shines. It gives you the next cue at a glance, keeps the important controls large, and stays readable when your attention belongs on the workout instead of the screen." = "Rundrがいちばん力を発揮するのはWatchです。次の合図をひと目で確認でき、必要な操作は大きく、視線を画面よりワークアウトに向けたい場面でも読み取りやすさを保ちます。";
 "Flexible when your workout is not one-size-fits-all" = "ひとつの型に収まらない練習にも対応";
 "You can build fixed intervals, open intervals, pacing goals, rest blocks, and repeat structures that match the way you actually train. If a session works well, save it and bring it back later." = "固定インターバル、オープンインターバル、ペース目標、レスト区間、反復構成まで、実際の練習に合わせて組み立てられます。うまくはまったセッションは保存して、あとでまた使えます。";
 "Made to keep momentum" = "流れを止めないための設計";

@@ -141,6 +141,11 @@ struct AppTheme {
                 : .black.opacity(0.06)
         }
 
+        /// Outline for light-mode callouts that would otherwise blend into white surfaces.
+        var callout: Color {
+            isDark ? .clear : neutral
+        }
+
         /// Accent-tinted borders.
         func emphasis(_ accent: Color) -> Color {
             accent.opacity(Tokens.Opacity.strokeAccent)

@@ -243,9 +243,11 @@ final class SessionSyncTests: XCTestCase {
 
     func testRundrPlanTransferRoundTrip() throws {
         let originPlanID = UUID()
+        let sharedAt = Date().addingTimeInterval(-42)
         let transfer = RundrPlanTransfer(
             autor: "preset",
             title: "Track Night",
+            sharedAt: sharedAt,
             workoutPlan: WorkoutPlanSnapshot(
                 trackingMode: .distanceDistance,
                 distanceLapDistanceMeters: 400,
@@ -261,19 +263,47 @@ final class SessionSyncTests: XCTestCase {
         XCTAssertEqual(decoded, transfer)
         XCTAssertEqual(decoded.schemaVersion, 1)
         XCTAssertEqual(decoded.autor, "preset")
+        XCTAssertEqual(decoded.sharedAt, sharedAt)
         XCTAssertEqual(decoded.workoutPlan.originPlanID, originPlanID)
     }
 
     func testRundrSessionTransferRoundTrip() throws {
         let record = makeSessionSyncRecord(id: UUID(), updatedAt: Date(), deviceSource: "watch")
-        let transfer = RundrSessionTransfer(autor: "Sender Device", session: record)
+        let sharedAt = Date().addingTimeInterval(-15)
+        let transfer = RundrSessionTransfer(autor: "Sender Device", sharedAt: sharedAt, session: record)
 
         let data = try JSONEncoder().encode(transfer)
         let decoded = try JSONDecoder().decode(RundrSessionTransfer.self, from: data)
 
         XCTAssertEqual(decoded, transfer)
         XCTAssertEqual(decoded.autor, "Sender Device")
+        XCTAssertEqual(decoded.sharedAt, sharedAt)
         XCTAssertEqual(decoded.session.id, record.id)
+    }
+
+    func testRundrPlanTransferLegacyDecodeDefaultsMissingSharedTimestamp() throws {
+        let data = try JSONSerialization.data(withJSONObject: [
+            "schemaVersion": 1,
+            "autor": "preset",
+            "title": "Track Night",
+            "workoutPlan": [
+                "trackingMode": TrackingMode.distanceDistance.rawValue,
+                "distanceLapDistanceMeters": 400,
+                "distanceSegments": [[
+                    "id": UUID().uuidString,
+                    "distanceMeters": 400,
+                    "distanceGoalMode": DistanceGoalMode.fixed.rawValue,
+                    "repeatCount": 6,
+                    "restSeconds": 60
+                ]],
+                "restMode": RestMode.manual.rawValue
+            ]
+        ], options: [.sortedKeys])
+
+        let decoded = try JSONDecoder().decode(RundrPlanTransfer.self, from: data)
+
+        XCTAssertEqual(decoded.sharedAt, Date(timeIntervalSince1970: 0))
+        XCTAssertEqual(decoded.title, "Track Night")
     }
 
     // MARK: - Helpers

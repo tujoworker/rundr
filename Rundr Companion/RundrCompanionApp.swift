@@ -80,17 +80,23 @@ final class CompanionTransferCoordinator: ObservableObject {
 
     func sharePlan(workoutPlan: WorkoutPlanSnapshot, title: String?, settings: SettingsStore) {
         let resolvedTitle = IntervalPreset.sanitizeTitle(title) ?? settings.title(for: workoutPlan)
+        let sharedAt = Date()
         let payload = RundrPlanTransfer(
             autor: planAutor(for: workoutPlan),
             title: resolvedTitle,
+            sharedAt: sharedAt,
             workoutPlan: workoutPlan
         )
-        share(payload, suggestedName: resolvedTitle, pathExtension: "rundrplan")
+        if share(payload, suggestedName: resolvedTitle, pathExtension: "rundrplan") {
+            settings.recordPresetShare(for: workoutPlan, sharedAt: sharedAt)
+        }
     }
 
     func shareSession(_ session: Session) {
+        let sharedAt = Date()
         let payload = RundrSessionTransfer(
             autor: UIDevice.current.name,
+            sharedAt: sharedAt,
             session: SessionSyncRecord(session: session)
         )
         share(payload, suggestedName: sessionFileName(for: session), pathExtension: "rundrsession")
@@ -119,7 +125,11 @@ final class CompanionTransferCoordinator: ObservableObject {
             let data = try readData(from: url)
 
             if let planTransfer = try? JSONDecoder().decode(RundrPlanTransfer.self, from: data) {
-                guard settings.saveIntervalPreset(planTransfer.workoutPlan, customTitle: planTransfer.title) != nil else {
+                guard settings.saveIntervalPreset(
+                    planTransfer.workoutPlan,
+                    customTitle: planTransfer.title,
+                    importedAt: Date()
+                ) != nil else {
                     throw CompanionTransferError.invalidPlan
                 }
 
@@ -154,7 +164,8 @@ final class CompanionTransferCoordinator: ObservableObject {
         sharePayload = nil
     }
 
-    private func share<T: Encodable>(_ payload: T, suggestedName: String, pathExtension: String) {
+    @discardableResult
+    private func share<T: Encodable>(_ payload: T, suggestedName: String, pathExtension: String) -> Bool {
         do {
             cleanupSharedFile()
 
@@ -167,11 +178,13 @@ final class CompanionTransferCoordinator: ObservableObject {
 
             try data.write(to: url, options: .atomic)
             sharePayload = CompanionSharePayload(url: url)
+            return true
         } catch {
             notice = CompanionTransferNotice(
                 title: L10n.shareFailedTitle,
                 message: L10n.shareFailedMessage
             )
+            return false
         }
     }
 

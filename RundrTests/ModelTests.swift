@@ -1885,6 +1885,53 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(store.intervalPresets.first?.trimmedCustomTitle, "Ks Updated")
     }
 
+    func testSettingsStoreSaveImportedIntervalPresetRecordsImportTimestamp() {
+        UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON")
+        defer { UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON") }
+
+        let store = SettingsStore()
+        let importedAt = Date(timeIntervalSince1970: 1_234_567)
+        let workoutPlan = WorkoutPlanSnapshot(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+            restMode: .manual
+        )
+
+        let preset = store.saveIntervalPreset(
+            workoutPlan,
+            customTitle: "Imported Track",
+            importedAt: importedAt
+        )
+
+        XCTAssertEqual(preset?.lastImportedAt, importedAt)
+        XCTAssertEqual(preset?.createdAt, importedAt)
+        XCTAssertEqual(preset?.updatedAt, importedAt)
+        XCTAssertNil(preset?.lastSharedAt)
+    }
+
+    func testSettingsStoreRecordPresetShareUpdatesShareTimestamp() {
+        UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON")
+        defer { UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON") }
+
+        let store = SettingsStore()
+        let workoutPlan = WorkoutPlanSnapshot(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+            restMode: .manual
+        )
+        let preset = try? XCTUnwrap(store.saveIntervalPreset(workoutPlan, customTitle: "Track"))
+        let sharedAt = Date(timeIntervalSince1970: 2_345_678)
+
+        store.recordPresetShare(for: workoutPlan, sharedAt: sharedAt)
+
+        let updatedPreset = store.intervalPresets.first { $0.id == preset?.id }
+        XCTAssertEqual(updatedPreset?.lastSharedAt, sharedAt)
+        XCTAssertEqual(updatedPreset?.updatedAt, sharedAt)
+        XCTAssertNil(updatedPreset?.lastImportedAt)
+    }
+
     @MainActor
     func testOngoingWorkoutStoreLoadsStartupSnapshotFromStorage() throws {
         UserDefaults.standard.removeObject(forKey: "ongoingWorkoutSnapshotJSON")

@@ -15,13 +15,90 @@ struct RundrPlanTransfer: Codable, Equatable {
     var schemaVersion: Int = 1
     var autor: String?
     var title: String?
+    var sharedAt: Date
     var workoutPlan: WorkoutPlanSnapshot
+
+    init(
+        schemaVersion: Int = 1,
+        autor: String? = nil,
+        title: String? = nil,
+        sharedAt: Date = Date(),
+        workoutPlan: WorkoutPlanSnapshot
+    ) {
+        self.schemaVersion = schemaVersion
+        self.autor = autor
+        self.title = title
+        self.sharedAt = sharedAt
+        self.workoutPlan = workoutPlan
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case schemaVersion
+        case autor
+        case title
+        case sharedAt
+        case workoutPlan
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? 1
+        autor = try container.decodeIfPresent(String.self, forKey: .autor)
+        title = try container.decodeIfPresent(String.self, forKey: .title)
+        sharedAt = try container.decodeIfPresent(Date.self, forKey: .sharedAt) ?? Date(timeIntervalSince1970: 0)
+        workoutPlan = try container.decode(WorkoutPlanSnapshot.self, forKey: .workoutPlan)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(schemaVersion, forKey: .schemaVersion)
+        try container.encodeIfPresent(autor, forKey: .autor)
+        try container.encodeIfPresent(title, forKey: .title)
+        try container.encode(sharedAt, forKey: .sharedAt)
+        try container.encode(workoutPlan, forKey: .workoutPlan)
+    }
 }
 
 struct RundrSessionTransfer: Codable, Equatable {
     var schemaVersion: Int = 1
     var autor: String?
+    var sharedAt: Date
     var session: SessionSyncRecord
+
+    init(
+        schemaVersion: Int = 1,
+        autor: String? = nil,
+        sharedAt: Date = Date(),
+        session: SessionSyncRecord
+    ) {
+        self.schemaVersion = schemaVersion
+        self.autor = autor
+        self.sharedAt = sharedAt
+        self.session = session
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case schemaVersion
+        case autor
+        case sharedAt
+        case session
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        schemaVersion = try container.decodeIfPresent(Int.self, forKey: .schemaVersion) ?? 1
+        autor = try container.decodeIfPresent(String.self, forKey: .autor)
+        sharedAt = try container.decodeIfPresent(Date.self, forKey: .sharedAt) ?? Date(timeIntervalSince1970: 0)
+        session = try container.decode(SessionSyncRecord.self, forKey: .session)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(schemaVersion, forKey: .schemaVersion)
+        try container.encodeIfPresent(autor, forKey: .autor)
+        try container.encode(sharedAt, forKey: .sharedAt)
+        try container.encode(session, forKey: .session)
+    }
 }
 
 struct SessionSyncRecord: Codable, Equatable, Identifiable {

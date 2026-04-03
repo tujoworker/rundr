@@ -7,13 +7,17 @@ struct IntervalPreset: Codable, Identifiable, Equatable {
     var workoutPlan: WorkoutPlanSnapshot
     var createdAt: Date
     var updatedAt: Date
+    var lastSharedAt: Date?
+    var lastImportedAt: Date?
 
     init(
         id: UUID = UUID(),
         customTitle: String? = nil,
         workoutPlan: WorkoutPlanSnapshot,
         createdAt: Date = Date(),
-        updatedAt: Date = Date()
+        updatedAt: Date = Date(),
+        lastSharedAt: Date? = nil,
+        lastImportedAt: Date? = nil
     ) {
         let normalizedWorkoutPlan = IntervalPreset.normalizedWorkoutPlan(workoutPlan)
         self.id = id
@@ -21,6 +25,8 @@ struct IntervalPreset: Codable, Identifiable, Equatable {
         self.workoutPlan = normalizedWorkoutPlan
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.lastSharedAt = lastSharedAt
+        self.lastImportedAt = lastImportedAt
     }
 
     var trimmedCustomTitle: String? {
@@ -456,14 +462,15 @@ final class SettingsStore: ObservableObject {
     func saveIntervalPreset(
         _ workoutPlan: WorkoutPlanSnapshot,
         customTitle: String? = nil,
-        existingPresetID: UUID? = nil
+        existingPresetID: UUID? = nil,
+        importedAt: Date? = nil
     ) -> IntervalPreset? {
         var normalizedPlan = IntervalPreset.normalizedWorkoutPlan(workoutPlan)
         guard normalizedPlan.trackingMode.usesManualIntervals else { return nil }
 
         normalizedPlan.originPlanID = normalizedPlan.originPlanID ?? UUID()
         let title = IntervalPreset.storedTitle(for: normalizedPlan, preferredTitle: customTitle)
-        let now = Date()
+        let timestamp = importedAt ?? Date()
         let signature = IntervalPresetSignature(workoutPlan: normalizedPlan)
         var presets = intervalPresets
 
@@ -471,7 +478,10 @@ final class SettingsStore: ObservableObject {
            let existingIndex = presets.firstIndex(where: { $0.id == existingPresetID }) {
             if let duplicateIndex = presets.firstIndex(where: { $0.id != existingPresetID && $0.signature == signature }) {
                 presets[duplicateIndex].customTitle = title
-                presets[duplicateIndex].updatedAt = now
+                presets[duplicateIndex].updatedAt = timestamp
+                if let importedAt {
+                    presets[duplicateIndex].lastImportedAt = importedAt
+                }
                 presets.remove(at: existingIndex)
                 persistIntervalPresets(presets)
                 return presets[safe: duplicateIndexAdjusted(from: duplicateIndex, removedIndex: existingIndex)]
@@ -479,22 +489,48 @@ final class SettingsStore: ObservableObject {
 
             presets[existingIndex].customTitle = title
             presets[existingIndex].workoutPlan = normalizedPlan
-            presets[existingIndex].updatedAt = now
+            presets[existingIndex].updatedAt = timestamp
+            if let importedAt {
+                presets[existingIndex].lastImportedAt = importedAt
+            }
             persistIntervalPresets(presets)
             return presets[existingIndex]
         }
 
         if let duplicateIndex = presets.firstIndex(where: { $0.signature == signature }) {
             presets[duplicateIndex].customTitle = title
-            presets[duplicateIndex].updatedAt = now
+            presets[duplicateIndex].updatedAt = timestamp
+            if let importedAt {
+                presets[duplicateIndex].lastImportedAt = importedAt
+            }
             persistIntervalPresets(presets)
             return presets[duplicateIndex]
         }
 
-        let preset = IntervalPreset(customTitle: title, workoutPlan: normalizedPlan, createdAt: now, updatedAt: now)
+        let preset = IntervalPreset(
+            customTitle: title,
+            workoutPlan: normalizedPlan,
+            createdAt: timestamp,
+            updatedAt: timestamp,
+            lastImportedAt: importedAt
+        )
         presets.append(preset)
         persistIntervalPresets(presets)
         return preset
+    }
+
+    func recordPresetShare(for workoutPlan: WorkoutPlanSnapshot, sharedAt: Date = Date()) {
+        let normalizedPlan = IntervalPreset.normalizedWorkoutPlan(workoutPlan)
+        let signature = IntervalPresetSignature(workoutPlan: normalizedPlan)
+        var presets = intervalPresets
+
+        guard let presetIndex = presets.firstIndex(where: { $0.signature == signature }) else {
+            return
+        }
+
+        presets[presetIndex].lastSharedAt = sharedAt
+        presets[presetIndex].updatedAt = sharedAt
+        persistIntervalPresets(presets)
     }
 
     func deleteIntervalPreset(id: UUID) {

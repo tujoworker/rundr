@@ -42,7 +42,6 @@ private struct CompanionWorkoutsView: View {
     @EnvironmentObject private var syncManager: WatchConnectivitySyncManager
     @EnvironmentObject private var persistence: PersistenceManager
     @EnvironmentObject private var settings: SettingsStore
-    @Environment(\.editMode) private var editMode
     @Environment(\.appTheme) private var theme
     @Query(sort: [SortDescriptor(\Session.startedAt, order: .reverse)]) private var sessions: [Session]
     @State private var visibleSessionCount = 2
@@ -58,6 +57,7 @@ private struct CompanionWorkoutsView: View {
     @State private var addSegmentBounceTrigger = 0
     @State private var flashingSegmentIDs: Set<UUID> = []
     @State private var lastObservedSegments: [DistanceSegment] = []
+    @State private var segmentEditMode: EditMode = .inactive
 
     private var visibleLiveWorkoutState: LiveWorkoutStateRecord? {
         guard let state = syncManager.liveWorkoutState,
@@ -93,7 +93,7 @@ private struct CompanionWorkoutsView: View {
     }
 
     private var isReorderingSegments: Bool {
-        editMode?.wrappedValue.isEditing == true
+        segmentEditMode.isEditing
     }
 
     var body: some View {
@@ -133,6 +133,7 @@ private struct CompanionWorkoutsView: View {
 
                             if canReorderSegments {
                                 EditButton()
+                                    .foregroundStyle(theme.isDark ? theme.text.subtle : settings.primaryAccentColor)
                             }
                         }
                         .padding(.leading, workoutsSectionHeaderLeadingInset)
@@ -292,6 +293,7 @@ private struct CompanionWorkoutsView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbarBackground(.hidden, for: .navigationBar)
             .themedCompanionList()
+            .environment(\.editMode, $segmentEditMode)
         }
     }
 
@@ -1800,7 +1802,6 @@ private struct CompanionPresetUsageBadge: View {
 
 private struct CompanionWorkoutEditorView: View {
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.editMode) private var editMode
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
 
@@ -1825,6 +1826,7 @@ private struct CompanionWorkoutEditorView: View {
     @State private var hasLoadedSnapshot = false
     @State private var isUseActivityConfirmationPresented = false
     @State private var isDeleteConfirmationPresented = false
+    @State private var segmentEditMode: EditMode = .inactive
 
     private var canDeletePreset: Bool {
         storedPresetID != nil
@@ -1835,7 +1837,7 @@ private struct CompanionWorkoutEditorView: View {
     }
 
     private var isReorderingSegments: Bool {
-        editMode?.wrappedValue.isEditing == true
+        segmentEditMode.isEditing
     }
 
     private var customTitleRowContentInsets: EdgeInsets {
@@ -2015,6 +2017,7 @@ private struct CompanionWorkoutEditorView: View {
                 segments = [.default]
             }
         }
+        .environment(\.editMode, $segmentEditMode)
     }
 
     private func loadSnapshot() {

@@ -82,15 +82,33 @@ struct ActiveSessionView: View {
         if workoutController.trackingMode.usesManualIntervals {
             let distanceStr = workoutController.currentTargetDistanceMeters.map {
                 Formatters.distanceString(meters: $0, unit: settings.distanceUnit)
-            } ?? L10n.openDistance
-            if let targetTime = workoutController.currentTargetTimeSeconds {
-                let timeStr = Formatters.compactTimeString(from: targetTime)
-                if workoutController.currentTargetDistanceMeters != nil {
-                    return timerTopLabel(L10n.targetDisplay(distanceStr, timeStr))
-                }
-                return timerTopLabel(L10n.openTargetDisplay(timeStr))
             }
-            return timerTopLabel(distanceStr)
+            let timeStr = workoutController.currentTargetTimeSeconds.map {
+                Formatters.compactTimeString(from: $0)
+            }
+
+            let intervalDetail: String?
+            if let distanceStr, let timeStr {
+                intervalDetail = L10n.targetDisplay(distanceStr, timeStr)
+            } else if let distanceStr {
+                intervalDetail = distanceStr
+            } else if let timeStr {
+                intervalDetail = timeStr
+            } else {
+                intervalDetail = nil
+            }
+
+            if let segmentName = workoutController.currentSegmentName,
+               let intervalDetail,
+               !intervalDetail.isEmpty {
+                return timerTopLabel(L10n.segmentSummary(segmentName, intervalDetail))
+            }
+
+            if let segmentName = workoutController.currentSegmentName {
+                return timerTopLabel(segmentName)
+            }
+
+            return timerTopLabel(intervalDetail)
         }
         return timerTopLabel()
     }

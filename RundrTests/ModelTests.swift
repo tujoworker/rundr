@@ -258,17 +258,43 @@ final class ModelTests: XCTestCase {
         XCTAssertNil(decoded.lastRestSeconds)
     }
 
+    func testDistanceGoalModeDecodesLegacyAndEncodesCurrentValues() throws {
+        XCTAssertEqual(
+            try JSONDecoder().decode(DistanceGoalMode.self, from: Data("\"fixed\"".utf8)),
+            .distance
+        )
+        XCTAssertEqual(
+            try JSONDecoder().decode(DistanceGoalMode.self, from: Data("\"open\"".utf8)),
+            .time
+        )
+        XCTAssertEqual(
+            String(decoding: try JSONEncoder().encode(DistanceGoalMode.time), as: UTF8.self),
+            "\"time\""
+        )
+    }
+
+    func testDistanceSegmentNormalizesNameWhenEncodingAndDecoding() throws {
+        let segment = DistanceSegment(name: "  Jog  ", distanceMeters: 0, distanceGoalMode: .time, targetTimeSeconds: 120)
+
+        XCTAssertEqual(segment.trimmedName, "Jog")
+
+        let data = try JSONEncoder().encode(segment)
+        let decoded = try JSONDecoder().decode(DistanceSegment.self, from: data)
+
+        XCTAssertEqual(decoded.trimmedName, "Jog")
+    }
+
     func testSegmentEditSheetSectionOrderForFixedDistancePlacesLastRestAfterRest() {
         XCTAssertEqual(
             SegmentEditSheetSection.orderedSections(for: false),
-            [.rest, .lastRest, .repeats, .paceTarget, .timeTarget]
+            [.rest, .lastRest, .repeats, .paceTarget, .timeTarget, .name]
         )
     }
 
     func testSegmentEditSheetSectionOrderForOpenDistancePlacesLastRestAfterRest() {
         XCTAssertEqual(
             SegmentEditSheetSection.orderedSections(for: true),
-            [.timeTarget, .rest, .lastRest, .repeats]
+            [.timeTarget, .rest, .lastRest, .repeats, .name]
         )
     }
 
@@ -480,18 +506,23 @@ final class ModelTests: XCTestCase {
     func testSegmentEditorValueRulesClearPaceForOpenDistance() {
         XCTAssertEqual(
             SegmentEditorValueRules.normalizedTargetPace(
-                for: .open,
+                for: .time,
                 targetPaceSecondsPerKm: 320
             ),
             nil
         )
         XCTAssertEqual(
             SegmentEditorValueRules.normalizedTargetPace(
-                for: .fixed,
+                for: .distance,
                 targetPaceSecondsPerKm: 320
             ),
             320
         )
+    }
+
+    func testSegmentEditorValueRulesNormalizeName() {
+        XCTAssertEqual(SegmentEditorValueRules.normalizedName("  Sprint "), "Sprint")
+        XCTAssertNil(SegmentEditorValueRules.normalizedName("   \n"))
     }
 
     func testSegmentEditorValueRulesSettingTimeClearsPaceOnlyWhenTimeIsSet() {
@@ -1285,7 +1316,7 @@ final class ModelTests: XCTestCase {
         [{"id":"00000000-0000-0000-0000-000000000001","distanceMeters":400,"repeatCount":4}]
         """.data(using: .utf8)!
         let decoded = try JSONDecoder().decode([DistanceSegment].self, from: data)
-        XCTAssertEqual(decoded[0].distanceGoalMode, .fixed)
+        XCTAssertEqual(decoded[0].distanceGoalMode, .distance)
         XCTAssertFalse(decoded[0].usesOpenDistance)
     }
 

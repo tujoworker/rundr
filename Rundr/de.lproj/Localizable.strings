@@ -34,9 +34,13 @@
 "Distance (feet)" = "Distanz (Fuß)";
 "Distance (m)" = "Distanz (m)";
 "Distance (ft)" = "Distanz (ft)";
-"Distance Type" = "Distanztyp";
-"Fixed" = "Fest";
-"Open" = "Offen";
+"Interval Type" = "Intervalltyp";
+"Name" = "Name";
+"Name (optional)" = "Name (optional)";
+"Jog" = "Locker";
+"Sprint" = "Sprint";
+"Surge" = "Anziehen";
+"Threshold" = "Schwelle";
 "Repeats" = "Wiederholungen";
 "Rest" = "Pause";
 "Last Rest" = "Letzte Pause";
@@ -44,7 +48,7 @@
 "Repeats Required" = "Wiederholungen erforderlich";
 "Add repeats to this interval before adding a last rest." = "Füge diesem Intervall zuerst Wiederholungen hinzu, bevor du eine letzte Pause hinzufügst.";
 "GPS Required" = "GPS erforderlich";
-"Open intervals uses GPS to meassure distance. This activity has switched to Dual Mode." = "Offene Intervalle verwenden GPS zur Distanzmessung. Diese Aktivität wurde auf Dual-Modus umgestellt.";
+"Time intervals use GPS to measure distance. This activity has switched to Dual Mode." = "Zeitintervalle verwenden GPS zur Distanzmessung. Diese Aktivität wurde auf den Dual-Modus umgestellt.";
 "Enable GPS Access" = "GPS-Zugriff aktivieren";
 "Unit" = "Einheit";
 "Color" = "Farbe";
@@ -170,6 +174,7 @@
 "This session will be permanently deleted." = "Diese Session wird unwiderruflich gelöscht.";
 "Loaded from %@" = "Geladen aus %@";
 "%d saved" = "%d gespeichert";
+"%d × %@" = "%d × %@";
 
 /* Tracking Mode */
 "GPS" = "GPS";
@@ -245,7 +250,7 @@
 "Rundr is built for interval days." = "Rundr ist für Intervalltage gemacht.";
 "It is a running app designed around Apple Watch first, with iPhone handling the setup and the follow-up. The goal is simple: make structured runs feel easier to start, easier to follow, and easier to return to." = "Es ist eine Lauf-App, die zuerst für die Apple Watch gedacht ist, während das iPhone Planung und Nachbereitung übernimmt. Das Ziel ist einfach: strukturierte Läufe leichter starten, leichter folgen und leichter wiederholen.";
 "Flexible when your workout is not one-size-fits-all" = "Flexibel, wenn dein Training nicht in ein Schema passt";
-"You can build fixed intervals, open intervals, pacing goals, rest blocks, and repeat structures that match the way you actually train. If a session works well, save it and bring it back later." = "Du kannst feste Intervalle, offene Intervalle, Tempovorgaben, Pausenblöcke und Wiederholungsstrukturen anlegen, die zu deinem echten Training passen. Wenn eine Einheit gut funktioniert, speichere sie und hol sie später wieder hervor.";
+"You can build distance intervals, time intervals, pacing goals, rest blocks, and repeat structures that match the way you actually train. If a session works well, save it and bring it back later." = "Du kannst Distanzintervalle, Zeitintervalle, Tempovorgaben, Pausenblöcke und Wiederholungsstrukturen anlegen, die zu deinem echten Training passen. Wenn eine Einheit gut funktioniert, speichere sie und hol sie später wieder hervor.";
 "Made to keep momentum" = "Gemacht, um den Rhythmus zu halten";
 "Rundr keeps planning, running, and reviewing connected. Set things up on iPhone, run from Apple Watch, then come back to your synced history when you want to repeat a favorite session or tune the next one." = "Rundr verbindet Planung, Lauf und Rückblick. Richte alles auf dem iPhone ein, laufe mit der Apple Watch und komm später zu deiner synchronisierten Historie zurück, wenn du eine Lieblingseinheit wiederholen oder die nächste anpassen willst.";
 "Overview" = "Überblick";
@@ -270,17 +275,15 @@
 "How Auto-detect Works" = "So funktioniert Automatisch erkennen";
 "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap." = "Auto-Rest markiert die aktuelle Runde als Pause, nachdem du aufgehört hast dich zu bewegen. Diese Pause bleibt an dieselbe Runde gebunden. Rundr erstellt nicht von selbst eine neue Runde. Die nächste Runde beginnt, wenn du Runde drückst.";
 "Finish a 400 m rep, stop at the rail, and the current lap becomes rest. When you are ready for the next rep, press lap to start the next lap." = "Beende einen 400-m-Lauf, bleib am Geländer stehen, und die aktuelle Runde wird zur Pause. Wenn du für den nächsten Lauf bereit bist, drückst du Runde, um die nächste Runde zu starten.";
-"Distance Type" = "Distanztyp";
-"Fixed" = "Fest";
-"Use Fixed when the lap has a known distance, like 400 m or 1 km." = "Verwende „Fest“, wenn die Runde eine bekannte Distanz hat, zum Beispiel 400 m oder 1 km.";
-"Open" = "Offen";
-"Use Open when you want to use target time instead and define how long the lap should last, rather than how far it should be." = "Verwende „Offen“, wenn du stattdessen eine Zielzeit nutzen und festlegen willst, wie lange die Runde dauern soll, statt wie weit sie sein soll.";
-"Choose Open for 45 s with 15 s rest." = "Wähle „Offen“ für 45 s mit 15 s Pause.";
+"Interval Type" = "Intervalltyp";
+"Use Distance when the lap has a known distance, like 400 m or 1 km." = "Verwende „Distanz“, wenn die Runde eine bekannte Länge hat, zum Beispiel 400 m oder 1 km.";
+"Use Time when you want to define how long the lap should last, rather than how far it should be." = "Verwende „Zeit“, wenn du festlegen willst, wie lange die Runde dauern soll, statt wie weit sie sein soll.";
+"Choose Time for 45 s with 15 s rest, or name it Jog for an easier segment." = "Wähle „Zeit“ für 45 s mit 15 s Pause oder gib dem Abschnitt den Namen „Locker“ für einen leichteren Teil.";
 "Tracking Mode" = "Trackingmodus";
 "Manual" = "Manuell";
-"Manual uses your Session Plan and manual lap presses without GPS distance. Use it for fixed-distance intervals when you want full control and precise measurement and statistics." = "„Manuell“ nutzt deinen Trainingsplan und manuelle Rundenmarkierungen ohne GPS-Distanz. Verwende es für Intervalle mit fester Distanz, wenn du volle Kontrolle sowie präzise Messung und Statistiken willst.";
+"Manual uses your Session Plan and manual lap presses without GPS distance. Use it for distance intervals when you want full control and precise measurement and statistics." = "„Manuell“ nutzt deinen Trainingsplan und manuelle Rundenmarkierungen ohne GPS-Distanz. Verwende es für Distanzintervalle, wenn du volle Kontrolle sowie präzise Messung und Statistiken willst.";
 "Dual" = "Dual";
-"Dual keeps the Session Plan and also records GPS distance. Use it when you want time-based laps. Open distance needs GPS, so Rundr uses Dual there." = "„Dual“ behält den Trainingsplan bei und zeichnet zusätzlich die GPS-Distanz auf. Verwende es, wenn du zeitbasierte Runden willst. Offene Distanz braucht GPS, deshalb nutzt Rundr dort „Dual“.";
+"Dual keeps the Session Plan and also records GPS distance. Use it when you want time-based laps. Time intervals need GPS, so Rundr uses Dual there." = "„Dual“ behält den Trainingsplan bei und zeichnet zusätzlich die GPS-Distanz auf. Verwende es, wenn du zeitbasierte Runden willst. Zeitintervalle brauchen GPS, deshalb nutzt Rundr dort „Dual“.";
 "Apple Health" = "Apple Health";
 "Apple Health lets Rundr save workouts, laps, heart rate, energy, and GPS routes when available, and read the workout data it needs back. Turn it on when you want your runs to stay in Apple's fitness history." = "Mit Apple Health kann Rundr Workouts, Runden, Herzfrequenz, Energie und GPS-Routen speichern, wenn sie verfügbar sind, und die benötigten Trainingsdaten wieder auslesen. Aktiviere es, wenn deine Läufe in Apples Fitnessverlauf bleiben sollen.";
 "Enable Health access if you want one session to appear in Rundr, Health, and Fitness instead of living only inside the app." = "Aktiviere den Health-Zugriff, wenn eine Einheit in Rundr, Health und Fitness erscheinen soll statt nur in der App.";

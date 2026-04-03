@@ -71,6 +71,11 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         return currentSegment.effectiveTargetTimeSeconds
     }
 
+    var currentSegmentName: String? {
+        guard usesManualIntervals else { return nil }
+        return currentSegment.trimmedName
+    }
+
     /// All unique distances defined in the segments, for quick-pick UI.
     var availableDistances: [Double] {
         Array(Set(distanceSegments.compactMap { $0.usesOpenDistance ? nil : $0.distanceMeters })).sorted()

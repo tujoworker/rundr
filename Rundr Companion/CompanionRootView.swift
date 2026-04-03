@@ -2513,9 +2513,15 @@ private struct CompanionSegmentRow: View {
     @Environment(\.appTheme) private var theme
 
     private var title: String {
-        segment.usesOpenDistance
-            ? L10n.openDistance
+        let primaryValue = segment.usesOpenDistance
+            ? segment.effectiveTargetTimeSeconds.map { Formatters.compactTimeString(from: $0) } ?? L10n.time
             : Formatters.distanceString(meters: segment.distanceMeters, unit: distanceUnit)
+
+        if let name = segment.trimmedName {
+            return L10n.segmentSummary(name, primaryValue)
+        }
+
+        return primaryValue
     }
 
     private var repeatValue: String {
@@ -2677,6 +2683,7 @@ private struct CompanionSegmentEditorView: View {
 
     @State private var segment: DistanceSegment
     @State private var distanceText: String
+    @State private var segmentNameText: String
     @State private var hasCommitted = false
     @State private var isDistanceTypeHelpPresented = false
     @State private var isLastRestInfoPresented = false
@@ -2728,6 +2735,7 @@ private struct CompanionSegmentEditorView: View {
     ) {
         _segment = State(initialValue: segment)
         _distanceText = State(initialValue: CompanionSegmentEditorView.distanceText(for: segment, unit: distanceUnit))
+        _segmentNameText = State(initialValue: segment.trimmedName ?? "")
         self.distanceUnit = distanceUnit
         self.onSave = onSave
         self.onDelete = onDelete
@@ -2740,7 +2748,7 @@ private struct CompanionSegmentEditorView: View {
                     CompanionSettingsLeadingIcon(systemImage: "road.lanes")
 
                     HStack(spacing: Tokens.Spacing.xs) {
-                        Text(L10n.distanceType)
+                        Text(L10n.intervalType)
 
                         Button {
                             isDistanceTypeHelpPresented = true
@@ -2750,14 +2758,14 @@ private struct CompanionSegmentEditorView: View {
                                 .foregroundStyle(theme.isDark ? theme.text.subtle : settings.primaryAccentColor)
                         }
                         .buttonStyle(.plain)
-                        .accessibilityLabel(L10n.helpDistanceTypeTitle)
+                        .accessibilityLabel(L10n.helpIntervalTypeTitle)
                     }
 
                     Spacer(minLength: Tokens.Spacing.md)
 
                     Picker("", selection: $segment.distanceGoalMode) {
-                        Text(L10n.fixedDistance).tag(DistanceGoalMode.fixed)
-                        Text(L10n.openDistance).tag(DistanceGoalMode.open)
+                        Text(L10n.distanceInterval).tag(DistanceGoalMode.distance)
+                        Text(L10n.timeInterval).tag(DistanceGoalMode.time)
                     }
                     .labelsHidden()
                 }
@@ -2904,6 +2912,40 @@ private struct CompanionSegmentEditorView: View {
                     .scaleEffect(bouncingField == .pace ? 0.97 : 1.0)
                     .animation(.spring(response: 0.2, dampingFraction: 0.62), value: bouncingField)
                 }
+
+                HStack(spacing: Tokens.Spacing.md) {
+                    CompanionSettingsLeadingIcon(systemImage: "character.textbox")
+
+                    Text(L10n.segmentName)
+
+                    Spacer(minLength: Tokens.Spacing.md)
+
+                    HStack(spacing: Tokens.Spacing.xs) {
+                        TextField(
+                            "",
+                            text: $segmentNameText,
+                            prompt: Text(L10n.optionalSegmentNamePlaceholder)
+                                .foregroundStyle(theme.text.subtle)
+                        )
+                        .textInputAutocapitalization(.words)
+                        .multilineTextAlignment(.trailing)
+                        .foregroundStyle(theme.text.neutral)
+
+                        Button {
+                            segmentNameText = ""
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundStyle(theme.text.subtle)
+                                .opacity(segmentNameText.isEmpty ? 0 : 1)
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(segmentNameText.isEmpty)
+                    }
+                }
+                .companionSettingsOptionRowChrome(
+                    rowInsets: editorRowInsets,
+                    contentInsets: editorRowContentInsets
+                )
             }
         }
         .navigationTitle(L10n.editInterval)
@@ -2965,7 +3007,7 @@ private struct CompanionSegmentEditorView: View {
                             .listRowBackground(Color.clear)
                     }
                 }
-                .navigationTitle(L10n.distanceType)
+                .navigationTitle(L10n.intervalType)
                 .navigationBarTitleDisplayMode(.inline)
                 .themedCompanionSettingsList()
             }
@@ -3042,6 +3084,7 @@ private struct CompanionSegmentEditorView: View {
     private func commitIfNeeded() {
         guard !hasCommitted else { return }
         hasCommitted = true
+        segment.name = SegmentEditorValueRules.normalizedName(segmentNameText)
 
         if !segment.usesOpenDistance, let value = Double(distanceText), value > 0 {
             switch distanceUnit {
@@ -3072,6 +3115,7 @@ private struct CompanionSegmentEditorView: View {
     }
 
     private func normalizeEditingState() {
+        segment.name = SegmentEditorValueRules.normalizedName(segmentNameText)
         segment.lastRestSeconds = SegmentEditorValueRules.normalizedLastRestSeconds(
             lastRestSeconds: segment.lastRestSeconds,
             repeatCount: segment.repeatCount

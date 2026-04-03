@@ -84,25 +84,34 @@ struct IntervalPreset: Codable, Identifiable, Equatable {
         let normalizedWorkoutPlan = normalizedWorkoutPlan(workoutPlan)
         let segments = normalizedWorkoutPlan.distanceSegments.isEmpty ? [DistanceSegment.default] : normalizedWorkoutPlan.distanceSegments
         guard let firstSegment = segments.first else { return "400 m" }
-
-        let distanceText: String
-        if firstSegment.usesOpenDistance {
-            distanceText = L10n.openDistance
-        } else if firstSegment.distanceMeters >= 1000,
-           firstSegment.distanceMeters.truncatingRemainder(dividingBy: 1000) == 0 {
-            let kilometers = Int(firstSegment.distanceMeters / 1000)
-            distanceText = "\(kilometers) km"
-        } else {
-            distanceText = "\(Int(firstSegment.distanceMeters)) m"
-        }
+        let segmentLabel = generatedSegmentTitle(firstSegment)
 
         if segments.count == 1, let repeatCount = firstSegment.repeatCount {
-            return "\(repeatCount) × \(distanceText)"
+            return L10n.repeatSummary(repeatCount, segmentLabel)
         }
         if segments.count == 1 {
-            return distanceText
+            return segmentLabel
         }
-        return "\(segments.count) segments"
+        return L10n.segmentCount(segments.count)
+    }
+
+    private static func generatedSegmentTitle(_ segment: DistanceSegment) -> String {
+        let primaryValue: String
+        if segment.usesOpenDistance {
+            primaryValue = segment.effectiveTargetTimeSeconds.map { Formatters.compactTimeString(from: $0) } ?? L10n.time
+        } else if segment.distanceMeters >= 1000,
+                    segment.distanceMeters.truncatingRemainder(dividingBy: 1000) == 0 {
+            let kilometers = Int(segment.distanceMeters / 1000)
+            primaryValue = "\(kilometers) km"
+        } else {
+            primaryValue = "\(Int(segment.distanceMeters)) m"
+        }
+
+        if let trimmedName = segment.trimmedName {
+            return L10n.segmentSummary(trimmedName, primaryValue)
+        }
+
+        return primaryValue
     }
 }
 
@@ -140,6 +149,7 @@ struct IntervalPresetSignature: Codable, Equatable {
 }
 
 struct IntervalPresetSegmentSignature: Codable, Equatable {
+    let name: String?
     let distanceMeters: Double
     let distanceGoalMode: DistanceGoalMode
     let repeatCount: Int?
@@ -149,6 +159,7 @@ struct IntervalPresetSegmentSignature: Codable, Equatable {
     let targetTimeSeconds: Double?
 
     init(segment: DistanceSegment) {
+        name = segment.trimmedName
         distanceMeters = segment.distanceMeters
         distanceGoalMode = segment.distanceGoalMode
         repeatCount = segment.repeatCount
@@ -347,8 +358,8 @@ final class SettingsStore: ObservableObject {
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
-                    DistanceSegment(distanceMeters: 0, repeatCount: 20, restSeconds: 15, lastRestSeconds: 90, distanceGoalMode: .open, targetTimeSeconds: 45),
-                    DistanceSegment(distanceMeters: 0, repeatCount: 20, restSeconds: 15, distanceGoalMode: .open, targetTimeSeconds: 45)
+                    DistanceSegment(name: L10n.sprint, distanceMeters: 0, repeatCount: 20, restSeconds: 15, lastRestSeconds: 90, distanceGoalMode: .open, targetTimeSeconds: 45),
+                    DistanceSegment(name: L10n.sprint, distanceMeters: 0, repeatCount: 20, restSeconds: 15, distanceGoalMode: .open, targetTimeSeconds: 45)
                 ],
                 restMode: .manual
             )
@@ -360,8 +371,8 @@ final class SettingsStore: ObservableObject {
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
-                    DistanceSegment(distanceMeters: 0, repeatCount: 10, restSeconds: 15, lastRestSeconds: 120, distanceGoalMode: .open, targetTimeSeconds: 30),
-                    DistanceSegment(distanceMeters: 0, repeatCount: 10, restSeconds: 15, distanceGoalMode: .open, targetTimeSeconds: 30)
+                    DistanceSegment(name: L10n.sprint, distanceMeters: 0, repeatCount: 10, restSeconds: 15, lastRestSeconds: 120, distanceGoalMode: .open, targetTimeSeconds: 30),
+                    DistanceSegment(name: L10n.sprint, distanceMeters: 0, repeatCount: 10, restSeconds: 15, distanceGoalMode: .open, targetTimeSeconds: 30)
                 ],
                 restMode: .manual
             )
@@ -391,18 +402,18 @@ final class SettingsStore: ObservableObject {
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
-                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
-                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
-                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
-                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
-                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
-                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180)
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180)
                 ],
                 restMode: .manual
             )
@@ -414,7 +425,7 @@ final class SettingsStore: ObservableObject {
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
-                    DistanceSegment(distanceMeters: 0, repeatCount: 3, restSeconds: 180, distanceGoalMode: .open, targetTimeSeconds: 720)
+                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, repeatCount: 3, restSeconds: 180, distanceGoalMode: .open, targetTimeSeconds: 720)
                 ],
                 restMode: .manual
             )

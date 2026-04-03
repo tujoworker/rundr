@@ -51,6 +51,7 @@ struct WorkoutPlanMatchSignature: Equatable {
 }
 
 struct WorkoutPlanMatchSegmentSignature: Equatable {
+    let name: String?
     let distanceMeters: Double
     let distanceGoalMode: DistanceGoalMode
     let repeatCount: Int?
@@ -60,6 +61,7 @@ struct WorkoutPlanMatchSegmentSignature: Equatable {
     let targetTimeSeconds: Double?
 
     init(segment: DistanceSegment) {
+        name = segment.trimmedName
         distanceMeters = segment.distanceMeters
         distanceGoalMode = segment.distanceGoalMode
         repeatCount = segment.repeatCount
@@ -103,6 +105,7 @@ enum WorkoutPlanSupport {
     static func nextSegmentForAppend(from segments: [DistanceSegment]) -> DistanceSegment {
         let source = segments.last ?? .default
         return DistanceSegment(
+            name: source.trimmedName,
             distanceMeters: source.distanceMeters,
             repeatCount: source.repeatCount,
             restSeconds: source.restSeconds,
@@ -162,13 +165,14 @@ enum SegmentEditSheetSection: Hashable {
     case lastRest
     case repeats
     case paceTarget
+    case name
 
     static func orderedSections(for usesOpenDistance: Bool) -> [SegmentEditSheetSection] {
         if usesOpenDistance {
-            return [.timeTarget, .rest, .lastRest, .repeats]
+            return [.timeTarget, .rest, .lastRest, .repeats, .name]
         }
 
-        return [.rest, .lastRest, .repeats, .paceTarget, .timeTarget]
+        return [.rest, .lastRest, .repeats, .paceTarget, .timeTarget, .name]
     }
 }
 
@@ -196,6 +200,12 @@ enum SegmentEditSheetRules {
 }
 
 enum SegmentEditorValueRules {
+    static func normalizedName(_ name: String?) -> String? {
+        guard let name else { return nil }
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.isEmpty ? nil : trimmed
+    }
+
     static func normalizedLastRestSeconds(lastRestSeconds: Int?, repeatCount: Int?) -> Int? {
         guard let repeatCount, repeatCount > 0 else { return nil }
         guard let lastRestSeconds, lastRestSeconds > 0 else { return nil }
@@ -394,9 +404,7 @@ enum WorkoutPlanListTitleResolver {
 
         let normalizedSegments = WorkoutPlanSupport.normalizedSegments(workoutPlan.distanceSegments)
         if let firstSegment = normalizedSegments.first, normalizedSegments.count == 1 {
-            return firstSegment.usesOpenDistance
-                ? L10n.openDistance
-                : Formatters.distanceString(meters: firstSegment.distanceMeters, unit: unit)
+            return firstSegment.generatedTitleValue(unit: unit)
         }
 
         return workoutPlan.displayTitle(unit: unit)
@@ -414,16 +422,12 @@ extension WorkoutPlanSnapshot {
             return Formatters.distanceString(meters: DistanceSegment.default.distanceMeters, unit: unit)
         }
 
-        let distance = firstSegment.usesOpenDistance
-            ? L10n.openDistance
-            : Formatters.distanceString(meters: firstSegment.distanceMeters, unit: unit)
-
         if normalizedSegments.count == 1, let repeatCount = firstSegment.repeatCount {
-            return "\(repeatCount) × \(distance)"
+            return L10n.repeatSummary(repeatCount, firstSegment.generatedTitleValue(unit: unit))
         }
 
         if normalizedSegments.count == 1 {
-            return distance
+            return firstSegment.generatedTitleValue(unit: unit)
         }
 
         return L10n.segmentCount(normalizedSegments.count)
@@ -432,18 +436,33 @@ extension WorkoutPlanSnapshot {
     func displayDetail(unit: DistanceUnit) -> String {
         WorkoutPlanSupport
             .normalizedSegments(distanceSegments)
-            .map { segment in
-                let distance = segment.usesOpenDistance
-                    ? L10n.openDistance
-                    : Formatters.distanceString(meters: segment.distanceMeters, unit: unit)
-
-                if let repeatCount = segment.repeatCount {
-                    return "\(repeatCount) × \(distance)"
-                }
-
-                return distance
-            }
+            .map { $0.displayDetailValue(unit: unit) }
             .joined(separator: " • ")
+    }
+}
+
+private extension DistanceSegment {
+    func generatedTitleValue(unit: DistanceUnit) -> String {
+        let primaryValue: String
+        if usesOpenDistance {
+            primaryValue = effectiveTargetTimeSeconds.map { Formatters.compactTimeString(from: $0) } ?? L10n.time
+        } else {
+            primaryValue = Formatters.distanceString(meters: distanceMeters, unit: unit)
+        }
+
+        if let trimmedName {
+            return L10n.segmentSummary(trimmedName, primaryValue)
+        }
+
+        return primaryValue
+    }
+
+    func displayDetailValue(unit: DistanceUnit) -> String {
+        let titleValue = generatedTitleValue(unit: unit)
+        guard let repeatCount else {
+            return titleValue
+        }
+        return L10n.repeatSummary(repeatCount, titleValue)
     }
 }
 

@@ -34,9 +34,13 @@
 "Distance (feet)" = "Distance (feet)";
 "Distance (m)" = "Distance (m)";
 "Distance (ft)" = "Distance (ft)";
-"Distance Type" = "Distance Type";
-"Fixed" = "Fixed";
-"Open" = "Open";
+"Interval Type" = "Interval Type";
+"Name" = "Name";
+"Name (optional)" = "Name (optional)";
+"Jog" = "Jog";
+"Sprint" = "Sprint";
+"Surge" = "Surge";
+"Threshold" = "Threshold";
 "Repeats" = "Repeats";
 "Rest" = "Rest";
 "Last Rest" = "Last Rest";
@@ -44,7 +48,7 @@
 "Repeats Required" = "Repeats Required";
 "Add repeats to this interval before adding a last rest." = "Add repeats to this interval before adding a last rest.";
 "GPS Required" = "GPS Required";
-"Open intervals uses GPS to meassure distance. This activity has switched to Dual Mode." = "Open intervals uses GPS to meassure distance. This activity has switched to Dual Mode.";
+"Time intervals use GPS to measure distance. This activity has switched to Dual Mode." = "Time intervals use GPS to measure distance. This activity has switched to Dual Mode.";
 "Enable GPS Access" = "Enable GPS Access";
 "Unit" = "Unit";
 "Color" = "Color";
@@ -170,6 +174,7 @@
 "This session will be permanently deleted." = "This session will be permanently deleted.";
 "Loaded from %@" = "Loaded from %@";
 "%d saved" = "%d saved";
+"%d × %@" = "%d × %@";
 
 /* Tracking Mode */
 "GPS" = "GPS";
@@ -245,7 +250,7 @@
 "Rundr is built for interval days." = "Rundr is built for interval days.";
 "It is a running app designed around Apple Watch first, with iPhone handling the setup and the follow-up. The goal is simple: make structured runs feel easier to start, easier to follow, and easier to return to." = "It is a running app designed around Apple Watch first, with iPhone handling the setup and the follow-up. The goal is simple: make structured runs feel easier to start, easier to follow, and easier to return to.";
 "Flexible when your workout is not one-size-fits-all" = "Flexible when your workout is not one-size-fits-all";
-"You can build fixed intervals, open intervals, pacing goals, rest blocks, and repeat structures that match the way you actually train. If a session works well, save it and bring it back later." = "You can build fixed intervals, open intervals, pacing goals, rest blocks, and repeat structures that match the way you actually train. If a session works well, save it and bring it back later.";
+"You can build distance intervals, time intervals, pacing goals, rest blocks, and repeat structures that match the way you actually train. If a session works well, save it and bring it back later." = "You can build distance intervals, time intervals, pacing goals, rest blocks, and repeat structures that match the way you actually train. If a session works well, save it and bring it back later.";
 "Made to keep momentum" = "Made to keep momentum";
 "Rundr keeps planning, running, and reviewing connected. Set things up on iPhone, run from Apple Watch, then come back to your synced history when you want to repeat a favorite session or tune the next one." = "Rundr keeps planning, running, and reviewing connected. Set things up on iPhone, run from Apple Watch, then come back to your synced history when you want to repeat a favorite session or tune the next one.";
 "Overview" = "Overview";
@@ -270,17 +275,15 @@
 "How Auto-detect Works" = "How Auto-detect Works";
 "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap." = "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap.";
 "Finish a 400 m rep, stop at the rail, and the current lap becomes rest. When you are ready for the next rep, press lap to start the next lap." = "Finish a 400 m rep, stop at the rail, and the current lap becomes rest. When you are ready for the next rep, press lap to start the next lap.";
-"Distance Type" = "Distance Type";
-"Fixed" = "Fixed";
-"Use Fixed when the lap has a known distance, like 400 m or 1 km." = "Use Fixed when the lap has a known distance, like 400 m or 1 km.";
-"Open" = "Open";
-"Use Open when you want to use target time instead and define how long the lap should last, rather than how far it should be." = "Use Open when you want to use target time instead and define how long the lap should last, rather than how far it should be.";
-"Choose Open for 45 s with 15 s rest." = "Choose Open for 45 s with 15 s rest.";
+"Interval Type" = "Interval Type";
+"Use Distance when the lap has a known distance, like 400 m or 1 km." = "Use Distance when the lap has a known distance, like 400 m or 1 km.";
+"Use Time when you want to define how long the lap should last, rather than how far it should be." = "Use Time when you want to define how long the lap should last, rather than how far it should be.";
+"Choose Time for 45 s with 15 s rest, or name it Jog for an easier segment." = "Choose Time for 45 s with 15 s rest, or name it Jog for an easier segment.";
 "Tracking Mode" = "Tracking Mode";
 "Manual" = "Manual";
-"Manual uses your Session Plan and manual lap presses without GPS distance. Use it for fixed-distance intervals when you want full control and precise measurement and statistics." = "Manual uses your Session Plan and manual lap presses without GPS distance. Use it for fixed-distance intervals when you want full control and precise measurement and statistics.";
+"Manual uses your Session Plan and manual lap presses without GPS distance. Use it for distance intervals when you want full control and precise measurement and statistics." = "Manual uses your Session Plan and manual lap presses without GPS distance. Use it for distance intervals when you want full control and precise measurement and statistics.";
 "Dual" = "Dual";
-"Dual keeps the Session Plan and also records GPS distance. Use it when you want time-based laps. Open distance needs GPS, so Rundr uses Dual there." = "Dual keeps the Session Plan and also records GPS distance. Use it when you want time-based laps. Open distance needs GPS, so Rundr uses Dual there.";
+"Dual keeps the Session Plan and also records GPS distance. Use it when you want time-based laps. Time intervals need GPS, so Rundr uses Dual there." = "Dual keeps the Session Plan and also records GPS distance. Use it when you want time-based laps. Time intervals need GPS, so Rundr uses Dual there.";
 "Apple Health" = "Apple Health";
 "Apple Health lets Rundr save workouts, laps, heart rate, energy, and GPS routes when available, and read the workout data it needs back. Turn it on when you want your runs to stay in Apple's fitness history." = "Apple Health lets Rundr save workouts, laps, heart rate, energy, and GPS routes when available, and read the workout data it needs back. Turn it on when you want your runs to stay in Apple's fitness history.";
 "Enable Health access if you want one session to appear in Rundr, Health, and Fitness instead of living only inside the app." = "Enable Health access if you want one session to appear in Rundr, Health, and Fitness instead of living only inside the app.";

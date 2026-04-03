@@ -66,8 +66,17 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.helpRestTitle, "Mark as Rest")
         XCTAssertEqual(L10n.helpAutoRestTitle, "How Auto-detect Works")
         XCTAssertEqual(L10n.helpTrackingModeTitle, "Tracking Mode")
-        XCTAssertEqual(L10n.helpDistanceTypeFixedHeading, "Fixed")
+        XCTAssertEqual(L10n.helpIntervalTypeTitle, "Interval Type")
+        XCTAssertEqual(L10n.helpDistanceTypeFixedHeading, "Distance")
         XCTAssertEqual(L10n.helpTrackingModeDualHeading, "Dual")
+    }
+
+    func testIntervalTypeLabelsExist() {
+        XCTAssertEqual(L10n.intervalType, "Interval Type")
+        XCTAssertEqual(L10n.distanceInterval, "Distance")
+        XCTAssertEqual(L10n.timeInterval, "Time")
+        XCTAssertEqual(L10n.segmentName, "Name")
+        XCTAssertEqual(L10n.optionalSegmentNamePlaceholder, "Name (optional)")
     }
 
     func testMoreLabelExistsForCompanionOverflowTab() {

@@ -22,6 +22,7 @@ struct PreStartView: View {
     @State private var isAppearanceModeDialogPresented = false
     @State private var isAlertsDialogPresented = false
     @State private var editingSegmentID: UUID?
+    @State private var editingSegmentName: String = ""
     @State private var editingSegmentDistanceText: String = ""
     @State private var editingSegmentUsesOpenDistance = false
     @State private var editingSegmentRepeatCount: Int = 0
@@ -382,6 +383,7 @@ struct PreStartView: View {
             set: { if !$0 { commitSegmentEdit() } }
         )) {
             SegmentEditSheet(
+                name: $editingSegmentName,
                 distanceText: $editingSegmentDistanceText,
                 usesOpenDistance: $editingSegmentUsesOpenDistance,
                 repeatCount: $editingSegmentRepeatCount,
@@ -450,6 +452,7 @@ struct PreStartView: View {
 
     private func beginEditingSegment(_ segment: DistanceSegment) {
         editingSegmentID = segment.id
+        editingSegmentName = segment.trimmedName ?? ""
         editingSegmentUsesOpenDistance = segment.usesOpenDistance
         let displayDist: Double
         switch settings.distanceUnit {
@@ -485,6 +488,7 @@ struct PreStartView: View {
             segments[idx].distanceMeters = meters
             lastAddedDistanceMeters = meters
         }
+        segments[idx].name = SegmentEditorValueRules.normalizedName(editingSegmentName)
         segments[idx].distanceGoalMode = editingSegmentUsesOpenDistance ? .open : .fixed
         lastAddedUsesOpenDistance = editingSegmentUsesOpenDistance
         lastAddedRepeatCount = editingSegmentRepeatCount
@@ -552,10 +556,15 @@ private struct SegmentRow: View {
     ]
 
     private var distanceDisplay: String {
-        if segment.usesOpenDistance {
-            return L10n.openDistance
+        let primaryValue = segment.usesOpenDistance
+            ? segment.effectiveTargetTimeSeconds.map { Formatters.compactTimeString(from: $0) } ?? L10n.time
+            : Formatters.distanceString(meters: segment.distanceMeters, unit: distanceUnit)
+
+        if let name = segment.trimmedName {
+            return L10n.segmentSummary(name, primaryValue)
         }
-        return Formatters.distanceString(meters: segment.distanceMeters, unit: distanceUnit)
+
+        return primaryValue
     }
 
     private var hasRepeatCount: Bool {
@@ -840,6 +849,7 @@ private struct IntervalSetupView: View {
     @State private var storedPresetID: UUID?
     @State private var originPlanID: UUID?
     @State private var editingSegmentID: UUID?
+    @State private var editingSegmentName: String = ""
     @State private var editingSegmentDistanceText: String = ""
     @State private var editingSegmentUsesOpenDistance = false
     @State private var editingSegmentRepeatCount: Int = 0
@@ -961,6 +971,7 @@ private struct IntervalSetupView: View {
             set: { if !$0 { commitSegmentEdit() } }
         )) {
             SegmentEditSheet(
+                name: $editingSegmentName,
                 distanceText: $editingSegmentDistanceText,
                 usesOpenDistance: $editingSegmentUsesOpenDistance,
                 repeatCount: $editingSegmentRepeatCount,
@@ -1101,6 +1112,7 @@ private struct IntervalSetupView: View {
 
     private func beginEditingSegment(_ segment: DistanceSegment) {
         editingSegmentID = segment.id
+        editingSegmentName = segment.trimmedName ?? ""
         editingSegmentUsesOpenDistance = segment.usesOpenDistance
         let displayDistance: Double
         switch settings.distanceUnit {
@@ -1143,6 +1155,7 @@ private struct IntervalSetupView: View {
             segments[index].distanceMeters = meters
             lastAddedDistanceMeters = meters
         }
+        segments[index].name = SegmentEditorValueRules.normalizedName(editingSegmentName)
         segments[index].distanceGoalMode = editingSegmentUsesOpenDistance ? .open : .fixed
         lastAddedUsesOpenDistance = editingSegmentUsesOpenDistance
         lastAddedRepeatCount = editingSegmentRepeatCount
@@ -1244,17 +1257,29 @@ private struct PresetUsageBadge: View {
 }
 
 private struct IntervalTitleField: View {
+    let title: String
+    let placeholder: String
     @Binding var text: String
     @Environment(\.appTheme) private var theme
 
+    init(
+        title: String = L10n.title,
+        placeholder: String = L10n.optionalTitlePlaceholder,
+        text: Binding<String>
+    ) {
+        self.title = title
+        self.placeholder = placeholder
+        _text = text
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
-            Text(L10n.title)
+            Text(title)
                 .font(.caption.bold())
                 .foregroundStyle(theme.text.subtle)
                 .padding(.horizontal, Tokens.Spacing.md)
 
-            TextField(L10n.optionalTitlePlaceholder, text: $text)
+            TextField(placeholder, text: $text)
                 .textInputAutocapitalization(.words)
                 .foregroundStyle(theme.text.neutral)
                 .padding(.horizontal, Tokens.Spacing.md)
@@ -1263,6 +1288,7 @@ private struct IntervalTitleField: View {
 }
 
 private struct SegmentEditSheet: View {
+    @Binding var name: String
     @Binding var distanceText: String
     @Binding var usesOpenDistance: Bool
     @Binding var repeatCount: Int
@@ -1357,6 +1383,8 @@ private struct SegmentEditSheet: View {
             repeatsSection
         case .paceTarget:
             paceTargetSection
+        case .name:
+            nameSection
         }
     }
 
@@ -1366,18 +1394,18 @@ private struct SegmentEditSheet: View {
 
             ScrollView {
                 VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
-                    Text(L10n.distanceType)
+                    Text(L10n.intervalType)
                         .font(.caption.bold())
                         .foregroundStyle(theme.text.subtle)
                         .padding(.horizontal, Tokens.Spacing.xs)
                         .padding(.top, Tokens.Spacing.md)
 
                     HStack(spacing: Tokens.Spacing.md) {
-                        distanceModeButton(title: L10n.fixedDistance, isSelected: !usesOpenDistance) {
+                        distanceModeButton(title: L10n.distanceInterval, isSelected: !usesOpenDistance) {
                             usesOpenDistance = false
                             onDistanceModeChanged(false)
                         }
-                        distanceModeButton(title: L10n.openDistance, isSelected: usesOpenDistance) {
+                        distanceModeButton(title: L10n.timeInterval, isSelected: usesOpenDistance) {
                             usesOpenDistance = true
                             onDistanceModeChanged(true)
                         }
@@ -1738,6 +1766,15 @@ private struct SegmentEditSheet: View {
         .clipped()
         .opacity(isActive ? 1 : 0)
         .animation(.easeInOut(duration: 0.22), value: isActive)
+    }
+
+    private var nameSection: some View {
+        IntervalTitleField(
+            title: L10n.segmentName,
+            placeholder: L10n.optionalSegmentNamePlaceholder,
+            text: $name
+        )
+        .padding(.top, Tokens.Spacing.xs)
     }
 
     private var paceTargetSection: some View {

@@ -34,9 +34,13 @@
 "Distance (feet)" = "Distanse (fot)";
 "Distance (m)" = "Distanse (m)";
 "Distance (ft)" = "Distanse (fot)";
-"Distance Type" = "Distansetype";
-"Fixed" = "Fast";
-"Open" = "Åpen";
+"Interval Type" = "Intervalltype";
+"Name" = "Navn";
+"Name (optional)" = "Navn (valgfritt)";
+"Jog" = "Jogg";
+"Sprint" = "Sprint";
+"Surge" = "Drag";
+"Threshold" = "Terskel";
 "Repeats" = "Repetisjoner";
 "Rest" = "Hvile";
 "Last Rest" = "Siste hvile";
@@ -44,7 +48,7 @@
 "Repeats Required" = "Repetisjoner kreves";
 "Add repeats to this interval before adding a last rest." = "Legg til repetisjoner for dette intervallet før du legger til en siste hvile.";
 "GPS Required" = "GPS påkrevd";
-"Open intervals uses GPS to meassure distance. This activity has switched to Dual Mode." = "Åpne intervaller bruker GPS til å måle distanse. Denne aktiviteten har byttet til Dual-modus.";
+"Time intervals use GPS to measure distance. This activity has switched to Dual Mode." = "Tidsintervaller bruker GPS til å måle distanse. Denne aktiviteten har byttet til Dual-modus.";
 "Enable GPS Access" = "Aktiver GPS-tilgang";
 "Unit" = "Enhet";
 "Color" = "Farge";
@@ -170,6 +174,7 @@
 "This session will be permanently deleted." = "Denne økta blir permanent slettet.";
 "Loaded from %@" = "Lastet fra %@";
 "%d saved" = "%d lagret";
+"%d × %@" = "%d × %@";
 
 /* Tracking Mode */
 "GPS" = "GPS";
@@ -245,7 +250,7 @@
 "Rundr is built for interval days." = "Rundr er laget for intervalløkter.";
 "It is a running app designed around Apple Watch first, with iPhone handling the setup and the follow-up. The goal is simple: make structured runs feel easier to start, easier to follow, and easier to return to." = "Det er en løpeapp bygget rundt Apple Watch først, mens iPhone tar seg av oppsett og oppfølging. Målet er enkelt: gjøre strukturerte økter lettere å starte, lettere å følge og lettere å komme tilbake til.";
 "Flexible when your workout is not one-size-fits-all" = "Fleksibel når økten ikke passer i én mal";
-"You can build fixed intervals, open intervals, pacing goals, rest blocks, and repeat structures that match the way you actually train. If a session works well, save it and bring it back later." = "Du kan bygge faste intervaller, åpne intervaller, fartsmål, hvileblokker og repetisjonsoppsett som passer måten du faktisk trener på. Hvis en økt fungerer godt, kan du lagre den og hente den fram igjen senere.";
+"You can build distance intervals, time intervals, pacing goals, rest blocks, and repeat structures that match the way you actually train. If a session works well, save it and bring it back later." = "Du kan bygge distanseintervaller, tidsintervaller, fartsmål, hvileblokker og repetisjonsoppsett som passer måten du faktisk trener på. Hvis en økt fungerer godt, kan du lagre den og hente den fram igjen senere.";
 "Made to keep momentum" = "Laget for å holde flyten";
 "Rundr keeps planning, running, and reviewing connected. Set things up on iPhone, run from Apple Watch, then come back to your synced history when you want to repeat a favorite session or tune the next one." = "Rundr holder planlegging, løping og gjennomgang samlet. Sett opp på iPhone, løp fra Apple Watch, og kom tilbake til den synkroniserte historikken når du vil gjenta en favorittøkt eller finjustere den neste.";
 "Overview" = "Oversikt";
@@ -270,17 +275,15 @@
 "How Auto-detect Works" = "Slik virker Automatisk";
 "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap." = "Auto-hvile markerer den gjeldende runden som hvile etter at du har stoppet å bevege deg. Den hvilen forblir knyttet til samme runde. Rundr lager ikke en ny runde av seg selv. Neste runde starter når du trykker runde.";
 "Finish a 400 m rep, stop at the rail, and the current lap becomes rest. When you are ready for the next rep, press lap to start the next lap." = "Fullfør en 400-meter, stopp ved gjerdet, og den gjeldende runden blir hvile. Når du er klar for neste drag, trykker du runde for å starte neste runde.";
-"Distance Type" = "Distansetype";
-"Fixed" = "Fast";
-"Use Fixed when the lap has a known distance, like 400 m or 1 km." = "Bruk Fast når runden har en kjent distanse, som 400 m eller 1 km.";
-"Open" = "Åpen";
-"Use Open when you want to use target time instead and define how long the lap should last, rather than how far it should be." = "Bruk Åpen når du heller vil bruke måltid og bestemme hvor lenge runden skal vare, i stedet for hvor lang den skal være.";
-"Choose Open for 45 s with 15 s rest." = "Velg Åpen for 45 s med 15 s hvile.";
+"Interval Type" = "Intervalltype";
+"Use Distance when the lap has a known distance, like 400 m or 1 km." = "Bruk Distance når runden har en kjent distanse, som 400 m eller 1 km.";
+"Use Time when you want to define how long the lap should last, rather than how far it should be." = "Bruk Time når du vil bestemme hvor lenge runden skal vare, i stedet for hvor lang den skal være.";
+"Choose Time for 45 s with 15 s rest, or name it Jog for an easier segment." = "Velg Time for 45 s med 15 s hvile, eller gi den navnet Jogg for et roligere drag.";
 "Tracking Mode" = "Sporingsmodus";
 "Manual" = "Manuell";
-"Manual uses your Session Plan and manual lap presses without GPS distance. Use it for fixed-distance intervals when you want full control and precise measurement and statistics." = "Manuell bruker øktplanen din og manuelle rundetrykk uten GPS-distanse. Bruk den for intervaller med fast distanse når du vil ha full kontroll samt presis måling og statistikk.";
+"Manual uses your Session Plan and manual lap presses without GPS distance. Use it for distance intervals when you want full control and precise measurement and statistics." = "Manuell bruker øktplanen din og manuelle rundetrykk uten GPS-distanse. Bruk den for distanseintervaller når du vil ha full kontroll samt presis måling og statistikk.";
 "Dual" = "Dual";
-"Dual keeps the Session Plan and also records GPS distance. Use it when you want time-based laps. Open distance needs GPS, so Rundr uses Dual there." = "Dual beholder øktplanen og registrerer også GPS-distanse. Bruk den når du vil ha tidsbaserte runder. Åpen distanse trenger GPS, så der bruker Rundr Dual.";
+"Dual keeps the Session Plan and also records GPS distance. Use it when you want time-based laps. Time intervals need GPS, so Rundr uses Dual there." = "Dual beholder øktplanen og registrerer også GPS-distanse. Bruk den når du vil ha tidsbaserte runder. Tidsintervaller trenger GPS, så der bruker Rundr Dual.";
 "Apple Health" = "Apple Health";
 "Apple Health lets Rundr save workouts, laps, heart rate, energy, and GPS routes when available, and read the workout data it needs back. Turn it on when you want your runs to stay in Apple's fitness history." = "Apple Health lar Rundr lagre økter, runder, puls, energi og GPS-ruter når det er tilgjengelig, og lese tilbake treningsdataene den trenger. Slå det på når du vil at løpeturene dine skal bli værende i Apples treningshistorikk.";
 "Enable Health access if you want one session to appear in Rundr, Health, and Fitness instead of living only inside the app." = "Aktiver Health-tilgang hvis du vil at én økt skal vises i Rundr, Health og Fitness i stedet for bare inni appen.";

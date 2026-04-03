@@ -42,16 +42,25 @@ enum L10n {
     static let distanceFeet = String(localized: "Distance (feet)", comment: "Distance input label")
     static let distanceMetersShort = String(localized: "Distance (m)", comment: "Short distance input label")
     static let distanceFeetShort = String(localized: "Distance (ft)", comment: "Short distance input label")
-    static let distanceType = String(localized: "Distance Type", comment: "Distance mode selector")
-    static let fixedDistance = String(localized: "Fixed", comment: "Fixed interval distance")
-    static let openDistance = String(localized: "Open", comment: "Open interval distance")
+    static let intervalType = String(localized: "Interval Type", comment: "Interval mode selector")
+    static let distanceInterval = String(localized: "Distance", comment: "Distance-based interval type")
+    static let timeInterval = String(localized: "Time", comment: "Time-based interval type")
+    static let segmentName = String(localized: "Name", comment: "Optional segment name label")
+    static let optionalSegmentNamePlaceholder = String(localized: "Name (optional)", comment: "Optional segment name placeholder")
+    static let jog = String(localized: "Jog", comment: "Default segment name for easier running")
+    static let sprint = String(localized: "Sprint", comment: "Default segment name for faster running")
+    static let surge = String(localized: "Surge", comment: "Default segment name for fartlek surge")
+    static let threshold = String(localized: "Threshold", comment: "Default segment name for threshold interval")
+    static let distanceType = intervalType
+    static let fixedDistance = distanceInterval
+    static let openDistance = timeInterval
     static let repeats = String(localized: "Repeats", comment: "Segment repeats label")
     static let lastRest = String(localized: "Last Rest", comment: "Segment last rest label")
     static let addLastRest = String(localized: "Add Last Rest", comment: "Button to add a last rest field")
     static let lastRestNeedsRepeatsTitle = String(localized: "Repeats Required", comment: "Alert title when last rest requires repeats")
     static let lastRestNeedsRepeatsMessage = String(localized: "Add repeats to this interval before adding a last rest.", comment: "Alert message when last rest requires repeats")
     static let gpsAlsoEnabledTitle = String(localized: "GPS Required", comment: "Open interval GPS banner title")
-    static let gpsAlsoEnabledSubtitle = String(localized: "Open intervals uses GPS to meassure distance. This activity has switched to Dual Mode.", comment: "Open interval GPS banner subtitle")
+    static let gpsAlsoEnabledSubtitle = String(localized: "Time intervals use GPS to measure distance. This activity has switched to Dual Mode.", comment: "Time interval GPS banner subtitle")
     static let requestLocationAccess = String(localized: "Enable GPS Access", comment: "Open interval GPS banner button")
     static let unit = String(localized: "Unit", comment: "Distance unit setting")
     static let color = String(localized: "Color", comment: "Primary color setting")
@@ -203,6 +212,9 @@ enum L10n {
     static func segmentCount(_ count: Int) -> String {
         String(format: String(localized: "%d segments", comment: "Workout plan segment count"), count)
     }
+    static func repeatSummary(_ count: Int, _ value: String) -> String {
+        String(format: String(localized: "%d × %@", comment: "Workout segment repeats summary"), count, value)
+    }
 
     // MARK: - Tracking Mode
     static let gps = String(localized: "GPS", comment: "Tracking mode")
@@ -251,8 +263,11 @@ enum L10n {
     static func targetDisplay(_ distance: String, _ time: String) -> String {
         String(format: String(localized: "%@ in %@", comment: "Target display: distance in time"), distance, time)
     }
+    static func segmentSummary(_ name: String, _ value: String) -> String {
+        String(format: String(localized: "%@ • %@", comment: "Named interval summary"), name, value)
+    }
     static func openTargetDisplay(_ time: String) -> String {
-        String(format: String(localized: "%@ • %@", comment: "Target display: open interval and time"), openDistance, time)
+        segmentSummary(timeInterval, time)
     }
 
     // MARK: - Preset Usage
@@ -296,7 +311,7 @@ enum L10n {
     static let aboutRundrHeadline = String(localized: "Rundr is built for interval days.", comment: "Companion about headline")
     static let aboutRundrBodyOne = String(localized: "It is a running app designed around Apple Watch first, with iPhone handling the setup and the follow-up. The goal is simple: make structured runs feel easier to start, easier to follow, and easier to return to.", comment: "Companion about body")
     static let aboutFlexibleSessionsTitle = String(localized: "Flexible when your workout is not one-size-fits-all", comment: "Companion about card title")
-    static let aboutFlexibleSessionsBody = String(localized: "You can build fixed intervals, open intervals, pacing goals, rest blocks, and repeat structures that match the way you actually train. If a session works well, save it and bring it back later.", comment: "Companion about card body")
+    static let aboutFlexibleSessionsBody = String(localized: "You can build distance intervals, time intervals, pacing goals, rest blocks, and repeat structures that match the way you actually train. If a session works well, save it and bring it back later.", comment: "Companion about card body")
     static let aboutKeepMomentumTitle = String(localized: "Made to keep momentum", comment: "Companion about card title")
     static let aboutKeepMomentumBody = String(localized: "Rundr keeps planning, running, and reviewing connected. Set things up on iPhone, run from Apple Watch, then come back to your synced history when you want to repeat a favorite session or tune the next one.", comment: "Companion about card body")
     static let helpOverviewTitle = String(localized: "Overview", comment: "Companion help table of contents title")
@@ -321,17 +336,23 @@ enum L10n {
     static let helpAutoRestTitle = String(localized: "How Auto-detect Works", comment: "Companion help card title")
     static let helpAutoRestBody = String(localized: "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap.", comment: "Companion help card body")
     static let helpAutoRestExample = String(localized: "Finish a 400 m rep, stop at the rail, and the current lap becomes rest. When you are ready for the next rep, press lap to start the next lap.", comment: "Companion help card example")
-    static let helpDistanceTypeTitle = String(localized: "Distance Type", comment: "Companion help card title")
-    static let helpDistanceTypeFixedHeading = String(localized: "Fixed", comment: "Companion help section heading")
-    static let helpDistanceTypeFixedBody = String(localized: "Use Fixed when the lap has a known distance, like 400 m or 1 km.", comment: "Companion help section body")
-    static let helpDistanceTypeOpenHeading = String(localized: "Open", comment: "Companion help section heading")
-    static let helpDistanceTypeOpenBody = String(localized: "Use Open when you want to use target time instead and define how long the lap should last, rather than how far it should be.", comment: "Companion help section body")
-    static let helpDistanceTypeOpenExample = String(localized: "Choose Open for 45 s with 15 s rest.", comment: "Companion help card example")
+    static let helpIntervalTypeTitle = String(localized: "Interval Type", comment: "Companion help card title")
+    static let helpIntervalTypeDistanceHeading = String(localized: "Distance", comment: "Companion help section heading")
+    static let helpIntervalTypeDistanceBody = String(localized: "Use Distance when the lap has a known distance, like 400 m or 1 km.", comment: "Companion help section body")
+    static let helpIntervalTypeTimeHeading = String(localized: "Time", comment: "Companion help section heading")
+    static let helpIntervalTypeTimeBody = String(localized: "Use Time when you want to define how long the lap should last, rather than how far it should be.", comment: "Companion help section body")
+    static let helpIntervalTypeTimeExample = String(localized: "Choose Time for 45 s with 15 s rest, or name it Jog for an easier segment.", comment: "Companion help card example")
+    static let helpDistanceTypeTitle = helpIntervalTypeTitle
+    static let helpDistanceTypeFixedHeading = helpIntervalTypeDistanceHeading
+    static let helpDistanceTypeFixedBody = helpIntervalTypeDistanceBody
+    static let helpDistanceTypeOpenHeading = helpIntervalTypeTimeHeading
+    static let helpDistanceTypeOpenBody = helpIntervalTypeTimeBody
+    static let helpDistanceTypeOpenExample = helpIntervalTypeTimeExample
     static let helpTrackingModeTitle = String(localized: "Tracking Mode", comment: "Companion help card title")
     static let helpTrackingModeManualHeading = String(localized: "Manual", comment: "Companion help section heading")
-    static let helpTrackingModeManualBody = String(localized: "Manual uses your Session Plan and manual lap presses without GPS distance. Use it for fixed-distance intervals when you want full control and precise measurement and statistics.", comment: "Companion help section body")
+    static let helpTrackingModeManualBody = String(localized: "Manual uses your Session Plan and manual lap presses without GPS distance. Use it for distance intervals when you want full control and precise measurement and statistics.", comment: "Companion help section body")
     static let helpTrackingModeDualHeading = String(localized: "Dual", comment: "Companion help section heading")
-    static let helpTrackingModeDualBody = String(localized: "Dual keeps the Session Plan and also records GPS distance. Use it when you want time-based laps. Open distance needs GPS, so Rundr uses Dual there.", comment: "Companion help section body")
+    static let helpTrackingModeDualBody = String(localized: "Dual keeps the Session Plan and also records GPS distance. Use it when you want time-based laps. Time intervals need GPS, so Rundr uses Dual there.", comment: "Companion help section body")
     static let helpAppleHealthTitle = String(localized: "Apple Health", comment: "Companion help card title")
     static let helpAppleHealthBody = String(localized: "Apple Health lets Rundr save workouts, laps, heart rate, energy, and GPS routes when available, and read the workout data it needs back. Turn it on when you want your runs to stay in Apple's fitness history.", comment: "Companion help card body")
     static let helpAppleHealthExample = String(localized: "Enable Health access if you want one session to appear in Rundr, Health, and Fitness instead of living only inside the app.", comment: "Companion help card example")

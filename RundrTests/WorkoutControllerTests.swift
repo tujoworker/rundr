@@ -210,6 +210,16 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.availableDistances, [400, 800])
     }
 
+    func testCurrentSegmentNameExposesConfiguredSegmentName() {
+        let controller = makeConfiguredController(
+            trackingMode: .dual,
+            segments: [DistanceSegment(name: "Jog", distanceMeters: 0, distanceGoalMode: .time, targetTimeSeconds: 120)]
+        )
+
+        XCTAssertEqual(controller.currentSegmentName, "Jog")
+        XCTAssertEqual(controller.currentTargetTimeSeconds, 120)
+    }
+
     func testTotalPlannedIntervalsForFinitePlan() {
         let segments = [
             DistanceSegment(distanceMeters: 400, repeatCount: 2),

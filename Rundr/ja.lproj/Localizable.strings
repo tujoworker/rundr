@@ -34,9 +34,13 @@
 "Distance (feet)" = "距離（フィート）";
 "Distance (m)" = "距離 (m)";
 "Distance (ft)" = "距離 (ft)";
-"Distance Type" = "距離タイプ";
-"Fixed" = "固定";
-"Open" = "オープン";
+"Interval Type" = "インターバルタイプ";
+"Name" = "名前";
+"Name (optional)" = "名前（任意）";
+"Jog" = "ジョグ";
+"Sprint" = "スプリント";
+"Surge" = "上げ";
+"Threshold" = "閾値";
 "Repeats" = "リピート";
 "Rest" = "レスト";
 "Last Rest" = "ラストレスト";
@@ -44,7 +48,7 @@
 "Repeats Required" = "リピートが必要です";
 "Add repeats to this interval before adding a last rest." = "ラストレストを追加する前に、このインターバルにリピートを追加してください。";
 "GPS Required" = "GPS必須";
-"Open intervals uses GPS to meassure distance. This activity has switched to Dual Mode." = "オープンインターバルはGPSを使用して距離を測定します。このアクティビティはデュアルモードに切り替わりました。";
+"Time intervals use GPS to measure distance. This activity has switched to Dual Mode." = "時間インターバルはGPSを使って距離を計測します。このアクティビティはデュアルモードに切り替わりました。";
 "Enable GPS Access" = "GPSアクセスを有効にする";
 "Unit" = "単位";
 "Color" = "カラー";
@@ -170,6 +174,7 @@
 "This session will be permanently deleted." = "このセッションは完全に削除されます。";
 "Loaded from %@" = "%@から読み込み";
 "%d saved" = "%d件保存済み";
+"%d × %@" = "%d × %@";
 
 /* Tracking Mode */
 "GPS" = "GPS";
@@ -243,7 +248,7 @@
 "Rundr is built for interval days." = "Rundrはインターバルの日のために作られています。";
 "It is a running app designed around Apple Watch first, with iPhone handling the setup and the follow-up. The goal is simple: make structured runs feel easier to start, easier to follow, and easier to return to." = "Apple Watchを中心に設計されたランニングアプリで、iPhoneは準備と振り返りを担当します。目指しているのは、構成のあるランを始めやすく、追いやすく、また戻ってきやすくすることです。";
 "Flexible when your workout is not one-size-fits-all" = "ひとつの型に収まらない練習にも対応";
-"You can build fixed intervals, open intervals, pacing goals, rest blocks, and repeat structures that match the way you actually train. If a session works well, save it and bring it back later." = "固定インターバル、オープンインターバル、ペース目標、レスト区間、反復構成まで、実際の練習に合わせて組み立てられます。うまくはまったセッションは保存して、あとでまた使えます。";
+"You can build distance intervals, time intervals, pacing goals, rest blocks, and repeat structures that match the way you actually train. If a session works well, save it and bring it back later." = "距離インターバル、時間インターバル、ペース目標、レスト区間、反復構成まで、実際の練習に合わせて組み立てられます。うまくはまったセッションは保存して、あとでまた使えます。";
 "Made to keep momentum" = "流れを止めないための設計";
 "Rundr keeps planning, running, and reviewing connected. Set things up on iPhone, run from Apple Watch, then come back to your synced history when you want to repeat a favorite session or tune the next one." = "Rundrは準備、実行、振り返りをひとつにつなぎます。iPhoneで整え、Apple Watchで走り、気に入ったセッションを繰り返したいときや次を調整したいときに同期済みの履歴へ戻れます。";
 "Overview" = "概要";
@@ -268,17 +273,15 @@
 "How Auto-detect Works" = "Auto-detectの仕組み";
 "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap." = "Auto Restは、動きを止めたあとに現在のラップをレストとして扱います。そのレストは同じラップにひもづいたままです。Rundrが自動で次のラップを作ることはありません。次のラップは、ラップを押したときに始まります。";
 "Finish a 400 m rep, stop at the rail, and the current lap becomes rest. When you are ready for the next rep, press lap to start the next lap." = "400 mの1本を終えて柵のところで止まると、現在のラップがレストになります。次の1本に進む準備ができたら、ラップを押して次のラップを始めます。";
-"Distance Type" = "距離タイプ";
-"Fixed" = "Fixed";
-"Use Fixed when the lap has a known distance, like 400 m or 1 km." = "400 mや1 kmのように距離が決まっているラップではFixedを使います。";
-"Open" = "Open";
-"Use Open when you want to use target time instead and define how long the lap should last, rather than how far it should be." = "距離ではなく目標時間を使って、そのラップをどれくらい続けるか決めたい場合はOpenを使います。";
-"Choose Open for 45 s with 15 s rest." = "45秒、レスト15秒ならOpenを選びます。";
+"Interval Type" = "インターバルタイプ";
+"Use Distance when the lap has a known distance, like 400 m or 1 km." = "400 mや1 kmのように距離が決まっているラップではDistanceを使います。";
+"Use Time when you want to define how long the lap should last, rather than how far it should be." = "距離ではなく、そのラップをどれくらい続けるかで決めたい場合はTimeを使います。";
+"Choose Time for 45 s with 15 s rest, or name it Jog for an easier segment." = "45秒・レスト15秒ならTimeを選び、楽な区間にはJogのような名前を付けられます。";
 "Tracking Mode" = "計測モード";
 "Manual" = "Manual";
-"Manual uses your Session Plan and manual lap presses without GPS distance. Use it for fixed-distance intervals when you want full control and precise measurement and statistics." = "Manualはセッションプランと手動ラップを使い、GPS距離は使いません。距離固定のインターバルで、しっかり自分で管理しつつ、正確な計測と統計を使いたいときに向いています。";
+"Manual uses your Session Plan and manual lap presses without GPS distance. Use it for distance intervals when you want full control and precise measurement and statistics." = "Manualはセッションプランと手動ラップを使い、GPS距離は使いません。距離インターバルで、しっかり自分で管理しつつ、正確な計測と統計を使いたいときに向いています。";
 "Dual" = "Dual";
-"Dual keeps the Session Plan and also records GPS distance. Use it when you want time-based laps. Open distance needs GPS, so Rundr uses Dual there." = "Dualはセッションプランを保ったままGPS距離も記録します。時間ベースのラップにしたいときに使います。Open距離にはGPSが必要なので、その場合RundrはDualを使います。";
+"Dual keeps the Session Plan and also records GPS distance. Use it when you want time-based laps. Time intervals need GPS, so Rundr uses Dual there." = "Dualはセッションプランを保ったままGPS距離も記録します。時間ベースのラップにしたいときに使います。時間インターバルにはGPSが必要なので、その場合RundrはDualを使います。";
 "Apple Health" = "Apple Health";
 "Apple Health lets Rundr save workouts, laps, heart rate, energy, and GPS routes when available, and read the workout data it needs back. Turn it on when you want your runs to stay in Apple's fitness history." = "Apple Healthを使うと、Rundrはワークアウト、ラップ、心拍、消費エネルギー、利用可能なGPSルートを保存し、必要なワークアウトデータを読み戻せます。ランをAppleのフィットネス履歴に残したいなら有効にしておくのが適しています。";
 "Enable Health access if you want one session to appear in Rundr, Health, and Fitness instead of living only inside the app." = "セッションをアプリ内だけでなくRundr、Health、Fitnessのすべてに表示したいなら、Healthアクセスを有効にします。";

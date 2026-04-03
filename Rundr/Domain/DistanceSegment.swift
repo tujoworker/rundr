@@ -1,12 +1,42 @@
 import Foundation
 
 enum DistanceGoalMode: String, Codable, Equatable, Hashable {
-    case fixed
-    case open
+    case distance
+    case time
+
+    static var fixed: Self { .distance }
+    static var open: Self { .time }
+
+    var isTimeBased: Bool {
+        self == .time
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+
+        switch rawValue {
+        case Self.distance.rawValue, "fixed":
+            self = .distance
+        case Self.time.rawValue, "open":
+            self = .time
+        default:
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Invalid DistanceGoalMode value: \(rawValue)"
+            )
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
 }
 
 struct DistanceSegment: Codable, Identifiable, Equatable, Hashable {
     var id: UUID
+    var name: String?
     var distanceMeters: Double
     var distanceGoalMode: DistanceGoalMode
     /// Number of repeats for this segment. `nil` means unlimited (open-ended).
@@ -21,11 +51,12 @@ struct DistanceSegment: Codable, Identifiable, Equatable, Hashable {
     /// Target time in seconds for the segment distance. `nil` means no time target.
     var targetTimeSeconds: Double?
 
-    init(id: UUID = UUID(), distanceMeters: Double = 400, repeatCount: Int? = nil, restSeconds: Int? = nil,
+    init(id: UUID = UUID(), name: String? = nil, distanceMeters: Double = 400, repeatCount: Int? = nil, restSeconds: Int? = nil,
          lastRestSeconds: Int? = nil,
          distanceGoalMode: DistanceGoalMode = .fixed,
          targetPaceSecondsPerKm: Double? = nil, targetTimeSeconds: Double? = nil) {
         self.id = id
+        self.name = SegmentEditorValueRules.normalizedName(name)
         self.distanceMeters = distanceMeters
         self.distanceGoalMode = distanceGoalMode
         self.repeatCount = repeatCount
@@ -35,8 +66,12 @@ struct DistanceSegment: Codable, Identifiable, Equatable, Hashable {
         self.targetTimeSeconds = targetTimeSeconds
     }
 
+    var trimmedName: String? {
+        SegmentEditorValueRules.normalizedName(name)
+    }
+
     var usesOpenDistance: Bool {
-        distanceGoalMode == .open
+        distanceGoalMode.isTimeBased
     }
 
     /// Effective target time derived from either direct time or pace × distance.
@@ -51,6 +86,7 @@ struct DistanceSegment: Codable, Identifiable, Equatable, Hashable {
 
     private enum CodingKeys: String, CodingKey {
         case id
+        case name
         case distanceMeters
         case distanceGoalMode
         case repeatCount
@@ -63,6 +99,7 @@ struct DistanceSegment: Codable, Identifiable, Equatable, Hashable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         id = try container.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        name = SegmentEditorValueRules.normalizedName(try container.decodeIfPresent(String.self, forKey: .name))
         distanceMeters = try container.decodeIfPresent(Double.self, forKey: .distanceMeters) ?? DistanceSegment.default.distanceMeters
         distanceGoalMode = try container.decodeIfPresent(DistanceGoalMode.self, forKey: .distanceGoalMode) ?? .fixed
         repeatCount = try container.decodeIfPresent(Int.self, forKey: .repeatCount)
@@ -75,6 +112,7 @@ struct DistanceSegment: Codable, Identifiable, Equatable, Hashable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(id, forKey: .id)
+        try container.encodeIfPresent(trimmedName, forKey: .name)
         try container.encode(distanceMeters, forKey: .distanceMeters)
         try container.encode(distanceGoalMode, forKey: .distanceGoalMode)
         try container.encodeIfPresent(repeatCount, forKey: .repeatCount)

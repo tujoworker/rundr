@@ -425,6 +425,7 @@ private struct CompanionBrowserView: View {
 
 private struct CompanionPresetLibraryView: View {
     private enum PresetRoute: Hashable {
+        case new
         case saved(UUID)
         case predefined(String)
     }
@@ -486,10 +487,25 @@ private struct CompanionPresetLibraryView: View {
     var body: some View {
         List {
             Section {
-                CompanionHomeSectionHeader(title: L10n.myIntervals)
-                    .padding(.leading, browseSectionHeaderLeadingInset)
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
+                HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.md) {
+                    CompanionHomeSectionHeader(title: L10n.myIntervals)
+
+                    Spacer(minLength: Tokens.Spacing.md)
+
+                    Button {
+                        selectedRoute = .new
+                    } label: {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.system(size: Tokens.FontSize.xl, weight: .semibold))
+                            .foregroundStyle(settings.primaryAccentColor)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(L10n.addInterval)
+                }
+                .padding(.leading, browseSectionHeaderLeadingInset)
+                .padding(.trailing, browseSectionHeaderLeadingInset)
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
 
                 if settings.intervalPresets.isEmpty {
                     VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
@@ -591,6 +607,25 @@ private struct CompanionPresetLibraryView: View {
         .toolbarBackground(.hidden, for: .navigationBar)
         .navigationDestination(item: $selectedRoute) { route in
             switch route {
+            case .new:
+                CompanionWorkoutEditorView(
+                    headerTitle: L10n.newInterval,
+                    subtitle: nil,
+                    initialWorkoutPlan: WorkoutPlanSnapshot(trackingMode: .distanceDistance),
+                    initialCustomTitle: nil,
+                    initialStoredPresetID: nil,
+                    showsCustomTitle: true,
+                    autoSaveOnSegmentDone: true
+                ) { workoutPlan, customTitle, storedPresetID in
+                    _ = settings.saveIntervalPreset(
+                        workoutPlan,
+                        customTitle: customTitle,
+                        existingPresetID: storedPresetID
+                    )
+                    settings.apply(workoutPlan: workoutPlan)
+                    onUseActivity()
+                }
+
             case let .saved(presetID):
                 if let preset = settings.intervalPresets.first(where: { $0.id == presetID }) {
                     CompanionWorkoutEditorView(

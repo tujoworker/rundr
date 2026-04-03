@@ -16,6 +16,8 @@ enum L10n {
     static let usedWhenStartingOnAppleWatch = String(localized: "Used when you start on Apple Watch.", comment: "Companion current workout summary")
     static let intervalsTitle = String(localized: "Session Plan", comment: "Session plan section title")
     static let myIntervals = String(localized: "My intervals", comment: "Interval library title")
+    static let newInterval = String(localized: "New Interval", comment: "Title for creating a new interval preset")
+    static let addInterval = String(localized: "Add Interval", comment: "Accessibility label for adding a new interval preset")
     static let predefined = String(localized: "Predefined", comment: "Predefined interval section")
     static let title = String(localized: "Title", comment: "Preset title label")
     static let optionalTitlePlaceholder = String(localized: "Title (optional)", comment: "Optional preset title placeholder")

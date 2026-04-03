@@ -33,6 +33,8 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.importFile, "Import File")
         XCTAssertEqual(L10n.planImportedTitle, "Plan Imported")
         XCTAssertEqual(L10n.sessionImportedTitle, "Session Imported")
+        XCTAssertEqual(L10n.newInterval, "New Interval")
+        XCTAssertEqual(L10n.addInterval, "Add Interval")
     }
 
     func testThisSessionLabelExistsForActionMenuTitle() {

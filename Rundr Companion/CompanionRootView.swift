@@ -732,6 +732,14 @@ private struct CompanionSettingsView: View {
                     }
                     .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
 
+                    CompanionSettingsToggleRow(
+                        title: L10n.syncAppearanceMode,
+                        detail: L10n.syncAppearanceModeDetail,
+                        systemImage: "circle.lefthalf.filled",
+                        isOn: $settings.syncAppearanceMode
+                    )
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
+
                     NavigationLink {
                         CompanionColorSettingsDetailView()
                     } label: {
@@ -1832,6 +1840,42 @@ private struct CompanionSettingsNavigationRow: View {
         icon
             .symbolRenderingMode(.monochrome)
             .foregroundStyle(iconTint)
+    }
+}
+
+private struct CompanionSettingsToggleRow: View {
+    let title: String
+    var detail: String? = nil
+    let systemImage: String
+    @Binding var isOn: Bool
+
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        HStack(alignment: .top, spacing: Tokens.Spacing.md) {
+            CompanionSettingsLeadingIcon(systemImage: systemImage)
+
+            VStack(alignment: .leading, spacing: Tokens.Spacing.xxs) {
+                Text(title)
+                    .foregroundStyle(theme.text.neutral)
+
+                if let detail, !detail.isEmpty {
+                    Text(detail)
+                        .font(.footnote)
+                        .foregroundStyle(theme.text.subtle)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+            }
+
+            Spacer(minLength: Tokens.Spacing.md)
+
+            Toggle("", isOn: $isOn)
+                .labelsHidden()
+                .tint(settings.primaryAccentColor)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 }
 

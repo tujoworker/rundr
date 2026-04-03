@@ -74,6 +74,20 @@ final class SessionSyncTests: XCTestCase {
         XCTAssertFalse(existing.shouldReplace(existingRecord: incoming))
     }
 
+    func testSettingsSyncRecordDecodesLegacyPayloadWithAppearanceSyncDefaultingToTrue() throws {
+        let original = makeSettingsSyncRecord(updatedAt: Date(), deviceSource: "iphone")
+        let data = try JSONEncoder().encode(original)
+        let jsonObject = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        var legacyObject = jsonObject
+        legacyObject.removeValue(forKey: "syncAppearanceMode")
+
+        let legacyData = try JSONSerialization.data(withJSONObject: legacyObject, options: [.sortedKeys])
+        let decoded = try JSONDecoder().decode(SettingsSyncRecord.self, from: legacyData)
+
+        XCTAssertTrue(decoded.syncAppearanceMode)
+        XCTAssertEqual(decoded.appearanceMode, original.appearanceMode)
+    }
+
     // MARK: - Persistence upsert + apply (lap merge)
 
     @MainActor
@@ -322,6 +336,7 @@ final class SessionSyncTests: XCTestCase {
             lapAlerts: true,
             restAlerts: false,
             appearanceMode: .dark,
+            syncAppearanceMode: true,
             distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
             intervalPresets: [],
             updatedAt: updatedAt,

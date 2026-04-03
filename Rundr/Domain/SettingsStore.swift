@@ -137,6 +137,7 @@ final class SettingsStore: ObservableObject {
     @AppStorage("lapAlerts") var lapAlerts: Bool = true
     @AppStorage("restAlerts") var restAlerts: Bool = true
     @AppStorage("appearanceMode") private var appearanceModeRaw: String = AppearanceMode.system.rawValue
+    @AppStorage("syncAppearanceMode") var syncAppearanceMode: Bool = true
 
     var appearanceMode: AppearanceMode {
         get { AppearanceMode(rawValue: appearanceModeRaw) ?? .system }
@@ -295,6 +296,7 @@ final class SettingsStore: ObservableObject {
             lapAlerts: lapAlerts,
             restAlerts: restAlerts,
             appearanceMode: appearanceMode,
+            syncAppearanceMode: syncAppearanceMode,
             distanceSegments: distanceSegments,
             workoutPlanOriginID: workoutPlanOriginID,
             intervalPresets: intervalPresets,
@@ -311,7 +313,10 @@ final class SettingsStore: ObservableObject {
         restMode = settingsSyncRecord.restMode
         lapAlerts = settingsSyncRecord.lapAlerts
         restAlerts = settingsSyncRecord.restAlerts
-        appearanceMode = settingsSyncRecord.appearanceMode
+        syncAppearanceMode = settingsSyncRecord.syncAppearanceMode
+        if settingsSyncRecord.syncAppearanceMode {
+            appearanceMode = settingsSyncRecord.appearanceMode
+        }
         distanceSegments = settingsSyncRecord.distanceSegments
         workoutPlanOriginID = settingsSyncRecord.workoutPlanOriginID
         persistIntervalPresets(settingsSyncRecord.intervalPresets)

@@ -285,11 +285,97 @@ struct SettingsSyncRecord: Codable, Equatable {
     var lapAlerts: Bool
     var restAlerts: Bool
     var appearanceMode: AppearanceMode
+    var syncAppearanceMode: Bool
     var distanceSegments: [DistanceSegment]
     var workoutPlanOriginID: UUID? = nil
     var intervalPresets: [IntervalPreset]
     var updatedAt: Date
     var deviceSource: String
+
+    init(
+        trackingMode: TrackingMode,
+        distanceDistanceMeters: Double,
+        distanceUnit: DistanceUnit,
+        primaryColor: PrimaryColorOption,
+        restMode: RestMode,
+        lapAlerts: Bool,
+        restAlerts: Bool,
+        appearanceMode: AppearanceMode,
+        syncAppearanceMode: Bool = true,
+        distanceSegments: [DistanceSegment],
+        workoutPlanOriginID: UUID? = nil,
+        intervalPresets: [IntervalPreset],
+        updatedAt: Date,
+        deviceSource: String
+    ) {
+        self.trackingMode = trackingMode
+        self.distanceDistanceMeters = distanceDistanceMeters
+        self.distanceUnit = distanceUnit
+        self.primaryColor = primaryColor
+        self.restMode = restMode
+        self.lapAlerts = lapAlerts
+        self.restAlerts = restAlerts
+        self.appearanceMode = appearanceMode
+        self.syncAppearanceMode = syncAppearanceMode
+        self.distanceSegments = distanceSegments
+        self.workoutPlanOriginID = workoutPlanOriginID
+        self.intervalPresets = intervalPresets
+        self.updatedAt = updatedAt
+        self.deviceSource = deviceSource
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case trackingMode
+        case distanceDistanceMeters
+        case distanceUnit
+        case primaryColor
+        case restMode
+        case lapAlerts
+        case restAlerts
+        case appearanceMode
+        case syncAppearanceMode
+        case distanceSegments
+        case workoutPlanOriginID
+        case intervalPresets
+        case updatedAt
+        case deviceSource
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        trackingMode = try container.decode(TrackingMode.self, forKey: .trackingMode)
+        distanceDistanceMeters = try container.decode(Double.self, forKey: .distanceDistanceMeters)
+        distanceUnit = try container.decode(DistanceUnit.self, forKey: .distanceUnit)
+        primaryColor = try container.decode(PrimaryColorOption.self, forKey: .primaryColor)
+        restMode = try container.decode(RestMode.self, forKey: .restMode)
+        lapAlerts = try container.decode(Bool.self, forKey: .lapAlerts)
+        restAlerts = try container.decode(Bool.self, forKey: .restAlerts)
+        appearanceMode = try container.decode(AppearanceMode.self, forKey: .appearanceMode)
+        syncAppearanceMode = try container.decodeIfPresent(Bool.self, forKey: .syncAppearanceMode) ?? true
+        distanceSegments = try container.decode([DistanceSegment].self, forKey: .distanceSegments)
+        workoutPlanOriginID = try container.decodeIfPresent(UUID.self, forKey: .workoutPlanOriginID)
+        intervalPresets = try container.decode([IntervalPreset].self, forKey: .intervalPresets)
+        updatedAt = try container.decode(Date.self, forKey: .updatedAt)
+        deviceSource = try container.decode(String.self, forKey: .deviceSource)
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(trackingMode, forKey: .trackingMode)
+        try container.encode(distanceDistanceMeters, forKey: .distanceDistanceMeters)
+        try container.encode(distanceUnit, forKey: .distanceUnit)
+        try container.encode(primaryColor, forKey: .primaryColor)
+        try container.encode(restMode, forKey: .restMode)
+        try container.encode(lapAlerts, forKey: .lapAlerts)
+        try container.encode(restAlerts, forKey: .restAlerts)
+        try container.encode(appearanceMode, forKey: .appearanceMode)
+        try container.encode(syncAppearanceMode, forKey: .syncAppearanceMode)
+        try container.encode(distanceSegments, forKey: .distanceSegments)
+        try container.encodeIfPresent(workoutPlanOriginID, forKey: .workoutPlanOriginID)
+        try container.encode(intervalPresets, forKey: .intervalPresets)
+        try container.encode(updatedAt, forKey: .updatedAt)
+        try container.encode(deviceSource, forKey: .deviceSource)
+    }
 
     func shouldReplace(existingRecord: SettingsSyncRecord) -> Bool {
         if updatedAt != existingRecord.updatedAt {

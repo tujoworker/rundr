@@ -8,6 +8,8 @@ enum L10n {
     static let pressActionButton = String(localized: "Press the Action Button", comment: "PreStart hint")
     static let settings = String(localized: "Settings", comment: "Settings section")
     static let preferences = String(localized: "Preferences", comment: "Section, tab, and screen title for app settings and related information")
+    static let syncAppearanceMode = String(localized: "Sync Light/Dark Mode", comment: "Companion preference toggle title for syncing appearance mode")
+    static let syncAppearanceModeDetail = String(localized: "When off, iPhone and Apple Watch keep separate appearance settings.", comment: "Companion preference toggle description for syncing appearance mode")
     static let workouts = String(localized: "Workouts", comment: "Companion tab title")
     static let browser = String(localized: "Browse", comment: "Companion tab title")
     static let adjustSettings = String(localized: "Adjust Interval", comment: "History setup title")

@@ -1627,6 +1627,7 @@ final class ModelTests: XCTestCase {
             "restMode",
             "pauseMode",
             "appearanceMode",
+            "syncAppearanceMode",
             "distanceUnit",
             "lapAlerts",
             "restAlerts"
@@ -1652,6 +1653,7 @@ final class ModelTests: XCTestCase {
             lapAlerts: false,
             restAlerts: true,
             appearanceMode: .light,
+            syncAppearanceMode: true,
             distanceSegments: presetPlan.distanceSegments,
             workoutPlanOriginID: originPlanID,
             intervalPresets: [IntervalPreset(customTitle: "Track", workoutPlan: presetPlan)],
@@ -1669,9 +1671,62 @@ final class ModelTests: XCTestCase {
         XCTAssertFalse(store.lapAlerts)
         XCTAssertTrue(store.restAlerts)
         XCTAssertEqual(store.appearanceMode, .light)
+        XCTAssertTrue(store.syncAppearanceMode)
         XCTAssertEqual(store.distanceSegments, presetPlan.distanceSegments)
         XCTAssertEqual(store.workoutPlanOriginID, originPlanID)
         XCTAssertEqual(store.intervalPresets.first?.trimmedCustomTitle, "Track")
+    }
+
+    func testSettingsStoreApplySettingsSyncRecordKeepsLocalAppearanceWhenAppearanceSyncDisabled() {
+        let keys = [
+            "appearanceMode",
+            "syncAppearanceMode"
+        ]
+        keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
+        defer { keys.forEach { UserDefaults.standard.removeObject(forKey: $0) } }
+
+        let store = SettingsStore()
+        store.appearanceMode = .dark
+        store.syncAppearanceMode = true
+
+        let record = SettingsSyncRecord(
+            trackingMode: .distanceDistance,
+            distanceDistanceMeters: 400,
+            distanceUnit: .km,
+            primaryColor: .blue,
+            restMode: .manual,
+            lapAlerts: true,
+            restAlerts: true,
+            appearanceMode: .light,
+            syncAppearanceMode: false,
+            distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
+            intervalPresets: [],
+            updatedAt: Date(),
+            deviceSource: "iphone"
+        )
+
+        store.apply(settingsSyncRecord: record)
+
+        XCTAssertFalse(store.syncAppearanceMode)
+        XCTAssertEqual(store.appearanceMode, .dark)
+    }
+
+    func testSettingsStoreMakeSettingsSyncRecordIncludesAppearanceSyncPreference() {
+        let keys = [
+            "appearanceMode",
+            "syncAppearanceMode"
+        ]
+        keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
+        defer { keys.forEach { UserDefaults.standard.removeObject(forKey: $0) } }
+
+        let store = SettingsStore()
+        store.appearanceMode = .dark
+        store.syncAppearanceMode = false
+
+        let record = store.makeSettingsSyncRecord(updatedAt: Date(), deviceSource: "iphone")
+
+        XCTAssertEqual(record.appearanceMode, .dark)
+        XCTAssertFalse(record.syncAppearanceMode)
     }
 
     func testSettingsStoreSaveIntervalPresetIgnoresGPSPlan() {

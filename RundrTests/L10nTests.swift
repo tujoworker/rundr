@@ -81,6 +81,14 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.termsResponsibilityTitle, "Your Responsibility")
     }
 
+    func testCompanionAppearanceSyncLabelsExist() {
+        XCTAssertEqual(L10n.syncAppearanceMode, "Sync Light/Dark Mode")
+        XCTAssertEqual(
+            L10n.syncAppearanceModeDetail,
+            "When off, iPhone and Apple Watch keep separate appearance settings."
+        )
+    }
+
     func testUsedCountFormatsAsCompactBadgeText() {
         XCTAssertEqual(L10n.usedCount(3), "3x")
     }

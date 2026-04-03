@@ -67,6 +67,9 @@ struct RundrApp: App {
                 .onChange(of: settings.appearanceMode) { _, _ in
                     syncManager.publishSettingsSnapshot()
                 }
+                .onChange(of: settings.syncAppearanceMode) { _, _ in
+                    syncManager.publishSettingsSnapshot()
+                }
                 .onChange(of: settings.lapAlerts) { _, _ in
                     syncManager.publishSettingsSnapshot()
                 }

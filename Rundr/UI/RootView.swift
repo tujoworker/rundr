@@ -181,6 +181,46 @@ struct SelectionToggleButton: View {
     }
 }
 
+struct WatchEmptyStateRow: View {
+    enum SurfaceStyle {
+        case neutral
+        case history
+    }
+
+    let title: String
+    var detail: String? = nil
+    var surfaceStyle: SurfaceStyle = .neutral
+
+    @Environment(\.appTheme) private var theme
+
+    private var backgroundColor: Color {
+        switch surfaceStyle {
+        case .neutral:
+            theme.background.neutral
+        case .history:
+            theme.background.history
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+            Text(title)
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(theme.text.neutral)
+
+            if let detail {
+                Text(detail)
+                    .font(.caption)
+                    .foregroundStyle(theme.text.subtle)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(Tokens.Spacing.md)
+        .background(backgroundColor)
+        .cornerRadius(Tokens.Radius.medium)
+    }
+}
+
 struct RootView: View {
     @Environment(\.appTheme) private var theme
     @EnvironmentObject var coordinator: NavigationCoordinator

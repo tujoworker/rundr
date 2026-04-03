@@ -27,10 +27,12 @@ struct HomeView: View {
                 .listRowBackground(Color.clear)
 
                 if viewModel.recentSessions.isEmpty {
-                    Text(L10n.noSessionsYet)
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, Tokens.Spacing.xxxxl)
+                    WatchEmptyStateRow(
+                        title: L10n.noSessionsYet,
+                        surfaceStyle: .history
+                    )
+                        .padding(.vertical, Tokens.Spacing.xs)
+                        .listRowInsets(Tokens.ListRowInsets.card)
                         .listRowBackground(Color.clear)
                 } else {
                     ForEach(viewModel.recentSessions, id: \.id) { session in

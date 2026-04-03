@@ -583,7 +583,7 @@ private struct CompanionPresetLibraryView: View {
                             CompanionPresetRowView(
                                 title: titleComponents.title,
                                 subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
-                                repeatCount: titleComponents.repeatCount,
+                                repeatCount: nil,
                                 usageCount: settings.presetUsageCount(for: preset.workoutPlan)
                             )
                             .padding(browseCellContentInsets)

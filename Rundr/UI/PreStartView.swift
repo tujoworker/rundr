@@ -700,10 +700,12 @@ struct IntervalLibraryView: View {
         List {
             Section {
                 if settings.intervalPresets.isEmpty {
-                    Text(L10n.noSavedIntervalsYet)
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, Tokens.Spacing.xxxxl)
+                    WatchEmptyStateRow(
+                        title: L10n.noSavedIntervalsYet,
+                        detail: L10n.savedIntervalsPlaceholderDetail
+                    )
+                        .padding(.vertical, Tokens.Spacing.xs)
+                        .listRowInsets(Tokens.ListRowInsets.card)
                         .listRowBackground(Color.clear)
                 } else {
                     ForEach(visiblePresets) { preset in

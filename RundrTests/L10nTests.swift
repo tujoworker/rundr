@@ -50,6 +50,13 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.more, "More")
     }
 
+    func testCompanionLegalLabelsExist() {
+        XCTAssertEqual(L10n.privacyPolicy, "Privacy Policy")
+        XCTAssertEqual(L10n.termsOfUse, "Terms of Use")
+        XCTAssertEqual(L10n.privacyWhatRundrStoresTitle, "What Rundr Stores")
+        XCTAssertEqual(L10n.termsResponsibilityTitle, "Your Responsibility")
+    }
+
     func testUsedCountFormatsAsCompactBadgeText() {
         XCTAssertEqual(L10n.usedCount(3), "3x")
     }

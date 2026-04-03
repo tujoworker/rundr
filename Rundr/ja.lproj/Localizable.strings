@@ -266,3 +266,25 @@
 "Manual" = "手動";
 "%d segments" = "%dセグメント";
 "Unlimited" = "無制限";
+
+/* Legal */
+"Privacy Policy" = "プライバシーポリシー";
+"Terms of Use" = "利用規約";
+"What Rundr Stores" = "Rundrが保存する内容";
+"Rundr can store your session plans, workout history, app settings, and ongoing workout state on your devices. If you allow Apple Health access, Rundr can read and write workout data such as workouts, laps, heart rate, active energy, running distance, body mass used for calorie estimates, and GPS route data when available." = "Rundrは、セッションプラン、ワークアウト履歴、アプリ設定、進行中ワークアウトの状態を各デバイス上に保存することがあります。Apple Healthへのアクセスを許可すると、Rundrはワークアウト、ラップ、心拍数、アクティブエネルギー、ランニング距離、消費カロリー推定に使う体重、利用可能な場合はGPSルートデータなどのワークアウト情報を読み書きできます。";
+"How Rundr Uses Data" = "Rundrでのデータ利用";
+"Rundr uses this data to run structured workouts, show your history, restore unfinished sessions, calculate workout metrics, sync between Apple Watch and iPhone, and save workouts back to Apple Health when you choose to enable that integration." = "Rundrは、構成されたワークアウトを実行し、履歴を表示し、中断したセッションを復元し、ワークアウト指標を計算し、Apple WatchとiPhone間で同期し、有効にした場合はApple Healthへワークアウトを書き戻すためにこれらのデータを使います。";
+"Storage and Sync" = "保存と同期";
+"Rundr does not require an account. Based on the current app design, your workout data is stored locally on your devices and transferred between Apple Watch and iPhone using Apple's system frameworks. Rundr does not use third-party advertising or analytics SDKs." = "Rundrではアカウントは不要です。現在のアプリ設計では、ワークアウトデータは各デバイス内にローカル保存され、Apple WatchとiPhoneの間はAppleのシステムフレームワークを使って転送されます。Rundrはサードパーティの広告SDKや解析SDKを使用しません。";
+"Permissions and Choices" = "権限と選択";
+"You can decide whether to grant Health and location access. If you deny permissions, features such as GPS distance, route recording, heart-rate display, calorie estimates, and Apple Health saving may be limited or unavailable. You can change permissions later in Apple's Settings app." = "Healthと位置情報へのアクセスを許可するかどうかは自分で選べます。許可しない場合、GPS距離、ルート記録、心拍表示、カロリー推定、Apple Healthへの保存などの機能は制限されるか利用できないことがあります。権限はあとからAppleの設定アプリで変更できます。";
+"Using Rundr" = "Rundrの利用";
+"Rundr is a fitness and workout planning app for structured running sessions on Apple Watch and iPhone. It is provided for personal use and does not promise specific training results, uninterrupted availability, or error-free data." = "Rundrは、Apple WatchとiPhoneで構成されたランニングセッションを行うためのフィットネスおよびワークアウト計画アプリです。個人利用向けに提供されるもので、特定のトレーニング結果、途切れない提供、誤りのないデータを保証するものではありません。";
+"Not Medical Advice" = "医療上の助言ではありません";
+"Rundr is not medical advice and is not intended to diagnose, treat, monitor, or prevent illness or injury. Health and workout data can be incomplete, delayed, or inaccurate. Speak with a qualified medical professional before relying on the app for health or training decisions." = "Rundrは医療上の助言ではなく、病気やけがの診断、治療、監視、予防を目的としたものではありません。健康データやワークアウトデータは不完全、遅延、または不正確な場合があります。健康やトレーニングの判断にアプリを頼る前に、資格を持つ医療専門家に相談してください。";
+"Train Safely" = "安全にトレーニングする";
+"You are responsible for using Rundr safely, staying aware of traffic, surfaces, weather, surroundings, and your own condition, and following local laws and rules wherever you train. Stop using the app immediately if you feel pain, dizziness, distress, or that continued exercise may be unsafe." = "Rundrを安全に使い、交通、路面、天候、周囲の状況、自分自身の体調に注意し、トレーニングを行う場所の法令やルールに従う責任はユーザーにあります。痛み、めまい、強い不快感がある場合や、運動継続が危険だと感じる場合は、直ちにアプリの使用をやめてください。";
+"Your Responsibility" = "ご自身の責任";
+"You use Rundr at your own risk. To the fullest extent permitted by law, you are responsible for your training choices and for any accident, injury, damage, loss, or other harmful event that happens while using the app." = "Rundrの利用はご自身の責任で行ってください。法律で認められる最大限の範囲で、トレーニング上の判断、およびアプリ利用中に発生した事故、けが、損害、損失その他の不利益については、ユーザーご自身が責任を負うものとします。";
+"Availability and Updates" = "提供状況と更新";
+"Some features depend on Apple Watch, Apple Health, location services, and other Apple systems being available. Features may change over time. If these terms are updated in a future release, continued use of Rundr means you accept the updated terms." = "一部の機能は、Apple Watch、Apple Health、位置情報サービス、その他のAppleのシステムが利用可能であることを前提とします。機能は将来変更されることがあります。今後のリリースで本規約が更新された後もRundrを使い続ける場合、更新後の規約に同意したものとみなされます。";

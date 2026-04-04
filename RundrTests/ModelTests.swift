@@ -1585,6 +1585,21 @@ final class ModelTests: XCTestCase {
         XCTAssertTrue(segments.allSatisfy { $0.lastRestSeconds == nil })
     }
 
+    func testThresholdSixesPresetUsesExplicitThresholdAndJogSegments() {
+        let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "thresholdSixes" }))
+        let segments = preset?.workoutPlan.distanceSegments ?? []
+
+        XCTAssertEqual(segments.count, 9)
+        XCTAssertEqual(
+            segments.map(\.trimmedName),
+            [L10n.threshold, L10n.jog, L10n.threshold, L10n.jog, L10n.threshold, L10n.jog, L10n.threshold, L10n.jog, L10n.threshold]
+        )
+        XCTAssertEqual(segments.map(\.targetTimeSeconds), [360, 60, 360, 60, 360, 60, 360, 60, 360])
+        XCTAssertTrue(segments.allSatisfy { $0.distanceGoalMode == .open })
+        XCTAssertTrue(segments.allSatisfy { $0.restSeconds == nil })
+        XCTAssertTrue(segments.allSatisfy { $0.lastRestSeconds == nil })
+    }
+
     func testFortyFiveFifteensPresetUsesTwoOpenSetsWithSetRest() {
         let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "fortyFiveFifteens" }))
         let segments = preset?.workoutPlan.distanceSegments ?? []

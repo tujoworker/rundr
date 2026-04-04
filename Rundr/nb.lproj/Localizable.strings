@@ -24,7 +24,8 @@
 "30/15" = "30/15";
 "Over/Under" = "Over/Under";
 "Pyramid" = "Pyramide";
-"10 x 400 m" = "10 x 400 m";
+"10 x 400 m with rest" = "10 x 400 m med pause";
+"10 x 400 m without rest" = "10 x 400 m uten pause";
 "Structured Fartlek" = "Strukturert fartslek";
 "Long Intervals" = "Lange intervaller";
 "20-30 x (45s / 15s), continuous or 2 sets. Maximum threshold time with micro-recovery. Core Norwegian method." = "20-30 x (45 s / 15 s), sammenhengende eller i 2 sett. Maksimal terskeltid med mikropauser. En kjerneøkt i norsk metode.";
@@ -35,6 +36,7 @@
 "4 x 8 min alternating 1 min over / 1 min under. Trains lactate handling and pace changes." = "4 x 8 min med veksling 1 min over / 1 min under. Trener laktathåndtering og tempovekslinger.";
 "1-2-3-4-3-2-1 min with equal rest, repeat. Covers multiple intensities in one session." = "1-2-3-4-3-2-1 min med lik pause, gjentas. Dekker flere intensiteter i én økt.";
 "10 x 400 m / 60-90s jog, split sets optional. Speed plus running economy. Classic and effective." = "10 x 400 m / 60-90 s jogg, valgfri oppdeling i sett. Fart og løpsøkonomi. Klassisk og effektivt.";
+"10 x 400 m continuous, no rest between reps. Trains pace control and relaxed form under accumulating fatigue." = "10 x 400 m sammenhengende, uten pause mellom dragene. Trener fartskontroll og avslappet teknikk under økende belastning.";
 "45 min run with fixed surges, for example 1-2 min every 5-10 min. Controlled variation. Great for outdoor terrain." = "45 min løp med faste drag, for eksempel 1-2 min hvert 5.-10. minutt. Kontrollert variasjon. Perfekt ute i terreng.";
 "3 x 10-15 min / 2-3 min jog. Marathon-specific strength and sustained threshold work." = "3 x 10-15 min / 2-3 min jogg. Maratonspesifikk styrke og langvarig terskelarbeid.";
 "No saved intervals yet" = "Ingen lagrede intervaller ennå";

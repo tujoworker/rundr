@@ -369,9 +369,40 @@ final class SettingsStore: ObservableObject {
             title: L10n.predefinedFourHundredRepeatsTitle,
             description: L10n.predefinedFourHundredRepeatsDescription,
             workoutPlan: WorkoutPlanSnapshot(
+                trackingMode: .dual,
+                distanceLapDistanceMeters: 400,
+                distanceSegments: [
+                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1)
+                ],
+                restMode: .manual
+            )
+        ),
+        PredefinedIntervalPreset(
+            id: "fourHundredRepeatsNoRest",
+            title: L10n.predefinedFourHundredRepeatsNoRestTitle,
+            description: L10n.predefinedFourHundredRepeatsNoRestDescription,
+            workoutPlan: WorkoutPlanSnapshot(
                 trackingMode: .distanceDistance,
                 distanceLapDistanceMeters: 400,
-                distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 10, restSeconds: 60)],
+                distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 10)],
                 restMode: .manual
             )
         ),

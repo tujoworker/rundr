@@ -24,7 +24,8 @@
 "30/15" = "30/15";
 "Over/Under" = "Wechseltempo";
 "Pyramid" = "Pyramide";
-"10 x 400 m" = "10 x 400 m";
+"10 x 400 m with rest" = "10 x 400 m mit Pause";
+"10 x 400 m without rest" = "10 x 400 m ohne Pause";
 "Structured Fartlek" = "Strukturiertes Fahrtspiel";
 "Long Intervals" = "Lange Intervalle";
 "20-30 x (45s / 15s), continuous or 2 sets. Maximum threshold time with micro-recovery. Core Norwegian method." = "20-30 x (45 s / 15 s), durchgehend oder in 2 Sätzen. Maximale Schwellenzeit mit Mikro-Erholung. Kernmethode aus Norwegen.";
@@ -35,6 +36,7 @@
 "4 x 8 min alternating 1 min over / 1 min under. Trains lactate handling and pace changes." = "4 x 8 Min. mit Wechsel 1 Min. drüber / 1 Min. drunter. Trainiert Laktatverarbeitung und Tempowechsel.";
 "1-2-3-4-3-2-1 min with equal rest, repeat. Covers multiple intensities in one session." = "1-2-3-4-3-2-1 Min. mit gleicher Pause, dann wiederholen. Deckt mehrere Intensitäten in einer Einheit ab.";
 "10 x 400 m / 60-90s jog, split sets optional. Speed plus running economy. Classic and effective." = "10 x 400 m / 60-90 s Trabpause, Sätze optional. Schnelligkeit plus Laufökonomie. Klassisch und effektiv.";
+"10 x 400 m continuous, no rest between reps. Trains pace control and relaxed form under accumulating fatigue." = "10 x 400 m zusammenhängend, ohne Pause zwischen den Wiederholungen. Trainiert Tempogefühl und lockere Form trotz wachsender Ermüdung.";
 "45 min run with fixed surges, for example 1-2 min every 5-10 min. Controlled variation. Great for outdoor terrain." = "45 Min. Lauf mit festen Antritten, zum Beispiel 1-2 Min. alle 5-10 Min. Kontrollierte Variation. Ideal für draußen.";
 "3 x 10-15 min / 2-3 min jog. Marathon-specific strength and sustained threshold work." = "3 x 10-15 Min. / 2-3 Min. Trabpause. Marathonspezifische Stärke und längere Schwellenarbeit.";
 "No saved intervals yet" = "Noch keine gespeicherten Intervalle";

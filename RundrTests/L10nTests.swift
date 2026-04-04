@@ -120,7 +120,8 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.predefinedThirtyFifteensTitle, "30/15")
         XCTAssertEqual(L10n.predefinedOverUnderTitle, "Over/Under")
         XCTAssertEqual(L10n.predefinedPyramidTitle, "Pyramid")
-        XCTAssertEqual(L10n.predefinedFourHundredRepeatsTitle, "10 x 400 m")
+        XCTAssertEqual(L10n.predefinedFourHundredRepeatsTitle, "10 x 400 m with rest")
+        XCTAssertEqual(L10n.predefinedFourHundredRepeatsNoRestTitle, "10 x 400 m without rest")
         XCTAssertEqual(L10n.predefinedStructuredFartlekTitle, "Structured Fartlek")
         XCTAssertEqual(L10n.predefinedLongTwelvesTitle, "Long Intervals")
     }
@@ -128,6 +129,7 @@ final class L10nTests: XCTestCase {
     func testPredefinedWorkoutDescriptionsExist() {
         XCTAssertEqual(L10n.predefinedFortyFiveFifteensDescription, "20-30 x (45s / 15s), continuous or 2 sets. Maximum threshold time with micro-recovery. Core Norwegian method.")
         XCTAssertEqual(L10n.predefinedOverUnderDescription, "4 x 8 min alternating 1 min over / 1 min under. Trains lactate handling and pace changes.")
+        XCTAssertEqual(L10n.predefinedFourHundredRepeatsNoRestDescription, "10 x 400 m continuous, no rest between reps. Trains pace control and relaxed form under accumulating fatigue.")
     }
 
     func testUsedCountFormatsAsCompactBadgeText() {

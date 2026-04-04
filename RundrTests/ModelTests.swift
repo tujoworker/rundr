@@ -1555,6 +1555,7 @@ final class ModelTests: XCTestCase {
                 "thresholdSixes",
                 "thousandRepeats",
                 "fourHundredRepeats",
+                "fourHundredRepeatsNoRest",
                 "fortyFiveFifteens",
                 "thirtyFifteens",
                 "overUnder",
@@ -1615,6 +1616,36 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(segments.map(\.distanceGoalMode), [.distance, .open, .distance, .open, .distance, .open, .distance, .open, .distance, .open, .distance])
         XCTAssertTrue(segments.allSatisfy { $0.restSeconds == nil })
         XCTAssertTrue(segments.allSatisfy { $0.lastRestSeconds == nil })
+    }
+
+    func testFourHundredRepeatsPresetUsesExplicitRunAndJogSegments() {
+        let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "fourHundredRepeats" }))
+        let segments = preset?.workoutPlan.distanceSegments ?? []
+
+        XCTAssertEqual(preset?.workoutPlan.trackingMode, .dual)
+        XCTAssertEqual(segments.count, 19)
+        XCTAssertEqual(
+            segments.map(\.trimmedName),
+            [L10n.run, L10n.jog, L10n.run, L10n.jog, L10n.run, L10n.jog, L10n.run, L10n.jog, L10n.run, L10n.jog, L10n.run, L10n.jog, L10n.run, L10n.jog, L10n.run, L10n.jog, L10n.run, L10n.jog, L10n.run]
+        )
+        XCTAssertEqual(segments.map(\.distanceMeters), [400, 0, 400, 0, 400, 0, 400, 0, 400, 0, 400, 0, 400, 0, 400, 0, 400, 0, 400])
+        XCTAssertEqual(segments.map(\.targetTimeSeconds), [nil, 60, nil, 60, nil, 60, nil, 60, nil, 60, nil, 60, nil, 60, nil, 60, nil, 60, nil])
+        XCTAssertEqual(segments.map(\.distanceGoalMode), [.distance, .open, .distance, .open, .distance, .open, .distance, .open, .distance, .open, .distance, .open, .distance, .open, .distance, .open, .distance, .open, .distance])
+        XCTAssertTrue(segments.allSatisfy { $0.restSeconds == nil })
+        XCTAssertTrue(segments.allSatisfy { $0.lastRestSeconds == nil })
+    }
+
+    func testFourHundredRepeatsNoRestPresetKeepsContinuousDistanceRepeats() {
+        let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "fourHundredRepeatsNoRest" }))
+        let segments = preset?.workoutPlan.distanceSegments ?? []
+
+        XCTAssertEqual(preset?.workoutPlan.trackingMode, .distanceDistance)
+        XCTAssertEqual(segments.count, 1)
+        XCTAssertEqual(segments.first?.distanceMeters, 400)
+        XCTAssertEqual(segments.first?.repeatCount, 10)
+        XCTAssertEqual(segments.first?.distanceGoalMode, .distance)
+        XCTAssertNil(segments.first?.restSeconds)
+        XCTAssertNil(segments.first?.lastRestSeconds)
     }
 
     func testFortyFiveFifteensPresetUsesTwoOpenSetsWithSetRest() {

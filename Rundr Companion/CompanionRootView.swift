@@ -1336,7 +1336,6 @@ private struct CompanionWorkoutEditorView: View {
     @State private var customDescription: String = ""
     @State private var storedPresetID: UUID?
     @State private var selectedSegment: DistanceSegment?
-    @State private var showsOpenDistanceBanner = false
     @State private var addSegmentBounceTrigger = 0
     @State private var hasLoadedSnapshot = false
     @State private var isUseActivityConfirmationPresented = false
@@ -1538,13 +1537,6 @@ private struct CompanionWorkoutEditorView: View {
             }
             .listSectionSeparator(.hidden)
 
-            if showsOpenDistanceBanner {
-                Section {
-                    Text(L10n.gpsAlsoEnabledSubtitle)
-                        .foregroundStyle(theme.text.subtle)
-                        .listRowCardChrome()
-                }
-            }
         }
         .navigationTitle(headerTitle)
         .themedCompanionList()
@@ -1622,7 +1614,7 @@ private struct CompanionWorkoutEditorView: View {
         customTitle = initialCustomTitle ?? ""
         customDescription = initialCustomDescription ?? ""
         storedPresetID = initialStoredPresetID
-        syncTrackingModeWithSegments(showBanner: false)
+        syncTrackingModeWithSegments()
     }
 
     private func animateSegmentAddition() {
@@ -1635,7 +1627,7 @@ private struct CompanionWorkoutEditorView: View {
     private func addSegment() {
         segments.append(WorkoutPlanSupport.nextSegmentForAppend(from: segments))
         segments = WorkoutPlanSupport.normalizedSegments(segments)
-        syncTrackingModeWithSegments(showBanner: false)
+        syncTrackingModeWithSegments()
         persistPresetAfterEditIfNeeded()
     }
 
@@ -1645,14 +1637,14 @@ private struct CompanionWorkoutEditorView: View {
             fromOffsets: fromOffsets,
             toOffset: toOffset
         )
-        syncTrackingModeWithSegments(showBanner: false)
+        syncTrackingModeWithSegments()
         persistPresetAfterEditIfNeeded()
     }
 
     private func deleteSegments(at offsets: IndexSet) {
         segments.remove(atOffsets: offsets)
         segments = WorkoutPlanSupport.normalizedSegments(segments)
-        syncTrackingModeWithSegments(showBanner: false)
+        syncTrackingModeWithSegments()
         persistPresetAfterEditIfNeeded()
     }
 
@@ -1661,7 +1653,7 @@ private struct CompanionWorkoutEditorView: View {
         if keepsAtLeastOne || !segments.isEmpty {
             segments = WorkoutPlanSupport.normalizedSegments(segments)
         }
-        syncTrackingModeWithSegments(showBanner: false)
+        syncTrackingModeWithSegments()
         persistPresetAfterEditIfNeeded()
     }
 
@@ -1669,7 +1661,7 @@ private struct CompanionWorkoutEditorView: View {
         guard let index = segments.firstIndex(where: { $0.id == updatedSegment.id }) else { return }
         segments[index] = updatedSegment
         segments = WorkoutPlanSupport.normalizedSegments(segments)
-        syncTrackingModeWithSegments(showBanner: updatedSegment.usesOpenDistance)
+        syncTrackingModeWithSegments()
         persistPresetAfterEditIfNeeded()
     }
 
@@ -1718,10 +1710,9 @@ private struct CompanionWorkoutEditorView: View {
         dismiss()
     }
 
-    private func syncTrackingModeWithSegments(showBanner: Bool) {
+    private func syncTrackingModeWithSegments() {
         let requiresGPS = segments.contains(where: \.usesOpenDistance)
         trackingMode = requiresGPS ? .dual : .distanceDistance
-        showsOpenDistanceBanner = requiresGPS && showBanner
     }
 }
 

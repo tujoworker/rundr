@@ -1831,7 +1831,7 @@ private struct CompanionSegmentRow: View {
 
         switch segment.recoveryType {
         case .activeRecovery:
-            items.append(MetricItem(title: L10n.activeRecovery, value: activeRecoveryValue))
+            items.append(MetricItem(title: L10n.recovery, value: activeRecoveryValue))
         case .rest:
             items.append(MetricItem(title: L10n.rest, value: restValue))
         case .none:

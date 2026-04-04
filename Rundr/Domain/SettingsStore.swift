@@ -346,9 +346,21 @@ final class SettingsStore: ObservableObject {
             title: L10n.predefinedThousandRepeatsTitle,
             description: L10n.predefinedThousandRepeatsDescription,
             workoutPlan: WorkoutPlanSnapshot(
-                trackingMode: .distanceDistance,
+                trackingMode: .dual,
                 distanceLapDistanceMeters: 1000,
-                distanceSegments: [DistanceSegment(distanceMeters: 1000, repeatCount: 6, restSeconds: 90)],
+                distanceSegments: [
+                    DistanceSegment(name: L10n.run, distanceMeters: 1000, repeatCount: 1),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
+                    DistanceSegment(name: L10n.run, distanceMeters: 1000, repeatCount: 1),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
+                    DistanceSegment(name: L10n.run, distanceMeters: 1000, repeatCount: 1),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
+                    DistanceSegment(name: L10n.run, distanceMeters: 1000, repeatCount: 1),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
+                    DistanceSegment(name: L10n.run, distanceMeters: 1000, repeatCount: 1),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
+                    DistanceSegment(name: L10n.run, distanceMeters: 1000, repeatCount: 1)
+                ],
                 restMode: .manual
             )
         ),

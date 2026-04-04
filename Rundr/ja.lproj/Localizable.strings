@@ -50,7 +50,7 @@
 "Repeats Required" = "リピートが必要です";
 "Add repeats to this interval before adding a last rest." = "ラストレストを追加する前に、このインターバルにリピートを追加してください。";
 "GPS Required" = "GPS必須";
-"Time intervals use GPS to measure distance. This activity has switched to Dual Mode." = "時間インターバルはGPSを使って距離を計測します。このアクティビティはデュアルモードに切り替わりました。";
+"Time intervals use GPS to measure distance." = "時間インターバルはGPSを使って距離を計測します。";
 "Enable GPS Access" = "GPSアクセスを有効にする";
 "Unit" = "単位";
 "Color" = "カラー";
@@ -65,7 +65,7 @@
 "e.g. 1320" = "例: 1320";
 "Location Required" = "位置情報が必要です";
 "OK" = "OK";
-"GPS-based modes need location access. The mode was switched back to Distance." = "GPSモードには位置情報へのアクセスが必要です。モードは距離に戻されました。";
+"Time intervals need location access. The interval was switched back to Distance." = "時間インターバルには位置情報へのアクセスが必要です。インターバルは距離に戻されました。";
 "Cancel" = "キャンセル";
 "Distance Unit" = "距離の単位";
 "Primary Color" = "メインカラー";

@@ -15,7 +15,6 @@ struct PreStartView: View {
     @State private var readyElapsedSeconds = 0
     @State private var latestHeartRate: Double?
     @State private var isGPSPermissionAlertPresented = false
-    @State private var isTrackingModeDialogPresented = false
     @State private var isDistanceUnitDialogPresented = false
     @State private var isRestModeDialogPresented = false
     @State private var isPrimaryColorDialogPresented = false
@@ -111,10 +110,7 @@ struct PreStartView: View {
     }
 
     private var isStartDisabled: Bool {
-        if settings.trackingMode.usesManualIntervals {
-            return segments.isEmpty || segments.contains { !$0.usesOpenDistance && $0.distanceMeters <= 0 }
-        }
-        return false
+        segments.isEmpty || segments.contains { !$0.usesOpenDistance && $0.distanceMeters <= 0 }
     }
 
     private var supportsActionButton: Bool {
@@ -201,38 +197,25 @@ struct PreStartView: View {
                         .padding(.bottom, Tokens.Spacing.xxs)
                 }
 
-                if settings.trackingMode.usesManualIntervals {
-                    intervalsSection
+                intervalsSection
 
-                    Button {
-                        coordinator.goToIntervalLibrary()
-                    } label: {
-                        SettingsCardRow(
-                            icon: "square.grid.2x2",
-                            title: L10n.browse,
-                            showsChevron: true
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.top, Tokens.Spacing.xl)
+                Button {
+                    coordinator.goToIntervalLibrary()
+                } label: {
+                    SettingsCardRow(
+                        icon: "square.grid.2x2",
+                        title: L10n.browse,
+                        showsChevron: true
+                    )
                 }
+                .buttonStyle(.plain)
+                .padding(.top, Tokens.Spacing.xl)
 
                 Text(L10n.preferences)
                     .font(.headline.weight(.semibold))
                     .foregroundStyle(theme.text.neutral)
                     .padding(.horizontal, Tokens.Spacing.sm)
                     .padding(.top, Tokens.Spacing.xl)
-
-                Button {
-                    isTrackingModeDialogPresented = true
-                } label: {
-                    SettingsCardRow(
-                        icon: "location",
-                        title: L10n.mode,
-                        value: settings.trackingMode.displayName
-                    )
-                }
-                .buttonStyle(.plain)
 
                 Button {
                     isRestModeDialogPresented = true
@@ -308,7 +291,7 @@ struct PreStartView: View {
             lastAddedLastRestSeconds = settings.distanceSegments.last?.lastRestSeconds ?? 0
             lastAddedTargetPace = Int(settings.distanceSegments.last?.targetPaceSecondsPerKm ?? 0)
             lastAddedTargetTime = Int(settings.distanceSegments.last?.targetTimeSeconds ?? 0)
-            ensureDualModeForOpenDistanceSegments(showBanner: false)
+            syncTrackingModeWithSegments(showBanner: false)
             refreshHeartRate()
         }
         .onReceive(readyTimer) { currentDate in
@@ -341,14 +324,6 @@ struct PreStartView: View {
             Button(L10n.ok, role: .cancel) {}
         } message: {
             Text(L10n.gpsModeNeedsLocation)
-        }
-        .confirmationDialog(L10n.mode, isPresented: $isTrackingModeDialogPresented) {
-            ForEach(TrackingMode.visibleCases) { mode in
-                Button(mode.displayName) {
-                    settings.trackingMode = mode
-                }
-            }
-            Button(L10n.cancel, role: .cancel) {}
         }
         .confirmationDialog(L10n.distanceUnit, isPresented: $isDistanceUnitDialogPresented) {
             ForEach(DistanceUnit.allCases) { unit in
@@ -414,6 +389,7 @@ struct PreStartView: View {
     private func persistSegments() {
         segments = normalizedSegments(segments)
         settings.distanceSegments = segments
+        syncTrackingModeWithSegments(showBanner: false)
     }
 
     private func syncSegmentsFromSettings() {
@@ -425,7 +401,7 @@ struct PreStartView: View {
         lastAddedLastRestSeconds = settings.distanceSegments.last?.lastRestSeconds ?? 0
         lastAddedTargetPace = Int(settings.distanceSegments.last?.targetPaceSecondsPerKm ?? 0)
         lastAddedTargetTime = Int(settings.distanceSegments.last?.targetTimeSeconds ?? 0)
-        ensureDualModeForOpenDistanceSegments(showBanner: false)
+        syncTrackingModeWithSegments(showBanner: false)
     }
 
     private func normalizedSegments(_ input: [DistanceSegment]) -> [DistanceSegment] {
@@ -439,7 +415,7 @@ struct PreStartView: View {
     }
 
     private func startSession() {
-        ensureDualModeForOpenDistanceSegments(showBanner: false)
+        syncTrackingModeWithSegments(showBanner: false)
         persistSegments()
         onStart()
     }
@@ -511,7 +487,7 @@ struct PreStartView: View {
             targetTimeSeconds: editingSegmentTargetTime > 0 ? Double(editingSegmentTargetTime) : nil
         )
         editingSegmentID = nil
-        ensureDualModeForOpenDistanceSegments(showBanner: false)
+        syncTrackingModeWithSegments(showBanner: false)
         persistSegments()
         showsOpenDistanceGPSBanner = false
     }
@@ -524,18 +500,26 @@ struct PreStartView: View {
                 SegmentEditorValueRules.minimumTimeIntervalSeconds
             )
         }
-        ensureDualModeForOpenDistanceSegments(showBanner: usesOpenDistance)
+        syncTrackingModeWithSegments(showBanner: usesOpenDistance)
     }
 
-    private func ensureDualModeForOpenDistanceSegments(showBanner: Bool) {
-        guard segments.contains(where: \.usesOpenDistance) || editingSegmentUsesOpenDistance else { return }
-        guard settings.trackingMode == .distanceDistance else { return }
-        suppressNextGPSPermissionRequest = true
-        settings.trackingMode = .dual
-        if showBanner {
+    private func syncTrackingModeWithSegments(showBanner: Bool) {
+        let requiresGPS = segments.contains(where: \.usesOpenDistance) || editingSegmentUsesOpenDistance
+        let resolvedTrackingMode: TrackingMode = requiresGPS ? .dual : .distanceDistance
+
+        if settings.trackingMode != resolvedTrackingMode {
+            if resolvedTrackingMode == .dual {
+                suppressNextGPSPermissionRequest = true
+            }
+            settings.trackingMode = resolvedTrackingMode
+        }
+
+        if requiresGPS, showBanner {
             withAnimation(.easeOut(duration: 0.2)) {
                 showsOpenDistanceGPSBanner = true
             }
+        } else if !requiresGPS {
+            showsOpenDistanceGPSBanner = false
         }
     }
 
@@ -891,10 +875,7 @@ private struct IntervalSetupView: View {
     }
 
     private var isContinueDisabled: Bool {
-        if trackingMode.usesManualIntervals {
-            return segments.isEmpty || segments.contains { !$0.usesOpenDistance && $0.distanceMeters <= 0 }
-        }
-        return false
+        segments.isEmpty || segments.contains { !$0.usesOpenDistance && $0.distanceMeters <= 0 }
     }
 
     private var canDeletePreset: Bool {
@@ -965,9 +946,7 @@ private struct IntervalSetupView: View {
                         IntervalTitleField(text: $customTitle)
                     }
 
-                    if trackingMode.usesManualIntervals {
-                        intervalsSection
-                    }
+                    intervalsSection
                 }
                 .padding(.horizontal, Tokens.Spacing.md)
                 .padding(.vertical, Tokens.Spacing.md)
@@ -1042,7 +1021,7 @@ private struct IntervalSetupView: View {
 
     private func loadSnapshot() {
         let snapshot = initialWorkoutPlan
-        trackingMode = snapshot.trackingMode
+        trackingMode = snapshot.trackingMode == .gps ? .distanceDistance : snapshot.trackingMode
         segments = snapshot.distanceSegments
         customTitle = initialCustomTitle ?? ""
         storedPresetID = initialStoredPresetID
@@ -1054,7 +1033,7 @@ private struct IntervalSetupView: View {
         lastAddedLastRestSeconds = segments.last?.lastRestSeconds ?? 0
         lastAddedTargetPace = Int(segments.last?.targetPaceSecondsPerKm ?? 0)
         lastAddedTargetTime = Int(segments.last?.targetTimeSeconds ?? 0)
-        ensureDualModeForOpenDistanceSegments(showBanner: false)
+        syncTrackingModeWithSegments(showBanner: false)
     }
 
     private func normalizedSegments(_ input: [DistanceSegment]) -> [DistanceSegment] {
@@ -1068,15 +1047,20 @@ private struct IntervalSetupView: View {
     }
 
     private func continueToGetReady() {
-        ensureDualModeForOpenDistanceSegments(showBanner: false)
-        let normalized = normalizedSegments(segments)
-        let distance = normalized.first?.distanceMeters ?? initialWorkoutPlan.distanceLapDistanceMeters
+        syncTrackingModeWithSegments(showBanner: false)
+        let workoutPlan = WorkoutPlanSupport.makeWorkoutPlan(
+            requestedTrackingMode: trackingMode,
+            currentTrackingMode: settings.trackingMode,
+            fallbackDistance: initialWorkoutPlan.distanceLapDistanceMeters,
+            segments: normalizedSegments(segments),
+            restMode: settings.restMode
+        )
         onContinue(
             WorkoutPlanSnapshot(
-                trackingMode: trackingMode,
-                distanceLapDistanceMeters: distance,
-                distanceSegments: normalized,
-                restMode: settings.restMode,
+                trackingMode: workoutPlan.trackingMode,
+                distanceLapDistanceMeters: workoutPlan.distanceLapDistanceMeters,
+                distanceSegments: workoutPlan.distanceSegments,
+                restMode: workoutPlan.restMode,
                 originPlanID: originPlanID
             ),
             IntervalPreset.sanitizeTitle(customTitle),
@@ -1091,13 +1075,18 @@ private struct IntervalSetupView: View {
     }
 
     private func currentWorkoutPlan() -> WorkoutPlanSnapshot {
-        let normalized = normalizedSegments(segments)
-        let distance = normalized.first?.distanceMeters ?? initialWorkoutPlan.distanceLapDistanceMeters
+        let workoutPlan = WorkoutPlanSupport.makeWorkoutPlan(
+            requestedTrackingMode: trackingMode,
+            currentTrackingMode: settings.trackingMode,
+            fallbackDistance: initialWorkoutPlan.distanceLapDistanceMeters,
+            segments: normalizedSegments(segments),
+            restMode: settings.restMode
+        )
         return WorkoutPlanSnapshot(
-            trackingMode: trackingMode,
-            distanceLapDistanceMeters: distance,
-            distanceSegments: normalized,
-            restMode: settings.restMode,
+            trackingMode: workoutPlan.trackingMode,
+            distanceLapDistanceMeters: workoutPlan.distanceLapDistanceMeters,
+            distanceSegments: workoutPlan.distanceSegments,
+            restMode: workoutPlan.restMode,
             originPlanID: originPlanID
         )
     }
@@ -1191,7 +1180,7 @@ private struct IntervalSetupView: View {
             targetTimeSeconds: editingSegmentTargetTime > 0 ? Double(editingSegmentTargetTime) : nil
         )
         editingSegmentID = nil
-        ensureDualModeForOpenDistanceSegments(showBanner: false)
+        syncTrackingModeWithSegments(showBanner: false)
         segments = normalizedSegments(segments)
         persistPresetAfterEditIfNeeded()
         showsOpenDistanceGPSBanner = false
@@ -1205,17 +1194,18 @@ private struct IntervalSetupView: View {
                 SegmentEditorValueRules.minimumTimeIntervalSeconds
             )
         }
-        ensureDualModeForOpenDistanceSegments(showBanner: usesOpenDistance)
+        syncTrackingModeWithSegments(showBanner: usesOpenDistance)
     }
 
-    private func ensureDualModeForOpenDistanceSegments(showBanner: Bool) {
-        guard segments.contains(where: \.usesOpenDistance) || editingSegmentUsesOpenDistance else { return }
-        guard trackingMode == .distanceDistance else { return }
-        trackingMode = .dual
-        if showBanner {
+    private func syncTrackingModeWithSegments(showBanner: Bool) {
+        let requiresGPS = segments.contains(where: \.usesOpenDistance) || editingSegmentUsesOpenDistance
+        trackingMode = requiresGPS ? .dual : .distanceDistance
+        if requiresGPS, showBanner {
             withAnimation(.easeOut(duration: 0.2)) {
                 showsOpenDistanceGPSBanner = true
             }
+        } else if !requiresGPS {
+            showsOpenDistanceGPSBanner = false
         }
     }
 

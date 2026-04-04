@@ -32,69 +32,39 @@ struct SessionDetailView: View {
 
     private var sessionStats: [SessionStatItem] {
         let firstSegment = session.snapshotWorkoutPlan.distanceSegments.first
-        let thirdItem: SessionStatItem
-        if let targetTime = firstSegment?.targetTimeSeconds {
-            thirdItem = SessionStatItem(label: L10n.targetTimeLabel, value: Formatters.compactTimeString(from: targetTime))
+        let primaryDistanceMeters: Double
+        if sessionUsesOpenIntervals || session.mode == .gps {
+            primaryDistanceMeters = session.totalGPSDistanceMeters ?? session.totalDistanceMeters
         } else {
-            let modeValue = session.mode == .distanceDistance ? L10n.manualLabel : session.mode.displayName
-            thirdItem = SessionStatItem(label: L10n.mode, value: modeValue)
+            primaryDistanceMeters = session.totalDistanceMeters
         }
+
         var items: [SessionStatItem] = [
             SessionStatItem(label: L10n.laps, value: String(session.activeLapCount)),
-            SessionStatItem(label: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds)),
-            thirdItem
+            SessionStatItem(label: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds))
         ]
 
-        if session.mode.usesManualIntervals && !sessionUsesOpenIntervals {
+        if let targetTime = firstSegment?.targetTimeSeconds {
             items.append(
-                SessionStatItem(
-                    label: L10n.distance,
-                    value: session.totalDistanceMeters > 0
-                        ? Formatters.distanceString(meters: session.totalDistanceMeters, unit: settings.distanceUnit)
-                        : L10n.dash
-                )
+                SessionStatItem(label: L10n.targetTimeLabel, value: Formatters.compactTimeString(from: targetTime))
             )
-        } else if session.mode == .gps || (session.mode == .dual && sessionUsesOpenIntervals) {
-            let distanceValue = session.totalGPSDistanceMeters ?? session.totalDistanceMeters
-            items.append(
-                SessionStatItem(
-                    label: L10n.gpsDistanceLabel,
-                    value: distanceValue > 0
-                        ? Formatters.distanceString(meters: distanceValue, unit: settings.distanceUnit)
-                        : L10n.dash
-                )
-            )
-        }
-
-        if session.mode == .dual && !sessionUsesOpenIntervals {
-            items.append(
-                SessionStatItem(
-                    label: L10n.gpsDistanceLabel,
-                    value: session.totalGPSDistanceMeters.flatMap { gpsDistanceMeters in
-                        gpsDistanceMeters > 0
-                            ? Formatters.distanceString(meters: gpsDistanceMeters, unit: settings.distanceUnit)
-                            : nil
-                    } ?? L10n.dash
-                )
-            )
-        }
-
-        let primaryDistanceForPace: Double
-
-        if session.mode.usesManualIntervals && !sessionUsesOpenIntervals {
-            primaryDistanceForPace = session.totalDistanceMeters
-        } else if session.mode == .gps || (session.mode == .dual && sessionUsesOpenIntervals) {
-            primaryDistanceForPace = session.totalGPSDistanceMeters ?? session.totalDistanceMeters
-        } else {
-            primaryDistanceForPace = session.totalDistanceMeters
         }
 
         items.append(
             SessionStatItem(
+                label: L10n.distance,
+                value: primaryDistanceMeters > 0
+                    ? Formatters.distanceString(meters: primaryDistanceMeters, unit: settings.distanceUnit)
+                    : L10n.dash
+            )
+        )
+
+        items.append(
+            SessionStatItem(
                 label: L10n.averagePaceLabel,
-                value: primaryDistanceForPace > 0
+                value: primaryDistanceMeters > 0
                     ? Formatters.paceString(
-                        distanceMeters: primaryDistanceForPace,
+                        distanceMeters: primaryDistanceMeters,
                         durationSeconds: session.activeDurationSeconds,
                         unit: settings.distanceUnit
                     )
@@ -325,26 +295,6 @@ struct LapRowView: View {
 
         let isOpenInterval = targetSegment?.usesOpenDistance == true
 
-        if trackingMode.usesManualIntervals && !isOpenInterval {
-            items.append(
-                SessionStatItem(
-                    label: L10n.distance,
-                    value: lap.distanceMeters > 0
-                        ? Formatters.distanceString(meters: lap.distanceMeters, unit: distanceUnit)
-                        : L10n.dash
-                )
-            )
-
-            items.append(
-                SessionStatItem(
-                    label: L10n.pace,
-                    value: lap.distanceMeters > 0
-                        ? Formatters.paceString(distanceMeters: lap.distanceMeters, durationSeconds: lap.durationSeconds, unit: distanceUnit)
-                        : L10n.dash
-                )
-            )
-        }
-
         let gpsDistanceMeters: Double?
         if trackingMode == .gps {
             gpsDistanceMeters = lap.distanceMeters > 0 ? lap.distanceMeters : nil
@@ -352,49 +302,32 @@ struct LapRowView: View {
             gpsDistanceMeters = lap.gpsDistanceMeters
         }
 
-        let paceDistanceMeters: Double?
-        if isOpenInterval {
-            paceDistanceMeters = gpsDistanceMeters ?? (lap.distanceMeters > 0 ? lap.distanceMeters : nil)
+        let primaryDistanceMeters: Double?
+        if isOpenInterval || trackingMode == .gps {
+            primaryDistanceMeters = gpsDistanceMeters ?? (lap.distanceMeters > 0 ? lap.distanceMeters : nil)
         } else {
-            paceDistanceMeters = lap.distanceMeters > 0 ? lap.distanceMeters : nil
+            primaryDistanceMeters = lap.distanceMeters > 0 ? lap.distanceMeters : nil
         }
 
-        if isOpenInterval {
-            items.append(
-                SessionStatItem(
-                    label: L10n.pace,
-                    value: paceDistanceMeters.flatMap { distance in
-                        distance > 0
-                            ? Formatters.paceString(distanceMeters: distance, durationSeconds: lap.durationSeconds, unit: distanceUnit)
-                            : nil
-                    } ?? L10n.dash
-                )
+        items.append(
+            SessionStatItem(
+                label: L10n.distance,
+                value: primaryDistanceMeters.flatMap { distance in
+                    distance > 0 ? Formatters.distanceString(meters: distance, unit: distanceUnit) : nil
+                } ?? L10n.dash
             )
-        }
+        )
 
-        if trackingMode.usesGPSDistance {
-            items.append(
-                SessionStatItem(
-                    label: L10n.gpsDistanceLabel,
-                    value: gpsDistanceMeters.flatMap { distance in
-                        distance > 0 ? Formatters.distanceString(meters: distance, unit: distanceUnit) : nil
-                    } ?? L10n.dash
-                )
+        items.append(
+            SessionStatItem(
+                label: L10n.pace,
+                value: primaryDistanceMeters.flatMap { distance in
+                    distance > 0
+                        ? Formatters.paceString(distanceMeters: distance, durationSeconds: lap.durationSeconds, unit: distanceUnit)
+                        : nil
+                } ?? L10n.dash
             )
-
-            if !isOpenInterval {
-                items.append(
-                    SessionStatItem(
-                        label: L10n.gpsPaceLabel,
-                        value: gpsDistanceMeters.flatMap { distance in
-                            distance > 0
-                                ? Formatters.paceString(distanceMeters: distance, durationSeconds: lap.durationSeconds, unit: distanceUnit)
-                                : nil
-                        } ?? L10n.dash
-                    )
-                )
-            }
-        }
+        )
 
         if let targetPace = targetSegment?.targetPaceSecondsPerKm {
             items.append(

@@ -229,7 +229,10 @@ final class SettingsStore: ObservableObject {
     }
 
     var trackingMode: TrackingMode {
-        get { TrackingMode(rawValue: trackingModeRaw) ?? .distanceDistance }
+        get {
+            let storedMode = TrackingMode(rawValue: trackingModeRaw) ?? .distanceDistance
+            return storedMode == .gps ? .distanceDistance : storedMode
+        }
         set {
             guard newValue != trackingMode else { return }
             trackingModeRaw = newValue.rawValue

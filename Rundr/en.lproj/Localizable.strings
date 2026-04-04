@@ -50,7 +50,7 @@
 "Repeats Required" = "Repeats Required";
 "Add repeats to this interval before adding a last rest." = "Add repeats to this interval before adding a last rest.";
 "GPS Required" = "GPS Required";
-"Time intervals use GPS to measure distance. This activity has switched to Dual Mode." = "Time intervals use GPS to measure distance. This activity has switched to Dual Mode.";
+"Time intervals use GPS to measure distance." = "Time intervals use GPS to measure distance.";
 "Enable GPS Access" = "Enable GPS Access";
 "Unit" = "Unit";
 "Color" = "Color";
@@ -65,7 +65,7 @@
 "e.g. 1320" = "e.g. 1320";
 "Location Required" = "Location Required";
 "OK" = "OK";
-"GPS-based modes need location access. The mode was switched back to Distance." = "GPS-based modes need location access. The mode was switched back to Distance.";
+"Time intervals need location access. The interval was switched back to Distance." = "Time intervals need location access. The interval was switched back to Distance.";
 "Cancel" = "Cancel";
 "Distance Unit" = "Distance Unit";
 "Primary Color" = "Primary Color";

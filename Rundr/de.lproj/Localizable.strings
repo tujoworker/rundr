@@ -50,7 +50,7 @@
 "Repeats Required" = "Wiederholungen erforderlich";
 "Add repeats to this interval before adding a last rest." = "Füge diesem Intervall zuerst Wiederholungen hinzu, bevor du eine letzte Pause hinzufügst.";
 "GPS Required" = "GPS erforderlich";
-"Time intervals use GPS to measure distance. This activity has switched to Dual Mode." = "Zeitintervalle verwenden GPS zur Distanzmessung. Diese Aktivität wurde auf den Dual-Modus umgestellt.";
+"Time intervals use GPS to measure distance." = "Zeitintervalle verwenden GPS zur Distanzmessung.";
 "Enable GPS Access" = "GPS-Zugriff aktivieren";
 "Unit" = "Einheit";
 "Color" = "Farbe";
@@ -65,7 +65,7 @@
 "e.g. 1320" = "z.B. 1320";
 "Location Required" = "Standort erforderlich";
 "OK" = "OK";
-"GPS-based modes need location access. The mode was switched back to Distance." = "GPS-basierte Modi benötigen Standortzugriff. Der Modus wurde auf Distanz zurückgestellt.";
+"Time intervals need location access. The interval was switched back to Distance." = "Zeitintervalle benötigen Standortzugriff. Das Intervall wurde auf Distanz zurückgestellt.";
 "Cancel" = "Abbrechen";
 "Distance Unit" = "Distanzeinheit";
 "Primary Color" = "Hauptfarbe";

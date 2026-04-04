@@ -76,10 +76,9 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.helpSharingReceiveHeading, "Receive")
         XCTAssertEqual(L10n.helpRestTitle, "Mark as Rest")
         XCTAssertEqual(L10n.helpAutoRestTitle, "How Auto-detect Works")
-        XCTAssertEqual(L10n.helpTrackingModeTitle, "Tracking Mode")
         XCTAssertEqual(L10n.helpIntervalTypeTitle, "Interval Type")
         XCTAssertEqual(L10n.helpDistanceTypeFixedHeading, "Distance")
-        XCTAssertEqual(L10n.helpTrackingModeDualHeading, "Dual")
+        XCTAssertEqual(L10n.gpsAlsoEnabledSubtitle, "Time intervals use GPS to measure distance.")
     }
 
     func testIntervalTypeLabelsExist() {

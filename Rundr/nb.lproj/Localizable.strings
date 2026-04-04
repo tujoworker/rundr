@@ -50,7 +50,7 @@
 "Repeats Required" = "Repetisjoner kreves";
 "Add repeats to this interval before adding a last rest." = "Legg til repetisjoner for dette intervallet før du legger til en siste hvile.";
 "GPS Required" = "GPS påkrevd";
-"Time intervals use GPS to measure distance. This activity has switched to Dual Mode." = "Tidsintervaller bruker GPS til å måle distanse. Denne aktiviteten har byttet til Dual-modus.";
+"Time intervals use GPS to measure distance." = "Tidsintervaller bruker GPS til å måle distanse.";
 "Enable GPS Access" = "Aktiver GPS-tilgang";
 "Unit" = "Enhet";
 "Color" = "Farge";
@@ -65,7 +65,7 @@
 "e.g. 1320" = "f.eks. 1320";
 "Location Required" = "Plassering kreves";
 "OK" = "OK";
-"GPS-based modes need location access. The mode was switched back to Distance." = "GPS-baserte modi krever tilgang til plassering. Modusen ble byttet tilbake til Distanse.";
+"Time intervals need location access. The interval was switched back to Distance." = "Tidsintervaller krever tilgang til plassering. Intervallet ble byttet tilbake til Distanse.";
 "Cancel" = "Avbryt";
 "Distance Unit" = "Distanseenhet";
 "Primary Color" = "Hovedfarge";

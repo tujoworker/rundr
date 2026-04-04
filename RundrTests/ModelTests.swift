@@ -1422,7 +1422,7 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(store.intervalPresets.first?.workoutPlan, workoutPlan)
     }
 
-    func testSettingsStoreApplyUpgradesGPSOnlyToDualWhenLoadingManualIntervals() {
+    func testSettingsStoreApplyNormalizesLegacyGPSOnlyModeWhenLoadingManualIntervals() {
         UserDefaults.standard.removeObject(forKey: "trackingMode")
         UserDefaults.standard.removeObject(forKey: "distanceDistanceMeters")
         UserDefaults.standard.removeObject(forKey: "distanceSegmentsJSON")
@@ -1448,10 +1448,19 @@ final class ModelTests: XCTestCase {
 
         store.apply(workoutPlan: workoutPlan)
 
-        XCTAssertEqual(store.trackingMode, .dual)
+        XCTAssertEqual(store.trackingMode, .distanceDistance)
         XCTAssertEqual(store.distanceDistanceMeters, 300)
         XCTAssertEqual(store.distanceSegments, workoutPlan.distanceSegments)
         XCTAssertEqual(store.restMode, .autoDetect)
+    }
+
+    func testSettingsStoreTreatsLegacyGPSModeAsDistanceUntilIntervalsNeedGPS() {
+        UserDefaults.standard.set(TrackingMode.gps.rawValue, forKey: "trackingMode")
+        defer { UserDefaults.standard.removeObject(forKey: "trackingMode") }
+
+        let store = SettingsStore()
+
+        XCTAssertEqual(store.trackingMode, .distanceDistance)
     }
 
     func testSettingsStoreUsesStableFallbackDistanceSegmentIdentity() {

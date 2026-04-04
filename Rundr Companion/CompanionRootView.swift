@@ -961,7 +961,7 @@ private struct CompanionEmptyStateCard: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.vertical, Tokens.Spacing.xl)
+        .padding(.vertical, CompanionSessionPlanStyle.emptyStateVerticalPadding)
     }
 }
 
@@ -1721,6 +1721,14 @@ private enum CompanionSessionPlanStyle {
         Tokens.Spacing.lg
     }
 
+    static var emptyStateVerticalPadding: CGFloat {
+        Tokens.Spacing.xl
+    }
+
+    static var titleOnlyRowMinHeight: CGFloat {
+        UIFont.preferredFont(forTextStyle: .title3).lineHeight + (emptyStateVerticalPadding * 2)
+    }
+
     static var cellContentInsets: EdgeInsets {
         let baseInsets = Tokens.ContentInsets.companionCard
 
@@ -1866,6 +1874,28 @@ private struct CompanionSegmentRow: View {
             .joined(separator: "|")
     }
 
+    private var usesTitleOnlyLayout: Bool {
+        metricItems.isEmpty
+    }
+
+    private var verticalPadding: EdgeInsets {
+        if usesTitleOnlyLayout {
+            return EdgeInsets(
+                top: CompanionSessionPlanStyle.emptyStateVerticalPadding,
+                leading: 0,
+                bottom: CompanionSessionPlanStyle.emptyStateVerticalPadding,
+                trailing: 0
+            )
+        }
+
+        return EdgeInsets(
+            top: Tokens.Spacing.xs,
+            leading: 0,
+            bottom: Tokens.Spacing.sm,
+            trailing: 0
+        )
+    }
+
     var body: some View {
         HStack(alignment: .top, spacing: Tokens.Spacing.md) {
             VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
@@ -1900,8 +1930,12 @@ private struct CompanionSegmentRow: View {
                 }
             }
         }
-        .padding(.top, Tokens.Spacing.xs)
-        .padding(.bottom, Tokens.Spacing.sm)
+        .frame(
+            maxWidth: .infinity,
+            minHeight: usesTitleOnlyLayout ? CompanionSessionPlanStyle.titleOnlyRowMinHeight : 0,
+            alignment: .topLeading
+        )
+        .padding(verticalPadding)
     }
 }
 

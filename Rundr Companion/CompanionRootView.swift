@@ -1540,6 +1540,18 @@ private extension CompanionHelpTopic {
         )
     }
 
+    static var autoRest: CompanionHelpTopic {
+        CompanionHelpTopic(
+            id: L10n.helpAutoRestTitle,
+            icon: "figure.run.circle",
+            title: L10n.helpAutoRestTitle,
+            body: L10n.helpAutoRestBody,
+            sections: [],
+            example: L10n.helpAutoRestExample,
+            tip: nil
+        )
+    }
+
     static var restMode: CompanionHelpTopic {
         CompanionHelpTopic(
             id: L10n.helpRestTitle,
@@ -1699,6 +1711,11 @@ private struct CompanionRestModeSettingsDetailView: View {
             }
 
             Section {
+                CompanionHelpCard(topic: .autoRest)
+                    .listRowInsets(CompanionPreferencesStyle.detailRowInsets)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+
                 CompanionHelpCard(topic: .restMode)
                     .listRowInsets(CompanionPreferencesStyle.detailRowInsets)
                     .listRowSeparator(.hidden)

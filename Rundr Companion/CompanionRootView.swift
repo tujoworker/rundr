@@ -1778,10 +1778,17 @@ private struct CompanionSegmentRow: View {
                 }
 
                 VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
-                    ForEach(Array(metricRows.enumerated()), id: \.offset) { _, row in
-                        HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
-                            ForEach(row) { item in
-                                CompanionMetricPill(title: item.title, value: item.value)
+                    Grid(alignment: .leading, horizontalSpacing: Tokens.Spacing.xxxxl, verticalSpacing: Tokens.Spacing.md) {
+                        ForEach(Array(metricRows.enumerated()), id: \.offset) { _, row in
+                            GridRow(alignment: .top) {
+                                ForEach(row) { item in
+                                    CompanionMetricPill(title: item.title, value: item.value)
+                                }
+
+                                ForEach(0..<max(0, 3 - row.count), id: \.self) { _ in
+                                    Color.clear
+                                        .gridCellUnsizedAxes([.horizontal, .vertical])
+                                }
                             }
                         }
                     }

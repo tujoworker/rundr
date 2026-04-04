@@ -629,6 +629,7 @@ private struct CompanionPresetRouteDestinationView: View {
                 initialCustomDescription: nil,
                 initialStoredPresetID: nil,
                 showsCustomTitle: true,
+                showsInlineUseItNowButton: false,
                 autoSaveOnSegmentDone: true
             ) { workoutPlan, customTitle, customDescription, storedPresetID in
                 _ = settings.saveIntervalPreset(
@@ -652,6 +653,7 @@ private struct CompanionPresetRouteDestinationView: View {
                     initialCustomDescription: preset.customDescription,
                     initialStoredPresetID: preset.id,
                     showsCustomTitle: true,
+                    showsInlineUseItNowButton: false,
                     autoSaveOnSegmentDone: true
                 ) { workoutPlan, customTitle, customDescription, storedPresetID in
                     _ = settings.saveIntervalPreset(
@@ -678,6 +680,7 @@ private struct CompanionPresetRouteDestinationView: View {
                     initialCustomDescription: preset.description,
                     initialStoredPresetID: nil,
                     showsCustomTitle: true,
+                    showsInlineUseItNowButton: true,
                     autoSaveOnSegmentDone: true
                 ) { workoutPlan, customTitle, customDescription, storedPresetID in
                     let normalizedTitle = IntervalPreset.sanitizeTitle(customTitle)
@@ -1312,6 +1315,7 @@ private struct CompanionWorkoutEditorView: View {
     let initialCustomDescription: String?
     let initialStoredPresetID: UUID?
     let showsCustomTitle: Bool
+    let showsInlineUseItNowButton: Bool
     let autoSaveOnSegmentDone: Bool
     let onContinue: (WorkoutPlanSnapshot, String?, String?, UUID?) -> Void
 
@@ -1426,6 +1430,20 @@ private struct CompanionWorkoutEditorView: View {
             }
 
             Section {
+                if canReorderSegments {
+                    HStack {
+                        Spacer(minLength: 0)
+
+                        Button(reorderButtonTitle) {
+                            segmentEditMode = isReorderingSegments ? .inactive : .active
+                        }
+                        .foregroundStyle(theme.isDark ? theme.text.subtle : settings.primaryAccentColor)
+                    }
+                    .listRowInsets(CompanionSessionPlanStyle.rowInsets)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                }
+
                 if segments.isEmpty {
                     CompanionEmptyStateCard(
                         title: L10n.noSessionPlanIntervalsTitle,
@@ -1493,11 +1511,14 @@ private struct CompanionWorkoutEditorView: View {
 
                     Spacer(minLength: Tokens.Spacing.md)
 
-                    if canReorderSegments {
-                        Button(reorderButtonTitle) {
-                            segmentEditMode = isReorderingSegments ? .inactive : .active
+                    if showsInlineUseItNowButton {
+                        Button {
+                            isUseActivityConfirmationPresented = true
+                        } label: {
+                            Label(L10n.useItNow, systemImage: "play.fill")
+                                .labelStyle(.titleAndIcon)
                         }
-                            .foregroundStyle(theme.isDark ? theme.text.subtle : settings.primaryAccentColor)
+                        .foregroundStyle(theme.isDark ? theme.text.subtle : settings.primaryAccentColor)
                     }
                 }
                 .padding(.leading, CompanionSessionPlanStyle.sectionHeaderLeadingInset)
@@ -1528,10 +1549,12 @@ private struct CompanionWorkoutEditorView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    Button {
-                        isUseActivityConfirmationPresented = true
-                    } label: {
-                        Label(L10n.useItNow, systemImage: "play.fill")
+                    if !showsInlineUseItNowButton {
+                        Button {
+                            isUseActivityConfirmationPresented = true
+                        } label: {
+                            Label(L10n.useItNow, systemImage: "play.fill")
+                        }
                     }
 
                     Button {

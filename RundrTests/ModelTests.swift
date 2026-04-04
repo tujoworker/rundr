@@ -1664,6 +1664,22 @@ final class ModelTests: XCTestCase {
         XCTAssertTrue(segments.allSatisfy { $0.lastRestSeconds == nil })
     }
 
+    func testPyramidPresetUsesExplicitRunAndJogSegments() {
+        let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "pyramid" }))
+        let segments = preset?.workoutPlan.distanceSegments ?? []
+
+        XCTAssertEqual(preset?.workoutPlan.trackingMode, .dual)
+        XCTAssertEqual(segments.count, 13)
+        XCTAssertEqual(
+            segments.map(\.trimmedName),
+            [L10n.run, L10n.jog, L10n.run, L10n.jog, L10n.run, L10n.jog, L10n.run, L10n.jog, L10n.run, L10n.jog, L10n.run, L10n.jog, L10n.run]
+        )
+        XCTAssertEqual(segments.map(\.targetTimeSeconds), [60, 60, 120, 120, 180, 180, 240, 240, 180, 180, 120, 120, 60])
+        XCTAssertTrue(segments.allSatisfy { $0.distanceGoalMode == .open })
+        XCTAssertTrue(segments.allSatisfy { $0.restSeconds == nil })
+        XCTAssertTrue(segments.allSatisfy { $0.lastRestSeconds == nil })
+    }
+
     func testFortyFiveFifteensPresetUsesTwoOpenSetsWithSetRest() {
         let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "fortyFiveFifteens" }))
         let segments = preset?.workoutPlan.distanceSegments ?? []

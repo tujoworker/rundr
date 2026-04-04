@@ -66,6 +66,12 @@ private enum CompanionPresetRoute: Hashable {
     case predefined(String)
 }
 
+enum CompanionPromptVisibilityRules {
+    static func shouldShowPrompt(text: String, isFocused: Bool) -> Bool {
+        text.isEmpty && !isFocused
+    }
+}
+
 private struct CompanionWorkoutsView: View {
     @EnvironmentObject private var syncManager: WatchConnectivitySyncManager
     @EnvironmentObject private var persistence: PersistenceManager
@@ -1312,6 +1318,11 @@ private struct CompanionPresetUsageBadge: View {
 }
 
 private struct CompanionWorkoutEditorView: View {
+    private enum FocusedMetadataField: Hashable {
+        case title
+        case description
+    }
+
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var settings: SettingsStore
     @EnvironmentObject private var transferCoordinator: CompanionTransferCoordinator
@@ -1341,6 +1352,7 @@ private struct CompanionWorkoutEditorView: View {
     @State private var isUseActivityConfirmationPresented = false
     @State private var isDeleteConfirmationPresented = false
     @State private var segmentEditMode: EditMode = .inactive
+    @FocusState private var focusedMetadataField: FocusedMetadataField?
 
     private var canDeletePreset: Bool {
         storedPresetID != nil
@@ -1393,9 +1405,15 @@ private struct CompanionWorkoutEditorView: View {
                                 TextField(
                                     "",
                                     text: $customTitle,
-                                    prompt: Text(L10n.optionalTitlePlaceholder)
-                                        .foregroundStyle(theme.text.subtle)
+                                    prompt: CompanionPromptVisibilityRules.shouldShowPrompt(
+                                        text: customTitle,
+                                        isFocused: focusedMetadataField == .title
+                                    )
+                                        ? Text(L10n.optionalTitlePlaceholder)
+                                            .foregroundStyle(theme.text.subtle)
+                                        : nil
                                 )
+                                .focused($focusedMetadataField, equals: .title)
                                 .textInputAutocapitalization(.words)
                                 .multilineTextAlignment(.leading)
                                 .font(.body.weight(.medium))
@@ -1413,10 +1431,16 @@ private struct CompanionWorkoutEditorView: View {
                                 TextField(
                                     "",
                                     text: $customDescription,
-                                    prompt: Text(L10n.optionalDescriptionPlaceholder)
-                                        .foregroundStyle(theme.text.subtle),
+                                    prompt: CompanionPromptVisibilityRules.shouldShowPrompt(
+                                        text: customDescription,
+                                        isFocused: focusedMetadataField == .description
+                                    )
+                                        ? Text(L10n.optionalDescriptionPlaceholder)
+                                            .foregroundStyle(theme.text.subtle)
+                                        : nil,
                                     axis: .vertical
                                 )
+                                .focused($focusedMetadataField, equals: .description)
                                 .lineLimit(1...3)
                                 .multilineTextAlignment(.leading)
                                 .font(.subheadline)
@@ -2023,6 +2047,7 @@ private struct CompanionSegmentEditorView: View {
     @State private var isLastRestInfoPresented = false
     @State private var editableField: EditableField?
     @State private var bouncingField: EditableField?
+    @FocusState private var isSegmentNameFocused: Bool
     @State private var editableValueText = ""
     @State private var recoveryMemory: SegmentRecoveryEditorMemory
     let distanceUnit: DistanceUnit
@@ -2334,9 +2359,15 @@ private struct CompanionSegmentEditorView: View {
                         TextField(
                             "",
                             text: $segmentNameText,
-                            prompt: Text(L10n.optionalSegmentNamePlaceholder)
-                                .foregroundStyle(theme.text.subtle)
+                            prompt: CompanionPromptVisibilityRules.shouldShowPrompt(
+                                text: segmentNameText,
+                                isFocused: isSegmentNameFocused
+                            )
+                                ? Text(L10n.optionalSegmentNamePlaceholder)
+                                    .foregroundStyle(theme.text.subtle)
+                                : nil
                         )
+                        .focused($isSegmentNameFocused)
                         .font(.body.weight(.bold))
                         .textInputAutocapitalization(.words)
                         .multilineTextAlignment(.trailing)

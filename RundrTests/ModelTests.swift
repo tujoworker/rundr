@@ -2133,6 +2133,33 @@ final class ModelTests: XCTestCase {
         )
     }
 
+    func testCompanionPromptVisibilityRulesShowPromptWhenEmptyAndUnfocused() {
+        XCTAssertTrue(
+            CompanionPromptVisibilityRules.shouldShowPrompt(
+                text: "",
+                isFocused: false
+            )
+        )
+    }
+
+    func testCompanionPromptVisibilityRulesHidePromptWhenFocused() {
+        XCTAssertFalse(
+            CompanionPromptVisibilityRules.shouldShowPrompt(
+                text: "",
+                isFocused: true
+            )
+        )
+    }
+
+    func testCompanionPromptVisibilityRulesHidePromptWhenTextExists() {
+        XCTAssertFalse(
+            CompanionPromptVisibilityRules.shouldShowPrompt(
+                text: "Tempo",
+                isFocused: false
+            )
+        )
+    }
+
     func testSettingsStoreAssignsGeneratedTitleWhenSavingPresetWithoutCustomTitle() {
         UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON")
         defer { UserDefaults.standard.removeObject(forKey: "intervalPresetsJSON") }

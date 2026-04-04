@@ -3053,12 +3053,12 @@ private struct CompanionSessionStatItem: Identifiable {
     let value: String
 }
 
-struct CompanionSessionSummarySection {
+private struct CompanionSessionSummarySection {
     let title: String
     let items: [CompanionSessionStatItem]
 }
 
-enum CompanionSessionSummaryRouting {
+private enum CompanionSessionSummaryRouting {
     static func sections(for session: Session, distanceUnit: DistanceUnit) -> [CompanionSessionSummarySection] {
         let primaryItems = SessionHistorySummaryRouting.primaryItems(for: session, distanceUnit: distanceUnit)
             .map { CompanionSessionStatItem(label: $0.label, value: $0.value) }

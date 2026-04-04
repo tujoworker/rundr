@@ -1,40 +1,120 @@
 import SwiftData
 import SwiftUI
 import UIKit
-private struct CompanionWorkoutEditorView: View {
+ 
+struct CompanionRootView: View {
+    @EnvironmentObject private var persistence: PersistenceManager
     @EnvironmentObject private var settings: SettingsStore
     @EnvironmentObject private var transferCoordinator: CompanionTransferCoordinator
-    @Environment(\.dismiss) private var dismiss
+    @State private var selectedTab: CompanionTab = .workouts
+
+    private enum CompanionTab: Hashable {
+        case workouts
+        case browser
+        case settings
+    }
+
+    var body: some View {
+        TabView(selection: $selectedTab) {
+            CompanionWorkoutsView()
+                .tag(CompanionTab.workouts)
+                .tabItem {
+                    Label(L10n.workouts, systemImage: "figure.run")
+                }
+
+            CompanionBrowserView {
+                selectedTab = .workouts
+            }
+            .tag(CompanionTab.browser)
+                .tabItem {
+                    Label(L10n.browser, systemImage: "square.grid.2x2")
+                }
+
+            CompanionSettingsView()
+                .tag(CompanionTab.settings)
+                .tabItem {
+                    Label(L10n.more, systemImage: "ellipsis.circle")
+                }
+        }
+        .tint(settings.primaryAccentColor)
+        .sheet(item: $transferCoordinator.sharePayload, onDismiss: transferCoordinator.cleanupSharedFile) { payload in
+            CompanionShareSheet(activityItems: [payload.url])
+        }
+        .fileImporter(
+            isPresented: $transferCoordinator.isImporterPresented,
+            allowedContentTypes: [.rundrPlan, .rundrSession]
+        ) { result in
+            transferCoordinator.handleImportResult(result, settings: settings, persistence: persistence)
+        }
+        .alert(item: $transferCoordinator.notice) { notice in
+            Alert(
+                title: Text(notice.title),
+                message: Text(notice.message),
+                dismissButton: .default(Text(L10n.ok))
+            )
+        }
+        .onOpenURL { url in
+            guard url.isFileURL else { return }
+            transferCoordinator.importTransfer(from: url, settings: settings, persistence: persistence)
+        }
+    }
+}
+
+private enum CompanionPresetRoute: Hashable {
+    case new
+    case saved(UUID)
+    case predefined(String)
+}
+
+private struct CompanionWorkoutsView: View {
+    @EnvironmentObject private var syncManager: WatchConnectivitySyncManager
+    @EnvironmentObject private var persistence: PersistenceManager
+    @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
-
-    let headerTitle: String
-    let subtitle: String?
-    let initialWorkoutPlan: WorkoutPlanSnapshot
-    let initialCustomTitle: String?
-    let initialCustomDescription: String?
-    let initialStoredPresetID: UUID?
-    let showsCustomTitle: Bool
-    let autoSaveOnSegmentDone: Bool
-    let onContinue: (WorkoutPlanSnapshot, String?, String?, UUID?) -> Void
-
-    @State private var trackingMode: TrackingMode = .distanceDistance
-    @State private var restMode: RestMode = .manual
-    @State private var distanceUnit: DistanceUnit = .km
-    @State private var segments: [DistanceSegment] = []
-    @State private var customTitle: String = ""
-    @State private var customDescription: String = ""
-    @State private var storedPresetID: UUID?
+    @Query(sort: [SortDescriptor(\Session.startedAt, order: .reverse)]) private var sessions: [Session]
+    @State private var visibleSessionCount = 2
     @State private var selectedSegment: DistanceSegment?
-    @State private var showsOpenDistanceBanner = false
+    @State private var selectedSession: Session?
+    @State private var lastAddedDistanceMeters: Double = DistanceSegment.default.distanceMeters
+    @State private var lastAddedUsesOpenDistance = false
+    @State private var lastAddedRepeatCount: Int = 0
+    @State private var lastAddedRestSeconds: Int = 0
+    @State private var lastAddedLastRestSeconds: Int = 0
+    @State private var lastAddedTargetPace: Int = 0
+    @State private var lastAddedTargetTime: Int = 0
     @State private var addSegmentBounceTrigger = 0
-    @State private var hasLoadedSnapshot = false
-    @State private var isUseActivityConfirmationPresented = false
-    @State private var isDeleteConfirmationPresented = false
+    @State private var flashingSegmentIDs: Set<UUID> = []
+    @State private var lastObservedSegments: [DistanceSegment] = []
     @State private var segmentEditMode: EditMode = .inactive
 
-    private var canDeletePreset: Bool {
-        storedPresetID != nil
+    private var visibleLiveWorkoutState: LiveWorkoutStateRecord? {
+        guard let state = syncManager.liveWorkoutState,
+              !state.isTerminalState,
+              sessions.contains(where: { $0.id == state.sessionID }) == false else {
+            return nil
+        }
+
+        return state
     }
+
+    private var segments: [DistanceSegment] {
+        let storedSegments = settings.distanceSegments
+        return storedSegments.isEmpty ? [] : WorkoutPlanSupport.normalizedSegments(storedSegments)
+    }
+
+    private var visibleSessions: ArraySlice<Session> {
+        sessions.prefix(visibleSessionCount)
+    }
+
+    private var canLoadMoreSessions: Bool {
+        sessions.count > visibleSessionCount
+    }
+
+    private var workoutsCellContentInsets: EdgeInsets { CompanionSessionPlanStyle.cellContentInsets }
+
+    private var workoutsSectionHeaderLeadingInset: CGFloat { CompanionSessionPlanStyle.sectionHeaderLeadingInset }
+
+    private var workoutsRowInsets: EdgeInsets { CompanionSessionPlanStyle.rowInsets }
 
     private var canReorderSegments: Bool {
         segments.count > 1
@@ -44,248 +124,222 @@ private struct CompanionWorkoutEditorView: View {
         segmentEditMode.isEditing
     }
 
-    private var customTitleRowContentInsets: EdgeInsets {
-        EdgeInsets(
-            top: Tokens.Spacing.xxxxl,
-            leading: Tokens.Spacing.xxxl,
-            bottom: Tokens.Spacing.xxxxl,
-            trailing: Tokens.Spacing.xxxl
-        )
-    }
-
     var body: some View {
-        List {
-            if showsCustomTitle {
+        NavigationStack {
+            List {
+                if let liveWorkoutState = visibleLiveWorkoutState {
+                    Section {
+                        CompanionHomeSectionHeader(title: L10n.liveOnAppleWatch)
+                            .padding(.leading, workoutsSectionHeaderLeadingInset)
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+
+                        HStack(spacing: 0) {
+                            CompanionLiveWorkoutCard(state: liveWorkoutState)
+                                .padding(
+                                    EdgeInsets(
+                                        top: workoutsCellContentInsets.leading,
+                                        leading: workoutsCellContentInsets.leading,
+                                        bottom: workoutsCellContentInsets.leading,
+                                        trailing: workoutsCellContentInsets.trailing
+                                    )
+                                )
+                            Spacer(minLength: 0)
+                        }
+                        .contentShape(Rectangle())
+                        .listRowCardChrome(rowInsets: workoutsRowInsets, contentInsets: EdgeInsets())
+                    }
+                    .listSectionSeparator(.hidden)
+                }
+
                 Section {
-                    HStack(spacing: Tokens.Spacing.xs) {
-                        TextField(
-                            "",
-                            text: $customTitle,
-                            prompt: Text(L10n.optionalTitlePlaceholder)
-                                .foregroundStyle(theme.text.subtle)
-                        )
-                        .textInputAutocapitalization(.words)
-                        .multilineTextAlignment(.leading)
-                        .font(.body.weight(.medium))
-                        .foregroundStyle(theme.text.neutral)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.md) {
+                        CompanionHomeSectionHeader(title: L10n.intervalsTitle)
 
-                        Button {
-                            customTitle = ""
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(theme.text.subtle)
-                                .opacity(customTitle.isEmpty ? 0 : 1)
+                        Spacer(minLength: Tokens.Spacing.md)
+
+                        if canReorderSegments {
+                            EditButton()
+                                .foregroundStyle(theme.isDark ? theme.text.subtle : settings.primaryAccentColor)
                         }
-                        .buttonStyle(.plain)
-                        .disabled(customTitle.isEmpty)
-                        .padding(.leading, Tokens.Spacing.sm)
-                        .padding(.trailing, Tokens.Spacing.xxs)
-                        .padding(.vertical, Tokens.Spacing.xxs)
                     }
-                    .listRowCardChrome(
-                        rowInsets: CompanionSessionPlanStyle.rowInsets,
-                        contentInsets: customTitleRowContentInsets
-                    )
+                    .padding(.leading, workoutsSectionHeaderLeadingInset)
+                    .padding(.trailing, workoutsSectionHeaderLeadingInset)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
 
-                    HStack(spacing: Tokens.Spacing.xs) {
-                        TextField(
-                            "",
-                            text: $customDescription,
-                            prompt: Text(L10n.optionalDescriptionPlaceholder)
-                                .foregroundStyle(theme.text.subtle),
-                            axis: .vertical
+                    if segments.isEmpty {
+                        CompanionEmptyStateCard(
+                            title: L10n.noSessionPlanIntervalsTitle,
+                            detail: L10n.noSessionPlanIntervalsDetail
                         )
-                        .lineLimit(1...3)
-                        .multilineTextAlignment(.leading)
-                        .font(.subheadline)
-                        .foregroundStyle(theme.text.neutral)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                        Button {
-                            customDescription = ""
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(theme.text.subtle)
-                                .opacity(customDescription.isEmpty ? 0 : 1)
+                        .listRowCardChrome(
+                            rowInsets: workoutsRowInsets,
+                            contentInsets: workoutsCellContentInsets
+                        )
+                    } else {
+                        ForEach(segments) { segment in
+                            Button {
+                                guard !isReorderingSegments else { return }
+                                selectedSegment = segment
+                            } label: {
+                                HStack(spacing: 0) {
+                                    CompanionSegmentRow(segment: segment, distanceUnit: settings.distanceUnit)
+                                        .padding(workoutsCellContentInsets)
+                                    Spacer(minLength: 0)
+                                }
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(CompanionNoPressOpacityButtonStyle())
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    withAnimation {
+                                        deleteSegment(segment)
+                                    }
+                                } label: {
+                                    Label(L10n.delete, systemImage: "trash")
+                                }
+                            }
+                            .listRowCardChrome(
+                                rowInsets: workoutsRowInsets,
+                                contentInsets: EdgeInsets(),
+                                fillColor: flashingSegmentIDs.contains(segment.id)
+                                    ? theme.background.emphasisAction(settings.primaryAccentColor)
+                                    : nil
+                            )
+                            .animation(.easeInOut(duration: 0.25), value: flashingSegmentIDs.contains(segment.id))
+                            .contentShape(Rectangle())
                         }
-                        .buttonStyle(.plain)
-                        .disabled(customDescription.isEmpty)
-                        .padding(.leading, Tokens.Spacing.sm)
-                        .padding(.trailing, Tokens.Spacing.xxs)
-                        .padding(.vertical, Tokens.Spacing.xxs)
+                        .onMove(perform: moveSegments)
                     }
-                    .listRowCardChrome(
-                        rowInsets: CompanionSessionPlanStyle.rowInsets,
-                        contentInsets: customTitleRowContentInsets
-                    )
+
+                    Button {
+                        animateSegmentAddition()
+                    } label: {
+                        HStack {
+                            Spacer()
+
+                            Image(systemName: "plus.circle.fill")
+                                .font(.system(size: Tokens.ControlSize.companionAddIcon, weight: .semibold))
+                                .foregroundStyle(settings.primaryAccentColor)
+                                .symbolEffect(.bounce, value: addSegmentBounceTrigger)
+
+                            Spacer()
+                        }
+                        .padding(.vertical, Tokens.Spacing.xs)
+                    }
+                    .buttonStyle(.plain)
+                    .listRowInsets(workoutsRowInsets)
+                    .listRowSeparator(.hidden)
+                    .listRowBackground(Color.clear)
+                }
+                .listSectionSeparator(.hidden)
+
+                Section {
+                    CompanionHomeSectionHeader(title: L10n.syncedSessions)
+                        .padding(.leading, workoutsSectionHeaderLeadingInset)
+                        .listRowSeparator(.hidden)
+                        .listRowBackground(Color.clear)
+
+                    if sessions.isEmpty {
+                        CompanionEmptyStateCard(title: L10n.noSyncedSessionsYet)
+                            .listRowCardChrome(
+                                rowInsets: workoutsRowInsets,
+                                contentInsets: workoutsCellContentInsets
+                            )
+                    } else {
+                        ForEach(visibleSessions, id: \.id) { session in
+                            Button {
+                                selectedSession = session
+                            } label: {
+                                HStack(spacing: 0) {
+                                    CompanionSessionRow(session: session)
+                                        .padding(workoutsCellContentInsets)
+                                    Spacer(minLength: 0)
+                                }
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .contentShape(Rectangle())
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    persistence.deleteSession(session)
+                                } label: {
+                                    Label(L10n.delete, systemImage: "trash")
+                                }
+                            }
+                            .listRowCardChrome(rowInsets: workoutsRowInsets, contentInsets: EdgeInsets())
+                        }
+
+                        if canLoadMoreSessions {
+                            Button(L10n.loadMore) {
+                                withAnimation(.snappy(duration: 0.3, extraBounce: 0.08)) {
+                                    visibleSessionCount += 4
+                                }
+                            }
+                            .buttonStyle(.plain)
+                            .font(.headline)
+                            .foregroundStyle(settings.primaryAccentColor)
+                            .frame(maxWidth: .infinity)
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                        }
+                    }
                 }
                 .listSectionSeparator(.hidden)
             }
-
-            Section {
-                if segments.isEmpty {
-                    CompanionEmptyStateCard(
-                        title: L10n.noSessionPlanIntervalsTitle,
-                        detail: L10n.noSessionPlanIntervalsDetail
-                    )
-                    .listRowCardChrome(
-                        rowInsets: CompanionSessionPlanStyle.rowInsets,
-                        contentInsets: CompanionSessionPlanStyle.cellContentInsets
-                    )
-                } else {
-                    ForEach(segments) { segment in
-                        Button {
-                            guard !isReorderingSegments else { return }
-                            selectedSegment = segment
-                        } label: {
-                            HStack(spacing: 0) {
-                                CompanionSegmentRow(segment: segment, distanceUnit: distanceUnit)
-                                    .padding(CompanionSessionPlanStyle.cellContentInsets)
-                                Spacer(minLength: 0)
-                            }
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .listRowCardChrome(
-                            rowInsets: CompanionSessionPlanStyle.rowInsets,
-                            contentInsets: EdgeInsets()
-                        )
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                withAnimation {
-                                    deleteSegment(segment)
-                                }
-                            } label: {
-                                Label(L10n.delete, systemImage: "trash")
-                            }
-                        }
-                        .contentShape(Rectangle())
-                    }
-                    .onMove(perform: moveSegments)
+            .onAppear {
+                syncLastAddedValues()
+                if !lastObservedSegments.isEmpty, lastObservedSegments != settings.distanceSegments {
+                    flashChangedSegments(oldSegments: lastObservedSegments, newSegments: settings.distanceSegments)
                 }
-
-                Button {
-                    animateSegmentAddition()
-                } label: {
-                    HStack {
-                        Spacer()
-
-                        Image(systemName: "plus.circle.fill")
-                            .font(.system(size: Tokens.ControlSize.companionAddIcon, weight: .semibold))
-                            .foregroundStyle(settings.primaryAccentColor)
-                            .symbolEffect(.bounce, value: addSegmentBounceTrigger)
-
-                        Spacer()
-                    }
-                    .padding(.vertical, Tokens.Spacing.xs)
-                }
-                .buttonStyle(.plain)
-                .listRowInsets(CompanionSessionPlanStyle.rowInsets)
-                .listRowSeparator(.hidden)
-                .listRowBackground(Color.clear)
-            } header: {
-                HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.md) {
-                    CompanionHomeSectionHeader(title: L10n.intervalsTitle)
-
-                    Spacer(minLength: Tokens.Spacing.md)
-
-                    if canReorderSegments {
-                        EditButton()
-                            .foregroundStyle(theme.isDark ? theme.text.subtle : settings.primaryAccentColor)
-                    }
-                }
-                .padding(.leading, CompanionSessionPlanStyle.sectionHeaderLeadingInset)
-                .padding(.trailing, CompanionSessionPlanStyle.sectionHeaderLeadingInset)
+                lastObservedSegments = settings.distanceSegments
             }
-            .listSectionSeparator(.hidden)
-
-            if showsOpenDistanceBanner {
-                Section {
-                    Text(L10n.gpsAlsoEnabledSubtitle)
-                        .foregroundStyle(theme.text.subtle)
-                        .listRowCardChrome()
+            .navigationDestination(item: $selectedSegment) { segment in
+                CompanionSegmentEditorView(
+                    segment: segment,
+                    distanceUnit: settings.distanceUnit
+                ) { updatedSegment in
+                    commitSegment(updatedSegment)
+                } onDelete: { segmentToDelete in
+                    deleteSegment(segmentToDelete, keepsAtLeastOne: false)
                 }
             }
-        }
-        .navigationTitle(headerTitle)
-        .themedCompanionList()
-        .navigationDestination(item: $selectedSegment) { segment in
-            CompanionSegmentEditorView(
-                segment: segment,
-                distanceUnit: distanceUnit
-            ) { updatedSegment in
-                commitSegment(updatedSegment)
-            } onDelete: { segmentToDelete in
-                deleteSegment(segmentToDelete, keepsAtLeastOne: false)
-            }
-        }
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Menu {
-                    Button {
-                        isUseActivityConfirmationPresented = true
-                    } label: {
-                        Label(L10n.useItNow, systemImage: "play.fill")
+            .navigationDestination(isPresented: Binding(
+                get: { selectedSession != nil },
+                set: { isPresented in
+                    if !isPresented {
+                        selectedSession = nil
                     }
-
-                    Button {
-                        transferCoordinator.sharePlan(
-                            workoutPlan: currentWorkoutPlan(),
-                            title: IntervalPreset.sanitizeTitle(customTitle),
-                            description: IntervalPreset.sanitizeDescription(customDescription),
-                            settings: settings
-                        )
-                    } label: {
-                        Label(L10n.sharePlan, systemImage: "square.and.arrow.up")
-                    }
-
-                    if canDeletePreset {
-                        Button(role: .destructive) {
-                            isDeleteConfirmationPresented = true
-                        } label: {
-                            Label(L10n.deletePlan, systemImage: "trash")
-                        }
-                    }
-                } label: {
-                    Image(systemName: "ellipsis.circle")
+                }
+            )) {
+                if let selectedSession {
+                    CompanionSessionDetailView(session: selectedSession)
                 }
             }
-        }
-        .alert(L10n.useActivityConfirmationTitle, isPresented: $isUseActivityConfirmationPresented) {
-            Button(L10n.yes) {
-                commitWorkoutPlan()
+            .onChange(of: settings.distanceSegments) { oldValue, newValue in
+                syncLastAddedValues()
+                flashChangedSegments(oldSegments: oldValue, newSegments: newValue)
+                lastObservedSegments = newValue
             }
-            Button(L10n.cancel, role: .cancel) {}
-        } message: {
-            Text(L10n.useActivityConfirmationMessage)
+            .navigationTitle(L10n.workouts)
+            .navigationBarTitleDisplayMode(.large)
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .themedCompanionList()
+            .environment(\.editMode, $segmentEditMode)
         }
-        .alert(L10n.deletePlan, isPresented: $isDeleteConfirmationPresented) {
-            Button(L10n.delete, role: .destructive) {
-                deletePreset()
-            }
-            Button(L10n.cancel, role: .cancel) {}
-        } message: {
-            Text(L10n.deletePlanConfirmMessage)
-        }
-        .onAppear(perform: loadSnapshot)
-        .environment(\.editMode, $segmentEditMode)
     }
 
-    private func loadSnapshot() {
-        guard !hasLoadedSnapshot else { return }
-        hasLoadedSnapshot = true
-
-        let snapshot = initialWorkoutPlan
-        trackingMode = snapshot.trackingMode == .gps ? .distanceDistance : snapshot.trackingMode
-        restMode = snapshot.restMode
-        distanceUnit = settings.distanceUnit
-        segments = snapshot.distanceSegments
-        customTitle = initialCustomTitle ?? ""
-        customDescription = initialCustomDescription ?? ""
-        storedPresetID = initialStoredPresetID
-        syncTrackingModeWithSegments(showBanner: false)
+    private func syncLastAddedValues() {
+        let lastSegment = settings.distanceSegments.last
+        lastAddedDistanceMeters = lastSegment?.distanceMeters ?? DistanceSegment.default.distanceMeters
+        lastAddedUsesOpenDistance = lastSegment?.usesOpenDistance ?? false
+        lastAddedRepeatCount = lastSegment?.repeatCount ?? 0
+        lastAddedRestSeconds = lastSegment?.restSeconds ?? 0
+        lastAddedLastRestSeconds = lastSegment?.lastRestSeconds ?? 0
+        lastAddedTargetPace = Int(lastSegment?.targetPaceSecondsPerKm ?? 0)
+        lastAddedTargetTime = Int(lastSegment?.targetTimeSeconds ?? 0)
     }
 
     private func animateSegmentAddition() {
@@ -296,104 +350,55 @@ private struct CompanionWorkoutEditorView: View {
     }
 
     private func addSegment() {
-        segments.append(WorkoutPlanSupport.nextSegmentForAppend(from: segments))
-        segments = WorkoutPlanSupport.normalizedSegments(segments)
-        syncTrackingModeWithSegments(showBanner: false)
-        persistPresetAfterEditIfNeeded()
+        var updatedSegments = segments
+        updatedSegments.append(WorkoutPlanSupport.nextSegmentForAppend(from: updatedSegments))
+        applySegments(updatedSegments)
     }
 
     private func moveSegments(fromOffsets: IndexSet, toOffset: Int) {
-        segments = WorkoutPlanSupport.reorderedSegments(
-            segments,
-            fromOffsets: fromOffsets,
-            toOffset: toOffset
+        applySegments(
+            WorkoutPlanSupport.reorderedSegments(
+                segments,
+                fromOffsets: fromOffsets,
+                toOffset: toOffset
+            )
         )
-        syncTrackingModeWithSegments(showBanner: false)
-        persistPresetAfterEditIfNeeded()
-    }
-
-    private func deleteSegments(at offsets: IndexSet) {
-        segments.remove(atOffsets: offsets)
-        segments = WorkoutPlanSupport.normalizedSegments(segments)
-        syncTrackingModeWithSegments(showBanner: false)
-        persistPresetAfterEditIfNeeded()
     }
 
     private func deleteSegment(_ segment: DistanceSegment, keepsAtLeastOne: Bool = true) {
-        segments.removeAll { $0.id == segment.id }
-        if keepsAtLeastOne || !segments.isEmpty {
-            segments = WorkoutPlanSupport.normalizedSegments(segments)
+        var updatedSegments = segments
+        updatedSegments.removeAll { $0.id == segment.id }
+
+        if keepsAtLeastOne || !updatedSegments.isEmpty {
+            applySegments(updatedSegments)
+        } else {
+            settings.distanceSegments = []
+            settings.trackingMode = .distanceDistance
         }
-        syncTrackingModeWithSegments(showBanner: false)
-        persistPresetAfterEditIfNeeded()
     }
 
     private func commitSegment(_ updatedSegment: DistanceSegment) {
-        guard let index = segments.firstIndex(where: { $0.id == updatedSegment.id }) else { return }
-        segments[index] = updatedSegment
-        segments = WorkoutPlanSupport.normalizedSegments(segments)
-        syncTrackingModeWithSegments(showBanner: updatedSegment.usesOpenDistance)
-        persistPresetAfterEditIfNeeded()
-    }
+        var updatedSegments = segments
+        guard let index = updatedSegments.firstIndex(where: { $0.id == updatedSegment.id }) else { return }
+        updatedSegments[index] = updatedSegment
 
-    private func currentWorkoutPlan() -> WorkoutPlanSnapshot {
-        WorkoutPlanSupport.makeWorkoutPlan(
-            requestedTrackingMode: trackingMode,
-            currentTrackingMode: settings.trackingMode,
-            fallbackDistance: initialWorkoutPlan.distanceLapDistanceMeters,
-            segments: segments,
-            restMode: restMode
-        )
-    }
-
-    private func persistPresetAfterEditIfNeeded() {
-        guard autoSaveOnSegmentDone, showsCustomTitle else { return }
-
-        let savedPreset = settings.saveIntervalPreset(
-            currentWorkoutPlan(),
-            customTitle: customTitle,
-            existingPresetID: storedPresetID,
-            customDescription: customDescription,
-            updatesDescription: true
-        )
-        storedPresetID = savedPreset?.id ?? storedPresetID
-        if let savedPreset {
-            customTitle = savedPreset.customTitle ?? customTitle
-            customDescription = savedPreset.customDescription ?? customDescription
+        if !updatedSegment.usesOpenDistance {
+            lastAddedDistanceMeters = updatedSegment.distanceMeters
         }
-    }
-
-    private func commitWorkoutPlan() {
-        let workoutPlan = currentWorkoutPlan()
-        settings.distanceUnit = distanceUnit
-        onContinue(
-            workoutPlan,
-            IntervalPreset.sanitizeTitle(customTitle),
-            IntervalPreset.sanitizeDescription(customDescription),
-            storedPresetID
-        )
-        dismiss()
-    }
-
-    private func deletePreset() {
-        guard let storedPresetID else { return }
-        settings.deleteIntervalPreset(id: storedPresetID)
-        dismiss()
-    }
-
-    private func syncTrackingModeWithSegments(showBanner: Bool) {
-        let requiresGPS = segments.contains(where: \.usesOpenDistance)
-        trackingMode = requiresGPS ? .dual : .distanceDistance
-        showsOpenDistanceBanner = requiresGPS && showBanner
-    }
-}
+        lastAddedUsesOpenDistance = updatedSegment.usesOpenDistance
+        lastAddedRepeatCount = updatedSegment.repeatCount ?? 0
+        lastAddedRestSeconds = updatedSegment.restSeconds ?? 0
+        lastAddedLastRestSeconds = updatedSegment.lastRestSeconds ?? 0
+        lastAddedTargetPace = Int(updatedSegment.targetPaceSecondsPerKm ?? 0)
         lastAddedTargetTime = Int(updatedSegment.targetTimeSeconds ?? 0)
 
-        if updatedSegment.usesOpenDistance, settings.trackingMode == .distanceDistance {
-            settings.trackingMode = .dual
-        }
+        applySegments(updatedSegments)
+    }
 
-        settings.distanceSegments = WorkoutPlanSupport.normalizedSegments(updatedSegments)
+    private func applySegments(_ updatedSegments: [DistanceSegment]) {
+        let normalizedSegments = WorkoutPlanSupport.normalizedSegments(updatedSegments)
+        settings.distanceSegments = normalizedSegments
+        settings.trackingMode = normalizedSegments.contains(where: \.usesOpenDistance) ? .dual : .distanceDistance
     }
 
     private func flashChangedSegments(oldSegments: [DistanceSegment], newSegments: [DistanceSegment]) {
@@ -502,89 +507,89 @@ private struct CompanionPresetLibraryView: View {
                 .listRowBackground(Color.clear)
 
                 if settings.intervalPresets.isEmpty {
-                Section {
-                    HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.md) {
-                        CompanionHomeSectionHeader(title: L10n.intervalsTitle)
-
-                        Spacer(minLength: Tokens.Spacing.md)
-
-                        if canReorderSegments {
-                            EditButton()
-                                .foregroundStyle(theme.isDark ? theme.text.subtle : settings.primaryAccentColor)
-                        }
-                    }
-                    .padding(.leading, workoutsSectionHeaderLeadingInset)
-                    .padding(.trailing, workoutsSectionHeaderLeadingInset)
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
-
-                    if segments.isEmpty {
-                        CompanionEmptyStateCard(
-                            title: L10n.noSessionPlanIntervalsTitle,
-                            detail: L10n.noSessionPlanIntervalsDetail
+                    CompanionEmptyStateCard(
+                        title: L10n.noSavedIntervalsYet,
+                        detail: L10n.savedIntervalsPlaceholderDetail
+                    )
+                    .listRowCardChrome(
+                        rowInsets: browseRowInsets,
+                        contentInsets: browseCellContentInsets
+                    )
+                } else {
+                    ForEach(settings.intervalPresets) { preset in
+                        let title = titleComponents(
+                            workoutPlan: preset.workoutPlan,
+                            customTitle: preset.trimmedCustomTitle
                         )
-                        .listRowCardChrome(
-                            rowInsets: workoutsRowInsets,
-                            contentInsets: workoutsCellContentInsets
-                        )
-                    } else {
-                        ForEach(segments) { segment in
-                            Button {
-                                guard !isReorderingSegments else { return }
-                                selectedSegment = segment
-                            } label: {
-                                HStack(spacing: 0) {
-                                    CompanionSegmentRow(segment: segment, distanceUnit: settings.distanceUnit)
-                                        .padding(workoutsCellContentInsets)
-                                    Spacer(minLength: 0)
-                                }
-                                .contentShape(Rectangle())
+
+                        Button {
+                            selectedRoute = .saved(preset.id)
+                        } label: {
+                            HStack(spacing: 0) {
+                                CompanionPresetRowView(
+                                    title: title,
+                                    subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
+                                    usageCount: settings.presetUsageCount(for: preset.workoutPlan)
+                                )
+                                .padding(browseCellContentInsets)
+                                Spacer(minLength: 0)
                             }
-                            .buttonStyle(CompanionNoPressOpacityButtonStyle())
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    withAnimation {
-                                        deleteSegment(segment)
-                                    }
-                                } label: {
-                                    Label(L10n.delete, systemImage: "trash")
-                                }
-                            }
-                            .listRowCardChrome(
-                                rowInsets: workoutsRowInsets,
-                                contentInsets: EdgeInsets(),
-                                fillColor: flashingSegmentIDs.contains(segment.id)
-                                    ? theme.background.emphasisAction(settings.primaryAccentColor)
-                                    : nil
-                            )
-                            .animation(.easeInOut(duration: 0.25), value: flashingSegmentIDs.contains(segment.id))
                             .contentShape(Rectangle())
                         }
-                        .onMove(perform: moveSegments)
-                    }
-
-                    Button {
-                        animateSegmentAddition()
-                    } label: {
-                        HStack {
-                            Spacer()
-
-                            Image(systemName: "plus.circle.fill")
-                                .font(.system(size: Tokens.ControlSize.companionAddIcon, weight: .semibold))
-                                .foregroundStyle(settings.primaryAccentColor)
-                                .symbolEffect(.bounce, value: addSegmentBounceTrigger)
-
-                            Spacer()
+                        .buttonStyle(.plain)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                            Button(role: .destructive) {
+                                settings.deleteIntervalPreset(id: preset.id)
+                            } label: {
+                                Label(L10n.delete, systemImage: "trash")
+                            }
                         }
-                        .padding(.vertical, Tokens.Spacing.xs)
+                        .listRowCardChrome(
+                            rowInsets: browseRowInsets,
+                            contentInsets: EdgeInsets()
+                        )
+                        .contentShape(Rectangle())
                     }
-                    .buttonStyle(.plain)
-                    .listRowInsets(workoutsRowInsets)
+                }
+            }
+            .listSectionSeparator(.hidden)
+
+            Section {
+                CompanionHomeSectionHeader(title: L10n.predefined)
+                    .padding(.top, Tokens.Spacing.xxxl)
+                    .padding(.leading, browseSectionHeaderLeadingInset)
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
+
+                ForEach(SettingsStore.predefinedIntervalPresets) { preset in
+                    let title = titleComponents(
+                        workoutPlan: preset.workoutPlan,
+                        fallbackTitle: preset.title
+                    )
+
+                    Button {
+                        selectedRoute = .predefined(preset.id)
+                    } label: {
+                        HStack(spacing: 0) {
+                            CompanionPresetRowView(
+                                title: title,
+                                subtitle: preset.workoutPlan.displayDetail(unit: settings.distanceUnit),
+                                usageCount: settings.presetUsageCount(for: preset.workoutPlan)
+                            )
+                            .padding(browseCellContentInsets)
+                            Spacer(minLength: 0)
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .listRowCardChrome(
+                        rowInsets: browseRowInsets,
+                        contentInsets: EdgeInsets()
+                    )
+                    .contentShape(Rectangle())
                 }
-                .listSectionSeparator(.hidden)
             }
             .listSectionSeparator(.hidden)
         }
@@ -4001,6 +4006,38 @@ private extension LiveWorkoutStateRecord {
         case .ended:
             return L10n.runStateEnded
         }
+    }
+}
+
+private enum SessionLapTargetResolver {
+    static func targetSegments(
+        for laps: [Lap],
+        workoutPlan: WorkoutPlanSnapshot,
+        trackingMode: TrackingMode
+    ) -> [UUID: DistanceSegment] {
+        guard trackingMode.usesManualIntervals, !workoutPlan.distanceSegments.isEmpty else {
+            return [:]
+        }
+
+        var targetsByLapID: [UUID: DistanceSegment] = [:]
+        var segmentIndex = 0
+        var repeatsDone = 0
+
+        for lap in laps where lap.lapType == .active {
+            let safeIndex = min(segmentIndex, workoutPlan.distanceSegments.count - 1)
+            let segment = workoutPlan.distanceSegments[safeIndex]
+            targetsByLapID[lap.id] = segment
+
+            repeatsDone += 1
+            if let repeatCount = segment.repeatCount,
+               repeatsDone >= repeatCount,
+               segmentIndex + 1 < workoutPlan.distanceSegments.count {
+                segmentIndex += 1
+                repeatsDone = 0
+            }
+        }
+
+        return targetsByLapID
     }
 }
 

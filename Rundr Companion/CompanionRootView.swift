@@ -1194,18 +1194,42 @@ private struct CompanionSelectionCheckmark: View {
 }
 
 private struct CompanionMetricPill: View {
+    enum TextStyle {
+        case rounded
+        case regular
+    }
+
     let title: String
     let value: String
     var valueLineLimit: Int? = nil
+    var textStyle: TextStyle = .rounded
     @Environment(\.appTheme) private var theme
+
+    private var titleFont: Font {
+        switch textStyle {
+        case .rounded:
+            .system(size: Tokens.FontSize.md, weight: .regular, design: .rounded)
+        case .regular:
+            .subheadline
+        }
+    }
+
+    private var valueFont: Font {
+        switch textStyle {
+        case .rounded:
+            .headline.weight(.semibold)
+        case .regular:
+            .body.weight(.semibold)
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.xxs) {
             Text(title)
-                .font(.system(size: Tokens.FontSize.md, weight: .regular, design: .rounded))
+                .font(titleFont)
                 .foregroundStyle(theme.text.subtle)
             Text(value)
-                .font(.headline.weight(.semibold))
+                .font(valueFont)
                 .foregroundStyle(theme.text.neutral)
                 .lineLimit(valueLineLimit)
                 .truncationMode(.tail)
@@ -1241,7 +1265,12 @@ private struct CompanionPresetRowView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
-                    CompanionMetricPill(title: L10n.intervalsTitle, value: subtitle, valueLineLimit: 2)
+                    CompanionMetricPill(
+                        title: L10n.intervalsTitle,
+                        value: subtitle,
+                        valueLineLimit: 2,
+                        textStyle: .regular
+                    )
                 }
             }
         }
@@ -1794,7 +1823,7 @@ private struct CompanionSegmentRow: View {
             VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
                 HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.md) {
                     Text(title)
-                        .font(.system(size: Tokens.FontSize.xxxl + Tokens.Spacing.xxs, weight: .semibold, design: .rounded))
+                        .font(.title3.weight(.semibold))
                         .foregroundStyle(theme.text.neutral)
 
                     Spacer(minLength: Tokens.Spacing.md)
@@ -1809,7 +1838,7 @@ private struct CompanionSegmentRow: View {
                         ForEach(Array(metricRows.enumerated()), id: \.offset) { _, row in
                             GridRow(alignment: .top) {
                                 ForEach(row) { item in
-                                    CompanionMetricPill(title: item.title, value: item.value)
+                                    CompanionMetricPill(title: item.title, value: item.value, textStyle: .regular)
                                 }
 
                                 ForEach(0..<max(0, 3 - row.count), id: \.self) { _ in

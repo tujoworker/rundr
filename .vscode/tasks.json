@@ -98,6 +98,13 @@
 			"command": "set -euo pipefail\nxcodebuild -project Rundr.xcodeproj -scheme 'Rundr Companion' -destination 'platform=iOS Simulator,name=iPhone 17 Pro with Apple Watch Ultra 3,OS=26.3.1' -derivedDataPath .derived-companion CODE_SIGNING_ALLOWED=NO build",
 			"isBackground": false,
 			"group": "build"
+		},
+		{
+			"label": "Build companion scheme for recovery cell label",
+			"type": "shell",
+			"command": "set -euo pipefail\nxcodebuild -project Rundr.xcodeproj -scheme 'Rundr Companion' -destination 'platform=iOS Simulator,name=iPhone 17 Pro with Apple Watch Ultra 3,OS=26.3.1' -derivedDataPath .derived-companion CODE_SIGNING_ALLOWED=NO build",
+			"isBackground": false,
+			"group": "build"
 		}
 	]
 }

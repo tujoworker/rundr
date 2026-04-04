@@ -74,6 +74,26 @@ struct DistanceSegment: Codable, Identifiable, Equatable, Hashable {
         distanceGoalMode.isTimeBased
     }
 
+    var intervalRowPrimaryLabel: String {
+        usesOpenDistance ? L10n.time : L10n.distance
+    }
+
+    var intervalRowShowsPrimaryMetricInDetails: Bool {
+        trimmedName != nil
+    }
+
+    func intervalRowPrimaryValue(unit: DistanceUnit) -> String {
+        if usesOpenDistance {
+            return effectiveTargetTimeSeconds.map { Formatters.compactTimeString(from: $0) } ?? L10n.time
+        }
+
+        return Formatters.distanceString(meters: distanceMeters, unit: unit)
+    }
+
+    func intervalRowHeadline(unit: DistanceUnit) -> String {
+        trimmedName ?? intervalRowPrimaryValue(unit: unit)
+    }
+
     /// Effective target time derived from either direct time or pace × distance.
     var effectiveTargetTimeSeconds: Double? {
         if let time = targetTimeSeconds { return time }

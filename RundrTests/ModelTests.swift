@@ -3,6 +3,27 @@ import XCTest
 
 final class ModelTests: XCTestCase {
 
+    func testDistanceSegmentIntervalRowHeadlineUsesCustomTitleWhenPresent() {
+        let segment = DistanceSegment(name: "Threshold", distanceMeters: 1000)
+
+        XCTAssertEqual(segment.intervalRowHeadline(unit: .km), "Threshold")
+        XCTAssertTrue(segment.intervalRowShowsPrimaryMetricInDetails)
+        XCTAssertEqual(segment.intervalRowPrimaryLabel, L10n.distance)
+        XCTAssertEqual(segment.intervalRowPrimaryValue(unit: .km), Formatters.distanceString(meters: 1000, unit: .km))
+    }
+
+    func testDistanceSegmentIntervalRowHeadlineFallsBackToTimeValueForOpenDistance() {
+        let segment = DistanceSegment(
+            distanceMeters: 400,
+            distanceGoalMode: .open,
+            targetTimeSeconds: 90
+        )
+
+        XCTAssertEqual(segment.intervalRowHeadline(unit: .km), Formatters.compactTimeString(from: 90))
+        XCTAssertFalse(segment.intervalRowShowsPrimaryMetricInDetails)
+        XCTAssertEqual(segment.intervalRowPrimaryLabel, L10n.time)
+    }
+
     // MARK: - Health Access Error Messages
 
     func testHealthAccessErrorMapsMissingEntitlementMessage() {

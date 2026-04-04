@@ -552,16 +552,8 @@ private struct SegmentRow: View {
         GridItem(.flexible(), spacing: 10, alignment: .topLeading)
     ]
 
-    private var distanceDisplay: String {
-        let primaryValue = segment.usesOpenDistance
-            ? segment.effectiveTargetTimeSeconds.map { Formatters.compactTimeString(from: $0) } ?? L10n.time
-            : Formatters.distanceString(meters: segment.distanceMeters, unit: distanceUnit)
-
-        if let name = segment.trimmedName {
-            return L10n.segmentSummary(name, primaryValue)
-        }
-
-        return primaryValue
+    private var headlineText: String {
+        segment.intervalRowHeadline(unit: distanceUnit)
     }
 
     private var hasRepeatCount: Bool {
@@ -581,11 +573,20 @@ private struct SegmentRow: View {
     }
 
     private var hasSecondaryDetails: Bool {
-        hasRepeatCount || hasRestDuration || hasLastRestDuration || hasTarget
+        !detailItems.isEmpty
     }
 
     private var detailItems: [SessionStatItem] {
         var items: [SessionStatItem] = []
+
+        if segment.intervalRowShowsPrimaryMetricInDetails {
+            items.append(
+                SessionStatItem(
+                    label: segment.intervalRowPrimaryLabel,
+                    value: segment.intervalRowPrimaryValue(unit: distanceUnit)
+                )
+            )
+        }
 
         if let rest = segment.restSeconds {
             items.append(
@@ -639,7 +640,7 @@ private struct SegmentRow: View {
         ZStack(alignment: .topTrailing) {
             Button(action: onTap) {
                 VStack(alignment: .leading, spacing: Tokens.Spacing.sm) {
-                    Text(distanceDisplay)
+                    Text(headlineText)
                         .font(.system(size: Tokens.FontSize.xl, weight: .semibold, design: .rounded))
                         .foregroundStyle(theme.text.neutral)
                     if hasSecondaryDetails {
@@ -681,7 +682,7 @@ private struct SegmentRow: View {
             .padding(.top, Tokens.Spacing.xl)
             .padding(.trailing, Tokens.Spacing.xxl)
         }
-        .alert(distanceDisplay, isPresented: $isDeleteConfirmationPresented) {
+        .alert(headlineText, isPresented: $isDeleteConfirmationPresented) {
             Button(L10n.delete, role: .destructive, action: onDelete)
             Button(L10n.cancel, role: .cancel) {}
         }

@@ -1686,15 +1686,7 @@ private struct CompanionSegmentRow: View {
     @Environment(\.appTheme) private var theme
 
     private var title: String {
-        let primaryValue = segment.usesOpenDistance
-            ? segment.effectiveTargetTimeSeconds.map { Formatters.compactTimeString(from: $0) } ?? L10n.time
-            : Formatters.distanceString(meters: segment.distanceMeters, unit: distanceUnit)
-
-        if let name = segment.trimmedName {
-            return L10n.segmentSummary(name, primaryValue)
-        }
-
-        return primaryValue
+        segment.intervalRowHeadline(unit: distanceUnit)
     }
 
     private var repeatValue: String {
@@ -1734,10 +1726,21 @@ private struct CompanionSegmentRow: View {
     }
 
     private var metricItems: [MetricItem] {
-        var items: [MetricItem] = [
+        var items: [MetricItem] = []
+
+        if segment.intervalRowShowsPrimaryMetricInDetails {
+            items.append(
+                MetricItem(
+                    title: segment.intervalRowPrimaryLabel,
+                    value: segment.intervalRowPrimaryValue(unit: distanceUnit)
+                )
+            )
+        }
+
+        items.append(contentsOf: [
             MetricItem(title: L10n.repeats, value: repeatValue),
             MetricItem(title: L10n.rest, value: restValue)
-        ]
+        ])
 
         if showsLastRest {
             items.append(MetricItem(title: L10n.lastRest, value: lastRestValue))

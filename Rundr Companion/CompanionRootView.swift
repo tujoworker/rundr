@@ -2196,8 +2196,23 @@ private struct CompanionSegmentEditorView: View {
                     Stepper(value: Binding(
                         get: { Int(segment.targetPaceSecondsPerKm ?? 0) },
                         set: {
+                            let currentPaceSeconds = Int(segment.targetPaceSecondsPerKm ?? 0)
+                            let resolvedPaceSeconds: Int
+
+                            if $0 > currentPaceSeconds {
+                                resolvedPaceSeconds = SegmentEditorValueRules.incrementedTargetPaceSeconds(
+                                    currentPaceSecondsPerKm: currentPaceSeconds
+                                )
+                            } else if $0 < currentPaceSeconds {
+                                resolvedPaceSeconds = SegmentEditorValueRules.decrementedTargetPaceSeconds(
+                                    currentPaceSecondsPerKm: currentPaceSeconds
+                                )
+                            } else {
+                                resolvedPaceSeconds = currentPaceSeconds
+                            }
+
                             let updatedTargets = SegmentEditorValueRules.updatedTargetsAfterSettingPace(
-                                secondsPerKm: $0,
+                                secondsPerKm: resolvedPaceSeconds,
                                 currentTargetTimeSeconds: segment.targetTimeSeconds
                             )
                             segment.targetTimeSeconds = updatedTargets.targetTimeSeconds

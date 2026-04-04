@@ -205,6 +205,8 @@ enum SegmentEditSheetRules {
 
 enum SegmentEditorValueRules {
     static let minimumTimeIntervalSeconds = 5
+    static let defaultTargetPaceSecondsPerKm = 300
+    static let targetPaceStepSeconds = 5
 
     static func normalizedName(_ name: String?) -> String? {
         guard let name else { return nil }
@@ -250,6 +252,18 @@ enum SegmentEditorValueRules {
         let targetPaceSecondsPerKm = secondsPerKm > 0 ? Double(secondsPerKm) : nil
         let targetTimeSeconds = secondsPerKm > 0 ? nil : currentTargetTimeSeconds
         return (targetTimeSeconds, targetPaceSecondsPerKm)
+    }
+
+    static func incrementedTargetPaceSeconds(currentPaceSecondsPerKm: Int) -> Int {
+        currentPaceSecondsPerKm > 0
+            ? currentPaceSecondsPerKm + targetPaceStepSeconds
+            : defaultTargetPaceSecondsPerKm
+    }
+
+    static func decrementedTargetPaceSeconds(currentPaceSecondsPerKm: Int) -> Int {
+        currentPaceSecondsPerKm >= targetPaceStepSeconds * 3
+            ? currentPaceSecondsPerKm - targetPaceStepSeconds
+            : 0
     }
 }
 

@@ -1911,11 +1911,9 @@ private struct SegmentEditSheet: View {
 
             HStack(spacing: Tokens.Spacing.sm) {
                 Button {
-                    if targetPace >= 15 {
-                        targetPace -= 5
-                    } else {
-                        targetPace = 0
-                    }
+                    targetPace = SegmentEditorValueRules.decrementedTargetPaceSeconds(
+                        currentPaceSecondsPerKm: targetPace
+                    )
                     if targetPace > 0 { targetTime = 0 }
                 } label: {
                     Image(systemName: "minus")
@@ -1936,8 +1934,9 @@ private struct SegmentEditSheet: View {
                 .buttonStyle(.plain)
 
                 Button {
-                    if targetPace == 0 { targetPace = 300 }
-                    else { targetPace += 5 }
+                    targetPace = SegmentEditorValueRules.incrementedTargetPaceSeconds(
+                        currentPaceSecondsPerKm: targetPace
+                    )
                     targetTime = 0
                 } label: {
                     Image(systemName: "plus")

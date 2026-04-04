@@ -778,6 +778,28 @@ final class ModelTests: XCTestCase {
         XCTAssertNil(clearedPace.targetPaceSecondsPerKm)
     }
 
+    func testSegmentEditorValueRulesIncrementTargetPaceUsesWatchDefaultWhenOff() {
+        XCTAssertEqual(
+            SegmentEditorValueRules.incrementedTargetPaceSeconds(currentPaceSecondsPerKm: 0),
+            300
+        )
+        XCTAssertEqual(
+            SegmentEditorValueRules.incrementedTargetPaceSeconds(currentPaceSecondsPerKm: 300),
+            305
+        )
+    }
+
+    func testSegmentEditorValueRulesDecrementTargetPaceMatchesWatchBehavior() {
+        XCTAssertEqual(
+            SegmentEditorValueRules.decrementedTargetPaceSeconds(currentPaceSecondsPerKm: 15),
+            10
+        )
+        XCTAssertEqual(
+            SegmentEditorValueRules.decrementedTargetPaceSeconds(currentPaceSecondsPerKm: 10),
+            0
+        )
+    }
+
     // MARK: - WorkoutRunState
 
     func testWorkoutRunStateCases() {

@@ -1190,6 +1190,7 @@ private struct CompanionSelectionCheckmark: View {
 private struct CompanionMetricPill: View {
     let title: String
     let value: String
+    var valueLineLimit: Int? = nil
     @Environment(\.appTheme) private var theme
 
     var body: some View {
@@ -1200,6 +1201,8 @@ private struct CompanionMetricPill: View {
             Text(value)
                 .font(.headline.weight(.semibold))
                 .foregroundStyle(theme.text.neutral)
+                .lineLimit(valueLineLimit)
+                .truncationMode(.tail)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -1232,7 +1235,7 @@ private struct CompanionPresetRowView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
 
                 HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
-                    CompanionMetricPill(title: L10n.intervalsTitle, value: subtitle)
+                    CompanionMetricPill(title: L10n.intervalsTitle, value: subtitle, valueLineLimit: 2)
                 }
             }
         }

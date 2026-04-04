@@ -1240,6 +1240,8 @@ private struct IntervalLibraryRowView: View {
             Text(subtitle)
                 .font(.caption)
                 .foregroundStyle(theme.text.subtle)
+                .lineLimit(2)
+                .truncationMode(.tail)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Tokens.Spacing.md)

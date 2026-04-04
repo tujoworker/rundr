@@ -61,6 +61,7 @@
 "Rest" = "Rest";
 "Last Rest" = "Last Rest";
 "Add Last Rest" = "Add Last Rest";
+"Reorder" = "Reorder";
 "Repeats Required" = "Repeats Required";
 "Add repeats to this interval before adding a last rest." = "Add repeats to this interval before adding a last rest.";
 "GPS Required" = "GPS Required";

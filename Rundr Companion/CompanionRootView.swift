@@ -124,6 +124,10 @@ private struct CompanionWorkoutsView: View {
         segmentEditMode.isEditing
     }
 
+    private var reorderButtonTitle: String {
+        isReorderingSegments ? L10n.done : L10n.reorder
+    }
+
     var body: some View {
         NavigationStack {
             List {
@@ -159,7 +163,9 @@ private struct CompanionWorkoutsView: View {
                         Spacer(minLength: Tokens.Spacing.md)
 
                         if canReorderSegments {
-                            EditButton()
+                            Button(reorderButtonTitle) {
+                                segmentEditMode = isReorderingSegments ? .inactive : .active
+                            }
                                 .foregroundStyle(theme.isDark ? theme.text.subtle : settings.primaryAccentColor)
                         }
                     }
@@ -1307,6 +1313,10 @@ private struct CompanionWorkoutEditorView: View {
         segmentEditMode.isEditing
     }
 
+    private var reorderButtonTitle: String {
+        isReorderingSegments ? L10n.done : L10n.reorder
+    }
+
     private var customTitleRowContentInsets: EdgeInsets {
         EdgeInsets(
             top: Tokens.Spacing.xxxxl,
@@ -1455,7 +1465,9 @@ private struct CompanionWorkoutEditorView: View {
                     Spacer(minLength: Tokens.Spacing.md)
 
                     if canReorderSegments {
-                        EditButton()
+                        Button(reorderButtonTitle) {
+                            segmentEditMode = isReorderingSegments ? .inactive : .active
+                        }
                             .foregroundStyle(theme.isDark ? theme.text.subtle : settings.primaryAccentColor)
                     }
                 }

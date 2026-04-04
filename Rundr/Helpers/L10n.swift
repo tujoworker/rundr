@@ -73,6 +73,7 @@ enum L10n {
     static let repeats = String(localized: "Repeats", comment: "Segment repeats label")
     static let lastRest = String(localized: "Last Rest", comment: "Segment last rest label")
     static let addLastRest = String(localized: "Add Last Rest", comment: "Button to add a last rest field")
+    static let reorder = String(localized: "Reorder", comment: "Button to enter interval reordering mode")
     static let lastRestNeedsRepeatsTitle = String(localized: "Repeats Required", comment: "Alert title when last rest requires repeats")
     static let lastRestNeedsRepeatsMessage = String(localized: "Add repeats to this interval before adding a last rest.", comment: "Alert message when last rest requires repeats")
     static let gpsAlsoEnabledTitle = String(localized: "GPS Required", comment: "Open interval GPS banner title")

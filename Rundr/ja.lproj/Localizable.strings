@@ -61,6 +61,7 @@
 "Rest" = "レスト";
 "Last Rest" = "ラストレスト";
 "Add Last Rest" = "ラストレストを追加";
+"Reorder" = "並べ替え";
 "Repeats Required" = "リピートが必要です";
 "Add repeats to this interval before adding a last rest." = "ラストレストを追加する前に、このインターバルにリピートを追加してください。";
 "GPS Required" = "GPS必須";

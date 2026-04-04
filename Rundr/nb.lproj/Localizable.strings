@@ -61,6 +61,7 @@
 "Rest" = "Hvile";
 "Last Rest" = "Siste hvile";
 "Add Last Rest" = "Legg til siste hvile";
+"Reorder" = "Omorganiser";
 "Repeats Required" = "Repetisjoner kreves";
 "Add repeats to this interval before adding a last rest." = "Legg til repetisjoner for dette intervallet før du legger til en siste hvile.";
 "GPS Required" = "GPS påkrevd";

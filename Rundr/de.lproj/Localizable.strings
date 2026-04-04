@@ -61,6 +61,7 @@
 "Rest" = "Pause";
 "Last Rest" = "Letzte Pause";
 "Add Last Rest" = "Letzte Pause hinzufügen";
+"Reorder" = "Neu anordnen";
 "Repeats Required" = "Wiederholungen erforderlich";
 "Add repeats to this interval before adding a last rest." = "Füge diesem Intervall zuerst Wiederholungen hinzu, bevor du eine letzte Pause hinzufügst.";
 "GPS Required" = "GPS erforderlich";

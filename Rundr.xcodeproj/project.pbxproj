@@ -44,6 +44,7 @@
 		B10000000000000000000001 /* SessionSyncModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000001 /* SessionSyncModels.swift */; };
 		B10000000000000000000002 /* RundrCompanionApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000002 /* RundrCompanionApp.swift */; };
 		B10000000000000000000003 /* CompanionRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000003 /* CompanionRootView.swift */; };
+		B10000000000000000000016 /* CompanionInfoViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = B20000000000000000000006 /* CompanionInfoViews.swift */; };
 		B10000000000000000000004 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E613F59ADF522B5282AC2A3 /* Session.swift */; };
 		B10000000000000000000005 /* Lap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A88263B0A43413879ABF4DB7 /* Lap.swift */; };
 		B10000000000000000000006 /* TrackingMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE97F98043246AF98F971416 /* TrackingMode.swift */; };
@@ -149,6 +150,7 @@
 		B20000000000000000000001 /* SessionSyncModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSyncModels.swift; sourceTree = "<group>"; };
 		B20000000000000000000002 /* RundrCompanionApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RundrCompanionApp.swift; sourceTree = "<group>"; };
 		B20000000000000000000003 /* CompanionRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionRootView.swift; sourceTree = "<group>"; };
+		B20000000000000000000006 /* CompanionInfoViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompanionInfoViews.swift; sourceTree = "<group>"; };
 		B20000000000000000000004 /* Rundr Companion.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Rundr Companion.entitlements"; sourceTree = "<group>"; };
 		B3C468A8CAAB5486BF89EDC4 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C461B28E60C157EE2885A142 /* WorkoutSessionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutSessionController.swift; sourceTree = "<group>"; };
@@ -344,6 +346,7 @@
 			children = (
 				B20000000000000000000002 /* RundrCompanionApp.swift */,
 				B20000000000000000000003 /* CompanionRootView.swift */,
+				B20000000000000000000006 /* CompanionInfoViews.swift */,
 				B20000000000000000000004 /* Rundr Companion.entitlements */,
 				90A0B0C0D0E0F00112233446 /* Assets.xcassets */,
 			);
@@ -532,6 +535,7 @@
 			files = (
 				B10000000000000000000002 /* RundrCompanionApp.swift in Sources */,
 				B10000000000000000000003 /* CompanionRootView.swift in Sources */,
+				B10000000000000000000016 /* CompanionInfoViews.swift in Sources */,
 				B10000000000000000000004 /* Session.swift in Sources */,
 				B10000000000000000000005 /* Lap.swift in Sources */,
 				B10000000000000000000006 /* TrackingMode.swift in Sources */,

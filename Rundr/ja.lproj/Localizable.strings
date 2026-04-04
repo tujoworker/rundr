@@ -38,7 +38,7 @@
 "Distance (ft)" = "距離 (ft)";
 "Interval Type" = "インターバルタイプ";
 "Name" = "名前";
-"Title (optional)" = "タイトル（任意）";
+"(optional)" = "（任意）";
 "Jog" = "ジョグ";
 "Sprint" = "スプリント";
 "Surge" = "上げ";

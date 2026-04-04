@@ -38,7 +38,7 @@
 "Distance (ft)" = "Distanse (fot)";
 "Interval Type" = "Intervalltype";
 "Name" = "Navn";
-"Title (optional)" = "Tittel (valgfritt)";
+"(optional)" = "(valgfritt)";
 "Jog" = "Jogg";
 "Sprint" = "Sprint";
 "Surge" = "Drag";

@@ -38,7 +38,7 @@
 "Distance (ft)" = "Distance (ft)";
 "Interval Type" = "Interval Type";
 "Name" = "Name";
-"Title (optional)" = "Title (optional)";
+"(optional)" = "(optional)";
 "Jog" = "Jog";
 "Sprint" = "Sprint";
 "Surge" = "Surge";

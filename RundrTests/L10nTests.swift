@@ -85,8 +85,8 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.intervalType, "Interval Type")
         XCTAssertEqual(L10n.distanceInterval, "Distance")
         XCTAssertEqual(L10n.timeInterval, "Time")
-        XCTAssertEqual(L10n.segmentName, "Name")
-        XCTAssertEqual(L10n.optionalSegmentNamePlaceholder, "Title (optional)")
+        XCTAssertEqual(L10n.segmentName, "Title")
+        XCTAssertEqual(L10n.optionalSegmentNamePlaceholder, "(optional)")
     }
 
     func testMoreLabelExistsForCompanionOverflowTab() {

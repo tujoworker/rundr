@@ -47,8 +47,8 @@ enum L10n {
     static let intervalType = String(localized: "Interval Type", comment: "Interval mode selector")
     static let distanceInterval = String(localized: "Distance", comment: "Distance-based interval type")
     static let timeInterval = String(localized: "Time", comment: "Time-based interval type")
-    static let segmentName = String(localized: "Name", comment: "Optional segment name label")
-    static let optionalSegmentNamePlaceholder = String(localized: "Title (optional)", comment: "Optional segment name placeholder")
+    static let segmentName = title
+    static let optionalSegmentNamePlaceholder = String(localized: "(optional)", comment: "Optional segment title placeholder")
     static let jog = String(localized: "Jog", comment: "Default segment name for easier running")
     static let sprint = String(localized: "Sprint", comment: "Default segment name for faster running")
     static let surge = String(localized: "Surge", comment: "Default segment name for fartlek surge")

@@ -506,8 +506,9 @@ private struct CompanionPresetLibraryView: View {
                         selectedRoute = .new
                     } label: {
                         Image(systemName: "plus.circle.fill")
-                            .font(.system(size: Tokens.FontSize.xl, weight: .semibold))
+                            .font(.system(size: Tokens.ControlSize.companionAddIcon, weight: .semibold))
                             .foregroundStyle(settings.primaryAccentColor)
+                            .frame(width: Tokens.ControlSize.companionAddIcon, height: Tokens.ControlSize.companionAddIcon)
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(L10n.addInterval)

@@ -3343,6 +3343,10 @@ private struct CompanionSessionLapRow: View {
         lap.lapType.isRecovery
     }
 
+    private var isActiveRecoveryLap: Bool {
+        lap.lapType == .activeRecovery
+    }
+
     private var badgeTitle: String {
         String(lap.index)
     }
@@ -3366,6 +3370,14 @@ private struct CompanionSessionLapRow: View {
             trackingMode: trackingMode,
             distanceUnit: distanceUnit
         )
+    }
+
+    private var activeHeaderTimeFont: Font {
+        if isActiveRecoveryLap {
+            return .body.weight(.medium)
+        }
+
+        return .system(size: CompanionSessionLapRowLayout.titleFontSize, weight: .medium)
     }
 
     private var rowInsets: EdgeInsets {
@@ -3417,7 +3429,7 @@ private struct CompanionSessionLapRow: View {
                         }
 
                     Text(activeHeaderTime)
-                        .font(.system(size: CompanionSessionLapRowLayout.titleFontSize, weight: .medium))
+                        .font(activeHeaderTimeFont)
                         .foregroundStyle(theme.text.neutral)
                 }
             }

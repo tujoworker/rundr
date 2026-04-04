@@ -29,6 +29,15 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.noOtherMatchingSessionsYet, "No other matching sessions yet")
     }
 
+    func testCompanionEmptyStateLabelsExist() {
+        XCTAssertEqual(L10n.noSyncedSessionsYet, "Start an interval session on Apple Watch.")
+        XCTAssertEqual(L10n.noSavedIntervalsYet, "No saved intervals yet")
+        XCTAssertEqual(
+            L10n.savedIntervalsPlaceholderDetail,
+            "Open a predefined interval to save your own version."
+        )
+    }
+
     func testUseItNowLabelExistsForCompanionAdjustIntervalAction() {
         XCTAssertEqual(L10n.useItNow, "Use it now")
     }

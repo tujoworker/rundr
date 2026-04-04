@@ -274,10 +274,7 @@ private struct CompanionWorkoutsView: View {
                         .listRowBackground(Color.clear)
 
                     if sessions.isEmpty {
-                        Text(L10n.noSyncedSessionsYet)
-                            .font(.subheadline)
-                            .foregroundStyle(theme.text.subtle)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        CompanionEmptyStateCard(title: L10n.noSyncedSessionsYet)
                             .listRowCardChrome(
                                 rowInsets: workoutsRowInsets,
                                 contentInsets: workoutsCellContentInsets
@@ -542,16 +539,10 @@ private struct CompanionPresetLibraryView: View {
                 .listRowBackground(Color.clear)
 
                 if settings.intervalPresets.isEmpty {
-                    VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
-                        Text(L10n.noSavedIntervalsYet)
-                            .font(.headline.weight(.semibold))
-                            .foregroundStyle(theme.text.neutral)
-
-                        Text(L10n.savedIntervalsPlaceholderDetail)
-                            .font(.subheadline)
-                            .foregroundStyle(theme.text.subtle)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    CompanionEmptyStateCard(
+                        title: L10n.noSavedIntervalsYet,
+                        detail: L10n.savedIntervalsPlaceholderDetail
+                    )
                     .listRowCardChrome(
                         rowInsets: browseRowInsets,
                         contentInsets: browseCellContentInsets
@@ -1771,6 +1762,28 @@ private struct CompanionHomeSectionHeader: View {
 private struct CompanionAppearanceSettingsDetailView: View {
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
+private struct CompanionEmptyStateCard: View {
+    let title: String
+    var detail: String? = nil
+
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+            Text(title)
+                .font(.headline.weight(.semibold))
+                .foregroundStyle(theme.text.neutral)
+
+            if let detail {
+                Text(detail)
+                    .font(.subheadline)
+                    .foregroundStyle(theme.text.subtle)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
 
     var body: some View {
         List {
@@ -3704,10 +3717,7 @@ private struct CompanionMatchingSessionsView: View {
         List {
             Section {
                 if matchingSessions.isEmpty {
-                    Text(L10n.noOtherMatchingSessionsYet)
-                        .font(.subheadline)
-                        .foregroundStyle(theme.text.subtle)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    CompanionEmptyStateCard(title: L10n.noOtherMatchingSessionsYet)
                         .listRowCardChrome(
                             rowInsets: CompanionSessionPlanStyle.rowInsets,
                             contentInsets: CompanionSessionPlanStyle.cellContentInsets

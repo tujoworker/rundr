@@ -289,7 +289,7 @@ enum L10n {
     static let waitingForWatch = String(localized: "Waiting for Watch…", comment: "Companion live state when watch connection is stale")
     static let liveOnAppleWatch = String(localized: "Live on Apple Watch", comment: "Companion section title for live workout")
     static let syncedSessions = String(localized: "Sessions", comment: "Companion section title for synced sessions")
-    static let noSyncedSessionsYet = String(localized: "Start an intervals session on Apple Watch.", comment: "Companion empty state for synced sessions")
+    static let noSyncedSessionsYet = String(localized: "Start an interval session on Apple Watch.", comment: "Companion empty state for synced sessions")
     static let other = String(localized: "Other", comment: "Companion preferences section title")
     static let help = String(localized: "Help", comment: "Companion preferences section and screen title")
     static let aboutRundr = String(localized: "About Rundr", comment: "Companion preferences destination title")

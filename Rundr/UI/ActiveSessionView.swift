@@ -1167,7 +1167,8 @@ private struct LapEditorScreen: View {
                                 .foregroundStyle(theme.text.subtle)
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(.horizontal, Tokens.Spacing.md)
+                        .padding(.leading, ActiveSessionLapEditorLayout.lapTypeLeadingPadding)
+                        .padding(.trailing, ActiveSessionLapEditorLayout.lapTypeTrailingPadding)
                         .padding(.vertical, Tokens.Spacing.md)
                         .background(theme.background.neutralAction)
                         .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous))
@@ -1181,13 +1182,6 @@ private struct LapEditorScreen: View {
                             text: $distanceText
                         )
                         .frame(maxWidth: .infinity)
-                    } else {
-                        Text(L10n.lapTreatedAsRest)
-                            .font(.system(size: Tokens.FontSize.lg, weight: .medium, design: .rounded))
-                            .foregroundStyle(theme.text.subtle)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .padding(.horizontal, Tokens.Spacing.xs)
-                            .padding(.vertical, Tokens.Spacing.xl)
                     }
 
                     Button(L10n.deleteLap, role: .destructive) {
@@ -1252,6 +1246,11 @@ private struct LapEditorScreen: View {
             distanceText = defaultDistanceText
         }
     }
+}
+
+enum ActiveSessionLapEditorLayout {
+    static let lapTypeLeadingPadding: CGFloat = Tokens.Spacing.xl + Tokens.Spacing.xs
+    static let lapTypeTrailingPadding: CGFloat = Tokens.Spacing.md
 }
 
 private struct WorkoutControlIcon: View {

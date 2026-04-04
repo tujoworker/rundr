@@ -3,6 +3,13 @@ import XCTest
 
 final class ActiveSessionLapEditorRoutingTests: XCTestCase {
 
+    func testLapEditorLayoutUsesExtraLeadingPaddingForLapTypeRow() {
+        XCTAssertGreaterThan(
+            ActiveSessionLapEditorLayout.lapTypeLeadingPadding,
+            ActiveSessionLapEditorLayout.lapTypeTrailingPadding
+        )
+    }
+
     func testSourceSegmentResolvesTimedActiveLap() {
         let segment = DistanceSegment(
             distanceMeters: 0,
@@ -85,6 +92,10 @@ final class ActiveSessionLapEditorRoutingTests: XCTestCase {
 
         XCTAssertEqual(ActiveSessionLapEditorRouting.editableLapType(for: lap), .activeRecovery)
         XCTAssertTrue(ActiveSessionLapEditorRouting.usesDistanceInput(for: .activeRecovery))
+    }
+
+    func testRestLapDoesNotUseDistanceInput() {
+        XCTAssertFalse(ActiveSessionLapEditorRouting.usesDistanceInput(for: .rest))
     }
 
     func testEditableDistancePrefersTrackedGPSDistance() {

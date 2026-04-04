@@ -161,6 +161,71 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(L10n.introPageLabel(2, 3), "Page 2 of 3")
     }
 
+    func testSessionHistorySummaryPrimaryItemsUseCombinedGPSDistanceForActiveRecovery() {
+        let activeLap = Lap(
+            index: 1,
+            startedAt: .now.addingTimeInterval(-180),
+            endedAt: .now.addingTimeInterval(-60),
+            durationSeconds: 120,
+            distanceMeters: 400,
+            gpsDistanceMeters: 418,
+            averageSpeedMetersPerSecond: 3.33,
+            lapType: .active
+        )
+        let activeRecoveryLap = Lap(
+            index: 0,
+            startedAt: .now.addingTimeInterval(-60),
+            endedAt: .now,
+            durationSeconds: 60,
+            distanceMeters: 0,
+            gpsDistanceMeters: 100,
+            averageSpeedMetersPerSecond: 1.67,
+            lapType: .activeRecovery
+        )
+        let session = makeHistorySession(
+            mode: .dual,
+            totalDistanceMeters: 400,
+            totalGPSDistanceMeters: 418,
+            laps: [activeLap, activeRecoveryLap]
+        )
+
+        let items = SessionHistorySummaryRouting.primaryItems(for: session, distanceUnit: .km)
+
+        XCTAssertTrue(items.contains(SessionHistorySummaryItem(
+            label: L10n.manualDistance,
+            value: Formatters.distanceString(meters: 400, unit: .km)
+        )))
+        XCTAssertTrue(items.contains(SessionHistorySummaryItem(
+            label: L10n.gpsDistanceLabel,
+            value: Formatters.distanceString(meters: 518, unit: .km)
+        )))
+        XCTAssertFalse(items.contains(where: { $0.label == L10n.totalDistanceLabel }))
+    }
+
+    func testSessionHistorySummaryActiveRecoveryItemsUseGPSDistanceLabel() {
+        let activeRecoveryLap = Lap(
+            index: 0,
+            startedAt: .now.addingTimeInterval(-60),
+            endedAt: .now,
+            durationSeconds: 60,
+            distanceMeters: 0,
+            gpsDistanceMeters: 100,
+            averageSpeedMetersPerSecond: 1.67,
+            lapType: .activeRecovery
+        )
+        let session = makeHistorySession(
+            mode: .dual,
+            totalDistanceMeters: 0,
+            totalGPSDistanceMeters: 0,
+            laps: [activeRecoveryLap]
+        )
+
+        let items = SessionHistorySummaryRouting.activeRecoveryItems(for: session, distanceUnit: .km)
+
+        XCTAssertEqual(items.map(\.label), [L10n.gpsDistanceLabel, L10n.averagePaceLabel])
+        XCTAssertEqual(items.first?.value, Formatters.distanceString(meters: 100, unit: .km))
+    }
+
     func testTrackingModeAllCases() {
         XCTAssertEqual(TrackingMode.allCases.count, 3)
         XCTAssertEqual(TrackingMode.allCases.last, .gps)
@@ -2720,5 +2785,29 @@ final class ModelTests: XCTestCase {
         coordinator.goToPreStart(replacingPath: true)
 
         XCTAssertEqual(coordinator.path, [.preStart])
+    }
+
+    private func makeHistorySession(
+        mode: TrackingMode,
+        totalDistanceMeters: Double,
+        totalGPSDistanceMeters: Double?,
+        laps: [Lap]
+    ) -> Session {
+        Session(
+            startedAt: .now.addingTimeInterval(-600),
+            endedAt: .now,
+            durationSeconds: 600,
+            mode: mode,
+            totalDistanceMeters: totalDistanceMeters,
+            totalGPSDistanceMeters: totalGPSDistanceMeters,
+            averageSpeedMetersPerSecond: 0,
+            totalLaps: laps.count,
+            laps: laps,
+            snapshotTrackingMode: mode,
+            snapshotWorkoutPlan: WorkoutPlanSnapshot(
+                trackingMode: mode,
+                distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 1)]
+            )
+        )
     }
 }

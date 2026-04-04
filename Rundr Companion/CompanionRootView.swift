@@ -3060,163 +3060,28 @@ struct CompanionSessionSummarySection {
 
 enum CompanionSessionSummaryRouting {
     static func sections(for session: Session, distanceUnit: DistanceUnit) -> [CompanionSessionSummarySection] {
-        let activeRecoveryDistanceMeters = activeRecoveryDistanceMeters(for: session)
-        let activeRecoveryDurationSeconds = activeRecoveryDurationSeconds(for: session)
+        let primaryItems = SessionHistorySummaryRouting.primaryItems(for: session, distanceUnit: distanceUnit)
+            .map { CompanionSessionStatItem(label: $0.label, value: $0.value) }
+        let activeRecoveryItems = SessionHistorySummaryRouting.activeRecoveryItems(for: session, distanceUnit: distanceUnit)
+            .map { CompanionSessionStatItem(label: $0.label, value: $0.value) }
 
         var sections = [
             CompanionSessionSummarySection(
                 title: L10n.summary,
-                items: primarySummaryItems(
-                    for: session,
-                    distanceUnit: distanceUnit,
-                    activeRecoveryDistanceMeters: activeRecoveryDistanceMeters
-                )
+                items: primaryItems
             )
         ]
 
-        if activeRecoveryDurationSeconds > 0 || activeRecoveryDistanceMeters > 0 {
+        if !activeRecoveryItems.isEmpty {
             sections.append(
                 CompanionSessionSummarySection(
                     title: L10n.activeRecovery,
-                    items: activeRecoverySummaryItems(
-                        distanceMeters: activeRecoveryDistanceMeters,
-                        durationSeconds: activeRecoveryDurationSeconds,
-                        distanceUnit: distanceUnit
-                    )
+                    items: activeRecoveryItems
                 )
             )
         }
 
         return sections
-    }
-
-    private static func primarySummaryItems(
-        for session: Session,
-        distanceUnit: DistanceUnit,
-        activeRecoveryDistanceMeters: Double
-    ) -> [CompanionSessionStatItem] {
-        let firstSegment = session.snapshotWorkoutPlan.distanceSegments.first
-        let sessionUsesOpenIntervals = session.snapshotWorkoutPlan.distanceSegments.contains(where: \.usesOpenDistance)
-
-        var items: [CompanionSessionStatItem] = [
-            CompanionSessionStatItem(label: L10n.laps, value: String(session.activeLapCount)),
-            CompanionSessionStatItem(label: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds))
-        ]
-
-        if let targetTime = firstSegment?.targetTimeSeconds {
-            items.append(
-                CompanionSessionStatItem(
-                    label: L10n.targetTimeLabel,
-                    value: Formatters.compactTimeString(from: targetTime)
-                )
-            )
-        }
-
-        let primaryDistanceForPace: Double
-        if session.mode.usesManualIntervals && !sessionUsesOpenIntervals {
-            primaryDistanceForPace = session.totalDistanceMeters
-            items.append(
-                CompanionSessionStatItem(
-                    label: L10n.distance,
-                    value: formattedDistance(session.totalDistanceMeters, unit: distanceUnit)
-                )
-            )
-        } else if session.mode == .gps || (session.mode == .dual && sessionUsesOpenIntervals) {
-            let gpsDistance = session.totalGPSDistanceMeters ?? session.totalDistanceMeters
-            primaryDistanceForPace = gpsDistance
-            items.append(
-                CompanionSessionStatItem(
-                    label: L10n.gpsDistanceLabel,
-                    value: formattedDistance(gpsDistance, unit: distanceUnit)
-                )
-            )
-        } else {
-            primaryDistanceForPace = session.totalDistanceMeters
-        }
-
-        if session.mode == .dual && !sessionUsesOpenIntervals {
-            items.append(
-                CompanionSessionStatItem(
-                    label: L10n.gpsDistanceLabel,
-                    value: formattedDistance(session.totalGPSDistanceMeters ?? 0, unit: distanceUnit)
-                )
-            )
-        }
-
-        items.append(
-            CompanionSessionStatItem(
-                label: L10n.averagePaceLabel,
-                value: formattedPace(
-                    distanceMeters: primaryDistanceForPace,
-                    durationSeconds: session.activeDurationSeconds,
-                    unit: distanceUnit
-                )
-            )
-        )
-
-        if activeRecoveryDistanceMeters > 0 {
-            items.append(
-                CompanionSessionStatItem(
-                    label: L10n.totalDistanceLabel,
-                    value: formattedDistance(primaryDistanceForPace + activeRecoveryDistanceMeters, unit: distanceUnit)
-                )
-            )
-        }
-
-        return items
-    }
-
-    private static func activeRecoverySummaryItems(
-        distanceMeters: Double,
-        durationSeconds: Double,
-        distanceUnit: DistanceUnit
-    ) -> [CompanionSessionStatItem] {
-        [
-            CompanionSessionStatItem(
-                label: L10n.distance,
-                value: formattedDistance(distanceMeters, unit: distanceUnit)
-            ),
-            CompanionSessionStatItem(
-                label: L10n.averagePaceLabel,
-                value: formattedPace(
-                    distanceMeters: distanceMeters,
-                    durationSeconds: durationSeconds,
-                    unit: distanceUnit
-                )
-            )
-        ]
-    }
-
-    private static func activeRecoveryDistanceMeters(for session: Session) -> Double {
-        session.laps
-            .filter { $0.lapType == .activeRecovery }
-            .reduce(0) { partialResult, lap in
-                partialResult + max(0, lap.gpsDistanceMeters ?? lap.distanceMeters)
-            }
-    }
-
-    private static func activeRecoveryDurationSeconds(for session: Session) -> Double {
-        session.laps
-            .filter { $0.lapType == .activeRecovery }
-            .reduce(0) { partialResult, lap in
-                partialResult + lap.durationSeconds
-            }
-    }
-
-    private static func formattedDistance(_ distanceMeters: Double, unit: DistanceUnit) -> String {
-        distanceMeters > 0
-            ? Formatters.distanceString(meters: distanceMeters, unit: unit)
-            : L10n.dash
-    }
-
-    private static func formattedPace(
-        distanceMeters: Double,
-        durationSeconds: Double,
-        unit: DistanceUnit
-    ) -> String {
-        distanceMeters > 0
-            ? Formatters.paceString(distanceMeters: distanceMeters, durationSeconds: durationSeconds, unit: unit)
-            : L10n.dash
     }
 }
 

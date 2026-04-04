@@ -26,53 +26,9 @@ struct SessionDetailView: View {
         syncManager.hasPendingCompletedSessionTransfer(for: session.id)
     }
 
-    private var sessionUsesOpenIntervals: Bool {
-        session.snapshotWorkoutPlan.distanceSegments.contains(where: \.usesOpenDistance)
-    }
-
     private var sessionStats: [SessionStatItem] {
-        let firstSegment = session.snapshotWorkoutPlan.distanceSegments.first
-        let primaryDistanceMeters: Double
-        if sessionUsesOpenIntervals || session.mode == .gps {
-            primaryDistanceMeters = session.totalGPSDistanceMeters ?? session.totalDistanceMeters
-        } else {
-            primaryDistanceMeters = session.totalDistanceMeters
-        }
-
-        var items: [SessionStatItem] = [
-            SessionStatItem(label: L10n.laps, value: String(session.activeLapCount)),
-            SessionStatItem(label: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds))
-        ]
-
-        if let targetTime = firstSegment?.targetTimeSeconds {
-            items.append(
-                SessionStatItem(label: L10n.targetTimeLabel, value: Formatters.compactTimeString(from: targetTime))
-            )
-        }
-
-        items.append(
-            SessionStatItem(
-                label: L10n.distance,
-                value: primaryDistanceMeters > 0
-                    ? Formatters.distanceString(meters: primaryDistanceMeters, unit: settings.distanceUnit)
-                    : L10n.dash
-            )
-        )
-
-        items.append(
-            SessionStatItem(
-                label: L10n.averagePaceLabel,
-                value: primaryDistanceMeters > 0
-                    ? Formatters.paceString(
-                        distanceMeters: primaryDistanceMeters,
-                        durationSeconds: session.activeDurationSeconds,
-                        unit: settings.distanceUnit
-                    )
-                    : L10n.dash
-            )
-        )
-
-        return items
+        SessionHistorySummaryRouting.primaryItems(for: session, distanceUnit: settings.distanceUnit)
+            .map { SessionStatItem(label: $0.label, value: $0.value) }
     }
 
     private var targetSegmentsByLapID: [UUID: DistanceSegment] {

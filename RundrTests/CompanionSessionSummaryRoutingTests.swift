@@ -3,7 +3,7 @@ import XCTest
 
 final class CompanionSessionSummaryRoutingTests: XCTestCase {
 
-    func testSectionsIncludeActiveRecoverySummaryAndTotalDistance() {
+    func testSectionsIncludeActiveRecoverySummaryAndCombinedGPSDistance() {
         let activeLap = Lap(
             index: 1,
             startedAt: .now.addingTimeInterval(-180),
@@ -34,8 +34,9 @@ final class CompanionSessionSummaryRoutingTests: XCTestCase {
         let sections = CompanionSessionSummaryRouting.sections(for: session, distanceUnit: .km)
 
         XCTAssertEqual(sections.map(\.title), [L10n.summary, L10n.activeRecovery])
-        XCTAssertTrue(sections[0].items.contains(where: { $0.label == L10n.totalDistanceLabel && $0.value == Formatters.distanceString(meters: 500, unit: .km) }))
-        XCTAssertEqual(sections[1].items.map(\.label), [L10n.distance, L10n.averagePaceLabel])
+        XCTAssertTrue(sections[0].items.contains(where: { $0.label == L10n.gpsDistanceLabel && $0.value == Formatters.distanceString(meters: 518, unit: .km) }))
+        XCTAssertFalse(sections[0].items.contains(where: { $0.label == L10n.totalDistanceLabel }))
+        XCTAssertEqual(sections[1].items.map(\.label), [L10n.gpsDistanceLabel, L10n.averagePaceLabel])
         XCTAssertEqual(sections[1].items[0].value, Formatters.distanceString(meters: 100, unit: .km))
         XCTAssertEqual(
             sections[1].items[1].value,

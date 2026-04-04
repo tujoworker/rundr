@@ -797,3 +797,128 @@ final class Session {
         )
     }
 }
+
+struct SessionHistorySummaryItem: Equatable {
+    let label: String
+    let value: String
+}
+
+enum SessionHistorySummaryRouting {
+    static func primaryItems(for session: Session, distanceUnit: DistanceUnit) -> [SessionHistorySummaryItem] {
+        let firstSegment = session.snapshotWorkoutPlan.distanceSegments.first
+        let sessionUsesOpenIntervals = session.snapshotWorkoutPlan.distanceSegments.contains(where: \.usesOpenDistance)
+        let activeDistanceForPace: Double
+
+        if session.mode.usesManualIntervals && !sessionUsesOpenIntervals {
+            activeDistanceForPace = session.totalDistanceMeters
+        } else {
+            activeDistanceForPace = session.totalGPSDistanceMeters ?? session.totalDistanceMeters
+        }
+
+        var items: [SessionHistorySummaryItem] = [
+            SessionHistorySummaryItem(label: L10n.laps, value: String(session.activeLapCount)),
+            SessionHistorySummaryItem(label: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds))
+        ]
+
+        if let targetTime = firstSegment?.targetTimeSeconds {
+            items.append(
+                SessionHistorySummaryItem(
+                    label: L10n.targetTimeLabel,
+                    value: Formatters.compactTimeString(from: targetTime)
+                )
+            )
+        }
+
+        if session.mode.usesManualIntervals && !sessionUsesOpenIntervals {
+            items.append(
+                SessionHistorySummaryItem(
+                    label: session.mode.usesGPSDistance ? L10n.manualDistance : L10n.distance,
+                    value: formattedDistance(session.totalDistanceMeters, unit: distanceUnit)
+                )
+            )
+        }
+
+        if session.mode.usesGPSDistance {
+            items.append(
+                SessionHistorySummaryItem(
+                    label: L10n.gpsDistanceLabel,
+                    value: formattedDistance(totalGPSDistanceMetersIncludingActiveRecovery(for: session), unit: distanceUnit)
+                )
+            )
+        }
+
+        items.append(
+            SessionHistorySummaryItem(
+                label: L10n.averagePaceLabel,
+                value: formattedPace(
+                    distanceMeters: activeDistanceForPace,
+                    durationSeconds: session.activeDurationSeconds,
+                    unit: distanceUnit
+                )
+            )
+        )
+
+        return items
+    }
+
+    static func activeRecoveryItems(for session: Session, distanceUnit: DistanceUnit) -> [SessionHistorySummaryItem] {
+        let distanceMeters = activeRecoveryDistanceMeters(for: session)
+        let durationSeconds = activeRecoveryDurationSeconds(for: session)
+
+        guard distanceMeters > 0 || durationSeconds > 0 else {
+            return []
+        }
+
+        return [
+            SessionHistorySummaryItem(
+                label: L10n.gpsDistanceLabel,
+                value: formattedDistance(distanceMeters, unit: distanceUnit)
+            ),
+            SessionHistorySummaryItem(
+                label: L10n.averagePaceLabel,
+                value: formattedPace(
+                    distanceMeters: distanceMeters,
+                    durationSeconds: durationSeconds,
+                    unit: distanceUnit
+                )
+            )
+        ]
+    }
+
+    static func activeRecoveryDistanceMeters(for session: Session) -> Double {
+        session.laps
+            .filter { $0.lapType == .activeRecovery }
+            .reduce(0) { partialResult, lap in
+                partialResult + max(0, lap.gpsDistanceMeters ?? lap.distanceMeters)
+            }
+    }
+
+    static func activeRecoveryDurationSeconds(for session: Session) -> Double {
+        session.laps
+            .filter { $0.lapType == .activeRecovery }
+            .reduce(0) { partialResult, lap in
+                partialResult + lap.durationSeconds
+            }
+    }
+
+    static func totalGPSDistanceMetersIncludingActiveRecovery(for session: Session) -> Double {
+        let baseGPSDistance = session.totalGPSDistanceMeters ?? session.totalDistanceMeters
+        return max(0, baseGPSDistance + activeRecoveryDistanceMeters(for: session))
+    }
+
+    private static func formattedDistance(_ distanceMeters: Double, unit: DistanceUnit) -> String {
+        distanceMeters > 0
+            ? Formatters.distanceString(meters: distanceMeters, unit: unit)
+            : L10n.dash
+    }
+
+    private static func formattedPace(
+        distanceMeters: Double,
+        durationSeconds: Double,
+        unit: DistanceUnit
+    ) -> String {
+        distanceMeters > 0
+            ? Formatters.paceString(distanceMeters: distanceMeters, durationSeconds: durationSeconds, unit: unit)
+            : L10n.dash
+    }
+}

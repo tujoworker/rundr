@@ -1360,6 +1360,12 @@ final class ModelTests: XCTestCase {
 
     func testDistanceSegmentWithRestSeconds() {
         let segment = DistanceSegment(distanceMeters: 400, repeatCount: 5, restSeconds: 30)
+        XCTAssertNil(
+            CompanionSegmentEditorRules.emptyDisplayValue(for: .repeats)
+        )
+        XCTAssertNil(
+            CompanionSegmentEditorRules.emptyDisplayValue(for: .lastRest)
+        )
         XCTAssertEqual(segment.restSeconds, 30)
     }
 
@@ -1662,6 +1668,24 @@ final class ModelTests: XCTestCase {
         XCTAssertTrue(segments.allSatisfy { $0.distanceGoalMode == .open })
         XCTAssertTrue(segments.allSatisfy { $0.restSeconds == nil })
         XCTAssertTrue(segments.allSatisfy { $0.lastRestSeconds == nil })
+    }
+
+    func testCompanionSegmentEditorRulesShowManualForEmptyRestAndOffForTargets() {
+        XCTAssertEqual(
+            CompanionSegmentEditorRules.emptyDisplayValue(for: .rest),
+            L10n.restManual
+        )
+        XCTAssertEqual(
+            CompanionSegmentEditorRules.emptyDisplayValue(for: .time),
+            L10n.off
+        )
+        XCTAssertEqual(
+            CompanionSegmentEditorRules.emptyDisplayValue(for: .pace),
+            L10n.off
+        )
+        XCTAssertNil(
+            CompanionSegmentEditorRules.emptyDisplayValue(for: .distance)
+        )
     }
 
     func testPyramidPresetUsesExplicitRunAndJogSegments() {

@@ -378,7 +378,9 @@ enum CompanionSegmentEditorRules {
         switch field {
         case .time, .pace:
             return L10n.off
-        case .distance, .repeats, .rest, .lastRest:
+        case .rest:
+            return L10n.restManual
+        case .distance, .repeats, .lastRest:
             return nil
         }
     }

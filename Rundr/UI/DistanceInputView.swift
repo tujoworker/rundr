@@ -145,6 +145,7 @@ struct NumericKeypadEditorScreen: View {
     let accentColor: Color
     let keypadRows: [[String]]
     @Binding var text: String
+    var emptyDisplayValue: String? = nil
     let onTapKey: (String, inout String) -> Void
     let onDone: () -> Void
     @Environment(\.appTheme) private var theme
@@ -154,6 +155,7 @@ struct NumericKeypadEditorScreen: View {
     var body: some View {
         GeometryReader { geometry in
             let topInset = geometry.safeAreaInsets.top
+            let displayedValue = text.isEmpty ? (emptyDisplayValue ?? " ") : text
 
             ZStack(alignment: .top) {
                 AppScreenBackground(accentColor: accentColor)
@@ -167,7 +169,7 @@ struct NumericKeypadEditorScreen: View {
 
                         accentColor.opacity(Tokens.Opacity.fillInput)
 
-                        Text(text.isEmpty ? " " : text)
+                        Text(displayedValue)
                             .font(.system(size: 32, weight: .bold, design: .rounded))
                             .foregroundStyle(theme.text.emphasis)
                             .monospacedDigit()

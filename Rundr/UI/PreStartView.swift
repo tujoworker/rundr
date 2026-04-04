@@ -1523,6 +1523,7 @@ private struct SegmentEditSheet: View {
                 accentColor: accentColor,
                 keypadRows: durationKeypadRows,
                 text: $restEditorText,
+                emptyDisplayValue: L10n.restManual,
                 onTapKey: durationFieldTapKey,
                 onDone: {
                     commitRestEditorText()

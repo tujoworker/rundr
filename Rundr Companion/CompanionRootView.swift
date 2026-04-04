@@ -515,6 +515,9 @@ private struct CompanionPresetLibraryView: View {
                         rowInsets: browseRowInsets,
                         contentInsets: browseCellContentInsets
                     )
+                    .transaction { transaction in
+                        transaction.animation = nil
+                    }
                 } else {
                     ForEach(settings.intervalPresets) { preset in
                         let title = titleComponents(

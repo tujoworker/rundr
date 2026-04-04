@@ -711,9 +711,12 @@ struct IntervalLibraryView: View {
                         title: L10n.noSavedIntervalsYet,
                         detail: L10n.savedIntervalsPlaceholderDetail
                     )
-                        .padding(.vertical, Tokens.Spacing.xs)
-                        .listRowInsets(Tokens.ListRowInsets.card)
-                        .listRowBackground(Color.clear)
+                    .padding(.vertical, Tokens.Spacing.xs)
+                    .listRowInsets(Tokens.ListRowInsets.card)
+                    .listRowBackground(Color.clear)
+                    .transaction { transaction in
+                        transaction.animation = nil
+                    }
                 } else {
                     ForEach(visiblePresets) { preset in
                         NavigationLink {

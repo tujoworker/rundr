@@ -597,7 +597,7 @@ private struct SegmentRow: View {
                 SessionStatItem(
                     label: segment.usesActiveRecovery ? L10n.activeRecovery : L10n.rest,
                     value: segment.restSeconds.map { Formatters.compactTimeString(from: Double($0)) }
-                        ?? (segment.usesActiveRecovery ? L10n.manual : L10n.restManual)
+                        ?? (segment.usesActiveRecovery ? L10n.off : L10n.restManual)
                 )
             )
         }
@@ -1375,7 +1375,7 @@ private struct SegmentEditSheet: View {
     }
 
     private var activeRecoveryLabel: String {
-        restSeconds > 0 ? Formatters.compactTimeString(from: Double(restSeconds)) : L10n.manual
+        restSeconds > 0 ? Formatters.compactTimeString(from: Double(restSeconds)) : L10n.off
     }
 
     private var lastRestLabel: String {
@@ -1541,7 +1541,7 @@ private struct SegmentEditSheet: View {
                 accentColor: accentColor,
                 keypadRows: durationKeypadRows,
                 text: $activeRecoveryEditorText,
-                emptyDisplayValue: L10n.manual,
+                emptyDisplayValue: L10n.off,
                 onTapKey: durationFieldTapKey,
                 onDone: {
                     commitActiveRecoveryEditorText()

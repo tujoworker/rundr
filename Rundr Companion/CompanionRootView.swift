@@ -1745,7 +1745,7 @@ private struct CompanionSegmentRow: View {
     }
 
     private var activeRecoveryValue: String {
-        segment.restSeconds.map { Formatters.compactTimeString(from: Double($0)) } ?? L10n.manual
+        segment.restSeconds.map { Formatters.compactTimeString(from: Double($0)) } ?? L10n.off
     }
 
     private var lastRestValue: String {
@@ -2081,7 +2081,7 @@ private struct CompanionSegmentEditorView: View {
                     editableStepperContent(
                         title: L10n.activeRecovery,
                         value: segment.recoveryType == .activeRecovery
-                            ? (segment.restSeconds.map { Formatters.timeString(from: Double($0)) } ?? L10n.manual)
+                            ? (segment.restSeconds.map { Formatters.timeString(from: Double($0)) } ?? L10n.off)
                             : L10n.off,
                         field: .activeRecovery
                     )

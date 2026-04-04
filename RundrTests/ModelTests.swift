@@ -635,6 +635,51 @@ final class ModelTests: XCTestCase {
         )
     }
 
+    func testCompanionSegmentEditorRulesLastRestTapActionShowsInfoWhenRepeatsMissing() {
+        XCTAssertEqual(
+            CompanionSegmentEditorRules.tapAction(
+                for: .lastRest,
+                recoveryType: .rest,
+                repeatCount: nil,
+                restSeconds: 45,
+                lastRestSeconds: nil
+            ),
+            .showUnavailableInfo
+        )
+    }
+
+    func testCompanionSegmentEditorRulesLastRestTapActionIgnoresEmptyConfigurableField() {
+        XCTAssertEqual(
+            CompanionSegmentEditorRules.tapAction(
+                for: .lastRest,
+                recoveryType: .rest,
+                repeatCount: 3,
+                restSeconds: 45,
+                lastRestSeconds: nil
+            ),
+            .ignore
+        )
+    }
+
+    func testCompanionSegmentEditorRulesLastRestDisabledAppearanceTracksRepeatsRequirement() {
+        XCTAssertTrue(
+            CompanionSegmentEditorRules.shouldAppearDisabled(
+                field: .lastRest,
+                recoveryType: .rest,
+                repeatCount: nil,
+                restSeconds: 45
+            )
+        )
+        XCTAssertFalse(
+            CompanionSegmentEditorRules.shouldAppearDisabled(
+                field: .lastRest,
+                recoveryType: .rest,
+                repeatCount: 3,
+                restSeconds: 45
+            )
+        )
+    }
+
     func testCompanionSegmentEditorRulesEmptyDisplayValue() {
         XCTAssertEqual(
             CompanionSegmentEditorRules.emptyDisplayValue(for: .time),

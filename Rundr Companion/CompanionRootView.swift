@@ -2182,6 +2182,7 @@ private struct CompanionSegmentEditorView: View {
                     rowInsets: editorRowInsets,
                     contentInsets: editorRowContentInsets
                 )
+                .opacity(shouldAppearDisabled(field: .lastRest) ? 0.62 : 1)
                 .scaleEffect(bouncingField == .lastRest ? 0.97 : 1.0)
                 .animation(.spring(response: 0.2, dampingFraction: 0.62), value: bouncingField)
 
@@ -2338,7 +2339,16 @@ private struct CompanionSegmentEditorView: View {
         }
         .contentShape(Rectangle())
         .onTapGesture {
-            guard canOpenEditor(for: field) else { return }
+            switch tapAction(for: field) {
+            case .openEditor:
+                break
+            case .showUnavailableInfo:
+                isLastRestInfoPresented = true
+                return
+            case .ignore:
+                return
+            }
+
             bouncingField = field
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.12) {
                 bouncingField = nil
@@ -2351,6 +2361,25 @@ private struct CompanionSegmentEditorView: View {
         CompanionSegmentEditorRules.canOpenEditor(
             field: field.sharedField,
             lastRestSeconds: segment.lastRestSeconds
+        )
+    }
+
+    private func tapAction(for field: EditableField) -> CompanionSegmentEditorTapAction {
+        CompanionSegmentEditorRules.tapAction(
+            for: field.sharedField,
+            recoveryType: segment.recoveryType,
+            repeatCount: segment.repeatCount,
+            restSeconds: segment.restSeconds,
+            lastRestSeconds: segment.lastRestSeconds
+        )
+    }
+
+    private func shouldAppearDisabled(field: EditableField) -> Bool {
+        CompanionSegmentEditorRules.shouldAppearDisabled(
+            field: field.sharedField,
+            recoveryType: segment.recoveryType,
+            repeatCount: segment.repeatCount,
+            restSeconds: segment.restSeconds
         )
     }
 

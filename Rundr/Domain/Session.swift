@@ -468,6 +468,12 @@ enum CompanionSegmentEditorField {
     case pace
 }
 
+enum CompanionSegmentEditorTapAction {
+    case openEditor
+    case showUnavailableInfo
+    case ignore
+}
+
 enum CompanionSegmentEditorRules {
     static func canOpenEditor(
         field: CompanionSegmentEditorField,
@@ -478,6 +484,45 @@ enum CompanionSegmentEditorRules {
             return true
         case .lastRest:
             return (lastRestSeconds ?? 0) > 0
+        }
+    }
+
+    static func tapAction(
+        for field: CompanionSegmentEditorField,
+        recoveryType: SegmentRecoveryType,
+        repeatCount: Int?,
+        restSeconds: Int?,
+        lastRestSeconds: Int?
+    ) -> CompanionSegmentEditorTapAction {
+        switch field {
+        case .lastRest:
+            let canConfigureLastRest = recoveryType == .rest && SegmentEditSheetRules.canConfigureLastRest(
+                repeatCount: repeatCount ?? 0,
+                restSeconds: restSeconds ?? 0
+            )
+            if recoveryType == .rest && !canConfigureLastRest {
+                return .showUnavailableInfo
+            }
+            return canOpenEditor(field: field, lastRestSeconds: lastRestSeconds) ? .openEditor : .ignore
+        case .time, .pace, .distance, .repeats, .rest, .activeRecovery:
+            return .openEditor
+        }
+    }
+
+    static func shouldAppearDisabled(
+        field: CompanionSegmentEditorField,
+        recoveryType: SegmentRecoveryType,
+        repeatCount: Int?,
+        restSeconds: Int?
+    ) -> Bool {
+        switch field {
+        case .lastRest:
+            return recoveryType == .rest && !SegmentEditSheetRules.canConfigureLastRest(
+                repeatCount: repeatCount ?? 0,
+                restSeconds: restSeconds ?? 0
+            )
+        case .time, .pace, .distance, .repeats, .rest, .activeRecovery:
+            return false
         }
     }
 

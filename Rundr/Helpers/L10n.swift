@@ -36,16 +36,16 @@ enum L10n {
     static let predefinedStructuredFartlekTitle = String(localized: "Structured Fartlek", comment: "Predefined interval title")
     static let predefinedLongTwelvesTitle = String(localized: "Long Intervals", comment: "Predefined interval title")
     static let predefinedFortyFiveFifteensDescription = String(localized: "20-30 x (45s / 15s), continuous or 2 sets. Maximum threshold time with micro-recovery. Core Norwegian method.", comment: "Predefined interval description")
-    static let predefinedFourByFourDescription = String(localized: "4 x 4 min / 3 min jog (1-2 sets). Gold standard for VO2max. Very time-efficient.", comment: "Predefined interval description")
-    static let predefinedThresholdSixesDescription = String(localized: "5 x 6 min / 1 min float jog. Stable, controlled threshold work. High volume without overload.", comment: "Predefined interval description")
-    static let predefinedThousandRepeatsDescription = String(localized: "6 x 1000 m / 90s jog (or 2x3). Race pace strength plus aerobic power. Easy to track progress.", comment: "Predefined interval description")
+    static let predefinedFourByFourDescription = String(localized: "4 x 4 min / 3 min active recovery (1-2 sets). Gold standard for VO2max. Very time-efficient.", comment: "Predefined interval description")
+    static let predefinedThresholdSixesDescription = String(localized: "5 x 6 min / 1 min active recovery. Stable, controlled threshold work. High volume without overload.", comment: "Predefined interval description")
+    static let predefinedThousandRepeatsDescription = String(localized: "6 x 1000 m / 90s active recovery (or 2x3). Race pace strength plus aerobic power. Easy to track progress.", comment: "Predefined interval description")
     static let predefinedThirtyFifteensDescription = String(localized: "2-3 sets of 10 x (30s / 15s). High VO2max stimulus without full exhaustion.", comment: "Predefined interval description")
     static let predefinedOverUnderDescription = String(localized: "4 x 8 min alternating 1 min over / 1 min under. Trains lactate handling and pace changes.", comment: "Predefined interval description")
     static let predefinedPyramidDescription = String(localized: "1-2-3-4-3-2-1 min with equal rest, repeat. Covers multiple intensities in one session.", comment: "Predefined interval description")
-    static let predefinedFourHundredRepeatsDescription = String(localized: "10 x 400 m / 60-90s jog, split sets optional. Speed plus running economy. Classic and effective.", comment: "Predefined interval description")
+    static let predefinedFourHundredRepeatsDescription = String(localized: "10 x 400 m / 60-90s active recovery, split sets optional. Speed plus running economy. Classic and effective.", comment: "Predefined interval description")
     static let predefinedFourHundredRepeatsNoRestDescription = String(localized: "10 x 400 m continuous, no rest between reps. Trains pace control and relaxed form under accumulating fatigue.", comment: "Predefined interval description")
     static let predefinedStructuredFartlekDescription = String(localized: "45 min run with fixed surges, for example 1-2 min every 5-10 min. Controlled variation. Great for outdoor terrain.", comment: "Predefined interval description")
-    static let predefinedLongTwelvesDescription = String(localized: "3 x 10-15 min / 2-3 min jog. Marathon-specific strength and sustained threshold work.", comment: "Predefined interval description")
+    static let predefinedLongTwelvesDescription = String(localized: "3 x 10-15 min / 2-3 min active recovery. Marathon-specific strength and sustained threshold work.", comment: "Predefined interval description")
     static let noSavedIntervalsYet = String(localized: "No saved intervals yet", comment: "Empty saved intervals state")
     static let savedIntervalsPlaceholderDetail = String(localized: "Open a predefined interval to save your own version.", comment: "Browse empty state guidance for saved intervals")
     static let noSessionPlanIntervalsTitle = String(localized: "No intervals yet", comment: "Empty current session plan title")
@@ -62,7 +62,7 @@ enum L10n {
     static let timeInterval = String(localized: "Time", comment: "Time-based interval type")
     static let segmentName = title
     static let optionalSegmentNamePlaceholder = String(localized: "(optional)", comment: "Optional segment title placeholder")
-    static let jog = String(localized: "Jog", comment: "Default segment name for easier running")
+    static let activeRecovery = String(localized: "Active Recovery", comment: "Default segment name for easier running")
     static let run = String(localized: "Run", comment: "Default segment name for work interval")
     static let sprint = String(localized: "Sprint", comment: "Default segment name for faster running")
     static let surge = String(localized: "Surge", comment: "Default segment name for fartlek surge")
@@ -110,23 +110,23 @@ enum L10n {
     static func restModeStatusWithDuration(_ duration: String) -> String {
         String(format: String(localized: "Resting for %@", comment: "Timer label when resting with a target duration"), duration)
     }
-    static let jogModeStatus = String(localized: "Jogging", comment: "Timer label when jogging between work laps")
-    static func jogModeStatusWithDuration(_ duration: String) -> String {
-        String(format: String(localized: "Jogging for %@", comment: "Timer label when jogging with a target duration"), duration)
+    static let activeRecoveryModeStatus = String(localized: "Active Recovery", comment: "Timer label when active recovery is in progress")
+    static func activeRecoveryModeStatusWithDuration(_ duration: String) -> String {
+        String(format: String(localized: "Active Recovery for %@", comment: "Timer label when active recovery has a target duration"), duration)
     }
     static let restModePausedStatus = String(format: String(localized: "%@ (%@)", comment: "Timer label when resting and paused"), restModeStatus, workoutPaused)
     static func restModePausedStatusWithDuration(_ duration: String) -> String {
         String(format: String(localized: "%@ (%@)", comment: "Timer label when resting and paused"), restModeStatusWithDuration(duration), workoutPaused)
     }
-    static let jogModePausedStatus = String(format: String(localized: "%@ (%@)", comment: "Timer label when jogging and paused"), jogModeStatus, workoutPaused)
-    static func jogModePausedStatusWithDuration(_ duration: String) -> String {
-        String(format: String(localized: "%@ (%@)", comment: "Timer label when jogging and paused"), jogModeStatusWithDuration(duration), workoutPaused)
+    static let activeRecoveryModePausedStatus = String(format: String(localized: "%@ (%@)", comment: "Timer label when active recovery is paused"), activeRecoveryModeStatus, workoutPaused)
+    static func activeRecoveryModePausedStatusWithDuration(_ duration: String) -> String {
+        String(format: String(localized: "%@ (%@)", comment: "Timer label when active recovery with a target duration is paused"), activeRecoveryModeStatusWithDuration(duration), workoutPaused)
     }
     static func restDuration(_ seconds: Int) -> String {
         String(format: String(localized: "Rest %ds", comment: "Timer label with rest countdown"), seconds)
     }
     static let endRest = String(localized: "Undo \"Mark as Rest\"", comment: "Active session rest button label when ending rest")
-    static let endJog = String(localized: "End Jog", comment: "Active session button label when ending jog recovery")
+    static let endActiveRecovery = String(localized: "End Active Recovery", comment: "Active session button label when ending active recovery")
     static let pause = String(localized: "Pause", comment: "Button")
     static let resume = String(localized: "Resume", comment: "Button")
     static let workoutPaused = String(localized: "Paused", comment: "Timer label when workout is fully paused")
@@ -357,8 +357,8 @@ enum L10n {
     static let helpRestBody = String(localized: "Mark as Rest turns the current lap into rest. That rest stays attached to the lap you just finished, so it remains part of the workout.", comment: "Companion help card body")
     static let helpRestTimedHeading = String(localized: "With Timed Rest", comment: "Companion help section heading")
     static let helpRestTimedBody = String(localized: "Rundr starts rest after the lap and warns in the last 5 seconds if Rest Alerts is enabled in Settings. When passed, the next lap does not start by itself. The target rest is a guide, and you still decide when the next lap begins.", comment: "Companion help section body")
-    static let helpRestJogHeading = String(localized: "With Jog Recovery", comment: "Companion help section heading")
-    static let helpRestJogBody = String(localized: "Jog recovery works like recovery time instead of a full work lap. Rundr tracks the jog in the workout, but keeps active totals and average pace focused on the hard intervals.", comment: "Companion help section body")
+    static let helpRestActiveRecoveryHeading = String(localized: "With Active Recovery", comment: "Companion help section heading")
+    static let helpRestActiveRecoveryBody = String(localized: "Active recovery works like recovery time instead of a full work lap. Rundr tracks the recovery in the workout, but keeps active totals and average pace focused on the hard intervals.", comment: "Companion help section body")
     static let helpRestTip = String(localized: "Use Manual when you want to choose exactly when Mark as Rest starts and ends. Use Auto-detect when you want Rundr to enter rest after you stop and end it again when you move.", comment: "Companion help card tip")
     static let helpAutoRestTitle = String(localized: "How Auto-detect Works", comment: "Companion help card title")
     static let helpAutoRestBody = String(localized: "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap.", comment: "Companion help card body")
@@ -368,7 +368,7 @@ enum L10n {
     static let helpIntervalTypeDistanceBody = String(localized: "Use Distance when the lap has a known distance, like 400 m or 1 km.", comment: "Companion help section body")
     static let helpIntervalTypeTimeHeading = String(localized: "Time", comment: "Companion help section heading")
     static let helpIntervalTypeTimeBody = String(localized: "Use Time when you want to define how long the lap should last, rather than how far it should be.", comment: "Companion help section body")
-    static let helpIntervalTypeTimeExample = String(localized: "Choose Time for 45 s with 15 s rest, or name it Jog for an easier segment.", comment: "Companion help card example")
+    static let helpIntervalTypeTimeExample = String(localized: "Choose Time for 45 s with 15 s rest, or name it Active Recovery for an easier segment.", comment: "Companion help card example")
     static let helpDistanceTypeTitle = helpIntervalTypeTitle
     static let helpDistanceTypeFixedHeading = helpIntervalTypeDistanceHeading
     static let helpDistanceTypeFixedBody = helpIntervalTypeDistanceBody

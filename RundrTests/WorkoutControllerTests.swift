@@ -213,24 +213,24 @@ final class WorkoutControllerTests: XCTestCase {
     func testCurrentSegmentNameExposesConfiguredSegmentName() {
         let controller = makeConfiguredController(
             trackingMode: .dual,
-            segments: [DistanceSegment(name: "Jog", distanceMeters: 0, distanceGoalMode: .time, targetTimeSeconds: 120)]
+            segments: [DistanceSegment(name: "ActiveRecovery", distanceMeters: 0, distanceGoalMode: .time, targetTimeSeconds: 120)]
         )
 
-        XCTAssertEqual(controller.currentSegmentName, "Jog")
+        XCTAssertEqual(controller.currentSegmentName, "ActiveRecovery")
         XCTAssertEqual(controller.currentTargetTimeSeconds, 120)
     }
 
-    func testJogRecoveryCreatesJogLapWithTrackedGPSDistance() {
+    func testActiveRecoveryRecoveryCreatesActiveRecoveryLapWithTrackedGPSDistance() {
         let controller = makeStartedController(
             trackingMode: .dual,
-            segments: [DistanceSegment(distanceMeters: 400, repeatCount: 2, recoveryType: .jog, restSeconds: 30)]
+            segments: [DistanceSegment(distanceMeters: 400, repeatCount: 2, recoveryType: .activeRecovery, restSeconds: 30)]
         )
 
         controller.handleGPSDistanceUpdate(additionalMeters: 400)
         controller.markLap()
 
         XCTAssertEqual(controller.runState, .rest)
-        XCTAssertEqual(controller.currentRecoveryType, .jog)
+        XCTAssertEqual(controller.currentRecoveryType, .activeRecovery)
         XCTAssertEqual(controller.completedLaps.count, 1)
         XCTAssertEqual(controller.completedLaps[0].lapType, .active)
 
@@ -239,7 +239,7 @@ final class WorkoutControllerTests: XCTestCase {
 
         XCTAssertEqual(controller.runState, .active)
         XCTAssertEqual(controller.completedLaps.count, 2)
-        XCTAssertEqual(controller.completedLaps[1].lapType, .jog)
+        XCTAssertEqual(controller.completedLaps[1].lapType, .activeRecovery)
         XCTAssertEqual(controller.completedLaps[1].distanceMeters, 0)
         XCTAssertEqual(controller.completedLaps[1].gpsDistanceMeters, 120)
         XCTAssertEqual(controller.remainingPlannedIntervals, 1)

@@ -3,7 +3,31 @@ import Foundation
 enum SegmentRecoveryType: String, Codable, Equatable, Hashable {
     case none
     case rest
-    case jog
+    case activeRecovery
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+
+        switch rawValue {
+        case Self.none.rawValue:
+            self = .none
+        case Self.rest.rawValue:
+            self = .rest
+        case Self.activeRecovery.rawValue, "jog":
+            self = .activeRecovery
+        default:
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Invalid SegmentRecoveryType value: \(rawValue)"
+            )
+        }
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
 }
 
 enum DistanceGoalMode: String, Codable, Equatable, Hashable {
@@ -111,8 +135,8 @@ struct DistanceSegment: Codable, Identifiable, Equatable, Hashable {
         recoveryType == .rest
     }
 
-    var usesJogRecovery: Bool {
-        recoveryType == .jog
+    var usesActiveRecovery: Bool {
+        recoveryType == .activeRecovery
     }
 
     var intervalRowPrimaryLabel: String {

@@ -1703,7 +1703,7 @@ private struct CompanionSegmentRow: View {
         segment.restSeconds.map { Formatters.compactTimeString(from: Double($0)) } ?? L10n.restManual
     }
 
-    private var jogValue: String {
+    private var activeRecoveryValue: String {
         segment.restSeconds.map { Formatters.compactTimeString(from: Double($0)) } ?? L10n.manual
     }
 
@@ -1752,8 +1752,8 @@ private struct CompanionSegmentRow: View {
         ])
 
         switch segment.recoveryType {
-        case .jog:
-            items.append(MetricItem(title: L10n.jog, value: jogValue))
+        case .activeRecovery:
+            items.append(MetricItem(title: L10n.activeRecovery, value: activeRecoveryValue))
         case .rest:
             items.append(MetricItem(title: L10n.rest, value: restValue))
         case .none:
@@ -1819,7 +1819,7 @@ private struct CompanionSegmentEditorView: View {
     private enum EditableField: String, Identifiable {
         case distance
         case repeats
-        case jog
+        case activeRecovery
         case rest
         case lastRest
         case time
@@ -1833,8 +1833,8 @@ private struct CompanionSegmentEditorView: View {
                 return .distance
             case .repeats:
                 return .repeats
-            case .jog:
-                return .jog
+            case .activeRecovery:
+                return .activeRecovery
             case .rest:
                 return .rest
             case .lastRest:
@@ -1852,8 +1852,8 @@ private struct CompanionSegmentEditorView: View {
                 return L10n.distance
             case .repeats:
                 return L10n.repeats
-            case .jog:
-                return L10n.jog
+            case .activeRecovery:
+                return L10n.activeRecovery
             case .rest:
                 return L10n.rest
             case .lastRest:
@@ -1871,7 +1871,7 @@ private struct CompanionSegmentEditorView: View {
                 return "ruler"
             case .repeats:
                 return "repeat"
-            case .jog:
+            case .activeRecovery:
                 return "figure.run"
             case .rest:
                 return "figure.cooldown"
@@ -2030,26 +2030,26 @@ private struct CompanionSegmentEditorView: View {
                 .animation(.spring(response: 0.2, dampingFraction: 0.62), value: bouncingField)
 
                 Stepper(value: Binding(
-                    get: { segment.recoveryType == .jog ? (segment.restSeconds ?? 0) : 0 },
+                    get: { segment.recoveryType == .activeRecovery ? (segment.restSeconds ?? 0) : 0 },
                     set: {
-                        segment.recoveryType = .jog
+                        segment.recoveryType = .activeRecovery
                         segment.restSeconds = $0 > 0 ? $0 : nil
                         segment.lastRestSeconds = nil
                     }
                 ), in: 0...600, step: 15) {
                     editableStepperContent(
-                        title: L10n.jog,
-                        value: segment.recoveryType == .jog
+                        title: L10n.activeRecovery,
+                        value: segment.recoveryType == .activeRecovery
                             ? (segment.restSeconds.map { Formatters.timeString(from: Double($0)) } ?? L10n.manual)
                             : L10n.off,
-                        field: .jog
+                        field: .activeRecovery
                     )
                 }
                 .companionSettingsOptionRowChrome(
                     rowInsets: editorRowInsets,
                     contentInsets: editorRowContentInsets
                 )
-                .scaleEffect(bouncingField == .jog ? 0.97 : 1.0)
+                .scaleEffect(bouncingField == .activeRecovery ? 0.97 : 1.0)
                 .animation(.spring(response: 0.2, dampingFraction: 0.62), value: bouncingField)
 
                 Stepper(value: Binding(
@@ -2406,10 +2406,10 @@ private struct CompanionSegmentEditorView: View {
             editableValueText = distanceText
         case .repeats:
             editableValueText = segment.repeatCount.map(String.init) ?? ""
-        case .jog:
-            segment.recoveryType = .jog
+        case .activeRecovery:
+            segment.recoveryType = .activeRecovery
             segment.lastRestSeconds = nil
-            editableValueText = segment.recoveryType == .jog ? (segment.restSeconds.map { Formatters.timeString(from: Double($0)) } ?? "") : ""
+            editableValueText = segment.recoveryType == .activeRecovery ? (segment.restSeconds.map { Formatters.timeString(from: Double($0)) } ?? "") : ""
         case .rest:
             segment.recoveryType = .rest
             editableValueText = segment.recoveryType == .rest ? (segment.restSeconds.map { Formatters.timeString(from: Double($0)) } ?? "") : ""
@@ -2440,10 +2440,10 @@ private struct CompanionSegmentEditorView: View {
                 lastRestSeconds: segment.lastRestSeconds,
                 repeatCount: segment.repeatCount
             )
-        case .jog:
-            let jog = min(max(SegmentEditInputParser.parseDurationSeconds(from: editableValueText), 0), 600)
-            segment.recoveryType = .jog
-            segment.restSeconds = jog > 0 ? jog : nil
+        case .activeRecovery:
+            let activeRecoverySeconds = min(max(SegmentEditInputParser.parseDurationSeconds(from: editableValueText), 0), 600)
+            segment.recoveryType = .activeRecovery
+            segment.restSeconds = activeRecoverySeconds > 0 ? activeRecoverySeconds : nil
             segment.lastRestSeconds = nil
         case .rest:
             let rest = min(max(SegmentEditInputParser.parseDurationSeconds(from: editableValueText), 0), 600)
@@ -2507,7 +2507,7 @@ private struct CompanionSegmentEditorView: View {
             return distanceKeypadRows
         case .repeats:
             return repeatKeypadRows
-        case .rest, .lastRest, .time, .pace:
+        case .activeRecovery, .rest, .lastRest, .time, .pace:
             return durationKeypadRows
         }
     }
@@ -2518,7 +2518,7 @@ private struct CompanionSegmentEditorView: View {
             SegmentEditInputParser.applyDistanceKey(key, to: &editableValueText)
         case .repeats:
             SegmentEditInputParser.applyRepeatKey(key, to: &editableValueText)
-        case .rest, .lastRest, .time, .pace:
+        case .activeRecovery, .rest, .lastRest, .time, .pace:
             SegmentEditInputParser.applyDurationKey(key, to: &editableValueText)
         }
     }
@@ -3344,7 +3344,7 @@ private extension LiveWorkoutStateRecord {
         case .active:
             return L10n.runStateActive
         case .rest:
-            return currentRecoveryType == .jog ? L10n.jog : L10n.runStateRest
+            return currentRecoveryType == .activeRecovery ? L10n.activeRecovery : L10n.runStateRest
         case .paused:
             return L10n.runStatePaused
         case .ending:

@@ -39,8 +39,8 @@ struct ActiveSessionView: View {
         workoutController.runState == .rest
     }
 
-    private var isJoggingRecovery: Bool {
-        workoutController.runState == .rest && workoutController.currentRecoveryType == .jog
+    private var isActiveRecovery: Bool {
+        workoutController.runState == .rest && workoutController.currentRecoveryType == .activeRecovery
     }
 
     private var isWorkoutPaused: Bool {
@@ -83,8 +83,8 @@ struct ActiveSessionView: View {
     }
 
     private var timerTopLabel: String {
-        if isJoggingRecovery {
-            return timerTopLabel(L10n.jog, includeLap: false)
+        if isActiveRecovery {
+            return timerTopLabel(L10n.activeRecovery, includeLap: false)
         }
 
         if workoutController.trackingMode.usesManualIntervals {
@@ -125,7 +125,7 @@ struct ActiveSessionView: View {
         ActiveSessionTimerBadgeContent.statusText(
             runState: workoutController.runState,
             willResumeIntoRest: workoutController.willResumeIntoRest,
-            willResumeIntoJog: workoutController.willResumeIntoJog,
+            willResumeIntoActiveRecovery: workoutController.willResumeIntoActiveRecovery,
             currentRecoveryType: workoutController.currentRecoveryType,
             restDurationSeconds: workoutController.restDurationSeconds
         )
@@ -326,7 +326,7 @@ struct ActiveSessionView: View {
                             iconFontSizeOverride: 34
                         )
                         Text(restButtonShowsEndRest
-                            ? (isJoggingRecovery || workoutController.willResumeIntoJog ? L10n.endJog : L10n.endRest)
+                            ? (isActiveRecovery || workoutController.willResumeIntoActiveRecovery ? L10n.endActiveRecovery : L10n.endRest)
                             : (settings.restMode == .autoDetect ? L10n.restModeAuto : L10n.markAsRest))
                             .font(.system(size: Tokens.FontSize.sm, weight: .medium, design: .rounded))
                             .foregroundStyle(theme.text.subtle)
@@ -831,17 +831,17 @@ enum ActiveSessionTimerBadgeContent {
     static func statusText(
         runState: WorkoutRunState,
         willResumeIntoRest: Bool,
-        willResumeIntoJog: Bool,
+        willResumeIntoActiveRecovery: Bool,
         currentRecoveryType: SegmentRecoveryType?,
         restDurationSeconds: Int? = nil
     ) -> String? {
         switch runState {
         case .paused:
-            if willResumeIntoJog {
+            if willResumeIntoActiveRecovery {
                 if let restDurationSeconds, restDurationSeconds > 0 {
-                    return L10n.jogModePausedStatusWithDuration(restDurationText(seconds: restDurationSeconds))
+                    return L10n.activeRecoveryModePausedStatusWithDuration(restDurationText(seconds: restDurationSeconds))
                 }
-                return L10n.jogModePausedStatus
+                return L10n.activeRecoveryModePausedStatus
             }
             guard willResumeIntoRest else { return L10n.workoutPaused }
             if let restDurationSeconds, restDurationSeconds > 0 {
@@ -849,11 +849,11 @@ enum ActiveSessionTimerBadgeContent {
             }
             return L10n.restModePausedStatus
         case .rest:
-            if currentRecoveryType == .jog {
+            if currentRecoveryType == .activeRecovery {
                 if let restDurationSeconds, restDurationSeconds > 0 {
-                    return L10n.jogModeStatusWithDuration(restDurationText(seconds: restDurationSeconds))
+                    return L10n.activeRecoveryModeStatusWithDuration(restDurationText(seconds: restDurationSeconds))
                 }
-                return L10n.jogModeStatus
+                return L10n.activeRecoveryModeStatus
             }
             if let restDurationSeconds, restDurationSeconds > 0 {
                 return L10n.restModeStatusWithDuration(restDurationText(seconds: restDurationSeconds))

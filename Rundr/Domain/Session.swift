@@ -125,7 +125,7 @@ enum WorkoutPlanSupport {
         currentTrackingMode: TrackingMode? = nil
     ) -> TrackingMode {
         if requestedTrackingMode == .distanceDistance,
-              segments.contains(where: { $0.usesOpenDistance || $0.usesJogRecovery }) {
+              segments.contains(where: { $0.usesOpenDistance || $0.usesActiveRecovery }) {
             return .dual
         }
 
@@ -164,7 +164,7 @@ enum WorkoutPlanSupport {
 
 enum SegmentEditSheetSection: Hashable {
     case timeTarget
-    case jog
+    case activeRecovery
     case rest
     case lastRest
     case repeats
@@ -173,10 +173,10 @@ enum SegmentEditSheetSection: Hashable {
 
     static func orderedSections(for usesOpenDistance: Bool) -> [SegmentEditSheetSection] {
         if usesOpenDistance {
-            return [.timeTarget, .jog, .rest, .lastRest, .repeats, .name]
+            return [.timeTarget, .activeRecovery, .rest, .lastRest, .repeats, .name]
         }
 
-        return [.jog, .rest, .lastRest, .repeats, .paceTarget, .timeTarget, .name]
+        return [.activeRecovery, .rest, .lastRest, .repeats, .paceTarget, .timeTarget, .name]
     }
 }
 
@@ -360,7 +360,7 @@ enum CompanionSegmentEditorField {
     case distance
     case repeats
     case rest
-    case jog
+    case activeRecovery
     case lastRest
     case time
     case pace
@@ -372,7 +372,7 @@ enum CompanionSegmentEditorRules {
         lastRestSeconds: Int?
     ) -> Bool {
         switch field {
-        case .time, .pace, .distance, .repeats, .rest, .jog:
+        case .time, .pace, .distance, .repeats, .rest, .activeRecovery:
             return true
         case .lastRest:
             return (lastRestSeconds ?? 0) > 0
@@ -385,7 +385,7 @@ enum CompanionSegmentEditorRules {
             return L10n.off
         case .rest:
             return L10n.restManual
-        case .jog:
+        case .activeRecovery:
             return L10n.manual
         case .distance, .repeats, .lastRest:
             return nil

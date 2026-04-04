@@ -595,9 +595,9 @@ private struct SegmentRow: View {
         if segment.usesRecovery {
             items.append(
                 SessionStatItem(
-                    label: segment.usesJogRecovery ? L10n.jog : L10n.rest,
+                    label: segment.usesActiveRecovery ? L10n.activeRecovery : L10n.rest,
                     value: segment.restSeconds.map { Formatters.compactTimeString(from: Double($0)) }
-                        ?? (segment.usesJogRecovery ? L10n.manual : L10n.restManual)
+                        ?? (segment.usesActiveRecovery ? L10n.manual : L10n.restManual)
                 )
             )
         }
@@ -1354,14 +1354,14 @@ private struct SegmentEditSheet: View {
 
     @State private var isRepeatEditorPresented = false
     @State private var isPaceEditorPresented = false
-    @State private var isJogEditorPresented = false
+    @State private var isActiveRecoveryEditorPresented = false
     @State private var isRestEditorPresented = false
     @State private var isLastRestEditorPresented = false
     @State private var isLastRestInfoPresented = false
     @State private var isTimeEditorPresented = false
     @State private var repeatEditorText = ""
     @State private var paceEditorText = ""
-    @State private var jogEditorText = ""
+    @State private var activeRecoveryEditorText = ""
     @State private var restEditorText = ""
     @State private var lastRestEditorText = ""
     @State private var timeEditorText = ""
@@ -1374,7 +1374,7 @@ private struct SegmentEditSheet: View {
         restSeconds > 0 ? Formatters.compactTimeString(from: Double(restSeconds)) : L10n.restManual
     }
 
-    private var jogLabel: String {
+    private var activeRecoveryLabel: String {
         restSeconds > 0 ? Formatters.compactTimeString(from: Double(restSeconds)) : L10n.manual
     }
 
@@ -1413,8 +1413,8 @@ private struct SegmentEditSheet: View {
         switch section {
         case .timeTarget:
             timeTargetSection
-        case .jog:
-            jogSection
+        case .activeRecovery:
+            activeRecoverySection
         case .rest:
             restSection
         case .lastRest:
@@ -1527,24 +1527,24 @@ private struct SegmentEditSheet: View {
             .toolbar(.hidden, for: .navigationBar)
         }
         .sheet(isPresented: Binding(
-            get: { isJogEditorPresented },
+            get: { isActiveRecoveryEditorPresented },
             set: { presented in
                 if !presented {
-                    commitJogEditorText()
+                    commitActiveRecoveryEditorText()
                 } else {
-                    isJogEditorPresented = true
+                    isActiveRecoveryEditorPresented = true
                 }
             }
         )) {
             NumericKeypadEditorScreen(
-                title: L10n.jog,
+                title: L10n.activeRecovery,
                 accentColor: accentColor,
                 keypadRows: durationKeypadRows,
-                text: $jogEditorText,
+                text: $activeRecoveryEditorText,
                 emptyDisplayValue: L10n.manual,
                 onTapKey: durationFieldTapKey,
                 onDone: {
-                    commitJogEditorText()
+                    commitActiveRecoveryEditorText()
                 }
             )
             .toolbar(.hidden, for: .navigationBar)
@@ -1685,9 +1685,9 @@ private struct SegmentEditSheet: View {
         }
     }
 
-    private var jogSection: some View {
+    private var activeRecoverySection: some View {
         Group {
-            Text(L10n.jog)
+            Text(L10n.activeRecovery)
                 .font(.caption.bold())
                 .foregroundStyle(theme.text.subtle)
                 .padding(.horizontal, Tokens.Spacing.xs)
@@ -1695,7 +1695,7 @@ private struct SegmentEditSheet: View {
 
             HStack(spacing: Tokens.Spacing.sm) {
                 Button {
-                    activateRecovery(.jog)
+                    activateRecovery(.activeRecovery)
                     if restSeconds >= 15 {
                         restSeconds -= 15
                     } else if restSeconds > 0 {
@@ -1713,17 +1713,17 @@ private struct SegmentEditSheet: View {
                 .buttonStyle(.plain)
 
                 Button {
-                    activateRecovery(.jog)
-                    jogEditorText = recoveryType == .jog && restSeconds > 0 ? jogLabel : ""
-                    isJogEditorPresented = true
+                    activateRecovery(.activeRecovery)
+                    activeRecoveryEditorText = recoveryType == .activeRecovery && restSeconds > 0 ? activeRecoveryLabel : ""
+                    isActiveRecoveryEditorPresented = true
                 } label: {
-                    editorValueField(recoveryType == .jog ? jogLabel : L10n.off)
+                    editorValueField(recoveryType == .activeRecovery ? activeRecoveryLabel : L10n.off)
                 }
                 .frame(maxWidth: .infinity)
                 .buttonStyle(.plain)
 
                 Button {
-                    activateRecovery(.jog)
+                    activateRecovery(.activeRecovery)
                     restSeconds = max(restSeconds, 15)
                 } label: {
                     Image(systemName: "plus")
@@ -2028,10 +2028,10 @@ private struct SegmentEditSheet: View {
         isRepeatEditorPresented = false
     }
 
-    private func commitJogEditorText() {
-        activateRecovery(.jog)
-        restSeconds = SegmentEditInputParser.parseDurationSeconds(from: jogEditorText)
-        isJogEditorPresented = false
+    private func commitActiveRecoveryEditorText() {
+        activateRecovery(.activeRecovery)
+        restSeconds = SegmentEditInputParser.parseDurationSeconds(from: activeRecoveryEditorText)
+        isActiveRecoveryEditorPresented = false
     }
 
     private func commitRestEditorText() {

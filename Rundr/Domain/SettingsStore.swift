@@ -310,11 +310,11 @@ final class SettingsStore: ObservableObject {
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
                     DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 240),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
                     DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 240),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
                     DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 240),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
                     DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 240)
                 ],
                 restMode: .manual
@@ -329,13 +329,13 @@ final class SettingsStore: ObservableObject {
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
                     DistanceSegment(name: L10n.threshold, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 360),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
                     DistanceSegment(name: L10n.threshold, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 360),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
                     DistanceSegment(name: L10n.threshold, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 360),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
                     DistanceSegment(name: L10n.threshold, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 360),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
                     DistanceSegment(name: L10n.threshold, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 360)
                 ],
                 restMode: .manual
@@ -350,15 +350,15 @@ final class SettingsStore: ObservableObject {
                 distanceLapDistanceMeters: 1000,
                 distanceSegments: [
                     DistanceSegment(name: L10n.run, distanceMeters: 1000, repeatCount: 1),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
                     DistanceSegment(name: L10n.run, distanceMeters: 1000, repeatCount: 1),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
                     DistanceSegment(name: L10n.run, distanceMeters: 1000, repeatCount: 1),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
                     DistanceSegment(name: L10n.run, distanceMeters: 1000, repeatCount: 1),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
                     DistanceSegment(name: L10n.run, distanceMeters: 1000, repeatCount: 1),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
                     DistanceSegment(name: L10n.run, distanceMeters: 1000, repeatCount: 1)
                 ],
                 restMode: .manual
@@ -373,23 +373,23 @@ final class SettingsStore: ObservableObject {
                 distanceLapDistanceMeters: 400,
                 distanceSegments: [
                     DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
                     DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
                     DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
                     DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
                     DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
                     DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
                     DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
                     DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
                     DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
                     DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1)
                 ],
                 restMode: .manual
@@ -443,11 +443,11 @@ final class SettingsStore: ObservableObject {
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
                     DistanceSegment(name: L10n.predefinedOverUnderTitle, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 480),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 120),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 120),
                     DistanceSegment(name: L10n.predefinedOverUnderTitle, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 480),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 120),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 120),
                     DistanceSegment(name: L10n.predefinedOverUnderTitle, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 480),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 120),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 120),
                     DistanceSegment(name: L10n.predefinedOverUnderTitle, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 480)
                 ],
                 restMode: .manual
@@ -462,17 +462,17 @@ final class SettingsStore: ObservableObject {
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
                     DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
                     DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
                     DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
                     DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 240),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 240),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 240),
                     DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
                     DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
                     DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60)
                 ],
                 restMode: .manual
@@ -487,17 +487,17 @@ final class SettingsStore: ObservableObject {
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
                     DistanceSegment(name: L10n.surge, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
                     DistanceSegment(name: L10n.surge, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
                     DistanceSegment(name: L10n.surge, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
                     DistanceSegment(name: L10n.surge, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
                     DistanceSegment(name: L10n.surge, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
                     DistanceSegment(name: L10n.surge, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180)
+                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180)
                 ],
                 restMode: .manual
             )

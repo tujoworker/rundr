@@ -105,8 +105,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     }
 
     private func resolvedTrackingMode(_ trackingMode: TrackingMode, segments: [DistanceSegment]) -> TrackingMode {
-        if trackingMode == .distanceDistance,
-           segments.contains(where: { $0.usesOpenDistance || $0.usesJogRecovery }) {
+          if trackingMode == .distanceDistance,
+              segments.contains(where: { $0.usesOpenDistance || $0.usesActiveRecovery }) {
             return .dual
         }
         return trackingMode
@@ -412,8 +412,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         runState == .paused && pausedRunState == .rest
     }
 
-    var willResumeIntoJog: Bool {
-        runState == .paused && pausedRunState == .rest && pausedRecoveryType == .jog
+    var willResumeIntoActiveRecovery: Bool {
+        runState == .paused && pausedRunState == .rest && pausedRecoveryType == .activeRecovery
     }
 
     func pauseSession() {
@@ -605,7 +605,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     func handleAutoRestMotionResume() {
         cancelPendingAutoRestDetection()
 
-        guard restMode == .autoDetect, runState == .rest, currentRecoveryType != .jog else { return }
+        guard restMode == .autoDetect, runState == .rest, currentRecoveryType != .activeRecovery else { return }
         cancelRest()
     }
 
@@ -687,7 +687,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         if runState == .ending {
             lapType = .rest
         } else if runState == .rest {
-            lapType = currentRecoveryType == .jog ? .jog : .rest
+            lapType = currentRecoveryType == .activeRecovery ? .activeRecovery : .rest
         } else {
             lapType = .active
         }
@@ -696,7 +696,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         if lapType == .rest {
             distance = 0
             gpsDistance = nil
-        } else if lapType == .jog {
+        } else if lapType == .activeRecovery {
             let measuredDistance = usesGPSDistance ? currentLapGPSDistanceMeters : currentLapDistanceMeters
             distance = 0
             gpsDistance = measuredDistance > 0 ? measuredDistance : nil
@@ -713,7 +713,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             distance = currentLapGPSDistanceMeters
             gpsDistance = currentLapGPSDistanceMeters
         }
-        let speedDistance = lapType == .jog ? (gpsDistance ?? 0) : distance
+        let speedDistance = lapType == .activeRecovery ? (gpsDistance ?? 0) : distance
         let avgSpeed = duration > 0 && speedDistance > 0 ? speedDistance / duration : 0
         let avgHR: Double? = currentLapHeartRateSamples.isEmpty ? nil : currentLapHeartRateSamples.reduce(0, +) / Double(currentLapHeartRateSamples.count)
 
@@ -862,14 +862,14 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         completedLaps[index].distanceMeters = newType.isRecovery ? 0 : max(0, newDistanceMeters)
         if newType == .rest {
             completedLaps[index].gpsDistanceMeters = nil
-        } else if newType == .jog {
+        } else if newType == .activeRecovery {
             completedLaps[index].gpsDistanceMeters = max(0, newDistanceMeters)
         } else if trackingMode == .gps {
             completedLaps[index].gpsDistanceMeters = max(0, newDistanceMeters)
         }
 
         let duration = completedLaps[index].durationSeconds
-        let distance = newType == .jog ? (completedLaps[index].gpsDistanceMeters ?? 0) : completedLaps[index].distanceMeters
+        let distance = newType == .activeRecovery ? (completedLaps[index].gpsDistanceMeters ?? 0) : completedLaps[index].distanceMeters
         completedLaps[index].averageSpeedMetersPerSecond = duration > 0 && distance > 0 ? distance / duration : 0
 
         recalculateCompletedLapDerivedState()

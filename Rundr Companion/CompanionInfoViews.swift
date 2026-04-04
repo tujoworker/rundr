@@ -181,8 +181,8 @@ struct CompanionHelpView: View {
                         tip: nil
                     ),
                     CompanionHelpSection(
-                        title: L10n.helpRestJogHeading,
-                        body: L10n.helpRestJogBody,
+                        title: L10n.helpRestActiveRecoveryHeading,
+                        body: L10n.helpRestActiveRecoveryBody,
                         example: nil,
                         tip: nil
                     )

@@ -66,6 +66,10 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.summary, "Summary")
     }
 
+    func testTotalDistanceLabelExistsForHistorySummary() {
+        XCTAssertEqual(L10n.totalDistanceLabel, "Total Distance")
+    }
+
     func testYesLabelExistsForConfirmationActions() {
         XCTAssertEqual(L10n.yes, "Yes")
     }

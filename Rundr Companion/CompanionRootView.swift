@@ -3053,6 +3053,173 @@ private struct CompanionSessionStatItem: Identifiable {
     let value: String
 }
 
+struct CompanionSessionSummarySection {
+    let title: String
+    let items: [CompanionSessionStatItem]
+}
+
+enum CompanionSessionSummaryRouting {
+    static func sections(for session: Session, distanceUnit: DistanceUnit) -> [CompanionSessionSummarySection] {
+        let activeRecoveryDistanceMeters = activeRecoveryDistanceMeters(for: session)
+        let activeRecoveryDurationSeconds = activeRecoveryDurationSeconds(for: session)
+
+        var sections = [
+            CompanionSessionSummarySection(
+                title: L10n.summary,
+                items: primarySummaryItems(
+                    for: session,
+                    distanceUnit: distanceUnit,
+                    activeRecoveryDistanceMeters: activeRecoveryDistanceMeters
+                )
+            )
+        ]
+
+        if activeRecoveryDurationSeconds > 0 || activeRecoveryDistanceMeters > 0 {
+            sections.append(
+                CompanionSessionSummarySection(
+                    title: L10n.activeRecovery,
+                    items: activeRecoverySummaryItems(
+                        distanceMeters: activeRecoveryDistanceMeters,
+                        durationSeconds: activeRecoveryDurationSeconds,
+                        distanceUnit: distanceUnit
+                    )
+                )
+            )
+        }
+
+        return sections
+    }
+
+    private static func primarySummaryItems(
+        for session: Session,
+        distanceUnit: DistanceUnit,
+        activeRecoveryDistanceMeters: Double
+    ) -> [CompanionSessionStatItem] {
+        let firstSegment = session.snapshotWorkoutPlan.distanceSegments.first
+        let sessionUsesOpenIntervals = session.snapshotWorkoutPlan.distanceSegments.contains(where: \.usesOpenDistance)
+
+        var items: [CompanionSessionStatItem] = [
+            CompanionSessionStatItem(label: L10n.laps, value: String(session.activeLapCount)),
+            CompanionSessionStatItem(label: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds))
+        ]
+
+        if let targetTime = firstSegment?.targetTimeSeconds {
+            items.append(
+                CompanionSessionStatItem(
+                    label: L10n.targetTimeLabel,
+                    value: Formatters.compactTimeString(from: targetTime)
+                )
+            )
+        }
+
+        let primaryDistanceForPace: Double
+        if session.mode.usesManualIntervals && !sessionUsesOpenIntervals {
+            primaryDistanceForPace = session.totalDistanceMeters
+            items.append(
+                CompanionSessionStatItem(
+                    label: L10n.distance,
+                    value: formattedDistance(session.totalDistanceMeters, unit: distanceUnit)
+                )
+            )
+        } else if session.mode == .gps || (session.mode == .dual && sessionUsesOpenIntervals) {
+            let gpsDistance = session.totalGPSDistanceMeters ?? session.totalDistanceMeters
+            primaryDistanceForPace = gpsDistance
+            items.append(
+                CompanionSessionStatItem(
+                    label: L10n.gpsDistanceLabel,
+                    value: formattedDistance(gpsDistance, unit: distanceUnit)
+                )
+            )
+        } else {
+            primaryDistanceForPace = session.totalDistanceMeters
+        }
+
+        if session.mode == .dual && !sessionUsesOpenIntervals {
+            items.append(
+                CompanionSessionStatItem(
+                    label: L10n.gpsDistanceLabel,
+                    value: formattedDistance(session.totalGPSDistanceMeters ?? 0, unit: distanceUnit)
+                )
+            )
+        }
+
+        items.append(
+            CompanionSessionStatItem(
+                label: L10n.averagePaceLabel,
+                value: formattedPace(
+                    distanceMeters: primaryDistanceForPace,
+                    durationSeconds: session.activeDurationSeconds,
+                    unit: distanceUnit
+                )
+            )
+        )
+
+        if activeRecoveryDistanceMeters > 0 {
+            items.append(
+                CompanionSessionStatItem(
+                    label: L10n.totalDistanceLabel,
+                    value: formattedDistance(primaryDistanceForPace + activeRecoveryDistanceMeters, unit: distanceUnit)
+                )
+            )
+        }
+
+        return items
+    }
+
+    private static func activeRecoverySummaryItems(
+        distanceMeters: Double,
+        durationSeconds: Double,
+        distanceUnit: DistanceUnit
+    ) -> [CompanionSessionStatItem] {
+        [
+            CompanionSessionStatItem(
+                label: L10n.distance,
+                value: formattedDistance(distanceMeters, unit: distanceUnit)
+            ),
+            CompanionSessionStatItem(
+                label: L10n.averagePaceLabel,
+                value: formattedPace(
+                    distanceMeters: distanceMeters,
+                    durationSeconds: durationSeconds,
+                    unit: distanceUnit
+                )
+            )
+        ]
+    }
+
+    private static func activeRecoveryDistanceMeters(for session: Session) -> Double {
+        session.laps
+            .filter { $0.lapType == .activeRecovery }
+            .reduce(0) { partialResult, lap in
+                partialResult + max(0, lap.gpsDistanceMeters ?? lap.distanceMeters)
+            }
+    }
+
+    private static func activeRecoveryDurationSeconds(for session: Session) -> Double {
+        session.laps
+            .filter { $0.lapType == .activeRecovery }
+            .reduce(0) { partialResult, lap in
+                partialResult + lap.durationSeconds
+            }
+    }
+
+    private static func formattedDistance(_ distanceMeters: Double, unit: DistanceUnit) -> String {
+        distanceMeters > 0
+            ? Formatters.distanceString(meters: distanceMeters, unit: unit)
+            : L10n.dash
+    }
+
+    private static func formattedPace(
+        distanceMeters: Double,
+        durationSeconds: Double,
+        unit: DistanceUnit
+    ) -> String {
+        distanceMeters > 0
+            ? Formatters.paceString(distanceMeters: distanceMeters, durationSeconds: durationSeconds, unit: unit)
+            : L10n.dash
+    }
+}
+
 private struct CompanionSessionDetailView: View {
     let session: Session
     @EnvironmentObject private var settings: SettingsStore
@@ -3072,10 +3239,6 @@ private struct CompanionSessionDetailView: View {
         Formatters.historySessionDateRangeParts(start: session.startedAt, end: session.endedAt)
     }
 
-    private var sessionUsesOpenIntervals: Bool {
-        session.snapshotWorkoutPlan.distanceSegments.contains(where: \.usesOpenDistance)
-    }
-
     private var targetSegmentsByLapID: [UUID: DistanceSegment] {
         SessionLapTargetResolver.targetSegments(
             for: sortedLaps,
@@ -3084,68 +3247,34 @@ private struct CompanionSessionDetailView: View {
         )
     }
 
-    private var sessionStats: [CompanionSessionStatItem] {
-        let firstSegment = session.snapshotWorkoutPlan.distanceSegments.first
-        let primaryDistanceForPace: Double
-        if session.mode == .gps || (session.mode == .dual && sessionUsesOpenIntervals) {
-            primaryDistanceForPace = session.totalGPSDistanceMeters ?? session.totalDistanceMeters
-        } else {
-            primaryDistanceForPace = session.totalDistanceMeters
-        }
-
-        var items: [CompanionSessionStatItem] = [
-            CompanionSessionStatItem(label: L10n.laps, value: String(session.activeLapCount)),
-            CompanionSessionStatItem(label: L10n.duration, value: Formatters.timeString(from: session.activeDurationSeconds))
-        ]
-
-        if let targetTime = firstSegment?.targetTimeSeconds {
-            items.append(CompanionSessionStatItem(label: L10n.targetTimeLabel, value: Formatters.compactTimeString(from: targetTime)))
-        }
-
-        items.append(
-            CompanionSessionStatItem(
-                label: L10n.distance,
-                value: primaryDistanceForPace > 0
-                    ? Formatters.distanceString(meters: primaryDistanceForPace, unit: settings.distanceUnit)
-                    : L10n.dash
-            )
-        )
-
-        items.append(
-            CompanionSessionStatItem(
-                label: L10n.averagePaceLabel,
-                value: primaryDistanceForPace > 0
-                    ? Formatters.paceString(
-                        distanceMeters: primaryDistanceForPace,
-                        durationSeconds: session.activeDurationSeconds,
-                        unit: settings.distanceUnit
-                    )
-                    : L10n.dash
-            )
-        )
-
-        return items
+    private var summarySections: [CompanionSessionSummarySection] {
+        CompanionSessionSummaryRouting.sections(for: session, distanceUnit: settings.distanceUnit)
     }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
-                HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.sm) {
-                    Text(L10n.summary)
-                        .font(.title2.weight(.semibold))
-                        .foregroundStyle(theme.text.neutral)
-                        .padding(.leading, Tokens.ContentInsets.companionCard.leading + Tokens.Spacing.sm + Tokens.Spacing.xs)
+                ForEach(Array(summarySections.enumerated()), id: \.offset) { index, section in
+                    HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.sm) {
+                        Text(section.title)
+                            .font(.title2.weight(.semibold))
+                            .foregroundStyle(theme.text.neutral)
+                            .padding(.leading, Tokens.ContentInsets.companionCard.leading + Tokens.Spacing.sm + Tokens.Spacing.xs)
 
-                    Spacer(minLength: 0)
+                        Spacer(minLength: 0)
 
-                    Text(headerTitle.timeText)
-                        .font(.subheadline)
-                        .foregroundStyle(theme.text.subtle)
-                        .padding(.trailing, Tokens.ContentInsets.companionCard.leading + Tokens.Spacing.sm + Tokens.Spacing.xs)
+                        if index == 0 {
+                            Text(headerTitle.timeText)
+                                .font(.subheadline)
+                                .foregroundStyle(theme.text.subtle)
+                                .padding(.trailing, Tokens.ContentInsets.companionCard.leading + Tokens.Spacing.sm + Tokens.Spacing.xs)
+                        }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, index == 0 ? 0 : Tokens.Spacing.md)
+
+                    CompanionSessionStatsView(items: section.items)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
-
-                CompanionSessionStatsView(items: sessionStats)
 
                 Text(L10n.laps)
                     .font(.title2.weight(.semibold))

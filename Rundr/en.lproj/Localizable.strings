@@ -155,6 +155,7 @@
 "Summary" = "Summary";
 "Manual Distance" = "Manual Distance";
 "GPS Distance" = "GPS Distance";
+"Total Distance" = "Total Distance";
 "GPS Pace" = "GPS Pace";
 "Average Pace" = "Average Pace";
 "Heart Rate" = "Heart Rate";

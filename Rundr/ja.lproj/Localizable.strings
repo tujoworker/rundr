@@ -155,6 +155,7 @@
 "Summary" = "サマリー";
 "Manual Distance" = "手動距離";
 "GPS Distance" = "GPS距離";
+"Total Distance" = "総距離";
 "GPS Pace" = "GPSペース";
 "Average Pace" = "平均ペース";
 "Heart Rate" = "心拍数";

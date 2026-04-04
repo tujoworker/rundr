@@ -193,6 +193,7 @@ enum L10n {
     static let summary = String(localized: "Summary", comment: "Summary section title")
     static let manualDistance = String(localized: "Manual Distance", comment: "Manual distance label")
     static let gpsDistanceLabel = String(localized: "GPS Distance", comment: "GPS distance label")
+    static let totalDistanceLabel = String(localized: "Total Distance", comment: "Distance including active recovery")
     static let manualLabel = String(localized: "Manual", comment: "Manual lap metric label")
     static let gpsLabel = String(localized: "GPS", comment: "GPS lap metric label")
     static let gpsPaceLabel = String(localized: "GPS Pace", comment: "GPS pace label")

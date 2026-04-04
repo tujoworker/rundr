@@ -291,7 +291,7 @@ struct LapRowView: View {
     private var detailItems: [SessionStatItem] {
         var items: [SessionStatItem] = []
 
-        guard lap.lapType != .rest else { return items }
+        guard lap.lapType == .active else { return items }
 
         let isOpenInterval = targetSegment?.usesOpenDistance == true
 
@@ -351,7 +351,7 @@ struct LapRowView: View {
     }
 
     private var timeDeltaText: String? {
-        guard lap.lapType != .rest,
+          guard lap.lapType == .active,
               let targetTime = targetSegment?.targetTimeSeconds else { return nil }
         let delta = Int(lap.durationSeconds - targetTime)
         if delta == 0 { return "(\(L10n.dash))" }
@@ -362,7 +362,7 @@ struct LapRowView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
             HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.sm) {
-                if lap.lapType == .rest {
+                if lap.lapType.isRecovery {
                     Text(L10n.rest)
                         .font(.caption.bold())
                 } else {
@@ -409,8 +409,8 @@ struct LapRowView: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(Tokens.Spacing.md)
-        .background(lap.lapType == .rest ? theme.background.historyRest : theme.background.history)
-        .foregroundColor(lap.lapType == .rest ? theme.text.historyRest : theme.text.neutral)
+        .background(lap.lapType.isRecovery ? theme.background.historyRest : theme.background.history)
+        .foregroundColor(lap.lapType.isRecovery ? theme.text.historyRest : theme.text.neutral)
         .cornerRadius(Tokens.Radius.medium)
         .padding(.horizontal, Tokens.Spacing.xs)
     }

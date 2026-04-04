@@ -110,14 +110,23 @@ enum L10n {
     static func restModeStatusWithDuration(_ duration: String) -> String {
         String(format: String(localized: "Resting for %@", comment: "Timer label when resting with a target duration"), duration)
     }
+    static let jogModeStatus = String(localized: "Jogging", comment: "Timer label when jogging between work laps")
+    static func jogModeStatusWithDuration(_ duration: String) -> String {
+        String(format: String(localized: "Jogging for %@", comment: "Timer label when jogging with a target duration"), duration)
+    }
     static let restModePausedStatus = String(format: String(localized: "%@ (%@)", comment: "Timer label when resting and paused"), restModeStatus, workoutPaused)
     static func restModePausedStatusWithDuration(_ duration: String) -> String {
         String(format: String(localized: "%@ (%@)", comment: "Timer label when resting and paused"), restModeStatusWithDuration(duration), workoutPaused)
+    }
+    static let jogModePausedStatus = String(format: String(localized: "%@ (%@)", comment: "Timer label when jogging and paused"), jogModeStatus, workoutPaused)
+    static func jogModePausedStatusWithDuration(_ duration: String) -> String {
+        String(format: String(localized: "%@ (%@)", comment: "Timer label when jogging and paused"), jogModeStatusWithDuration(duration), workoutPaused)
     }
     static func restDuration(_ seconds: Int) -> String {
         String(format: String(localized: "Rest %ds", comment: "Timer label with rest countdown"), seconds)
     }
     static let endRest = String(localized: "Undo \"Mark as Rest\"", comment: "Active session rest button label when ending rest")
+    static let endJog = String(localized: "End Jog", comment: "Active session button label when ending jog recovery")
     static let pause = String(localized: "Pause", comment: "Button")
     static let resume = String(localized: "Resume", comment: "Button")
     static let workoutPaused = String(localized: "Paused", comment: "Timer label when workout is fully paused")
@@ -348,6 +357,8 @@ enum L10n {
     static let helpRestBody = String(localized: "Mark as Rest turns the current lap into rest. That rest stays attached to the lap you just finished, so it remains part of the workout.", comment: "Companion help card body")
     static let helpRestTimedHeading = String(localized: "With Timed Rest", comment: "Companion help section heading")
     static let helpRestTimedBody = String(localized: "Rundr starts rest after the lap and warns in the last 5 seconds if Rest Alerts is enabled in Settings. When passed, the next lap does not start by itself. The target rest is a guide, and you still decide when the next lap begins.", comment: "Companion help section body")
+    static let helpRestJogHeading = String(localized: "With Jog Recovery", comment: "Companion help section heading")
+    static let helpRestJogBody = String(localized: "Jog recovery works like recovery time instead of a full work lap. Rundr tracks the jog in the workout, but keeps active totals and average pace focused on the hard intervals.", comment: "Companion help section body")
     static let helpRestTip = String(localized: "Use Manual when you want to choose exactly when Mark as Rest starts and ends. Use Auto-detect when you want Rundr to enter rest after you stop and end it again when you move.", comment: "Companion help card tip")
     static let helpAutoRestTitle = String(localized: "How Auto-detect Works", comment: "Companion help card title")
     static let helpAutoRestBody = String(localized: "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap.", comment: "Companion help card body")

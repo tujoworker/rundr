@@ -179,6 +179,12 @@ struct CompanionHelpView: View {
                         body: L10n.helpRestTimedBody,
                         example: nil,
                         tip: nil
+                    ),
+                    CompanionHelpSection(
+                        title: L10n.helpRestJogHeading,
+                        body: L10n.helpRestJogBody,
+                        example: nil,
+                        tip: nil
                     )
                 ],
                 example: nil,

@@ -347,3 +347,8 @@
 "You use Rundr at your own risk. To the fullest extent permitted by law, you are responsible for your training choices and for any accident, injury, damage, loss, or other harmful event that happens while using the app." = "You use Rundr at your own risk. To the fullest extent permitted by law, you are responsible for your training choices and for any accident, injury, damage, loss, or other harmful event that happens while using the app.";
 "Availability and Updates" = "Availability and Updates";
 "Some features depend on Apple Watch, Apple Health, location services, and other Apple systems being available. Features may change over time. If these terms are updated in a future release, continued use of Rundr means you accept the updated terms." = "Some features depend on Apple Watch, Apple Health, location services, and other Apple systems being available. Features may change over time. If these terms are updated in a future release, continued use of Rundr means you accept the updated terms.";
+"Jogging" = "Jogging";
+"Jogging for %@" = "Jogging for %@";
+"End Jog" = "End Jog";
+"With Jog Recovery" = "With Jog Recovery";
+"Jog recovery works like recovery time instead of a full work lap. Rundr tracks the jog in the workout, but keeps active totals and average pace focused on the hard intervals." = "Jog recovery works like recovery time instead of a full work lap. Rundr tracks the jog in the workout, but keeps active totals and average pace focused on the hard intervals.";

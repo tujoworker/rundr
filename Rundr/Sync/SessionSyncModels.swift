@@ -349,6 +349,7 @@ struct LiveWorkoutStateRecord: Codable, Equatable, Identifiable {
     var startedAt: Date
     var updatedAt: Date
     var runState: WorkoutRunState
+    var currentRecoveryType: SegmentRecoveryType? = nil
     var trackingMode: TrackingMode
     var elapsedSeconds: Double
     var lapElapsedSeconds: Double
@@ -365,6 +366,79 @@ struct LiveWorkoutStateRecord: Codable, Equatable, Identifiable {
 
     var isTerminalState: Bool {
         runState == .ended
+    }
+
+    init(
+        sessionID: UUID,
+        startedAt: Date,
+        updatedAt: Date,
+        runState: WorkoutRunState,
+        currentRecoveryType: SegmentRecoveryType? = nil,
+        trackingMode: TrackingMode,
+        elapsedSeconds: Double,
+        lapElapsedSeconds: Double,
+        completedLapCount: Int,
+        cumulativeDistanceMeters: Double,
+        cumulativeGPSDistanceMeters: Double?,
+        currentHeartRate: Double?,
+        currentTargetDistanceMeters: Double?,
+        restElapsedSeconds: Int?,
+        restDurationSeconds: Int?,
+        isGPSActive: Bool
+    ) {
+        self.sessionID = sessionID
+        self.startedAt = startedAt
+        self.updatedAt = updatedAt
+        self.runState = runState
+        self.currentRecoveryType = currentRecoveryType
+        self.trackingMode = trackingMode
+        self.elapsedSeconds = elapsedSeconds
+        self.lapElapsedSeconds = lapElapsedSeconds
+        self.completedLapCount = completedLapCount
+        self.cumulativeDistanceMeters = cumulativeDistanceMeters
+        self.cumulativeGPSDistanceMeters = cumulativeGPSDistanceMeters
+        self.currentHeartRate = currentHeartRate
+        self.currentTargetDistanceMeters = currentTargetDistanceMeters
+        self.restElapsedSeconds = restElapsedSeconds
+        self.restDurationSeconds = restDurationSeconds
+        self.isGPSActive = isGPSActive
+    }
+
+    init(
+        sessionID: UUID,
+        startedAt: Date,
+        updatedAt: Date,
+        runState: WorkoutRunState,
+        trackingMode: TrackingMode,
+        elapsedSeconds: Double,
+        lapElapsedSeconds: Double,
+        completedLapCount: Int,
+        cumulativeDistanceMeters: Double,
+        cumulativeGPSDistanceMeters: Double?,
+        currentHeartRate: Double?,
+        currentTargetDistanceMeters: Double?,
+        restElapsedSeconds: Int?,
+        restDurationSeconds: Int?,
+        isGPSActive: Bool
+    ) {
+        self.init(
+            sessionID: sessionID,
+            startedAt: startedAt,
+            updatedAt: updatedAt,
+            runState: runState,
+            currentRecoveryType: nil,
+            trackingMode: trackingMode,
+            elapsedSeconds: elapsedSeconds,
+            lapElapsedSeconds: lapElapsedSeconds,
+            completedLapCount: completedLapCount,
+            cumulativeDistanceMeters: cumulativeDistanceMeters,
+            cumulativeGPSDistanceMeters: cumulativeGPSDistanceMeters,
+            currentHeartRate: currentHeartRate,
+            currentTargetDistanceMeters: currentTargetDistanceMeters,
+            restElapsedSeconds: restElapsedSeconds,
+            restDurationSeconds: restDurationSeconds,
+            isGPSActive: isGPSActive
+        )
     }
 }
 

@@ -185,6 +185,15 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(resolved, .dual)
     }
 
+    func testResolvedTrackingModeForcesDualWhenJogRecoveryExists() {
+        let resolved = WorkoutPlanSupport.resolvedTrackingMode(
+            requestedTrackingMode: .distanceDistance,
+            segments: [DistanceSegment(distanceMeters: 400, recoveryType: .jog, restSeconds: 60)]
+        )
+
+        XCTAssertEqual(resolved, .dual)
+    }
+
     func testResolvedTrackingModeKeepsGPSContextWhenSwitchingToManualIntervals() {
         let resolved = WorkoutPlanSupport.resolvedTrackingMode(
             requestedTrackingMode: .distanceDistance,
@@ -233,6 +242,7 @@ final class ModelTests: XCTestCase {
     func testLapTypeDisplayNames() {
         XCTAssertEqual(LapType.active.displayName, "Activity")
         XCTAssertEqual(LapType.rest.displayName, "Rest")
+        XCTAssertEqual(LapType.jog.displayName, L10n.jog)
     }
 
     func testLapTypeCodable() throws {
@@ -310,6 +320,15 @@ final class ModelTests: XCTestCase {
 
         XCTAssertEqual(decoded.restSeconds, 30)
         XCTAssertNil(decoded.lastRestSeconds)
+        XCTAssertEqual(decoded.recoveryType, .rest)
+    }
+
+    func testDistanceSegmentClearsLastRestOutsideRestRecovery() {
+        let segment = DistanceSegment(distanceMeters: 400, recoveryType: .jog, restSeconds: 45, lastRestSeconds: 90)
+
+        XCTAssertEqual(segment.recoveryType, .jog)
+        XCTAssertEqual(segment.restSeconds, 45)
+        XCTAssertNil(segment.lastRestSeconds)
     }
 
     func testDistanceGoalModeDecodesLegacyAndEncodesCurrentValues() throws {
@@ -341,14 +360,14 @@ final class ModelTests: XCTestCase {
     func testSegmentEditSheetSectionOrderForFixedDistancePlacesLastRestAfterRest() {
         XCTAssertEqual(
             SegmentEditSheetSection.orderedSections(for: false),
-            [.rest, .lastRest, .repeats, .paceTarget, .timeTarget, .name]
+            [.jog, .rest, .lastRest, .repeats, .paceTarget, .timeTarget, .name]
         )
     }
 
     func testSegmentEditSheetSectionOrderForOpenDistancePlacesLastRestAfterRest() {
         XCTAssertEqual(
             SegmentEditSheetSection.orderedSections(for: true),
-            [.timeTarget, .rest, .lastRest, .repeats, .name]
+            [.timeTarget, .jog, .rest, .lastRest, .repeats, .name]
         )
     }
 
@@ -642,6 +661,7 @@ final class ModelTests: XCTestCase {
             startedAt: Date(),
             updatedAt: Date(),
             runState: .active,
+            currentRecoveryType: nil,
             trackingMode: .gps,
             elapsedSeconds: 120,
             lapElapsedSeconds: 60,
@@ -659,6 +679,7 @@ final class ModelTests: XCTestCase {
             startedAt: Date(),
             updatedAt: Date(),
             runState: .ended,
+            currentRecoveryType: nil,
             trackingMode: .gps,
             elapsedSeconds: 240,
             lapElapsedSeconds: 0,
@@ -872,6 +893,7 @@ final class ModelTests: XCTestCase {
             distanceLapDistanceMeters: 400,
             distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 45)],
             restMode: .manual,
+            originPlanID: nil,
             completedLaps: [OngoingWorkoutLapSnapshot(lap: lap)],
             cumulativeDistanceMeters: 400,
             currentLapDistanceMeters: 0,
@@ -881,6 +903,7 @@ final class ModelTests: XCTestCase {
             currentSegmentIndex: 0,
             currentSegmentRepeatsDone: 1,
             resumeRunState: .active,
+            currentRecoveryType: nil,
             restElapsedSeconds: nil,
             restDurationSeconds: nil,
             pauseStartedAt: nil
@@ -930,6 +953,7 @@ final class ModelTests: XCTestCase {
             distanceLapDistanceMeters: 400,
             distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 45)],
             restMode: .autoDetect,
+            originPlanID: nil,
             completedLaps: [OngoingWorkoutLapSnapshot(lap: activeLap), OngoingWorkoutLapSnapshot(lap: restLap)],
             cumulativeDistanceMeters: 400,
             currentLapDistanceMeters: 0,
@@ -939,6 +963,7 @@ final class ModelTests: XCTestCase {
             currentSegmentIndex: 0,
             currentSegmentRepeatsDone: 1,
             resumeRunState: .rest,
+            currentRecoveryType: nil,
             restElapsedSeconds: 5,
             restDurationSeconds: 45,
             pauseStartedAt: pauseStartedAt
@@ -1675,6 +1700,11 @@ final class ModelTests: XCTestCase {
             CompanionSegmentEditorRules.emptyDisplayValue(for: .rest),
             L10n.restManual
         )
+
+        XCTAssertEqual(
+            CompanionSegmentEditorRules.emptyDisplayValue(for: .jog),
+            L10n.manual
+        )
         XCTAssertEqual(
             CompanionSegmentEditorRules.emptyDisplayValue(for: .time),
             L10n.off
@@ -2315,6 +2345,7 @@ final class ModelTests: XCTestCase {
             distanceLapDistanceMeters: 400,
             distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 45)],
             restMode: .manual,
+            originPlanID: nil,
             completedLaps: [],
             cumulativeDistanceMeters: 0,
             currentLapDistanceMeters: 0,
@@ -2324,6 +2355,7 @@ final class ModelTests: XCTestCase {
             currentSegmentIndex: 0,
             currentSegmentRepeatsDone: 0,
             resumeRunState: .active,
+            currentRecoveryType: nil,
             restElapsedSeconds: nil,
             restDurationSeconds: nil,
             pauseStartedAt: nil

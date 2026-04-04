@@ -25,6 +25,7 @@ struct PreStartView: View {
     @State private var editingSegmentDistanceText: String = ""
     @State private var editingSegmentUsesOpenDistance = false
     @State private var editingSegmentRepeatCount: Int = 0
+    @State private var editingSegmentRecoveryType: SegmentRecoveryType = .none
     @State private var editingSegmentRestSeconds: Int = 0
     @State private var editingSegmentLastRestSeconds: Int = 0
     @State private var editingSegmentTargetPace: Int = 0
@@ -369,6 +370,7 @@ struct PreStartView: View {
                 distanceText: $editingSegmentDistanceText,
                 usesOpenDistance: $editingSegmentUsesOpenDistance,
                 repeatCount: $editingSegmentRepeatCount,
+                recoveryType: $editingSegmentRecoveryType,
                 restSeconds: $editingSegmentRestSeconds,
                 lastRestSeconds: $editingSegmentLastRestSeconds,
                 targetPace: $editingSegmentTargetPace,
@@ -441,6 +443,7 @@ struct PreStartView: View {
         }
         editingSegmentDistanceText = displayDist == floor(displayDist) ? String(format: "%.0f", displayDist) : String(format: "%g", displayDist)
         editingSegmentRepeatCount = segment.repeatCount ?? 0
+        editingSegmentRecoveryType = segment.recoveryType
         editingSegmentRestSeconds = segment.restSeconds ?? 0
         editingSegmentLastRestSeconds = segment.lastRestSeconds ?? 0
         editingSegmentTargetPace = Int(segment.targetPaceSecondsPerKm ?? 0)
@@ -479,8 +482,9 @@ struct PreStartView: View {
             ? max(editingSegmentTargetTime, SegmentEditorValueRules.minimumTimeIntervalSeconds)
             : editingSegmentTargetTime
         segments[idx].repeatCount = editingSegmentRepeatCount > 0 ? editingSegmentRepeatCount : nil
-        segments[idx].restSeconds = editingSegmentRestSeconds > 0 ? editingSegmentRestSeconds : nil
-        segments[idx].lastRestSeconds = editingSegmentLastRestSeconds > 0 ? editingSegmentLastRestSeconds : nil
+        segments[idx].recoveryType = editingSegmentRecoveryType
+        segments[idx].restSeconds = editingSegmentRecoveryType == .none ? nil : (editingSegmentRestSeconds > 0 ? editingSegmentRestSeconds : nil)
+        segments[idx].lastRestSeconds = editingSegmentRecoveryType == .rest && editingSegmentLastRestSeconds > 0 ? editingSegmentLastRestSeconds : nil
         segments[idx].targetPaceSecondsPerKm = editingSegmentTargetPace > 0 ? Double(editingSegmentTargetPace) : nil
         segments[idx].targetTimeSeconds = SegmentEditorValueRules.normalizedTargetTime(
             for: segments[idx].distanceGoalMode,
@@ -561,11 +565,11 @@ private struct SegmentRow: View {
     }
 
     private var hasRestDuration: Bool {
-        segment.restSeconds != nil
+        segment.usesRecovery
     }
 
     private var hasLastRestDuration: Bool {
-        segment.lastRestSeconds != nil
+        segment.usesRestRecovery && segment.lastRestSeconds != nil
     }
 
     private var hasTarget: Bool {
@@ -588,11 +592,12 @@ private struct SegmentRow: View {
             )
         }
 
-        if let rest = segment.restSeconds {
+        if segment.usesRecovery {
             items.append(
                 SessionStatItem(
-                    label: L10n.rest,
-                    value: Formatters.compactTimeString(from: Double(rest))
+                    label: segment.usesJogRecovery ? L10n.jog : L10n.rest,
+                    value: segment.restSeconds.map { Formatters.compactTimeString(from: Double($0)) }
+                        ?? (segment.usesJogRecovery ? L10n.manual : L10n.restManual)
                 )
             )
         }
@@ -606,7 +611,7 @@ private struct SegmentRow: View {
             }
         }
 
-        if let lastRest = segment.lastRestSeconds {
+        if segment.usesRestRecovery, let lastRest = segment.lastRestSeconds {
             items.append(
                 SessionStatItem(
                     label: L10n.lastRest,
@@ -854,6 +859,7 @@ private struct IntervalSetupView: View {
     @State private var editingSegmentDistanceText: String = ""
     @State private var editingSegmentUsesOpenDistance = false
     @State private var editingSegmentRepeatCount: Int = 0
+    @State private var editingSegmentRecoveryType: SegmentRecoveryType = .none
     @State private var editingSegmentRestSeconds: Int = 0
     @State private var editingSegmentLastRestSeconds: Int = 0
     @State private var editingSegmentTargetPace: Int = 0
@@ -978,6 +984,7 @@ private struct IntervalSetupView: View {
                 distanceText: $editingSegmentDistanceText,
                 usesOpenDistance: $editingSegmentUsesOpenDistance,
                 repeatCount: $editingSegmentRepeatCount,
+                recoveryType: $editingSegmentRecoveryType,
                 restSeconds: $editingSegmentRestSeconds,
                 lastRestSeconds: $editingSegmentLastRestSeconds,
                 targetPace: $editingSegmentTargetPace,
@@ -1135,6 +1142,7 @@ private struct IntervalSetupView: View {
             ? String(format: "%.0f", displayDistance)
             : String(format: "%g", displayDistance)
         editingSegmentRepeatCount = segment.repeatCount ?? 0
+        editingSegmentRecoveryType = segment.recoveryType
         editingSegmentRestSeconds = segment.restSeconds ?? 0
         editingSegmentLastRestSeconds = segment.lastRestSeconds ?? 0
         editingSegmentTargetPace = Int(segment.targetPaceSecondsPerKm ?? 0)
@@ -1176,8 +1184,9 @@ private struct IntervalSetupView: View {
             ? max(editingSegmentTargetTime, SegmentEditorValueRules.minimumTimeIntervalSeconds)
             : editingSegmentTargetTime
         segments[index].repeatCount = editingSegmentRepeatCount > 0 ? editingSegmentRepeatCount : nil
-        segments[index].restSeconds = editingSegmentRestSeconds > 0 ? editingSegmentRestSeconds : nil
-        segments[index].lastRestSeconds = editingSegmentLastRestSeconds > 0 ? editingSegmentLastRestSeconds : nil
+        segments[index].recoveryType = editingSegmentRecoveryType
+        segments[index].restSeconds = editingSegmentRecoveryType == .none ? nil : (editingSegmentRestSeconds > 0 ? editingSegmentRestSeconds : nil)
+        segments[index].lastRestSeconds = editingSegmentRecoveryType == .rest && editingSegmentLastRestSeconds > 0 ? editingSegmentLastRestSeconds : nil
         segments[index].targetPaceSecondsPerKm = editingSegmentTargetPace > 0 ? Double(editingSegmentTargetPace) : nil
         segments[index].targetTimeSeconds = SegmentEditorValueRules.normalizedTargetTime(
             for: segments[index].distanceGoalMode,
@@ -1314,6 +1323,7 @@ private struct SegmentEditSheet: View {
     @Binding var distanceText: String
     @Binding var usesOpenDistance: Bool
     @Binding var repeatCount: Int
+    @Binding var recoveryType: SegmentRecoveryType
     @Binding var restSeconds: Int
     @Binding var lastRestSeconds: Int
     @Binding var targetPace: Int
@@ -1344,12 +1354,14 @@ private struct SegmentEditSheet: View {
 
     @State private var isRepeatEditorPresented = false
     @State private var isPaceEditorPresented = false
+    @State private var isJogEditorPresented = false
     @State private var isRestEditorPresented = false
     @State private var isLastRestEditorPresented = false
     @State private var isLastRestInfoPresented = false
     @State private var isTimeEditorPresented = false
     @State private var repeatEditorText = ""
     @State private var paceEditorText = ""
+    @State private var jogEditorText = ""
     @State private var restEditorText = ""
     @State private var lastRestEditorText = ""
     @State private var timeEditorText = ""
@@ -1360,6 +1372,10 @@ private struct SegmentEditSheet: View {
 
     private var restLabel: String {
         restSeconds > 0 ? Formatters.compactTimeString(from: Double(restSeconds)) : L10n.restManual
+    }
+
+    private var jogLabel: String {
+        restSeconds > 0 ? Formatters.compactTimeString(from: Double(restSeconds)) : L10n.manual
     }
 
     private var lastRestLabel: String {
@@ -1385,7 +1401,7 @@ private struct SegmentEditSheet: View {
     }
 
     private var canConfigureLastRest: Bool {
-        SegmentEditSheetRules.canConfigureLastRest(repeatCount: repeatCount, restSeconds: restSeconds)
+        recoveryType == .rest && SegmentEditSheetRules.canConfigureLastRest(repeatCount: repeatCount, restSeconds: restSeconds)
     }
 
     private var orderedSections: [SegmentEditSheetSection] {
@@ -1397,6 +1413,8 @@ private struct SegmentEditSheet: View {
         switch section {
         case .timeTarget:
             timeTargetSection
+        case .jog:
+            jogSection
         case .rest:
             restSection
         case .lastRest:
@@ -1504,6 +1522,29 @@ private struct SegmentEditSheet: View {
                 onTapKey: repeatFieldTapKey,
                 onDone: {
                     commitRepeatEditorText()
+                }
+            )
+            .toolbar(.hidden, for: .navigationBar)
+        }
+        .sheet(isPresented: Binding(
+            get: { isJogEditorPresented },
+            set: { presented in
+                if !presented {
+                    commitJogEditorText()
+                } else {
+                    isJogEditorPresented = true
+                }
+            }
+        )) {
+            NumericKeypadEditorScreen(
+                title: L10n.jog,
+                accentColor: accentColor,
+                keypadRows: durationKeypadRows,
+                text: $jogEditorText,
+                emptyDisplayValue: L10n.manual,
+                onTapKey: durationFieldTapKey,
+                onDone: {
+                    commitJogEditorText()
                 }
             )
             .toolbar(.hidden, for: .navigationBar)
@@ -1644,9 +1685,9 @@ private struct SegmentEditSheet: View {
         }
     }
 
-    private var restSection: some View {
+    private var jogSection: some View {
         Group {
-            Text(L10n.rest)
+            Text(L10n.jog)
                 .font(.caption.bold())
                 .foregroundStyle(theme.text.subtle)
                 .padding(.horizontal, Tokens.Spacing.xs)
@@ -1654,10 +1695,13 @@ private struct SegmentEditSheet: View {
 
             HStack(spacing: Tokens.Spacing.sm) {
                 Button {
+                    activateRecovery(.jog)
                     if restSeconds >= 15 {
                         restSeconds -= 15
-                    } else {
+                    } else if restSeconds > 0 {
                         restSeconds = 0
+                    } else {
+                        recoveryType = .none
                     }
                 } label: {
                     Image(systemName: "minus")
@@ -1669,15 +1713,69 @@ private struct SegmentEditSheet: View {
                 .buttonStyle(.plain)
 
                 Button {
-                    restEditorText = restSeconds > 0 ? restLabel : ""
-                    isRestEditorPresented = true
+                    activateRecovery(.jog)
+                    jogEditorText = recoveryType == .jog && restSeconds > 0 ? jogLabel : ""
+                    isJogEditorPresented = true
                 } label: {
-                    editorValueField(restSeconds > 0 ? restLabel : L10n.restManual)
+                    editorValueField(recoveryType == .jog ? jogLabel : L10n.off)
                 }
                 .frame(maxWidth: .infinity)
                 .buttonStyle(.plain)
 
                 Button {
+                    activateRecovery(.jog)
+                    restSeconds = max(restSeconds, 15)
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: Tokens.FontSize.xxl, weight: .bold))
+                        .frame(width: Tokens.ControlSize.inlineAdjustButton, height: Tokens.ControlSize.inlineAdjustButton)
+                        .background(Circle().fill(theme.background.neutralAction))
+                        .foregroundStyle(theme.text.neutral)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private var restSection: some View {
+        Group {
+            Text(L10n.rest)
+                .font(.caption.bold())
+                .foregroundStyle(theme.text.subtle)
+                .padding(.horizontal, Tokens.Spacing.xs)
+                .padding(.top, Tokens.Spacing.xs)
+
+            HStack(spacing: Tokens.Spacing.sm) {
+                Button {
+                    activateRecovery(.rest)
+                    if restSeconds >= 15 {
+                        restSeconds -= 15
+                    } else if restSeconds > 0 {
+                        restSeconds = 0
+                    } else {
+                        recoveryType = .none
+                    }
+                } label: {
+                    Image(systemName: "minus")
+                        .font(.system(size: Tokens.FontSize.lg, weight: .bold))
+                        .frame(width: Tokens.ControlSize.inlineAdjustButton, height: Tokens.ControlSize.inlineAdjustButton)
+                        .background(Circle().fill(theme.background.neutralAction))
+                        .foregroundStyle(theme.text.neutral)
+                }
+                .buttonStyle(.plain)
+
+                Button {
+                    activateRecovery(.rest)
+                    restEditorText = recoveryType == .rest && restSeconds > 0 ? restLabel : ""
+                    isRestEditorPresented = true
+                } label: {
+                    editorValueField(recoveryType == .rest ? restLabel : L10n.off)
+                }
+                .frame(maxWidth: .infinity)
+                .buttonStyle(.plain)
+
+                Button {
+                    activateRecovery(.rest)
                     restSeconds += 15
                 } label: {
                     Image(systemName: "plus")
@@ -1693,7 +1791,7 @@ private struct SegmentEditSheet: View {
 
     @ViewBuilder
     private var lastRestSection: some View {
-        if lastRestSeconds > 0 && canConfigureLastRest {
+        if recoveryType == .rest && lastRestSeconds > 0 && canConfigureLastRest {
             VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
                 Text(L10n.lastRest)
                     .font(.caption.bold())
@@ -1752,7 +1850,7 @@ private struct SegmentEditSheet: View {
     }
 
     private var addLastRestButton: some View {
-        let isActive = SegmentEditSheetRules.shouldShowAddLastRestButton(lastRestSeconds: lastRestSeconds)
+        let isActive = recoveryType == .rest && SegmentEditSheetRules.shouldShowAddLastRestButton(lastRestSeconds: lastRestSeconds)
         let isEnabled = canConfigureLastRest && isActive
 
         return Button {
@@ -1930,7 +2028,14 @@ private struct SegmentEditSheet: View {
         isRepeatEditorPresented = false
     }
 
+    private func commitJogEditorText() {
+        activateRecovery(.jog)
+        restSeconds = SegmentEditInputParser.parseDurationSeconds(from: jogEditorText)
+        isJogEditorPresented = false
+    }
+
     private func commitRestEditorText() {
+        activateRecovery(.rest)
         restSeconds = SegmentEditInputParser.parseDurationSeconds(from: restEditorText)
         isRestEditorPresented = false
     }
@@ -1941,6 +2046,17 @@ private struct SegmentEditSheet: View {
     }
 
     private func syncLastRestWithRepeatCount(animated: Bool = true) {
+        if recoveryType != .rest {
+            if animated, lastRestSeconds != 0 {
+                withAnimation(.easeInOut(duration: 0.22)) {
+                    lastRestSeconds = 0
+                }
+            } else {
+                lastRestSeconds = 0
+            }
+            return
+        }
+
         let normalizedLastRest = SegmentEditSheetRules.normalizedLastRestSeconds(
             lastRestSeconds,
             repeatCount: repeatCount
@@ -1966,6 +2082,15 @@ private struct SegmentEditSheet: View {
             targetPace = 0
         }
         isTimeEditorPresented = false
+    }
+
+    private func activateRecovery(_ type: SegmentRecoveryType) {
+        if recoveryType != type {
+            recoveryType = type
+        }
+        if type != .rest {
+            lastRestSeconds = 0
+        }
     }
 
     private func distanceModeButton(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {

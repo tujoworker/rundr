@@ -57,6 +57,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private(set) var currentSegmentIndex: Int = 0
     /// How many laps have been completed in the current segment.
     private(set) var currentSegmentRepeatsDone: Int = 0
+    private(set) var currentRecoveryType: SegmentRecoveryType?
 
     /// The target distance for the next/current lap based on the segment plan.
     var currentTargetDistanceMeters: Double? {
@@ -104,7 +105,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     }
 
     private func resolvedTrackingMode(_ trackingMode: TrackingMode, segments: [DistanceSegment]) -> TrackingMode {
-        if trackingMode == .distanceDistance, segments.contains(where: \.usesOpenDistance) {
+        if trackingMode == .distanceDistance,
+           segments.contains(where: { $0.usesOpenDistance || $0.usesJogRecovery }) {
             return .dual
         }
         return trackingMode
@@ -122,6 +124,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private var currentLapHeartRateSamples: [Double] = []
     private var pauseStartedAt: Date?
     private var pausedRunState: WorkoutRunState?
+    private var pausedRecoveryType: SegmentRecoveryType?
     private var pausedRestElapsedSeconds: Int?
     private var pausedRestDurationSeconds: Int?
 
@@ -208,6 +211,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         currentSegmentRepeatsDone = snapshot.currentSegmentRepeatsDone
         pauseStartedAt = snapshot.effectivePauseStartedAt
         pausedRunState = snapshot.resumeRunState
+        currentRecoveryType = snapshot.currentRecoveryType
+        pausedRecoveryType = snapshot.resumeRunState == .rest ? snapshot.currentRecoveryType : nil
         pausedRestElapsedSeconds = snapshot.resumeRunState == .rest ? snapshot.restElapsedSeconds : nil
         pausedRestDurationSeconds = snapshot.resumeRunState == .rest ? snapshot.restDurationSeconds : nil
         restElapsedSeconds = snapshot.resumeRunState == .rest ? snapshot.restElapsedSeconds : nil
@@ -230,6 +235,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
 
     func getReady() {
         runState = .ready
+        currentRecoveryType = nil
         clearRecoverySnapshot()
         playHaptic(.click)
     }
@@ -320,9 +326,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         }
         let wasResting = (runState == .rest)
         clearTimeGoalWarning()
-        // Capture rest config before commit (which may advance the segment)
-        let restSecondsBeforeCommit = (!wasResting && usesManualIntervals)
-            ? autoRestDurationAfterCurrentActiveLap() : nil
+        let recoveryBeforeCommit = (!wasResting && usesManualIntervals)
+            ? recoveryAfterCurrentActiveLap() : nil
 
         if runState != .ending {
             commitCurrentLap(source: source)
@@ -333,17 +338,17 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             lapElapsedSeconds = 0
         }
 
-        // Auto-enter rest if the segment had restSeconds and we just finished an active lap
-        if let seconds = restSecondsBeforeCommit, seconds > 0 {
-            cancelRestTimer()
-            startAutoRest(seconds: seconds)
+        if let recoveryBeforeCommit {
+            beginRecovery(type: recoveryBeforeCommit.type, seconds: recoveryBeforeCommit.seconds)
         } else if !wasResting
                     && usesManualIntervals
                     && remainingPlannedIntervals == 0 {
             cancelRestTimer()
+            currentRecoveryType = .rest
             runState = .rest
         } else {
             cancelRestTimer()
+            currentRecoveryType = nil
             runState = .active
             startTimer()
         }
@@ -369,6 +374,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         if shouldPlayHaptic {
             playHaptic(.notification)
         }
+        currentRecoveryType = .rest
         runState = .rest
         persistRecoverySnapshotIfNeeded()
         publishLiveWorkoutStateIfNeeded()
@@ -379,6 +385,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         cancelPendingAutoRestDetection()
         cancelRestTimer()
         playHaptic(.click)
+        currentRecoveryType = nil
         runState = .active
         startTimer()
         persistRecoverySnapshotIfNeeded()
@@ -389,10 +396,12 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         guard runState == .paused else { return }
         if pausedRunState == .rest {
             pausedRunState = .active
+            pausedRecoveryType = nil
             pausedRestElapsedSeconds = nil
             pausedRestDurationSeconds = nil
         } else {
             pausedRunState = .rest
+            pausedRecoveryType = .rest
         }
         playHaptic(.click)
         persistRecoverySnapshotIfNeeded()
@@ -403,11 +412,16 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         runState == .paused && pausedRunState == .rest
     }
 
+    var willResumeIntoJog: Bool {
+        runState == .paused && pausedRunState == .rest && pausedRecoveryType == .jog
+    }
+
     func pauseSession() {
         guard runState == .active || runState == .rest else { return }
 
         pauseStartedAt = Date()
         pausedRunState = runState
+        pausedRecoveryType = currentRecoveryType
         pausedRestElapsedSeconds = restElapsedSeconds
         pausedRestDurationSeconds = restDurationSeconds
 
@@ -430,16 +444,22 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         applyPausedDuration(until: Date())
         let restElapsed = pausedRestElapsedSeconds ?? 0
         let restDuration = pausedRestDurationSeconds
+        let recoveryType = pausedRecoveryType
         clearPauseState()
 
         runState = previousRunState
+        currentRecoveryType = previousRunState == .rest ? recoveryType : nil
         startTimer()
         if usesGPSDistance {
             startLocationUpdates()
         }
 
-        if previousRunState == .rest, let restDuration {
-            startAutoRest(seconds: restDuration, initialElapsed: restElapsed)
+        if previousRunState == .rest {
+            if let restDuration {
+                startRecoveryTimer(seconds: restDuration, initialElapsed: restElapsed)
+            } else {
+                cancelRestTimer()
+            }
         }
 
         if hkWorkoutSession == nil {
@@ -485,6 +505,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         cancelRestTimer()
         cancelPendingAutoRestDetection()
         clearTimeGoalWarning()
+        currentRecoveryType = nil
         runState = .ended
         stopTimer()
         stopLocationUpdates()
@@ -496,13 +517,12 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         guard let startDate = sessionStartDate else { return nil }
 
         let duration = endDate.timeIntervalSince(startDate)
-        let totalDist = completedLaps.reduce(0) { $0 + $1.distanceMeters }
-        let totalGPSDist = completedLaps.reduce(0.0) { partial, lap in
+        let activeLaps = completedLaps.filter { $0.lapType == .active }
+        let totalDist = activeLaps.reduce(0) { $0 + $1.distanceMeters }
+        let totalGPSDist = activeLaps.reduce(0.0) { partial, lap in
             partial + (lap.gpsDistanceMeters ?? 0)
         }
-        let activeDuration = completedLaps
-            .filter { $0.lapType != .rest }
-            .reduce(0.0) { $0 + $1.durationSeconds }
+        let activeDuration = activeLaps.reduce(0.0) { $0 + $1.durationSeconds }
         let avgSpeed = activeDuration > 0 && totalDist > 0 ? totalDist / activeDuration : 0
 
         let session = Session(
@@ -552,6 +572,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         currentLapHeartRateSamples = []
         currentSegmentIndex = 0
         currentSegmentRepeatsDone = 0
+        currentRecoveryType = nil
         lastHealthKitCumulativeDistanceMeters = 0
         lastLocation = nil
         clearPauseState()
@@ -584,7 +605,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     func handleAutoRestMotionResume() {
         cancelPendingAutoRestDetection()
 
-        guard restMode == .autoDetect, runState == .rest else { return }
+        guard restMode == .autoDetect, runState == .rest, currentRecoveryType != .jog else { return }
         cancelRest()
     }
 
@@ -662,12 +683,23 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             guard duration > minimumLapDuration else { return }
         }
 
-        let isRest = (runState == .rest || runState == .ending)
+        let lapType: LapType
+        if runState == .ending {
+            lapType = .rest
+        } else if runState == .rest {
+            lapType = currentRecoveryType == .jog ? .jog : .rest
+        } else {
+            lapType = .active
+        }
         var distance: Double
         var gpsDistance: Double?
-        if isRest {
+        if lapType == .rest {
             distance = 0
             gpsDistance = nil
+        } else if lapType == .jog {
+            let measuredDistance = usesGPSDistance ? currentLapGPSDistanceMeters : currentLapDistanceMeters
+            distance = 0
+            gpsDistance = measuredDistance > 0 ? measuredDistance : nil
         } else if usesManualIntervals {
             if currentSegment.usesOpenDistance {
                 let measuredDistance = usesGPSDistance ? currentLapGPSDistanceMeters : currentLapDistanceMeters
@@ -681,11 +713,12 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             distance = currentLapGPSDistanceMeters
             gpsDistance = currentLapGPSDistanceMeters
         }
-        let avgSpeed = duration > 0 && distance > 0 ? distance / duration : 0
+        let speedDistance = lapType == .jog ? (gpsDistance ?? 0) : distance
+        let avgSpeed = duration > 0 && speedDistance > 0 ? speedDistance / duration : 0
         let avgHR: Double? = currentLapHeartRateSamples.isEmpty ? nil : currentLapHeartRateSamples.reduce(0, +) / Double(currentLapHeartRateSamples.count)
 
-        let activeLapCount = completedLaps.filter { $0.lapType != .rest }.count
-        let lapIndex = isRest ? 0 : activeLapCount + 1
+        let activeLapCount = completedLaps.filter { $0.lapType == .active }.count
+        let lapIndex = lapType.isRecovery ? 0 : activeLapCount + 1
 
         let lap = Lap(
             index: lapIndex,
@@ -696,13 +729,13 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             gpsDistanceMeters: gpsDistance,
             averageSpeedMetersPerSecond: avgSpeed,
             averageHeartRateBPM: avgHR,
-            lapType: isRest ? .rest : .active,
+            lapType: lapType,
             source: source
         )
         completedLaps.append(lap)
 
         // Advance segment if this was an active lap in distance mode
-        if !isRest && usesManualIntervals {
+        if lapType == .active && usesManualIntervals {
             advanceSegment()
         }
 
@@ -729,25 +762,34 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         }
     }
 
-    private func autoRestDurationAfterCurrentActiveLap() -> Int? {
+    private func recoveryAfterCurrentActiveLap() -> (type: SegmentRecoveryType, seconds: Int?)? {
         let segment = currentSegment
+        guard segment.usesRecovery else { return nil }
         let nextRepeatCount = currentSegmentRepeatsDone + 1
         let completesSegment = segment.repeatCount.map { nextRepeatCount >= $0 } ?? false
         let hasNextSegment = currentSegmentIndex + 1 < distanceSegments.count
 
-        if completesSegment && hasNextSegment {
-            return segment.lastRestSeconds ?? segment.restSeconds
+        if segment.usesRestRecovery && completesSegment && hasNextSegment {
+            return (segment.recoveryType, segment.lastRestSeconds ?? segment.restSeconds)
         }
 
-        return segment.restSeconds
+        return (segment.recoveryType, segment.restSeconds)
     }
 
-    private func startAutoRest(seconds: Int, initialElapsed: Int = 0) {
+    private func beginRecovery(type: SegmentRecoveryType, seconds: Int?) {
+        cancelRestTimer()
+        currentRecoveryType = type
         runState = .rest
+        if let seconds, seconds > 0 {
+            startRecoveryTimer(seconds: seconds)
+        }
+    }
+
+    private func startRecoveryTimer(seconds: Int, initialElapsed: Int = 0) {
         restElapsedSeconds = initialElapsed
         restDurationSeconds = seconds
         let remaining = seconds - initialElapsed
-        isRestWarningActive = remaining <= 5 && remaining >= 0
+        isRestWarningActive = currentRecoveryType == .rest && remaining <= 5 && remaining >= 0
 
         restTimerCancellable = Timer.publish(every: 1, on: .main, in: .common)
             .autoconnect()
@@ -759,7 +801,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
                 self.restElapsedSeconds = newElapsed
 
                 let remaining = duration - newElapsed
-                if remaining <= 5 && remaining >= 0 {
+                if self.currentRecoveryType == .rest, remaining <= 5 && remaining >= 0 {
                     if !self.isRestWarningActive {
                         self.isRestWarningActive = true
                     }
@@ -801,6 +843,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private func clearPauseState() {
         pauseStartedAt = nil
         pausedRunState = nil
+        pausedRecoveryType = nil
         pausedRestElapsedSeconds = nil
         pausedRestDurationSeconds = nil
     }
@@ -816,15 +859,17 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         guard let index = completedLaps.firstIndex(where: { $0.id == id }) else { return }
 
         completedLaps[index].lapType = newType
-        completedLaps[index].distanceMeters = newType == .rest ? 0 : max(0, newDistanceMeters)
+        completedLaps[index].distanceMeters = newType.isRecovery ? 0 : max(0, newDistanceMeters)
         if newType == .rest {
             completedLaps[index].gpsDistanceMeters = nil
+        } else if newType == .jog {
+            completedLaps[index].gpsDistanceMeters = max(0, newDistanceMeters)
         } else if trackingMode == .gps {
             completedLaps[index].gpsDistanceMeters = max(0, newDistanceMeters)
         }
 
         let duration = completedLaps[index].durationSeconds
-        let distance = completedLaps[index].distanceMeters
+        let distance = newType == .jog ? (completedLaps[index].gpsDistanceMeters ?? 0) : completedLaps[index].distanceMeters
         completedLaps[index].averageSpeedMetersPerSecond = duration > 0 && distance > 0 ? distance / duration : 0
 
         recalculateCompletedLapDerivedState()
@@ -836,11 +881,18 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         cumulativeGPSDistanceMeters = 0
 
         for index in completedLaps.indices {
-            if completedLaps[index].lapType == .rest {
+            if completedLaps[index].lapType.isRecovery {
                 completedLaps[index].index = 0
-                completedLaps[index].distanceMeters = 0
-                completedLaps[index].gpsDistanceMeters = nil
-                completedLaps[index].averageSpeedMetersPerSecond = 0
+                if completedLaps[index].lapType == .rest {
+                    completedLaps[index].distanceMeters = 0
+                    completedLaps[index].gpsDistanceMeters = nil
+                    completedLaps[index].averageSpeedMetersPerSecond = 0
+                } else {
+                    let gpsDistance = completedLaps[index].gpsDistanceMeters ?? 0
+                    let duration = completedLaps[index].durationSeconds
+                    completedLaps[index].distanceMeters = 0
+                    completedLaps[index].averageSpeedMetersPerSecond = duration > 0 && gpsDistance > 0 ? gpsDistance / duration : 0
+                }
                 continue
             }
 
@@ -1049,6 +1101,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             currentSegmentIndex: currentSegmentIndex,
             currentSegmentRepeatsDone: currentSegmentRepeatsDone,
             resumeRunState: resumeRunState,
+            currentRecoveryType: resumeRunState == .rest ? (runState == .paused ? pausedRecoveryType : currentRecoveryType) : nil,
             restElapsedSeconds: resumeRunState == .rest ? (runState == .paused ? pausedRestElapsedSeconds : restElapsedSeconds) : nil,
             restDurationSeconds: resumeRunState == .rest ? (runState == .paused ? pausedRestDurationSeconds : restDurationSeconds) : nil,
             pauseStartedAt: runState == .paused ? pauseStartedAt : nil
@@ -1088,6 +1141,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
             startedAt: sessionStartDate,
             updatedAt: Date(),
             runState: runState,
+            currentRecoveryType: currentRecoveryType,
             trackingMode: trackingMode,
             elapsedSeconds: elapsedSeconds,
             lapElapsedSeconds: lapElapsedSeconds,

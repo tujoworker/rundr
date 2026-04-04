@@ -1,5 +1,11 @@
 import Foundation
 
+enum SegmentRecoveryType: String, Codable, Equatable, Hashable {
+    case none
+    case rest
+    case jog
+}
+
 enum DistanceGoalMode: String, Codable, Equatable, Hashable {
     case distance
     case time
@@ -41,29 +47,52 @@ struct DistanceSegment: Codable, Identifiable, Equatable, Hashable {
     var distanceGoalMode: DistanceGoalMode
     /// Number of repeats for this segment. `nil` means unlimited (open-ended).
     var repeatCount: Int?
-    /// Rest duration in seconds after non-final repeats in this segment. `nil` means manual (user ends rest).
+    /// Recovery type after each active repeat. `.none` disables inserted recovery laps.
+    var recoveryType: SegmentRecoveryType
+    /// Recovery duration in seconds after non-final repeats in this segment. `nil` means manual.
     var restSeconds: Int?
-    /// Optional rest duration after the final repeat in this segment before the next segment begins.
-    /// Falls back to `restSeconds` when `nil`.
+    /// Optional final recovery duration before the next segment begins. Used for rest recovery only.
     var lastRestSeconds: Int?
     /// Target pace in seconds per kilometer. `nil` means no pace target.
     var targetPaceSecondsPerKm: Double?
     /// Target time in seconds for the segment distance. `nil` means no time target.
     var targetTimeSeconds: Double?
 
-    init(id: UUID = UUID(), name: String? = nil, distanceMeters: Double = 400, repeatCount: Int? = nil, restSeconds: Int? = nil,
+    init(id: UUID = UUID(), name: String? = nil, distanceMeters: Double = 400, repeatCount: Int? = nil,
+         recoveryType: SegmentRecoveryType? = nil, restSeconds: Int? = nil,
          lastRestSeconds: Int? = nil,
          distanceGoalMode: DistanceGoalMode = .fixed,
          targetPaceSecondsPerKm: Double? = nil, targetTimeSeconds: Double? = nil) {
+        let resolvedRecoveryType = recoveryType ?? ((restSeconds != nil || lastRestSeconds != nil) ? .rest : .none)
         self.id = id
         self.name = SegmentEditorValueRules.normalizedName(name)
         self.distanceMeters = distanceMeters
         self.distanceGoalMode = distanceGoalMode
         self.repeatCount = repeatCount
+        self.recoveryType = resolvedRecoveryType
         self.restSeconds = restSeconds
-        self.lastRestSeconds = lastRestSeconds
+        self.lastRestSeconds = resolvedRecoveryType == .rest ? lastRestSeconds : nil
         self.targetPaceSecondsPerKm = targetPaceSecondsPerKm
         self.targetTimeSeconds = targetTimeSeconds
+    }
+
+    init(id: UUID = UUID(), name: String? = nil, distanceMeters: Double = 400, repeatCount: Int? = nil,
+         restSeconds: Int? = nil,
+         lastRestSeconds: Int? = nil,
+         distanceGoalMode: DistanceGoalMode = .fixed,
+         targetPaceSecondsPerKm: Double? = nil, targetTimeSeconds: Double? = nil) {
+        self.init(
+            id: id,
+            name: name,
+            distanceMeters: distanceMeters,
+            repeatCount: repeatCount,
+            recoveryType: nil,
+            restSeconds: restSeconds,
+            lastRestSeconds: lastRestSeconds,
+            distanceGoalMode: distanceGoalMode,
+            targetPaceSecondsPerKm: targetPaceSecondsPerKm,
+            targetTimeSeconds: targetTimeSeconds
+        )
     }
 
     var trimmedName: String? {
@@ -72,6 +101,18 @@ struct DistanceSegment: Codable, Identifiable, Equatable, Hashable {
 
     var usesOpenDistance: Bool {
         distanceGoalMode.isTimeBased
+    }
+
+    var usesRecovery: Bool {
+        recoveryType != .none
+    }
+
+    var usesRestRecovery: Bool {
+        recoveryType == .rest
+    }
+
+    var usesJogRecovery: Bool {
+        recoveryType == .jog
     }
 
     var intervalRowPrimaryLabel: String {
@@ -110,6 +151,7 @@ struct DistanceSegment: Codable, Identifiable, Equatable, Hashable {
         case distanceMeters
         case distanceGoalMode
         case repeatCount
+        case recoveryType
         case restSeconds
         case lastRestSeconds
         case targetPaceSecondsPerKm
@@ -125,6 +167,11 @@ struct DistanceSegment: Codable, Identifiable, Equatable, Hashable {
         repeatCount = try container.decodeIfPresent(Int.self, forKey: .repeatCount)
         restSeconds = try container.decodeIfPresent(Int.self, forKey: .restSeconds)
         lastRestSeconds = try container.decodeIfPresent(Int.self, forKey: .lastRestSeconds)
+        recoveryType = try container.decodeIfPresent(SegmentRecoveryType.self, forKey: .recoveryType)
+            ?? ((restSeconds != nil || lastRestSeconds != nil) ? .rest : .none)
+        if recoveryType != .rest {
+            lastRestSeconds = nil
+        }
         targetPaceSecondsPerKm = try container.decodeIfPresent(Double.self, forKey: .targetPaceSecondsPerKm)
         targetTimeSeconds = try container.decodeIfPresent(Double.self, forKey: .targetTimeSeconds)
     }
@@ -136,6 +183,7 @@ struct DistanceSegment: Codable, Identifiable, Equatable, Hashable {
         try container.encode(distanceMeters, forKey: .distanceMeters)
         try container.encode(distanceGoalMode, forKey: .distanceGoalMode)
         try container.encodeIfPresent(repeatCount, forKey: .repeatCount)
+        try container.encode(recoveryType, forKey: .recoveryType)
         try container.encodeIfPresent(restSeconds, forKey: .restSeconds)
         try container.encodeIfPresent(lastRestSeconds, forKey: .lastRestSeconds)
         try container.encodeIfPresent(targetPaceSecondsPerKm, forKey: .targetPaceSecondsPerKm)

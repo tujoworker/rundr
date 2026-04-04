@@ -347,3 +347,8 @@
 "You use Rundr at your own risk. To the fullest extent permitted by law, you are responsible for your training choices and for any accident, injury, damage, loss, or other harmful event that happens while using the app." = "Du bruker Rundr på egen risiko. Så langt loven tillater det, er du ansvarlig for treningsvalgene dine og for enhver ulykke, skade, tap eller annen skadelig hendelse som skjer mens du bruker appen.";
 "Availability and Updates" = "Tilgjengelighet og oppdateringer";
 "Some features depend on Apple Watch, Apple Health, location services, and other Apple systems being available. Features may change over time. If these terms are updated in a future release, continued use of Rundr means you accept the updated terms." = "Noen funksjoner avhenger av at Apple Watch, Apple Health, plasseringstjenester og andre Apple-systemer er tilgjengelige. Funksjoner kan endre seg over tid. Hvis disse vilkårene oppdateres i en senere versjon, betyr fortsatt bruk av Rundr at du godtar de oppdaterte vilkårene.";
+"Jogging" = "Jogger";
+"Jogging for %@" = "Jogger i %@";
+"End Jog" = "Avslutt jogg";
+"With Jog Recovery" = "Med joggepause";
+"Jog recovery works like recovery time instead of a full work lap. Rundr tracks the jog in the workout, but keeps active totals and average pace focused on the hard intervals." = "Joggepause fungerer som restitusjonstid i stedet for et fullt arbeidsdrag. Rundr registrerer joggen i økten, men holder totaler og gjennomsnittsfart fokusert på de harde dragene.";

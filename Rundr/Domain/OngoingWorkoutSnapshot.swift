@@ -65,6 +65,7 @@ struct OngoingWorkoutSnapshot: Codable, Equatable {
     var currentSegmentIndex: Int
     var currentSegmentRepeatsDone: Int
     var resumeRunState: WorkoutRunState
+    var currentRecoveryType: SegmentRecoveryType? = nil
     var restElapsedSeconds: Int?
     var restDurationSeconds: Int?
     var pauseStartedAt: Date?
@@ -85,5 +86,110 @@ struct OngoingWorkoutSnapshot: Codable, Equatable {
 
     var effectivePauseStartedAt: Date {
         pauseStartedAt ?? savedAt
+    }
+
+    init(
+        sessionID: UUID,
+        savedAt: Date,
+        sessionStartDate: Date,
+        currentLapStartDate: Date,
+        elapsedSeconds: Double,
+        lapElapsedSeconds: Double,
+        trackingMode: TrackingMode,
+        distanceLapDistanceMeters: Double,
+        distanceSegments: [DistanceSegment],
+        restMode: RestMode,
+        originPlanID: UUID? = nil,
+        completedLaps: [OngoingWorkoutLapSnapshot],
+        cumulativeDistanceMeters: Double,
+        currentLapDistanceMeters: Double,
+        cumulativeGPSDistanceMeters: Double,
+        currentLapGPSDistanceMeters: Double,
+        currentHeartRate: Double?,
+        currentSegmentIndex: Int,
+        currentSegmentRepeatsDone: Int,
+        resumeRunState: WorkoutRunState,
+        currentRecoveryType: SegmentRecoveryType? = nil,
+        restElapsedSeconds: Int?,
+        restDurationSeconds: Int?,
+        pauseStartedAt: Date?
+    ) {
+        self.sessionID = sessionID
+        self.savedAt = savedAt
+        self.sessionStartDate = sessionStartDate
+        self.currentLapStartDate = currentLapStartDate
+        self.elapsedSeconds = elapsedSeconds
+        self.lapElapsedSeconds = lapElapsedSeconds
+        self.trackingMode = trackingMode
+        self.distanceLapDistanceMeters = distanceLapDistanceMeters
+        self.distanceSegments = distanceSegments
+        self.restMode = restMode
+        self.originPlanID = originPlanID
+        self.completedLaps = completedLaps
+        self.cumulativeDistanceMeters = cumulativeDistanceMeters
+        self.currentLapDistanceMeters = currentLapDistanceMeters
+        self.cumulativeGPSDistanceMeters = cumulativeGPSDistanceMeters
+        self.currentLapGPSDistanceMeters = currentLapGPSDistanceMeters
+        self.currentHeartRate = currentHeartRate
+        self.currentSegmentIndex = currentSegmentIndex
+        self.currentSegmentRepeatsDone = currentSegmentRepeatsDone
+        self.resumeRunState = resumeRunState
+        self.currentRecoveryType = currentRecoveryType
+        self.restElapsedSeconds = restElapsedSeconds
+        self.restDurationSeconds = restDurationSeconds
+        self.pauseStartedAt = pauseStartedAt
+    }
+
+    init(
+        sessionID: UUID,
+        savedAt: Date,
+        sessionStartDate: Date,
+        currentLapStartDate: Date,
+        elapsedSeconds: Double,
+        lapElapsedSeconds: Double,
+        trackingMode: TrackingMode,
+        distanceLapDistanceMeters: Double,
+        distanceSegments: [DistanceSegment],
+        restMode: RestMode,
+        originPlanID: UUID? = nil,
+        completedLaps: [OngoingWorkoutLapSnapshot],
+        cumulativeDistanceMeters: Double,
+        currentLapDistanceMeters: Double,
+        cumulativeGPSDistanceMeters: Double,
+        currentLapGPSDistanceMeters: Double,
+        currentHeartRate: Double?,
+        currentSegmentIndex: Int,
+        currentSegmentRepeatsDone: Int,
+        resumeRunState: WorkoutRunState,
+        restElapsedSeconds: Int?,
+        restDurationSeconds: Int?,
+        pauseStartedAt: Date?
+    ) {
+        self.init(
+            sessionID: sessionID,
+            savedAt: savedAt,
+            sessionStartDate: sessionStartDate,
+            currentLapStartDate: currentLapStartDate,
+            elapsedSeconds: elapsedSeconds,
+            lapElapsedSeconds: lapElapsedSeconds,
+            trackingMode: trackingMode,
+            distanceLapDistanceMeters: distanceLapDistanceMeters,
+            distanceSegments: distanceSegments,
+            restMode: restMode,
+            originPlanID: originPlanID,
+            completedLaps: completedLaps,
+            cumulativeDistanceMeters: cumulativeDistanceMeters,
+            currentLapDistanceMeters: currentLapDistanceMeters,
+            cumulativeGPSDistanceMeters: cumulativeGPSDistanceMeters,
+            currentLapGPSDistanceMeters: currentLapGPSDistanceMeters,
+            currentHeartRate: currentHeartRate,
+            currentSegmentIndex: currentSegmentIndex,
+            currentSegmentRepeatsDone: currentSegmentRepeatsDone,
+            resumeRunState: resumeRunState,
+            currentRecoveryType: nil,
+            restElapsedSeconds: restElapsedSeconds,
+            restDurationSeconds: restDurationSeconds,
+            pauseStartedAt: pauseStartedAt
+        )
     }
 }

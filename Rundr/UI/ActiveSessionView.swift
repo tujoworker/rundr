@@ -39,6 +39,10 @@ struct ActiveSessionView: View {
         workoutController.runState == .rest
     }
 
+    private var isJoggingRecovery: Bool {
+        workoutController.runState == .rest && workoutController.currentRecoveryType == .jog
+    }
+
     private var isWorkoutPaused: Bool {
         workoutController.runState == .paused
     }
@@ -79,6 +83,10 @@ struct ActiveSessionView: View {
     }
 
     private var timerTopLabel: String {
+        if isJoggingRecovery {
+            return timerTopLabel(L10n.jog, includeLap: false)
+        }
+
         if workoutController.trackingMode.usesManualIntervals {
             let distanceStr = workoutController.currentTargetDistanceMeters.map {
                 Formatters.distanceString(meters: $0, unit: settings.distanceUnit)
@@ -117,6 +125,8 @@ struct ActiveSessionView: View {
         ActiveSessionTimerBadgeContent.statusText(
             runState: workoutController.runState,
             willResumeIntoRest: workoutController.willResumeIntoRest,
+            willResumeIntoJog: workoutController.willResumeIntoJog,
+            currentRecoveryType: workoutController.currentRecoveryType,
             restDurationSeconds: workoutController.restDurationSeconds
         )
     }
@@ -315,7 +325,9 @@ struct ActiveSessionView: View {
                             isDashed: restButtonShowsEndRest,
                             iconFontSizeOverride: 34
                         )
-                        Text(restButtonShowsEndRest ? L10n.endRest : (settings.restMode == .autoDetect ? L10n.restModeAuto : L10n.markAsRest))
+                        Text(restButtonShowsEndRest
+                            ? (isJoggingRecovery || workoutController.willResumeIntoJog ? L10n.endJog : L10n.endRest)
+                            : (settings.restMode == .autoDetect ? L10n.restModeAuto : L10n.markAsRest))
                             .font(.system(size: Tokens.FontSize.sm, weight: .medium, design: .rounded))
                             .foregroundStyle(theme.text.subtle)
                     }
@@ -692,10 +704,11 @@ struct ActiveSessionView: View {
 
     private func presentLapEditor(for lap: Lap) {
         let initialDistanceText = distanceText(from: lap.distanceMeters)
+        let editableLapType: LapType = lap.lapType == .active ? .active : .rest
         lapEditorState = LapEditorState(
             id: lap.id,
-            lapType: lap.lapType,
-            distanceText: lap.lapType == .active ? defaultDistanceTextIfNeeded(initialDistanceText) : initialDistanceText
+            lapType: editableLapType,
+            distanceText: editableLapType == .active ? defaultDistanceTextIfNeeded(initialDistanceText) : initialDistanceText
         )
     }
 
@@ -815,15 +828,33 @@ private enum StatusBadgeStyle {
 }
 
 enum ActiveSessionTimerBadgeContent {
-    static func statusText(runState: WorkoutRunState, willResumeIntoRest: Bool, restDurationSeconds: Int? = nil) -> String? {
+    static func statusText(
+        runState: WorkoutRunState,
+        willResumeIntoRest: Bool,
+        willResumeIntoJog: Bool,
+        currentRecoveryType: SegmentRecoveryType?,
+        restDurationSeconds: Int? = nil
+    ) -> String? {
         switch runState {
         case .paused:
+            if willResumeIntoJog {
+                if let restDurationSeconds, restDurationSeconds > 0 {
+                    return L10n.jogModePausedStatusWithDuration(restDurationText(seconds: restDurationSeconds))
+                }
+                return L10n.jogModePausedStatus
+            }
             guard willResumeIntoRest else { return L10n.workoutPaused }
             if let restDurationSeconds, restDurationSeconds > 0 {
                 return L10n.restModePausedStatusWithDuration(restDurationText(seconds: restDurationSeconds))
             }
             return L10n.restModePausedStatus
         case .rest:
+            if currentRecoveryType == .jog {
+                if let restDurationSeconds, restDurationSeconds > 0 {
+                    return L10n.jogModeStatusWithDuration(restDurationText(seconds: restDurationSeconds))
+                }
+                return L10n.jogModeStatus
+            }
             if let restDurationSeconds, restDurationSeconds > 0 {
                 return L10n.restModeStatusWithDuration(restDurationText(seconds: restDurationSeconds))
             }
@@ -910,10 +941,10 @@ struct LapCardView: View {
     var isLatest: Bool = false
     @Environment(\.appTheme) private var theme
 
-    private var isRest: Bool { lap.lapType == .rest }
+    private var isRecovery: Bool { lap.lapType.isRecovery }
 
     private var cardBackgroundColor: Color {
-        if isRest {
+        if isRecovery {
             return theme.background.bold
         }
 
@@ -926,7 +957,7 @@ struct LapCardView: View {
 
     var body: some View {
         Group {
-            if isRest {
+            if isRecovery {
                 Text(Formatters.compactTimeString(from: lap.durationSeconds))
                     .font(.system(size: 25, weight: .medium, design: .rounded))
                     .monospacedDigit()
@@ -964,16 +995,16 @@ struct LapCardView: View {
         .padding(.top, lapCardTopPadding)
         .padding(.leading, lapCardLeadingPadding)
         .padding(.bottom, lapCardBottomPadding)
-        .padding(.trailing, isRest ? lapCardLeadingPadding : lapCardTrailingPadding)
+        .padding(.trailing, isRecovery ? lapCardLeadingPadding : lapCardTrailingPadding)
         .frame(height: latestCardHeight)
         .fixedSize(horizontal: true, vertical: false)
-        .foregroundColor(isRest ? theme.text.bold : theme.text.neutral)
+        .foregroundColor(isRecovery ? theme.text.bold : theme.text.neutral)
         .background(cardBackgroundColor)
         .cornerRadius(Tokens.Radius.xl)
         .overlay(
             RoundedRectangle(cornerRadius: Tokens.Radius.xl)
-                .inset(by: !isRest ? Tokens.LineWidth.thin : 0)
-                .stroke(borderColor, lineWidth: !isRest ? Tokens.LineWidth.medium : 0)
+            .inset(by: !isRecovery ? Tokens.LineWidth.thin : 0)
+            .stroke(borderColor, lineWidth: !isRecovery ? Tokens.LineWidth.medium : 0)
         )
     }
 }

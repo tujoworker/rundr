@@ -219,7 +219,7 @@ final class HealthKitManager: ObservableObject {
                 samples.append(sample)
             }
 
-            if lap.lapType != .rest,
+                if lap.lapType == .active,
                let energyType = HKQuantityType.quantityType(forIdentifier: .activeEnergyBurned) {
                 let hours = lap.durationSeconds / 3600
                 let kcal = 8 * weightKg * hours
@@ -242,7 +242,7 @@ final class HealthKitManager: ObservableObject {
 
         // Add segment events for active laps
         for lap in session.laps.sorted(by: { $0.startedAt < $1.startedAt }) {
-            if lap.lapType != .rest {
+            if lap.lapType == .active {
                 let segmentEvent = HKWorkoutEvent(
                     type: .segment,
                     dateInterval: DateInterval(start: lap.startedAt, end: lap.endedAt),

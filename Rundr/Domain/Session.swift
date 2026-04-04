@@ -55,6 +55,7 @@ struct WorkoutPlanMatchSegmentSignature: Equatable {
     let distanceMeters: Double
     let distanceGoalMode: DistanceGoalMode
     let repeatCount: Int?
+    let recoveryType: SegmentRecoveryType
     let restSeconds: Int?
     let lastRestSeconds: Int?
     let targetPaceSecondsPerKm: Double?
@@ -65,6 +66,7 @@ struct WorkoutPlanMatchSegmentSignature: Equatable {
         distanceMeters = segment.distanceMeters
         distanceGoalMode = segment.distanceGoalMode
         repeatCount = segment.repeatCount
+        recoveryType = segment.recoveryType
         restSeconds = segment.restSeconds
         lastRestSeconds = segment.lastRestSeconds
         targetPaceSecondsPerKm = segment.targetPaceSecondsPerKm
@@ -108,6 +110,7 @@ enum WorkoutPlanSupport {
             name: source.trimmedName,
             distanceMeters: source.distanceMeters,
             repeatCount: source.repeatCount,
+            recoveryType: source.recoveryType,
             restSeconds: source.restSeconds,
             lastRestSeconds: source.lastRestSeconds,
             distanceGoalMode: source.distanceGoalMode,
@@ -122,7 +125,7 @@ enum WorkoutPlanSupport {
         currentTrackingMode: TrackingMode? = nil
     ) -> TrackingMode {
         if requestedTrackingMode == .distanceDistance,
-           segments.contains(where: \.usesOpenDistance) {
+              segments.contains(where: { $0.usesOpenDistance || $0.usesJogRecovery }) {
             return .dual
         }
 
@@ -161,6 +164,7 @@ enum WorkoutPlanSupport {
 
 enum SegmentEditSheetSection: Hashable {
     case timeTarget
+    case jog
     case rest
     case lastRest
     case repeats
@@ -169,10 +173,10 @@ enum SegmentEditSheetSection: Hashable {
 
     static func orderedSections(for usesOpenDistance: Bool) -> [SegmentEditSheetSection] {
         if usesOpenDistance {
-            return [.timeTarget, .rest, .lastRest, .repeats, .name]
+            return [.timeTarget, .jog, .rest, .lastRest, .repeats, .name]
         }
 
-        return [.rest, .lastRest, .repeats, .paceTarget, .timeTarget, .name]
+        return [.jog, .rest, .lastRest, .repeats, .paceTarget, .timeTarget, .name]
     }
 }
 
@@ -356,6 +360,7 @@ enum CompanionSegmentEditorField {
     case distance
     case repeats
     case rest
+    case jog
     case lastRest
     case time
     case pace
@@ -367,7 +372,7 @@ enum CompanionSegmentEditorRules {
         lastRestSeconds: Int?
     ) -> Bool {
         switch field {
-        case .time, .pace, .distance, .repeats, .rest:
+        case .time, .pace, .distance, .repeats, .rest, .jog:
             return true
         case .lastRest:
             return (lastRestSeconds ?? 0) > 0
@@ -380,6 +385,8 @@ enum CompanionSegmentEditorRules {
             return L10n.off
         case .rest:
             return L10n.restManual
+        case .jog:
+            return L10n.manual
         case .distance, .repeats, .lastRest:
             return nil
         }

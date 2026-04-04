@@ -488,7 +488,7 @@ enum CompanionSegmentEditorRules {
         case .rest:
             return L10n.restManual
         case .activeRecovery:
-            return L10n.manual
+            return L10n.off
         case .distance, .repeats, .lastRest:
             return nil
         }

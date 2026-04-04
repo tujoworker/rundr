@@ -1789,7 +1789,7 @@ final class ModelTests: XCTestCase {
 
         XCTAssertEqual(
             CompanionSegmentEditorRules.emptyDisplayValue(for: .activeRecovery),
-            L10n.manual
+            L10n.off
         )
         XCTAssertEqual(
             CompanionSegmentEditorRules.emptyDisplayValue(for: .time),

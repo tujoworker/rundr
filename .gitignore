@@ -10,7 +10,8 @@
 # Build artifacts
 build/
 DerivedData/
+.derived*/
+.derived*.log
 
 # SwiftPM local build/cache
 .build/
-.derived-sim

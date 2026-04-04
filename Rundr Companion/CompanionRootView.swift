@@ -1383,73 +1383,52 @@ private struct CompanionWorkoutEditorView: View {
         List {
             if showsCustomMetadataSection {
                 Section {
-                    if showsCustomTitle {
-                        HStack(spacing: Tokens.Spacing.xs) {
-                            TextField(
-                                "",
-                                text: $customTitle,
-                                prompt: Text(L10n.optionalTitlePlaceholder)
+                    VStack(alignment: .leading, spacing: Tokens.Spacing.xl) {
+                        if showsCustomTitle {
+                            VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+                                Text(L10n.title)
+                                    .font(.caption.weight(.semibold))
                                     .foregroundStyle(theme.text.subtle)
-                            )
-                            .textInputAutocapitalization(.words)
-                            .multilineTextAlignment(.leading)
-                            .font(.body.weight(.medium))
-                            .foregroundStyle(theme.text.neutral)
-                            .frame(maxWidth: .infinity, alignment: .leading)
 
-                            Button {
-                                customTitle = ""
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
-                                    .foregroundStyle(theme.text.subtle)
-                                    .opacity(customTitle.isEmpty ? 0 : 1)
+                                TextField(
+                                    "",
+                                    text: $customTitle,
+                                    prompt: Text(L10n.optionalTitlePlaceholder)
+                                        .foregroundStyle(theme.text.subtle)
+                                )
+                                .textInputAutocapitalization(.words)
+                                .multilineTextAlignment(.leading)
+                                .font(.body.weight(.medium))
+                                .foregroundStyle(theme.text.neutral)
+                                .frame(maxWidth: .infinity, alignment: .leading)
                             }
-                            .buttonStyle(.plain)
-                            .disabled(customTitle.isEmpty)
-                            .padding(.leading, Tokens.Spacing.sm)
-                            .padding(.trailing, Tokens.Spacing.xxs)
-                            .padding(.vertical, Tokens.Spacing.xxs)
                         }
-                        .listRowCardChrome(
-                            rowInsets: CompanionSessionPlanStyle.rowInsets,
-                            contentInsets: customTitleRowContentInsets
-                        )
-                    }
 
-                    if showsCustomDescription {
-                        HStack(spacing: Tokens.Spacing.xs) {
-                            TextField(
-                                "",
-                                text: $customDescription,
-                                prompt: Text(L10n.optionalDescriptionPlaceholder)
-                                    .foregroundStyle(theme.text.subtle),
-                                axis: .vertical
-                            )
-                            .lineLimit(1...3)
-                            .multilineTextAlignment(.leading)
-                            .font(.subheadline)
-                            .foregroundStyle(theme.text.neutral)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                            Button {
-                                customDescription = ""
-                            } label: {
-                                Image(systemName: "xmark.circle.fill")
+                        if showsCustomDescription {
+                            VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+                                Text(L10n.description)
+                                    .font(.caption.weight(.semibold))
                                     .foregroundStyle(theme.text.subtle)
-                                    .opacity(customDescription.isEmpty ? 0 : 1)
-                            }
-                            .buttonStyle(.plain)
-                            .disabled(customDescription.isEmpty)
-                            .padding(.leading, Tokens.Spacing.sm)
-                            .padding(.trailing, Tokens.Spacing.xxs)
-                            .padding(.vertical, Tokens.Spacing.xxs)
-                        }
-                        .listRowCardChrome(
-                            rowInsets: CompanionSessionPlanStyle.rowInsets,
-                            contentInsets: customTitleRowContentInsets
-                        )
-                    }
 
+                                TextField(
+                                    "",
+                                    text: $customDescription,
+                                    prompt: Text(L10n.optionalDescriptionPlaceholder)
+                                        .foregroundStyle(theme.text.subtle),
+                                    axis: .vertical
+                                )
+                                .lineLimit(1...3)
+                                .multilineTextAlignment(.leading)
+                                .font(.subheadline)
+                                .foregroundStyle(theme.text.neutral)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
+                    }
+                    .listRowCardChrome(
+                        rowInsets: CompanionSessionPlanStyle.rowInsets,
+                        contentInsets: customTitleRowContentInsets
+                    )
                 }
                 .listSectionSeparator(.hidden)
             }

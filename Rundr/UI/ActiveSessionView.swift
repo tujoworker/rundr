@@ -436,6 +436,9 @@ struct ActiveSessionView: View {
                     }
                     .scrollBounceBehavior(.basedOnSize, axes: .horizontal)
                     .contentShape(Rectangle())
+                    .onAppear {
+                        scrollLapHistoryToLatest(using: proxy, animated: false)
+                    }
                     .simultaneousGesture(
                         DragGesture(minimumDistance: 4)
                             .onChanged { _ in
@@ -449,11 +452,7 @@ struct ActiveSessionView: View {
                             }
                     )
                     .onChange(of: workoutController.completedLaps.count) {
-                        if let lastLap = workoutController.completedLaps.last {
-                            withAnimation {
-                                proxy.scrollTo(lastLap.id, anchor: .trailing)
-                            }
-                        }
+                        scrollLapHistoryToLatest(using: proxy, animated: true)
 
                         let lapCount = workoutController.completedLaps.count
                         if ActiveSessionTimerAnimationRouting.shouldAnimateOnLapCountChange(
@@ -811,6 +810,23 @@ struct ActiveSessionView: View {
             guard !Task.isCancelled else { return }
             await MainActor.run {
                 selectedPage = 1
+            }
+        }
+    }
+
+    private func scrollLapHistoryToLatest(using proxy: ScrollViewProxy, animated: Bool) {
+        guard let latestLapID = ActiveSessionLapHistoryRouting.latestLapID(in: workoutController.completedLaps) else {
+            return
+        }
+
+        Task { @MainActor in
+            await Task.yield()
+            if animated {
+                withAnimation {
+                    proxy.scrollTo(latestLapID, anchor: .trailing)
+                }
+            } else {
+                proxy.scrollTo(latestLapID, anchor: .trailing)
             }
         }
     }
@@ -1330,6 +1346,12 @@ enum ActiveSessionTimerAnimationRouting {
     ) -> Int? {
         guard let pendingLapAnimationCount else { return nil }
         return lapCount >= pendingLapAnimationCount ? nil : pendingLapAnimationCount
+    }
+}
+
+enum ActiveSessionLapHistoryRouting {
+    static func latestLapID(in laps: [Lap]) -> UUID? {
+        laps.last?.id
     }
 }
 

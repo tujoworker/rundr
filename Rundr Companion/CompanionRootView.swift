@@ -1816,17 +1816,23 @@ private struct CompanionSegmentRow: View {
             )
         }
 
-        items.append(contentsOf: [
-            MetricItem(title: L10n.repeats, value: repeatValue)
-        ])
+        if segment.usesRecovery {
+            items.append(
+                MetricItem(
+                    title: segment.usesActiveRecovery ? L10n.recovery : L10n.rest,
+                    value: segment.restSeconds.map { Formatters.compactTimeString(from: Double($0)) }
+                        ?? (segment.usesActiveRecovery ? L10n.off : L10n.restManual)
+                )
+            )
+        }
 
-        switch segment.recoveryType {
-        case .activeRecovery:
-            items.append(MetricItem(title: L10n.recovery, value: activeRecoveryValue))
-        case .rest:
-            items.append(MetricItem(title: L10n.rest, value: restValue))
-        case .none:
-            items.append(MetricItem(title: L10n.rest, value: L10n.restManual))
+        if let count = segment.repeatCount {
+            let repeatItem = MetricItem(title: L10n.repeats, value: String(count))
+            if segment.usesOpenDistance {
+                items.append(repeatItem)
+            } else {
+                items.insert(repeatItem, at: 0)
+            }
         }
 
         if showsLastRest {

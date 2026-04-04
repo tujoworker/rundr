@@ -1841,6 +1841,12 @@ private struct CompanionSegmentRow: View {
         }
     }
 
+    private var metricLayoutSignature: String {
+        metricItems
+            .map { "\($0.title):\($0.value)" }
+            .joined(separator: "|")
+    }
+
     var body: some View {
         HStack(alignment: .top, spacing: Tokens.Spacing.md) {
             VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
@@ -1870,6 +1876,7 @@ private struct CompanionSegmentRow: View {
                                 }
                             }
                         }
+                        .animation(.snappy(duration: 0.28, extraBounce: 0.0), value: metricLayoutSignature)
                     }
                 }
             }

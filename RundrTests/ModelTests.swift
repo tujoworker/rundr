@@ -1648,6 +1648,22 @@ final class ModelTests: XCTestCase {
         XCTAssertNil(segments.first?.lastRestSeconds)
     }
 
+    func testOverUnderPresetUsesFourEightMinuteIntervalsWithJogRecoveries() {
+        let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "overUnder" }))
+        let segments = preset?.workoutPlan.distanceSegments ?? []
+
+        XCTAssertEqual(preset?.workoutPlan.trackingMode, .dual)
+        XCTAssertEqual(segments.count, 7)
+        XCTAssertEqual(
+            segments.map(\.trimmedName),
+            [L10n.predefinedOverUnderTitle, L10n.jog, L10n.predefinedOverUnderTitle, L10n.jog, L10n.predefinedOverUnderTitle, L10n.jog, L10n.predefinedOverUnderTitle]
+        )
+        XCTAssertEqual(segments.map(\.targetTimeSeconds), [480, 120, 480, 120, 480, 120, 480])
+        XCTAssertTrue(segments.allSatisfy { $0.distanceGoalMode == .open })
+        XCTAssertTrue(segments.allSatisfy { $0.restSeconds == nil })
+        XCTAssertTrue(segments.allSatisfy { $0.lastRestSeconds == nil })
+    }
+
     func testFortyFiveFifteensPresetUsesTwoOpenSetsWithSetRest() {
         let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "fortyFiveFifteens" }))
         let segments = preset?.workoutPlan.distanceSegments ?? []

@@ -480,7 +480,7 @@ final class SettingsStore: ObservableObject {
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
                     openTimeSegment(
-                        name: L10n.predefinedOverUnderTitle,
+                        name: "",
                         durationSeconds: 480,
                         repeatCount: 4,
                         recoveryType: .activeRecovery,
@@ -504,7 +504,7 @@ final class SettingsStore: ObservableObject {
                     openTimeSegment(name: "", durationSeconds: 240, recoveryType: .activeRecovery, recoverySeconds: 240),
                     openTimeSegment(name: "", durationSeconds: 180, recoveryType: .activeRecovery, recoverySeconds: 180),
                     openTimeSegment(name: "", durationSeconds: 120, recoveryType: .activeRecovery, recoverySeconds: 120),
-                    openTimeSegment(name: "", durationSeconds: 60)
+                        openTimeSegment(name: "", durationSeconds: 60, recoveryType: .activeRecovery, recoverySeconds: 60)
                 ],
                 restMode: .manual
             )
@@ -522,8 +522,7 @@ final class SettingsStore: ObservableObject {
                         durationSeconds: 120,
                         repeatCount: 6,
                         recoveryType: .activeRecovery,
-                        recoverySeconds: 180,
-                        lastRecoverySeconds: 180
+                        recoverySeconds: 180
                     )
                 ],
                 restMode: .manual

@@ -1863,7 +1863,7 @@ final class ModelTests: XCTestCase {
 
         XCTAssertEqual(preset?.workoutPlan.trackingMode, .dual)
         XCTAssertEqual(segments.count, 1)
-        XCTAssertEqual(segments.first?.trimmedName, L10n.predefinedOverUnderTitle)
+        XCTAssertNil(segments.first?.trimmedName)
         XCTAssertEqual(segments.first?.repeatCount, 4)
         XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
         XCTAssertEqual(segments.first?.restSeconds, 120)
@@ -1907,8 +1907,8 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(segments.count, 7)
         XCTAssertTrue(segments.allSatisfy { $0.trimmedName == nil })
         XCTAssertEqual(segments.map(\.targetTimeSeconds), [60, 120, 180, 240, 180, 120, 60])
-        XCTAssertEqual(segments.map(\.recoveryType), [.activeRecovery, .activeRecovery, .activeRecovery, .activeRecovery, .activeRecovery, .activeRecovery, .none])
-        XCTAssertEqual(segments.map(\.restSeconds), [60, 120, 180, 240, 180, 120, nil])
+            XCTAssertEqual(segments.map(\.recoveryType), [.activeRecovery, .activeRecovery, .activeRecovery, .activeRecovery, .activeRecovery, .activeRecovery, .activeRecovery])
+            XCTAssertEqual(segments.map(\.restSeconds), [60, 120, 180, 240, 180, 120, 60])
         XCTAssertTrue(segments.allSatisfy { $0.distanceGoalMode == .open })
         XCTAssertTrue(segments.allSatisfy { $0.lastRestSeconds == nil })
     }
@@ -1950,7 +1950,7 @@ final class ModelTests: XCTestCase {
         XCTAssertNil(segments.last?.lastRestSeconds)
     }
 
-    func testStructuredFartlekPresetUsesLastRestOnRepeatedSurges() {
+    func testStructuredFartlekPresetUsesRepeatedSurgesWithoutLastRest() {
         let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "structuredFartlek" }))
         let segments = preset?.workoutPlan.distanceSegments ?? []
 
@@ -1959,7 +1959,7 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(segments.first?.repeatCount, 6)
         XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
         XCTAssertEqual(segments.first?.restSeconds, 180)
-        XCTAssertEqual(segments.first?.lastRestSeconds, 180)
+        XCTAssertNil(segments.first?.lastRestSeconds)
     }
 
     func testLongTwelvesPresetUsesRepeatedThresholdSegmentWithActiveRecovery() {

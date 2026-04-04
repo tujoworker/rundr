@@ -552,8 +552,8 @@ private struct SegmentRow: View {
     @Environment(\.appTheme) private var theme
 
     private let detailColumns = [
-        GridItem(.flexible(), spacing: 10, alignment: .topLeading),
-        GridItem(.flexible(), spacing: 10, alignment: .topLeading)
+        GridItem(.flexible(), spacing: Tokens.Spacing.xs, alignment: .topLeading),
+        GridItem(.flexible(), spacing: Tokens.Spacing.xs, alignment: .topLeading)
     ]
 
     private var headlineText: String {
@@ -595,7 +595,7 @@ private struct SegmentRow: View {
         if segment.usesRecovery {
             items.append(
                 SessionStatItem(
-                    label: segment.usesActiveRecovery ? L10n.activeRecovery : L10n.rest,
+                    label: segment.usesActiveRecovery ? L10n.recovery : L10n.rest,
                     value: segment.restSeconds.map { Formatters.compactTimeString(from: Double($0)) }
                         ?? (segment.usesActiveRecovery ? L10n.off : L10n.restManual)
                 )
@@ -649,7 +649,7 @@ private struct SegmentRow: View {
                         .font(.system(size: Tokens.FontSize.xl, weight: .semibold, design: .rounded))
                         .foregroundStyle(theme.text.neutral)
                     if hasSecondaryDetails {
-                        LazyVGrid(columns: detailColumns, alignment: .leading, spacing: Tokens.Spacing.md) {
+                        LazyVGrid(columns: detailColumns, alignment: .leading, spacing: Tokens.Spacing.sm) {
                             ForEach(detailItems) { item in
                                 VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                                     Text(item.label)
@@ -666,7 +666,7 @@ private struct SegmentRow: View {
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, Tokens.Spacing.xxl)
+                .padding(.horizontal, Tokens.Spacing.xl)
                 .padding(.vertical, Tokens.Spacing.xl)
                 .background(
                     RoundedRectangle(cornerRadius: Tokens.Radius.xxxl, style: .continuous)
@@ -685,7 +685,7 @@ private struct SegmentRow: View {
             }
             .buttonStyle(.plain)
             .padding(.top, Tokens.Spacing.xl)
-            .padding(.trailing, Tokens.Spacing.xxl)
+            .padding(.trailing, Tokens.Spacing.xl)
         }
         .alert(headlineText, isPresented: $isDeleteConfirmationPresented) {
             Button(L10n.delete, role: .destructive, action: onDelete)

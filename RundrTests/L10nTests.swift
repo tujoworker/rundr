@@ -97,6 +97,7 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.timeInterval, "Time")
         XCTAssertEqual(L10n.segmentName, "Title")
         XCTAssertEqual(L10n.optionalSegmentNamePlaceholder, "(optional)")
+        XCTAssertEqual(L10n.recovery, "Recovery")
     }
 
     func testMoreLabelExistsForCompanionOverflowTab() {
@@ -119,6 +120,7 @@ final class L10nTests: XCTestCase {
     }
 
     func testCompanionDescriptionPlaceholderExists() {
+        XCTAssertEqual(L10n.description, "Description")
         XCTAssertEqual(L10n.optionalDescriptionPlaceholder, "Description (optional)")
     }
 
@@ -138,7 +140,7 @@ final class L10nTests: XCTestCase {
 
     func testPredefinedWorkoutDescriptionsExist() {
         XCTAssertEqual(L10n.predefinedFortyFiveFifteensDescription, "20-30 x (45s / 15s), continuous or 2 sets. Maximum threshold time with micro-recovery. High quality without full fatigue.")
-        XCTAssertEqual(L10n.predefinedOverUnderDescription, "4 x 8 min alternating 1 min over / 1 min under. Trains lactate handling and pace changes.")
+        XCTAssertEqual(L10n.predefinedOverUnderDescription, "4 x 8 min alternating 1 min over / 1 min under. Under is around half marathon to threshold feel, over is around 10K effort. Trains lactate handling and pace changes.")
         XCTAssertEqual(L10n.predefinedFourHundredRepeatsDescription, "10 x 400 m / 90s active recovery, split sets optional. Speed plus running economy. Classic and effective.")
         XCTAssertEqual(L10n.predefinedFourHundredRepeatsNoRestDescription, "10 x 400 m continuous, no rest between reps. Trains pace control and relaxed form under accumulating fatigue.")
     }

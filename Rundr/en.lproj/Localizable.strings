@@ -15,6 +15,7 @@
 "Add Session" = "Add Session";
 "Predefined" = "Predefined";
 "Title" = "Title";
+"Description" = "Description";
 "Title (optional)" = "Title (optional)";
 "Description (optional)" = "Description (optional)";
 "45/15" = "45/15";
@@ -33,7 +34,7 @@
 "5 x 6 min / 1 min active recovery. Stable, controlled threshold work. High volume without overload." = "5 x 6 min / 1 min active recovery. Stable, controlled threshold work. High volume without overload.";
 "6 x 1000 m / 90s active recovery (or 2x3). Race pace strength plus aerobic power. Easy to track progress." = "6 x 1000 m / 90s active recovery (or 2x3). Race pace strength plus aerobic power. Easy to track progress.";
 "2-3 sets of 10 x (30s / 15s). High VO2max stimulus without full exhaustion." = "2-3 sets of 10 x (30s / 15s). High VO2max stimulus without full exhaustion.";
-"4 x 8 min alternating 1 min over / 1 min under. Trains lactate handling and pace changes." = "4 x 8 min alternating 1 min over / 1 min under. Trains lactate handling and pace changes.";
+"4 x 8 min alternating 1 min over / 1 min under. Under is around half marathon to threshold feel, over is around 10K effort. Trains lactate handling and pace changes." = "4 x 8 min alternating 1 min over / 1 min under. Under is around half marathon to threshold feel, over is around 10K effort. Trains lactate handling and pace changes.";
 "1-2-3-4-3-2-1 min with equal rest, repeat. Covers multiple intensities in one session." = "1-2-3-4-3-2-1 min with equal rest, repeat. Covers multiple intensities in one session.";
 "10 x 400 m / 90s active recovery, split sets optional. Speed plus running economy. Classic and effective." = "10 x 400 m / 90s active recovery, split sets optional. Speed plus running economy. Classic and effective.";
 "10 x 400 m continuous, no rest between reps. Trains pace control and relaxed form under accumulating fatigue." = "10 x 400 m continuous, no rest between reps. Trains pace control and relaxed form under accumulating fatigue.";
@@ -52,6 +53,7 @@
 "Interval Type" = "Interval Type";
 "Name" = "Name";
 "(optional)" = "(optional)";
+"Recovery" = "Recovery";
 "Active Recovery" = "Active Recovery";
 "Run" = "Run";
 "Sprint" = "Sprint";

@@ -43,12 +43,31 @@ struct ActiveSessionView: View {
         workoutController.runState == .rest && workoutController.currentRecoveryType == .activeRecovery
     }
 
+    private var isRestingAfterRecovery: Bool {
+        workoutController.runState == .rest && workoutController.currentRecoveryType != .activeRecovery
+    }
+
     private var isWorkoutPaused: Bool {
         workoutController.runState == .paused
     }
 
     private var restButtonShowsEndRest: Bool {
-        isResting || workoutController.willResumeIntoRest
+        if workoutController.runState == .paused {
+            return workoutController.willResumeIntoRest
+        }
+        return isRestingAfterRecovery
+    }
+
+    private var restButtonLabel: String {
+        if workoutController.runState == .paused && workoutController.willResumeIntoActiveRecovery {
+            return L10n.endActiveRecovery
+        }
+
+        if restButtonShowsEndRest {
+            return L10n.endRest
+        }
+
+        return settings.restMode == .autoDetect ? L10n.restModeAuto : L10n.markAsRest
     }
 
     private var currentLapNumber: Int {
@@ -83,10 +102,6 @@ struct ActiveSessionView: View {
     }
 
     private var timerTopLabel: String {
-        if isActiveRecovery {
-            return timerTopLabel(L10n.activeRecovery, includeLap: false)
-        }
-
         if workoutController.trackingMode.usesManualIntervals {
             let distanceStr = workoutController.currentTargetDistanceMeters.map {
                 Formatters.distanceString(meters: $0, unit: settings.distanceUnit)
@@ -325,9 +340,7 @@ struct ActiveSessionView: View {
                             isDashed: restButtonShowsEndRest,
                             iconFontSizeOverride: 34
                         )
-                        Text(restButtonShowsEndRest
-                            ? (isActiveRecovery || workoutController.willResumeIntoActiveRecovery ? L10n.endActiveRecovery : L10n.endRest)
-                            : (settings.restMode == .autoDetect ? L10n.restModeAuto : L10n.markAsRest))
+                        Text(restButtonLabel)
                             .font(.system(size: Tokens.FontSize.sm, weight: .medium, design: .rounded))
                             .foregroundStyle(theme.text.subtle)
                     }
@@ -690,7 +703,10 @@ struct ActiveSessionView: View {
     }
 
     private func handleRestButtonTap() {
-        switch ActiveSessionControlRouting.restButtonAction(for: workoutController.runState) {
+        switch ActiveSessionControlRouting.restButtonAction(
+            for: workoutController.runState,
+            currentRecoveryType: workoutController.currentRecoveryType
+        ) {
         case .startRest:
             workoutController.startRest(shouldPlayHaptic: false)
         case .cancelRest:
@@ -814,13 +830,16 @@ enum ActiveSessionControlRouting {
 
     static let pageTransitionDelay = Duration.milliseconds(140)
 
-    static func restButtonAction(for runState: WorkoutRunState) -> RestButtonAction {
+    static func restButtonAction(
+        for runState: WorkoutRunState,
+        currentRecoveryType: SegmentRecoveryType? = nil
+    ) -> RestButtonAction {
         switch runState {
         case .paused:
             return .toggleRestWhilePaused
-        case .rest:
+        case .rest where currentRecoveryType != .activeRecovery:
             return .cancelRest
-        case .idle, .ready, .active, .ending, .ended:
+        case .idle, .ready, .active, .rest, .ending, .ended:
             return .startRest
         }
     }

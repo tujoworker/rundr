@@ -11,8 +11,15 @@ final class ActiveSessionControlRoutingTests: XCTestCase {
     }
 
     func testRestButtonActionCancelsRestFromRestAndTogglesWhilePaused() {
-        XCTAssertEqual(ActiveSessionControlRouting.restButtonAction(for: .rest), .cancelRest)
+        XCTAssertEqual(ActiveSessionControlRouting.restButtonAction(for: .rest, currentRecoveryType: .rest), .cancelRest)
         XCTAssertEqual(ActiveSessionControlRouting.restButtonAction(for: .paused), .toggleRestWhilePaused)
+    }
+
+    func testRestButtonActionStartsRestFromActiveRecovery() {
+        XCTAssertEqual(
+            ActiveSessionControlRouting.restButtonAction(for: .rest, currentRecoveryType: .activeRecovery),
+            .startRest
+        )
     }
 
     func testPauseResumeActionMapsPausedToResumeAndOthersToPause() {

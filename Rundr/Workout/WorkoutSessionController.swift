@@ -369,10 +369,14 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     }
 
     func startRest(shouldPlayHaptic: Bool = true) {
-        guard runState == .active else { return }
+        guard runState == .active || (runState == .rest && currentRecoveryType == .activeRecovery) else { return }
         cancelPendingAutoRestDetection()
         if shouldPlayHaptic {
             playHaptic(.notification)
+        }
+        if runState == .rest && currentRecoveryType == .activeRecovery {
+            cancelRestTimer()
+            commitCurrentLap(source: .distanceTap, ignoringMinimumDuration: true)
         }
         currentRecoveryType = .rest
         runState = .rest
@@ -585,7 +589,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     }
 
     func handleAutoRestMotionPause() {
-        guard restMode == .autoDetect, runState == .active else { return }
+        guard restMode == .autoDetect,
+              runState == .active || (runState == .rest && currentRecoveryType == .activeRecovery) else { return }
 
         cancelPendingAutoRestDetection()
         let delay = autoRestDetectionDelay
@@ -661,7 +666,8 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private func completePendingAutoRestDetection() {
         pendingAutoRestTask = nil
 
-        guard restMode == .autoDetect, runState == .active else { return }
+        guard restMode == .autoDetect,
+              runState == .active || (runState == .rest && currentRecoveryType == .activeRecovery) else { return }
         startRest()
     }
 
@@ -675,11 +681,11 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     /// Minimum lap duration to prevent accidental double-taps from the on-screen lap button.
     var minimumLapDuration: TimeInterval = 0.5
 
-    private func commitCurrentLap(source: LapSource) {
+    private func commitCurrentLap(source: LapSource, ignoringMinimumDuration: Bool = false) {
         guard let lapStart = currentLapStartDate else { return }
         let lapEnd = Date()
         let duration = lapEnd.timeIntervalSince(lapStart)
-        if source == .distanceTap {
+        if source == .distanceTap, !ignoringMinimumDuration {
             guard duration > minimumLapDuration else { return }
         }
 

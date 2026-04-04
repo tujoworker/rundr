@@ -245,6 +245,35 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.remainingPlannedIntervals, 1)
     }
 
+    func testStartingRestDuringActiveRecoverySplitsIntoSeparateRecoveryAndRestLaps() {
+        let controller = makeStartedController(
+            trackingMode: .dual,
+            segments: [DistanceSegment(distanceMeters: 400, repeatCount: 2, recoveryType: .activeRecovery, restSeconds: 30)]
+        )
+
+        controller.handleGPSDistanceUpdate(additionalMeters: 400)
+        controller.markLap()
+
+        controller.handleGPSDistanceUpdate(additionalMeters: 120)
+        controller.startRest(shouldPlayHaptic: false)
+
+        XCTAssertEqual(controller.runState, .rest)
+        XCTAssertEqual(controller.currentRecoveryType, .rest)
+        XCTAssertEqual(controller.completedLaps.count, 2)
+        XCTAssertEqual(controller.completedLaps[1].lapType, .activeRecovery)
+        XCTAssertEqual(controller.completedLaps[1].distanceMeters, 0)
+        XCTAssertEqual(controller.completedLaps[1].gpsDistanceMeters, 120)
+        XCTAssertNil(controller.restDurationSeconds)
+        XCTAssertEqual(controller.remainingPlannedIntervals, 1)
+
+        controller.markLap()
+
+        XCTAssertEqual(controller.completedLaps.count, 3)
+        XCTAssertEqual(controller.completedLaps[2].lapType, .rest)
+        XCTAssertEqual(controller.runState, .active)
+        XCTAssertEqual(controller.remainingPlannedIntervals, 1)
+    }
+
     func testTotalPlannedIntervalsForFinitePlan() {
         let segments = [
             DistanceSegment(distanceMeters: 400, repeatCount: 2),
@@ -688,6 +717,33 @@ final class WorkoutControllerTests: XCTestCase {
         controller.handleAutoRestMotionResume()
 
         XCTAssertEqual(controller.runState, .active)
+    }
+
+    func testAutoDetectRestCanStartFromActiveRecovery() async {
+        let controller = makeController()
+        controller.configure(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 2, recoveryType: .activeRecovery, restSeconds: 30)],
+            restMode: .autoDetect,
+            healthKitManager: HealthKitManager()
+        )
+        controller.autoRestDetectionDelay = .milliseconds(20)
+        controller.minimumLapDuration = 0
+        controller.startWithoutHealthKit()
+
+        controller.handleGPSDistanceUpdate(additionalMeters: 400)
+        controller.markLap()
+        controller.handleGPSDistanceUpdate(additionalMeters: 60)
+
+        controller.handleAutoRestMotionPause()
+        try? await Task.sleep(for: .milliseconds(40))
+
+        XCTAssertEqual(controller.runState, .rest)
+        XCTAssertEqual(controller.currentRecoveryType, .rest)
+        XCTAssertEqual(controller.completedLaps.count, 2)
+        XCTAssertEqual(controller.completedLaps[1].lapType, .activeRecovery)
+        XCTAssertEqual(controller.completedLaps[1].gpsDistanceMeters, 60)
     }
 
     func testRecoverySnapshotRestoresPausedWorkout() {

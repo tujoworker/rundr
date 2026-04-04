@@ -158,6 +158,13 @@ struct DistanceSegment: Codable, Identifiable, Equatable, Hashable {
         activeRecoverySeconds = activeRecoverySeconds.flatMap { $0 > 0 ? $0 : nil }
         lastRestSeconds = lastRestSeconds.flatMap { $0 > 0 ? $0 : nil }
 
+        if recoveryType == .activeRecovery,
+           activeRecoverySeconds == nil,
+           let legacyActiveRecoverySeconds = restSeconds {
+            activeRecoverySeconds = legacyActiveRecoverySeconds
+            restSeconds = nil
+        }
+
         if usesActiveRecovery {
             recoveryType = .activeRecovery
         } else if usesRestRecovery || lastRestSeconds != nil {

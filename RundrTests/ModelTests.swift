@@ -292,6 +292,41 @@ final class ModelTests: XCTestCase {
         XCTAssertTrue(WorkoutPlanSupport.normalizedSegments([]).isEmpty)
     }
 
+    func testWorkoutPlanSupportNormalizedSegmentsMigratesLegacyActiveRecoveryStorage() {
+        let segment = DistanceSegment(
+            distanceMeters: 400,
+            recoveryType: .activeRecovery,
+            restSeconds: 45
+        )
+
+        let normalized = WorkoutPlanSupport.normalizedSegments([segment])
+
+        XCTAssertEqual(normalized.count, 1)
+        XCTAssertEqual(normalized[0].recoveryType, .activeRecovery)
+        XCTAssertEqual(normalized[0].activeRecoverySeconds, 45)
+        XCTAssertNil(normalized[0].restSeconds)
+    }
+
+    func testWorkoutPlanSupportNormalizedSegmentsClearsEmptyRecoveryMarker() {
+        var segment = DistanceSegment(
+            distanceMeters: 400,
+            recoveryType: .rest,
+            restSeconds: 30
+        )
+        segment.recoveryType = .rest
+        segment.restSeconds = nil
+        segment.activeRecoverySeconds = nil
+        segment.lastRestSeconds = nil
+
+        let normalized = WorkoutPlanSupport.normalizedSegments([segment])
+
+        XCTAssertEqual(normalized.count, 1)
+        XCTAssertEqual(normalized[0].recoveryType, .none)
+        XCTAssertNil(normalized[0].restSeconds)
+        XCTAssertNil(normalized[0].activeRecoverySeconds)
+        XCTAssertNil(normalized[0].lastRestSeconds)
+    }
+
     func testSettingsStoreApplyWorkoutPlanAllowsEmptyManualSegments() {
         UserDefaults.standard.removeObject(forKey: "distanceSegmentsJSON")
         defer { UserDefaults.standard.removeObject(forKey: "distanceSegmentsJSON") }

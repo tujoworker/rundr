@@ -408,13 +408,7 @@ struct PreStartView: View {
     }
 
     private func normalizedSegments(_ input: [DistanceSegment]) -> [DistanceSegment] {
-        guard input.count > 1 else { return input }
-
-        var normalized = input
-        for index in normalized.indices.dropLast() where normalized[index].repeatCount == nil {
-            normalized[index].repeatCount = 1
-        }
-        return normalized
+        WorkoutPlanSupport.normalizedSegments(input)
     }
 
     private func startSession() {
@@ -445,7 +439,9 @@ struct PreStartView: View {
         editingSegmentDistanceText = displayDist == floor(displayDist) ? String(format: "%.0f", displayDist) : String(format: "%g", displayDist)
         editingSegmentRepeatCount = segment.repeatCount ?? 0
         editingSegmentRecoveryType = segment.recoveryType
-        editingSegmentRestSeconds = segment.restSeconds ?? 0
+        editingSegmentRestSeconds = segment.recoveryType == .activeRecovery
+            ? (segment.activeRecoverySeconds ?? 0)
+            : (segment.restSeconds ?? 0)
         editingSegmentLastRestSeconds = segment.lastRestSeconds ?? 0
         editingSegmentTargetPace = Int(segment.targetPaceSecondsPerKm ?? 0)
         editingSegmentTargetTime = Int(segment.targetTimeSeconds ?? 0)
@@ -1075,13 +1071,7 @@ private struct IntervalSetupView: View {
     }
 
     private func normalizedSegments(_ input: [DistanceSegment]) -> [DistanceSegment] {
-        guard input.count > 1 else { return input }
-
-        var normalized = input
-        for index in normalized.indices.dropLast() where normalized[index].repeatCount == nil {
-            normalized[index].repeatCount = 1
-        }
-        return normalized
+        WorkoutPlanSupport.normalizedSegments(input)
     }
 
     private func continueToGetReady() {
@@ -1170,7 +1160,9 @@ private struct IntervalSetupView: View {
             : String(format: "%g", displayDistance)
         editingSegmentRepeatCount = segment.repeatCount ?? 0
         editingSegmentRecoveryType = segment.recoveryType
-        editingSegmentRestSeconds = segment.restSeconds ?? 0
+        editingSegmentRestSeconds = segment.recoveryType == .activeRecovery
+            ? (segment.activeRecoverySeconds ?? 0)
+            : (segment.restSeconds ?? 0)
         editingSegmentLastRestSeconds = segment.lastRestSeconds ?? 0
         editingSegmentTargetPace = Int(segment.targetPaceSecondsPerKm ?? 0)
         editingSegmentTargetTime = Int(segment.targetTimeSeconds ?? 0)

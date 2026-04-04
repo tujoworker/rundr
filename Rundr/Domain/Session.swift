@@ -78,7 +78,11 @@ struct WorkoutPlanMatchSegmentSignature: Equatable {
 
 enum WorkoutPlanSupport {
     static func normalizedSegments(_ input: [DistanceSegment]) -> [DistanceSegment] {
-        let segments = input
+        let segments = input.map { segment in
+            var normalizedSegment = segment
+            normalizedSegment.normalizeRecoveryConfiguration()
+            return normalizedSegment
+        }
         guard segments.count > 1 else { return segments }
 
         var normalized = segments

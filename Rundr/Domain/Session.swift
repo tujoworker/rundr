@@ -808,6 +808,7 @@ enum SessionHistorySummaryRouting {
         let firstSegment = session.snapshotWorkoutPlan.distanceSegments.first
         let sessionUsesOpenIntervals = session.snapshotWorkoutPlan.distanceSegments.contains(where: \.usesOpenDistance)
         let activeDistanceForPace: Double
+        let averageHeartRateBPM = activeAverageHeartRateBPM(for: session)
 
         if session.mode.usesManualIntervals && !sessionUsesOpenIntervals {
             activeDistanceForPace = session.totalDistanceMeters
@@ -858,7 +859,20 @@ enum SessionHistorySummaryRouting {
             )
         )
 
+        if let averageHeartRateBPM {
+            items.append(
+                SessionHistorySummaryItem(
+                    label: L10n.heartRate,
+                    value: Formatters.heartRateString(bpm: averageHeartRateBPM)
+                )
+            )
+        }
+
         return items
+    }
+
+    static func activeAverageHeartRateBPM(for session: Session) -> Double? {
+        averageHeartRateBPM(for: session, lapType: .active)
     }
 
     static func activeRecoveryItems(for session: Session, distanceUnit: DistanceUnit) -> [SessionHistorySummaryItem] {
@@ -914,7 +928,11 @@ enum SessionHistorySummaryRouting {
     }
 
     static func activeRecoveryAverageHeartRateBPM(for session: Session) -> Double? {
-        let lapsWithHeartRate = session.laps.filter { $0.lapType == .activeRecovery && $0.averageHeartRateBPM != nil }
+        averageHeartRateBPM(for: session, lapType: .activeRecovery)
+    }
+
+    private static func averageHeartRateBPM(for session: Session, lapType: LapType) -> Double? {
+        let lapsWithHeartRate = session.laps.filter { $0.lapType == lapType && $0.averageHeartRateBPM != nil }
         guard !lapsWithHeartRate.isEmpty else { return nil }
 
         let weightedHeartRate = lapsWithHeartRate.reduce(0.0) { partialResult, lap in

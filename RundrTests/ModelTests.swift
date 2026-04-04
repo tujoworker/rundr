@@ -170,6 +170,7 @@ final class ModelTests: XCTestCase {
             distanceMeters: 400,
             gpsDistanceMeters: 418,
             averageSpeedMetersPerSecond: 3.33,
+            averageHeartRateBPM: 152,
             lapType: .active
         )
         let activeRecoveryLap = Lap(
@@ -198,6 +199,10 @@ final class ModelTests: XCTestCase {
         XCTAssertTrue(items.contains(SessionHistorySummaryItem(
             label: L10n.gpsDistanceLabel,
             value: Formatters.distanceString(meters: 518, unit: .km)
+        )))
+        XCTAssertTrue(items.contains(SessionHistorySummaryItem(
+            label: L10n.heartRate,
+            value: Formatters.heartRateString(bpm: 152)
         )))
         XCTAssertFalse(items.contains(where: { $0.label == L10n.totalDistanceLabel }))
     }

@@ -12,6 +12,7 @@ final class CompanionSessionSummaryRoutingTests: XCTestCase {
             distanceMeters: 400,
             gpsDistanceMeters: 418,
             averageSpeedMetersPerSecond: 3.33,
+            averageHeartRateBPM: 152,
             lapType: .active
         )
         let activeRecoveryLap = Lap(
@@ -36,6 +37,7 @@ final class CompanionSessionSummaryRoutingTests: XCTestCase {
 
         XCTAssertEqual(sections.map(\.title), [L10n.summary, L10n.activeRecovery])
         XCTAssertTrue(sections[0].items.contains(where: { $0.label == L10n.gpsDistanceLabel && $0.value == Formatters.distanceString(meters: 518, unit: .km) }))
+        XCTAssertTrue(sections[0].items.contains(where: { $0.label == L10n.heartRate && $0.value == Formatters.heartRateString(bpm: 152) }))
         XCTAssertFalse(sections[0].items.contains(where: { $0.label == L10n.totalDistanceLabel }))
         XCTAssertEqual(sections[1].items.map(\.label), [L10n.distance, L10n.averagePaceLabel, L10n.heartRate])
         XCTAssertEqual(sections[1].items[0].value, Formatters.distanceString(meters: 100, unit: .km))

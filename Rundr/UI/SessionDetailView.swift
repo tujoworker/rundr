@@ -31,6 +31,11 @@ struct SessionDetailView: View {
             .map { SessionStatItem(label: $0.label, value: $0.value) }
     }
 
+    private var activeRecoveryStats: [SessionStatItem] {
+        SessionHistorySummaryRouting.activeRecoveryItems(for: session, distanceUnit: settings.distanceUnit)
+            .map { SessionStatItem(label: $0.label, value: $0.value) }
+    }
+
     private var targetSegmentsByLapID: [UUID: DistanceSegment] {
         SessionLapTargetResolver.targetSegments(
             for: sortedLaps,
@@ -76,6 +81,16 @@ struct SessionDetailView: View {
                 .padding(.trailing, Tokens.Spacing.xs)
 
                 SessionStatsView(items: sessionStats)
+
+                if !activeRecoveryStats.isEmpty {
+                    Text(L10n.activeRecovery)
+                        .font(.caption.bold())
+                        .foregroundStyle(theme.text.subtle)
+                        .padding(.horizontal, Tokens.Spacing.xs)
+                        .padding(.top, Tokens.Spacing.xs)
+
+                    SessionStatsView(items: activeRecoveryStats)
+                }
 
                 Text(L10n.laps)
                     .font(.caption.bold())

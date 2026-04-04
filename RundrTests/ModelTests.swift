@@ -211,6 +211,7 @@ final class ModelTests: XCTestCase {
             distanceMeters: 0,
             gpsDistanceMeters: 100,
             averageSpeedMetersPerSecond: 1.67,
+            averageHeartRateBPM: 145,
             lapType: .activeRecovery
         )
         let session = makeHistorySession(
@@ -222,8 +223,9 @@ final class ModelTests: XCTestCase {
 
         let items = SessionHistorySummaryRouting.activeRecoveryItems(for: session, distanceUnit: .km)
 
-        XCTAssertEqual(items.map(\.label), [L10n.distance, L10n.averagePaceLabel])
+        XCTAssertEqual(items.map(\.label), [L10n.distance, L10n.averagePaceLabel, L10n.heartRate])
         XCTAssertEqual(items.first?.value, Formatters.distanceString(meters: 100, unit: .km))
+        XCTAssertEqual(items[2].value, Formatters.heartRateString(bpm: 145))
     }
 
     func testTrackingModeAllCases() {

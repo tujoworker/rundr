@@ -864,12 +864,13 @@ enum SessionHistorySummaryRouting {
     static func activeRecoveryItems(for session: Session, distanceUnit: DistanceUnit) -> [SessionHistorySummaryItem] {
         let distanceMeters = activeRecoveryDistanceMeters(for: session)
         let durationSeconds = activeRecoveryDurationSeconds(for: session)
+        let averageHeartRateBPM = activeRecoveryAverageHeartRateBPM(for: session)
 
-        guard distanceMeters > 0 || durationSeconds > 0 else {
+        guard distanceMeters > 0 || durationSeconds > 0 || averageHeartRateBPM != nil else {
             return []
         }
 
-        return [
+        var items = [
             SessionHistorySummaryItem(
                 label: L10n.distance,
                 value: formattedDistance(distanceMeters, unit: distanceUnit)
@@ -883,6 +884,17 @@ enum SessionHistorySummaryRouting {
                 )
             )
         ]
+
+        if let averageHeartRateBPM {
+            items.append(
+                SessionHistorySummaryItem(
+                    label: L10n.heartRate,
+                    value: Formatters.heartRateString(bpm: averageHeartRateBPM)
+                )
+            )
+        }
+
+        return items
     }
 
     static func activeRecoveryDistanceMeters(for session: Session) -> Double {
@@ -899,6 +911,24 @@ enum SessionHistorySummaryRouting {
             .reduce(0) { partialResult, lap in
                 partialResult + lap.durationSeconds
             }
+    }
+
+    static func activeRecoveryAverageHeartRateBPM(for session: Session) -> Double? {
+        let lapsWithHeartRate = session.laps.filter { $0.lapType == .activeRecovery && $0.averageHeartRateBPM != nil }
+        guard !lapsWithHeartRate.isEmpty else { return nil }
+
+        let weightedHeartRate = lapsWithHeartRate.reduce(0.0) { partialResult, lap in
+            partialResult + (lap.averageHeartRateBPM ?? 0) * max(lap.durationSeconds, 0)
+        }
+        let totalDuration = lapsWithHeartRate.reduce(0.0) { partialResult, lap in
+            partialResult + max(lap.durationSeconds, 0)
+        }
+
+        guard totalDuration > 0 else {
+            return lapsWithHeartRate.compactMap(\ .averageHeartRateBPM).average
+        }
+
+        return weightedHeartRate / totalDuration
     }
 
     static func totalGPSDistanceMetersIncludingActiveRecovery(for session: Session) -> Double {
@@ -920,5 +950,16 @@ enum SessionHistorySummaryRouting {
         distanceMeters > 0
             ? Formatters.paceString(distanceMeters: distanceMeters, durationSeconds: durationSeconds, unit: unit)
             : L10n.dash
+    }
+}
+
+private extension Sequence where Element == Double {
+    var average: Double? {
+        var count = 0
+        let total = reduce(0.0) { partialResult, value in
+            count += 1
+            return partialResult + value
+        }
+        return count > 0 ? total / Double(count) : nil
     }
 }

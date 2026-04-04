@@ -22,6 +22,7 @@ final class CompanionSessionSummaryRoutingTests: XCTestCase {
             distanceMeters: 0,
             gpsDistanceMeters: 100,
             averageSpeedMetersPerSecond: 1.67,
+            averageHeartRateBPM: 145,
             lapType: .activeRecovery
         )
         let session = makeSession(
@@ -36,12 +37,13 @@ final class CompanionSessionSummaryRoutingTests: XCTestCase {
         XCTAssertEqual(sections.map(\.title), [L10n.summary, L10n.activeRecovery])
         XCTAssertTrue(sections[0].items.contains(where: { $0.label == L10n.gpsDistanceLabel && $0.value == Formatters.distanceString(meters: 518, unit: .km) }))
         XCTAssertFalse(sections[0].items.contains(where: { $0.label == L10n.totalDistanceLabel }))
-        XCTAssertEqual(sections[1].items.map(\.label), [L10n.distance, L10n.averagePaceLabel])
+        XCTAssertEqual(sections[1].items.map(\.label), [L10n.distance, L10n.averagePaceLabel, L10n.heartRate])
         XCTAssertEqual(sections[1].items[0].value, Formatters.distanceString(meters: 100, unit: .km))
         XCTAssertEqual(
             sections[1].items[1].value,
             Formatters.paceString(distanceMeters: 100, durationSeconds: 60, unit: .km)
         )
+        XCTAssertEqual(sections[1].items[2].value, Formatters.heartRateString(bpm: 145))
     }
 
     func testSectionsStaySingleWhenSessionHasNoActiveRecovery() {

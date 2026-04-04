@@ -144,6 +144,7 @@ struct IntervalPresetSegmentSignature: Codable, Equatable {
     let distanceMeters: Double
     let distanceGoalMode: DistanceGoalMode
     let repeatCount: Int?
+    let recoveryType: SegmentRecoveryType
     let restSeconds: Int?
     let lastRestSeconds: Int?
     let targetPaceSecondsPerKm: Double?
@@ -154,6 +155,7 @@ struct IntervalPresetSegmentSignature: Codable, Equatable {
         distanceMeters = segment.distanceMeters
         distanceGoalMode = segment.distanceGoalMode
         repeatCount = segment.repeatCount
+        recoveryType = segment.recoveryType
         restSeconds = segment.restSeconds
         lastRestSeconds = segment.lastRestSeconds
         targetPaceSecondsPerKm = segment.targetPaceSecondsPerKm
@@ -299,6 +301,44 @@ final class SettingsStore: ObservableObject {
     @AppStorage("presetUsageCountsJSON") private var presetUsageCountsJSON: String = ""
     @AppStorage("workoutPlanOriginID") private var workoutPlanOriginIDRaw: String = ""
 
+    private static func openTimeSegment(
+        name: String,
+        durationSeconds: Double,
+        repeatCount: Int? = 1,
+        recoveryType: SegmentRecoveryType = .none,
+        recoverySeconds: Int? = nil,
+        lastRecoverySeconds: Int? = nil
+    ) -> DistanceSegment {
+        DistanceSegment(
+            name: name,
+            distanceMeters: 0,
+            repeatCount: repeatCount,
+            recoveryType: recoveryType,
+            restSeconds: recoverySeconds,
+            lastRestSeconds: lastRecoverySeconds,
+            distanceGoalMode: .open,
+            targetTimeSeconds: durationSeconds
+        )
+    }
+
+    private static func fixedDistanceSegment(
+        name: String,
+        distanceMeters: Double,
+        repeatCount: Int? = 1,
+        recoveryType: SegmentRecoveryType = .none,
+        recoverySeconds: Int? = nil,
+        lastRecoverySeconds: Int? = nil
+    ) -> DistanceSegment {
+        DistanceSegment(
+            name: name,
+            distanceMeters: distanceMeters,
+            repeatCount: repeatCount,
+            recoveryType: recoveryType,
+            restSeconds: recoverySeconds,
+            lastRestSeconds: lastRecoverySeconds
+        )
+    }
+
 
     static let predefinedIntervalPresets: [PredefinedIntervalPreset] = [
         PredefinedIntervalPreset(
@@ -309,13 +349,13 @@ final class SettingsStore: ObservableObject {
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
-                    DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 240),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
-                    DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 240),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
-                    DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 240),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
-                    DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 240)
+                    openTimeSegment(
+                        name: L10n.run,
+                        durationSeconds: 240,
+                        repeatCount: 4,
+                        recoveryType: .activeRecovery,
+                        recoverySeconds: 180
+                    )
                 ],
                 restMode: .manual
             )
@@ -328,15 +368,13 @@ final class SettingsStore: ObservableObject {
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
-                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 360),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
-                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 360),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
-                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 360),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
-                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 360),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
-                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 360)
+                    openTimeSegment(
+                        name: L10n.threshold,
+                        durationSeconds: 360,
+                        repeatCount: 5,
+                        recoveryType: .activeRecovery,
+                        recoverySeconds: 60
+                    )
                 ],
                 restMode: .manual
             )
@@ -349,17 +387,13 @@ final class SettingsStore: ObservableObject {
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 1000,
                 distanceSegments: [
-                    DistanceSegment(name: L10n.run, distanceMeters: 1000, repeatCount: 1),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
-                    DistanceSegment(name: L10n.run, distanceMeters: 1000, repeatCount: 1),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
-                    DistanceSegment(name: L10n.run, distanceMeters: 1000, repeatCount: 1),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
-                    DistanceSegment(name: L10n.run, distanceMeters: 1000, repeatCount: 1),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
-                    DistanceSegment(name: L10n.run, distanceMeters: 1000, repeatCount: 1),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 90),
-                    DistanceSegment(name: L10n.run, distanceMeters: 1000, repeatCount: 1)
+                    fixedDistanceSegment(
+                        name: L10n.run,
+                        distanceMeters: 1000,
+                        repeatCount: 6,
+                        recoveryType: .activeRecovery,
+                        recoverySeconds: 90
+                    )
                 ],
                 restMode: .manual
             )
@@ -372,25 +406,13 @@ final class SettingsStore: ObservableObject {
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 400,
                 distanceSegments: [
-                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
-                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
-                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
-                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
-                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
-                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
-                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
-                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
-                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
-                    DistanceSegment(name: L10n.run, distanceMeters: 400, repeatCount: 1)
+                    fixedDistanceSegment(
+                        name: L10n.run,
+                        distanceMeters: 400,
+                        repeatCount: 10,
+                        recoveryType: .activeRecovery,
+                        recoverySeconds: 60
+                    )
                 ],
                 restMode: .manual
             )
@@ -414,8 +436,24 @@ final class SettingsStore: ObservableObject {
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
-                    DistanceSegment(name: L10n.sprint, distanceMeters: 0, repeatCount: 20, restSeconds: 15, lastRestSeconds: 90, distanceGoalMode: .open, targetTimeSeconds: 45),
-                    DistanceSegment(name: L10n.sprint, distanceMeters: 0, repeatCount: 20, restSeconds: 15, distanceGoalMode: .open, targetTimeSeconds: 45)
+                    openTimeSegment(
+                        name: L10n.sprint,
+                        durationSeconds: 45,
+                        repeatCount: 15,
+                        recoveryType: .activeRecovery,
+                        recoverySeconds: 15
+                    ),
+                    openTimeSegment(
+                        name: L10n.rest,
+                        durationSeconds: 90
+                    ),
+                    openTimeSegment(
+                        name: L10n.sprint,
+                        durationSeconds: 45,
+                        repeatCount: 15,
+                        recoveryType: .activeRecovery,
+                        recoverySeconds: 15
+                    )
                 ],
                 restMode: .manual
             )
@@ -428,8 +466,24 @@ final class SettingsStore: ObservableObject {
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
-                    DistanceSegment(name: L10n.sprint, distanceMeters: 0, repeatCount: 10, restSeconds: 15, lastRestSeconds: 120, distanceGoalMode: .open, targetTimeSeconds: 30),
-                    DistanceSegment(name: L10n.sprint, distanceMeters: 0, repeatCount: 10, restSeconds: 15, distanceGoalMode: .open, targetTimeSeconds: 30)
+                    openTimeSegment(
+                        name: L10n.sprint,
+                        durationSeconds: 30,
+                        repeatCount: 10,
+                        recoveryType: .activeRecovery,
+                        recoverySeconds: 15
+                    ),
+                    openTimeSegment(
+                        name: L10n.rest,
+                        durationSeconds: 120
+                    ),
+                    openTimeSegment(
+                        name: L10n.sprint,
+                        durationSeconds: 30,
+                        repeatCount: 10,
+                        recoveryType: .activeRecovery,
+                        recoverySeconds: 15
+                    )
                 ],
                 restMode: .manual
             )
@@ -442,13 +496,13 @@ final class SettingsStore: ObservableObject {
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
-                    DistanceSegment(name: L10n.predefinedOverUnderTitle, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 480),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.predefinedOverUnderTitle, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 480),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.predefinedOverUnderTitle, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 480),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.predefinedOverUnderTitle, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 480)
+                    openTimeSegment(
+                        name: L10n.predefinedOverUnderTitle,
+                        durationSeconds: 480,
+                        repeatCount: 4,
+                        recoveryType: .activeRecovery,
+                        recoverySeconds: 120
+                    )
                 ],
                 restMode: .manual
             )
@@ -461,19 +515,13 @@ final class SettingsStore: ObservableObject {
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
-                    DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60),
-                    DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
-                    DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 240),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 240),
-                    DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
-                    DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 60)
+                    openTimeSegment(name: L10n.run, durationSeconds: 60, recoveryType: .activeRecovery, recoverySeconds: 60),
+                    openTimeSegment(name: L10n.run, durationSeconds: 120, recoveryType: .activeRecovery, recoverySeconds: 120),
+                    openTimeSegment(name: L10n.run, durationSeconds: 180, recoveryType: .activeRecovery, recoverySeconds: 180),
+                    openTimeSegment(name: L10n.run, durationSeconds: 240, recoveryType: .activeRecovery, recoverySeconds: 240),
+                    openTimeSegment(name: L10n.run, durationSeconds: 180, recoveryType: .activeRecovery, recoverySeconds: 180),
+                    openTimeSegment(name: L10n.run, durationSeconds: 120, recoveryType: .activeRecovery, recoverySeconds: 120),
+                    openTimeSegment(name: L10n.run, durationSeconds: 60)
                 ],
                 restMode: .manual
             )
@@ -486,18 +534,14 @@ final class SettingsStore: ObservableObject {
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
-                    DistanceSegment(name: L10n.surge, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
-                    DistanceSegment(name: L10n.surge, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
-                    DistanceSegment(name: L10n.surge, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
-                    DistanceSegment(name: L10n.surge, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
-                    DistanceSegment(name: L10n.surge, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
-                    DistanceSegment(name: L10n.surge, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 120),
-                    DistanceSegment(name: L10n.activeRecovery, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180)
+                    openTimeSegment(
+                        name: L10n.surge,
+                        durationSeconds: 120,
+                        repeatCount: 6,
+                        recoveryType: .activeRecovery,
+                        recoverySeconds: 180
+                    ),
+                    openTimeSegment(name: L10n.activeRecovery, durationSeconds: 180)
                 ],
                 restMode: .manual
             )
@@ -510,7 +554,13 @@ final class SettingsStore: ObservableObject {
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
-                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, repeatCount: 3, restSeconds: 180, distanceGoalMode: .open, targetTimeSeconds: 720)
+                    openTimeSegment(
+                        name: L10n.threshold,
+                        durationSeconds: 720,
+                        repeatCount: 3,
+                        recoveryType: .activeRecovery,
+                        recoverySeconds: 180
+                    )
                 ],
                 restMode: .manual
             )

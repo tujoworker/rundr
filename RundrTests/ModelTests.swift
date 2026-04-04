@@ -1605,65 +1605,64 @@ final class ModelTests: XCTestCase {
         )
     }
 
-    func testFourByFourPresetUsesExplicitRunAndActiveRecoverySegments() {
+    func testFourByFourPresetUsesRepeatedRunSegmentWithActiveRecovery() {
         let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "fourByFour" }))
         let segments = preset?.workoutPlan.distanceSegments ?? []
 
-        XCTAssertEqual(segments.count, 7)
-        XCTAssertEqual(segments.map(\.trimmedName), [L10n.run, L10n.activeRecovery, L10n.run, L10n.activeRecovery, L10n.run, L10n.activeRecovery, L10n.run])
-        XCTAssertEqual(segments.map(\.targetTimeSeconds), [240, 180, 240, 180, 240, 180, 240])
-        XCTAssertTrue(segments.allSatisfy { $0.distanceGoalMode == .open })
-        XCTAssertTrue(segments.allSatisfy { $0.restSeconds == nil })
-        XCTAssertTrue(segments.allSatisfy { $0.lastRestSeconds == nil })
+        XCTAssertEqual(segments.count, 1)
+        XCTAssertEqual(segments.first?.trimmedName, L10n.run)
+        XCTAssertEqual(segments.first?.repeatCount, 4)
+        XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
+        XCTAssertEqual(segments.first?.restSeconds, 180)
+        XCTAssertEqual(segments.first?.targetTimeSeconds, 240)
+        XCTAssertEqual(segments.first?.distanceGoalMode, .open)
+        XCTAssertNil(segments.first?.lastRestSeconds)
     }
 
-    func testThresholdSixesPresetUsesExplicitThresholdAndActiveRecoverySegments() {
+    func testThresholdSixesPresetUsesRepeatedThresholdSegmentWithActiveRecovery() {
         let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "thresholdSixes" }))
         let segments = preset?.workoutPlan.distanceSegments ?? []
 
-        XCTAssertEqual(segments.count, 9)
-        XCTAssertEqual(
-            segments.map(\.trimmedName),
-            [L10n.threshold, L10n.activeRecovery, L10n.threshold, L10n.activeRecovery, L10n.threshold, L10n.activeRecovery, L10n.threshold, L10n.activeRecovery, L10n.threshold]
-        )
-        XCTAssertEqual(segments.map(\.targetTimeSeconds), [360, 60, 360, 60, 360, 60, 360, 60, 360])
-        XCTAssertTrue(segments.allSatisfy { $0.distanceGoalMode == .open })
-        XCTAssertTrue(segments.allSatisfy { $0.restSeconds == nil })
-        XCTAssertTrue(segments.allSatisfy { $0.lastRestSeconds == nil })
+        XCTAssertEqual(segments.count, 1)
+        XCTAssertEqual(segments.first?.trimmedName, L10n.threshold)
+        XCTAssertEqual(segments.first?.repeatCount, 5)
+        XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
+        XCTAssertEqual(segments.first?.restSeconds, 60)
+        XCTAssertEqual(segments.first?.targetTimeSeconds, 360)
+        XCTAssertEqual(segments.first?.distanceGoalMode, .open)
+        XCTAssertNil(segments.first?.lastRestSeconds)
     }
 
-    func testThousandRepeatsPresetUsesExplicitRunAndActiveRecoverySegments() {
+    func testThousandRepeatsPresetUsesRepeatedDistanceSegmentWithActiveRecovery() {
         let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "thousandRepeats" }))
         let segments = preset?.workoutPlan.distanceSegments ?? []
 
         XCTAssertEqual(preset?.workoutPlan.trackingMode, .dual)
-        XCTAssertEqual(segments.count, 11)
-        XCTAssertEqual(
-            segments.map(\.trimmedName),
-            [L10n.run, L10n.activeRecovery, L10n.run, L10n.activeRecovery, L10n.run, L10n.activeRecovery, L10n.run, L10n.activeRecovery, L10n.run, L10n.activeRecovery, L10n.run]
-        )
-        XCTAssertEqual(segments.map(\.distanceMeters), [1000, 0, 1000, 0, 1000, 0, 1000, 0, 1000, 0, 1000])
-        XCTAssertEqual(segments.map(\.targetTimeSeconds), [nil, 90, nil, 90, nil, 90, nil, 90, nil, 90, nil])
-        XCTAssertEqual(segments.map(\.distanceGoalMode), [.distance, .open, .distance, .open, .distance, .open, .distance, .open, .distance, .open, .distance])
-        XCTAssertTrue(segments.allSatisfy { $0.restSeconds == nil })
-        XCTAssertTrue(segments.allSatisfy { $0.lastRestSeconds == nil })
+        XCTAssertEqual(segments.count, 1)
+        XCTAssertEqual(segments.first?.trimmedName, L10n.run)
+        XCTAssertEqual(segments.first?.distanceMeters, 1000)
+        XCTAssertEqual(segments.first?.repeatCount, 6)
+        XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
+        XCTAssertEqual(segments.first?.restSeconds, 90)
+        XCTAssertEqual(segments.first?.distanceGoalMode, .distance)
+        XCTAssertNil(segments.first?.targetTimeSeconds)
+        XCTAssertNil(segments.first?.lastRestSeconds)
     }
 
-    func testFourHundredRepeatsPresetUsesExplicitRunAndActiveRecoverySegments() {
+    func testFourHundredRepeatsPresetUsesRepeatedDistanceSegmentWithActiveRecovery() {
         let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "fourHundredRepeats" }))
         let segments = preset?.workoutPlan.distanceSegments ?? []
 
         XCTAssertEqual(preset?.workoutPlan.trackingMode, .dual)
-        XCTAssertEqual(segments.count, 19)
-        XCTAssertEqual(
-            segments.map(\.trimmedName),
-            [L10n.run, L10n.activeRecovery, L10n.run, L10n.activeRecovery, L10n.run, L10n.activeRecovery, L10n.run, L10n.activeRecovery, L10n.run, L10n.activeRecovery, L10n.run, L10n.activeRecovery, L10n.run, L10n.activeRecovery, L10n.run, L10n.activeRecovery, L10n.run, L10n.activeRecovery, L10n.run]
-        )
-        XCTAssertEqual(segments.map(\.distanceMeters), [400, 0, 400, 0, 400, 0, 400, 0, 400, 0, 400, 0, 400, 0, 400, 0, 400, 0, 400])
-        XCTAssertEqual(segments.map(\.targetTimeSeconds), [nil, 60, nil, 60, nil, 60, nil, 60, nil, 60, nil, 60, nil, 60, nil, 60, nil, 60, nil])
-        XCTAssertEqual(segments.map(\.distanceGoalMode), [.distance, .open, .distance, .open, .distance, .open, .distance, .open, .distance, .open, .distance, .open, .distance, .open, .distance, .open, .distance, .open, .distance])
-        XCTAssertTrue(segments.allSatisfy { $0.restSeconds == nil })
-        XCTAssertTrue(segments.allSatisfy { $0.lastRestSeconds == nil })
+        XCTAssertEqual(segments.count, 1)
+        XCTAssertEqual(segments.first?.trimmedName, L10n.run)
+        XCTAssertEqual(segments.first?.distanceMeters, 400)
+        XCTAssertEqual(segments.first?.repeatCount, 10)
+        XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
+        XCTAssertEqual(segments.first?.restSeconds, 60)
+        XCTAssertEqual(segments.first?.distanceGoalMode, .distance)
+        XCTAssertNil(segments.first?.targetTimeSeconds)
+        XCTAssertNil(segments.first?.lastRestSeconds)
     }
 
     func testFourHundredRepeatsNoRestPresetKeepsContinuousDistanceRepeats() {
@@ -1679,20 +1678,19 @@ final class ModelTests: XCTestCase {
         XCTAssertNil(segments.first?.lastRestSeconds)
     }
 
-    func testOverUnderPresetUsesFourEightMinuteIntervalsWithActiveRecoveryRecoveries() {
+    func testOverUnderPresetUsesRepeatedOpenSegmentWithActiveRecovery() {
         let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "overUnder" }))
         let segments = preset?.workoutPlan.distanceSegments ?? []
 
         XCTAssertEqual(preset?.workoutPlan.trackingMode, .dual)
-        XCTAssertEqual(segments.count, 7)
-        XCTAssertEqual(
-            segments.map(\.trimmedName),
-            [L10n.predefinedOverUnderTitle, L10n.activeRecovery, L10n.predefinedOverUnderTitle, L10n.activeRecovery, L10n.predefinedOverUnderTitle, L10n.activeRecovery, L10n.predefinedOverUnderTitle]
-        )
-        XCTAssertEqual(segments.map(\.targetTimeSeconds), [480, 120, 480, 120, 480, 120, 480])
-        XCTAssertTrue(segments.allSatisfy { $0.distanceGoalMode == .open })
-        XCTAssertTrue(segments.allSatisfy { $0.restSeconds == nil })
-        XCTAssertTrue(segments.allSatisfy { $0.lastRestSeconds == nil })
+        XCTAssertEqual(segments.count, 1)
+        XCTAssertEqual(segments.first?.trimmedName, L10n.predefinedOverUnderTitle)
+        XCTAssertEqual(segments.first?.repeatCount, 4)
+        XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
+        XCTAssertEqual(segments.first?.restSeconds, 120)
+        XCTAssertEqual(segments.first?.targetTimeSeconds, 480)
+        XCTAssertEqual(segments.first?.distanceGoalMode, .open)
+        XCTAssertNil(segments.first?.lastRestSeconds)
     }
 
     func testCompanionSegmentEditorRulesShowManualForEmptyRestAndOffForTargets() {
@@ -1718,36 +1716,120 @@ final class ModelTests: XCTestCase {
         )
     }
 
-    func testPyramidPresetUsesExplicitRunAndActiveRecoverySegments() {
+    func testPyramidPresetUsesWorkSegmentsWithEmbeddedActiveRecovery() {
         let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "pyramid" }))
         let segments = preset?.workoutPlan.distanceSegments ?? []
 
         XCTAssertEqual(preset?.workoutPlan.trackingMode, .dual)
-        XCTAssertEqual(segments.count, 13)
-        XCTAssertEqual(
-            segments.map(\.trimmedName),
-            [L10n.run, L10n.activeRecovery, L10n.run, L10n.activeRecovery, L10n.run, L10n.activeRecovery, L10n.run, L10n.activeRecovery, L10n.run, L10n.activeRecovery, L10n.run, L10n.activeRecovery, L10n.run]
-        )
-        XCTAssertEqual(segments.map(\.targetTimeSeconds), [60, 60, 120, 120, 180, 180, 240, 240, 180, 180, 120, 120, 60])
+        XCTAssertEqual(segments.count, 7)
+        XCTAssertEqual(segments.map(\.trimmedName), Array(repeating: L10n.run, count: 7))
+        XCTAssertEqual(segments.map(\.targetTimeSeconds), [60, 120, 180, 240, 180, 120, 60])
+        XCTAssertEqual(segments.map(\.recoveryType), [.activeRecovery, .activeRecovery, .activeRecovery, .activeRecovery, .activeRecovery, .activeRecovery, .none])
+        XCTAssertEqual(segments.map(\.restSeconds), [60, 120, 180, 240, 180, 120, nil])
         XCTAssertTrue(segments.allSatisfy { $0.distanceGoalMode == .open })
-        XCTAssertTrue(segments.allSatisfy { $0.restSeconds == nil })
         XCTAssertTrue(segments.allSatisfy { $0.lastRestSeconds == nil })
     }
 
-    func testFortyFiveFifteensPresetUsesTwoOpenSetsWithSetRest() {
+    func testFortyFiveFifteensPresetUsesActiveRecoverySetsWithMidSetRestBlock() {
         let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "fortyFiveFifteens" }))
         let segments = preset?.workoutPlan.distanceSegments ?? []
 
         XCTAssertEqual(preset?.workoutPlan.trackingMode, .dual)
-        XCTAssertEqual(segments.count, 2)
+        XCTAssertEqual(segments.count, 3)
         XCTAssertEqual(segments.first?.distanceGoalMode, .open)
         XCTAssertEqual(segments.first?.targetTimeSeconds, 45)
-        XCTAssertEqual(segments.first?.repeatCount, 20)
+        XCTAssertEqual(segments.first?.repeatCount, 15)
+        XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
         XCTAssertEqual(segments.first?.restSeconds, 15)
-        XCTAssertEqual(segments.first?.lastRestSeconds, 90)
+        XCTAssertNil(segments.first?.lastRestSeconds)
+        XCTAssertEqual(segments[1].trimmedName, L10n.rest)
+        XCTAssertEqual(segments[1].targetTimeSeconds, 90)
+        XCTAssertEqual(segments[1].recoveryType, .none)
+        XCTAssertNil(segments[1].restSeconds)
         XCTAssertEqual(segments.last?.targetTimeSeconds, 45)
-        XCTAssertEqual(segments.last?.repeatCount, 20)
+        XCTAssertEqual(segments.last?.repeatCount, 15)
+        XCTAssertEqual(segments.last?.recoveryType, .activeRecovery)
         XCTAssertEqual(segments.last?.restSeconds, 15)
+    }
+
+    func testThirtyFifteensPresetUsesActiveRecoverySetsWithMidSetRestBlock() {
+        let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "thirtyFifteens" }))
+        let segments = preset?.workoutPlan.distanceSegments ?? []
+
+        XCTAssertEqual(preset?.workoutPlan.trackingMode, .dual)
+        XCTAssertEqual(segments.count, 3)
+        XCTAssertEqual(segments.first?.targetTimeSeconds, 30)
+        XCTAssertEqual(segments.first?.repeatCount, 10)
+        XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
+        XCTAssertEqual(segments.first?.restSeconds, 15)
+        XCTAssertEqual(segments[1].trimmedName, L10n.rest)
+        XCTAssertEqual(segments[1].targetTimeSeconds, 120)
+        XCTAssertEqual(segments.last?.targetTimeSeconds, 30)
+        XCTAssertEqual(segments.last?.repeatCount, 10)
+        XCTAssertEqual(segments.last?.recoveryType, .activeRecovery)
+        XCTAssertEqual(segments.last?.restSeconds, 15)
+    }
+
+    func testStructuredFartlekPresetKeepsFinalRecoveryBlockAfterRepeatedSurges() {
+        let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "structuredFartlek" }))
+        let segments = preset?.workoutPlan.distanceSegments ?? []
+
+        XCTAssertEqual(segments.count, 2)
+        XCTAssertEqual(segments.first?.trimmedName, L10n.surge)
+        XCTAssertEqual(segments.first?.repeatCount, 6)
+        XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
+        XCTAssertEqual(segments.first?.restSeconds, 180)
+        XCTAssertEqual(segments.last?.trimmedName, L10n.activeRecovery)
+        XCTAssertEqual(segments.last?.targetTimeSeconds, 180)
+        XCTAssertEqual(segments.last?.recoveryType, SegmentRecoveryType.none)
+    }
+
+    func testLongTwelvesPresetUsesRepeatedThresholdSegmentWithActiveRecovery() {
+        let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "longTwelves" }))
+        let segments = preset?.workoutPlan.distanceSegments ?? []
+
+        XCTAssertEqual(segments.count, 1)
+        XCTAssertEqual(segments.first?.trimmedName, L10n.threshold)
+        XCTAssertEqual(segments.first?.repeatCount, 3)
+        XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
+        XCTAssertEqual(segments.first?.restSeconds, 180)
+        XCTAssertEqual(segments.first?.targetTimeSeconds, 720)
+    }
+
+    func testIntervalPresetSignatureDistinguishesActiveRecoveryFromRestRecovery() {
+        let activeRecoveryPlan = WorkoutPlanSnapshot(
+            trackingMode: .dual,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [
+                DistanceSegment(
+                    name: L10n.run,
+                    distanceMeters: 400,
+                    repeatCount: 6,
+                    recoveryType: .activeRecovery,
+                    restSeconds: 60
+                )
+            ],
+            restMode: .manual
+        )
+        let restPlan = WorkoutPlanSnapshot(
+            trackingMode: .dual,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [
+                DistanceSegment(
+                    name: L10n.run,
+                    distanceMeters: 400,
+                    repeatCount: 6,
+                    recoveryType: .rest,
+                    restSeconds: 60
+                )
+            ],
+            restMode: .manual
+        )
+
+        XCTAssertNotEqual(
+            IntervalPresetSignature(workoutPlan: activeRecoveryPlan),
+            IntervalPresetSignature(workoutPlan: restPlan)
+        )
     }
 
     func testSettingsStoreAssignsGeneratedTitleWhenSavingPresetWithoutCustomTitle() {

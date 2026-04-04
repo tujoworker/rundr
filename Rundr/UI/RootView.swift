@@ -215,7 +215,8 @@ struct WatchEmptyStateRow: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(Tokens.Spacing.md)
+        .padding(.horizontal, Tokens.Spacing.md)
+        .padding(.vertical, Tokens.Spacing.xl)
         .background(backgroundColor)
         .cornerRadius(Tokens.Radius.medium)
     }

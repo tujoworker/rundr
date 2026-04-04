@@ -937,6 +937,7 @@ private struct CompanionEmptyStateCard: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, Tokens.Spacing.xl)
     }
 }
 

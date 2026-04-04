@@ -28,6 +28,8 @@
 "Long Twelves" = "12分ロングインターバル";
 "No saved intervals yet" = "保存済みインターバルなし";
 "Open a predefined interval to save your own version." = "プリセットのインターバルを開いて、自分用のバージョンを保存してください。";
+"No intervals yet" = "インターバルはまだありません";
+"Tap + to add your first interval." = "+ をタップして最初のインターバルを追加してください。";
 "Tracking Mode" = "トラッキングモード";
 "Distance" = "距離";
 "Distance (meters)" = "距離（メートル）";
@@ -36,7 +38,7 @@
 "Distance (ft)" = "距離 (ft)";
 "Interval Type" = "インターバルタイプ";
 "Name" = "名前";
-"Name (optional)" = "名前（任意）";
+"Title (optional)" = "タイトル（任意）";
 "Jog" = "ジョグ";
 "Sprint" = "スプリント";
 "Surge" = "上げ";

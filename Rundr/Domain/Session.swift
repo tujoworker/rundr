@@ -11,11 +11,11 @@ struct WorkoutPlanSnapshot: Codable, Equatable {
     init(
         trackingMode: TrackingMode,
         distanceLapDistanceMeters: Double? = nil,
-        distanceSegments: [DistanceSegment] = [.default],
+        distanceSegments: [DistanceSegment] = [],
         restMode: RestMode = .manual,
         originPlanID: UUID? = nil
     ) {
-        let normalizedSegments = distanceSegments.isEmpty ? [.default] : distanceSegments
+        let normalizedSegments = WorkoutPlanSupport.normalizedSegments(distanceSegments)
         if trackingMode == .distanceDistance, normalizedSegments.contains(where: \.usesOpenDistance) {
             self.trackingMode = .dual
         } else {
@@ -74,7 +74,7 @@ struct WorkoutPlanMatchSegmentSignature: Equatable {
 
 enum WorkoutPlanSupport {
     static func normalizedSegments(_ input: [DistanceSegment]) -> [DistanceSegment] {
-        let segments = input.isEmpty ? [.default] : input
+        let segments = input
         guard segments.count > 1 else { return segments }
 
         var normalized = segments
@@ -89,7 +89,7 @@ enum WorkoutPlanSupport {
         fromOffsets: IndexSet,
         toOffset: Int
     ) -> [DistanceSegment] {
-        let segments = input.isEmpty ? [.default] : input
+        let segments = input
         let movingSegments = fromOffsets.sorted().map { segments[$0] }
         let remainingSegments = segments.enumerated().compactMap { index, segment in
             fromOffsets.contains(index) ? nil : segment
@@ -200,6 +200,8 @@ enum SegmentEditSheetRules {
 }
 
 enum SegmentEditorValueRules {
+    static let minimumTimeIntervalSeconds = 5
+
     static func normalizedName(_ name: String?) -> String? {
         guard let name else { return nil }
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -217,6 +219,15 @@ enum SegmentEditorValueRules {
         targetPaceSecondsPerKm: Double?
     ) -> Double? {
         distanceGoalMode == .open ? nil : targetPaceSecondsPerKm
+    }
+
+    static func normalizedTargetTime(
+        for distanceGoalMode: DistanceGoalMode,
+        targetTimeSeconds: Double?
+    ) -> Double? {
+        guard distanceGoalMode == .time else { return targetTimeSeconds }
+        let seconds = Int(targetTimeSeconds ?? 0)
+        return Double(max(seconds, minimumTimeIntervalSeconds))
     }
 
     static func updatedTargetsAfterSettingTime(
@@ -419,7 +430,7 @@ extension WorkoutPlanSnapshot {
     func displayTitle(unit: DistanceUnit) -> String {
         let normalizedSegments = WorkoutPlanSupport.normalizedSegments(distanceSegments)
         guard let firstSegment = normalizedSegments.first else {
-            return Formatters.distanceString(meters: DistanceSegment.default.distanceMeters, unit: unit)
+            return L10n.noSessionPlanIntervalsTitle
         }
 
         if normalizedSegments.count == 1, let repeatCount = firstSegment.repeatCount {
@@ -434,7 +445,10 @@ extension WorkoutPlanSnapshot {
     }
 
     func displayDetail(unit: DistanceUnit) -> String {
-        WorkoutPlanSupport
+        guard !distanceSegments.isEmpty else {
+            return L10n.noSessionPlanIntervalsDetail
+        }
+        return WorkoutPlanSupport
             .normalizedSegments(distanceSegments)
             .map { $0.displayDetailValue(unit: unit) }
             .joined(separator: " • ")
@@ -506,12 +520,9 @@ final class Session {
             guard !snapshotWorkoutPlanJSON.isEmpty,
                   let data = snapshotWorkoutPlanJSON.data(using: .utf8),
                   let snapshot = try? JSONDecoder().decode(WorkoutPlanSnapshot.self, from: data) else {
-                let fallbackDistance = snapshotDistanceDistanceMeters
-                    ?? distanceLapDistanceMeters
-                    ?? DistanceSegment.default.distanceMeters
                 let fallbackSegments: [DistanceSegment]
                 if snapshotTrackingMode.usesManualIntervals {
-                    fallbackSegments = [DistanceSegment(distanceMeters: fallbackDistance)]
+                    fallbackSegments = []
                 } else {
                     fallbackSegments = [.default]
                 }
@@ -586,7 +597,7 @@ final class Session {
             trackingMode: snapshotTrackingMode,
             distanceLapDistanceMeters: snapshotDistanceDistanceMeters,
             distanceSegments: snapshotTrackingMode.usesManualIntervals
-                ? [DistanceSegment(distanceMeters: snapshotDistanceDistanceMeters ?? distanceLapDistanceMeters ?? DistanceSegment.default.distanceMeters)]
+                ? []
                 : [.default],
             restMode: .manual
         )

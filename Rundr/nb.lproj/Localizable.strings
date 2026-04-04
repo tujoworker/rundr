@@ -28,6 +28,8 @@
 "Long Twelves" = "Lange tolvere";
 "No saved intervals yet" = "Ingen lagrede intervaller ennå";
 "Open a predefined interval to save your own version." = "Åpne et forhåndsdefinert intervall for å lagre din egen versjon.";
+"No intervals yet" = "Ingen intervaller ennå";
+"Tap + to add your first interval." = "Trykk + for å legge til ditt første intervall.";
 "Tracking Mode" = "Sporingsmodus";
 "Distance" = "Distanse";
 "Distance (meters)" = "Distanse (meter)";
@@ -36,7 +38,7 @@
 "Distance (ft)" = "Distanse (fot)";
 "Interval Type" = "Intervalltype";
 "Name" = "Navn";
-"Name (optional)" = "Navn (valgfritt)";
+"Title (optional)" = "Tittel (valgfritt)";
 "Jog" = "Jogg";
 "Sprint" = "Sprint";
 "Surge" = "Drag";

@@ -75,7 +75,6 @@ private struct CompanionWorkoutsView: View {
     @State private var visibleSessionCount = 2
     @State private var selectedSegment: DistanceSegment?
     @State private var selectedSession: Session?
-    @State private var selectedOriginRoute: CompanionPresetRoute?
     @State private var lastAddedDistanceMeters: Double = DistanceSegment.default.distanceMeters
     @State private var lastAddedUsesOpenDistance = false
     @State private var lastAddedRepeatCount: Int = 0
@@ -125,10 +124,6 @@ private struct CompanionWorkoutsView: View {
         segmentEditMode.isEditing
     }
 
-    private var currentWorkoutPlanOrigin: WorkoutPlanOriginReference? {
-        settings.currentWorkoutPlanOriginReference()
-    }
-
     var body: some View {
         NavigationStack {
             List {
@@ -174,75 +169,51 @@ private struct CompanionWorkoutsView: View {
                         .listRowSeparator(.hidden)
                         .listRowBackground(Color.clear)
 
-                        if let currentWorkoutPlanOrigin {
-                            Button {
-                                switch currentWorkoutPlanOrigin.source {
-                                case let .savedPreset(id):
-                                    selectedOriginRoute = .saved(id)
-                                case let .predefinedPreset(id):
-                                    selectedOriginRoute = .predefined(id)
-                                }
-                            } label: {
-                                HStack(alignment: .center, spacing: Tokens.Spacing.md) {
-                                    VStack(alignment: .leading, spacing: Tokens.Spacing.xxs) {
-                                        Text(L10n.source)
-                                            .font(.caption.weight(.medium))
-                                            .foregroundStyle(theme.text.subtle)
-
-                                        Text(currentWorkoutPlanOrigin.title)
-                                            .font(.headline.weight(.semibold))
-                                            .foregroundStyle(settings.primaryAccentColor)
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                    }
-
-                                    Image(systemName: "chevron.right")
-                                        .font(.headline.weight(.semibold))
-                                        .foregroundStyle(theme.text.subtle)
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
+                        if segments.isEmpty {
+                            CompanionEmptyStateCard(
+                                title: L10n.noSessionPlanIntervalsTitle,
+                                detail: L10n.noSessionPlanIntervalsDetail
+                            )
                             .listRowCardChrome(
                                 rowInsets: workoutsRowInsets,
                                 contentInsets: workoutsCellContentInsets
                             )
-                        }
-
-                        ForEach(segments) { segment in
-                            Button {
-                                guard !isReorderingSegments else { return }
-                                selectedSegment = segment
-                            } label: {
-                                HStack(spacing: 0) {
-                                    CompanionSegmentRow(segment: segment, distanceUnit: settings.distanceUnit)
-                                        .padding(workoutsCellContentInsets)
-                                    Spacer(minLength: 0)
+                        } else {
+                            ForEach(segments) { segment in
+                                Button {
+                                    guard !isReorderingSegments else { return }
+                                    selectedSegment = segment
+                                } label: {
+                                    HStack(spacing: 0) {
+                                        CompanionSegmentRow(segment: segment, distanceUnit: settings.distanceUnit)
+                                            .padding(workoutsCellContentInsets)
+                                        Spacer(minLength: 0)
+                                    }
+                                    .contentShape(Rectangle())
                                 }
+                                .buttonStyle(CompanionNoPressOpacityButtonStyle())
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        withAnimation {
+                                            deleteSegment(segment)
+                                        }
+                                    } label: {
+                                        Label(L10n.delete, systemImage: "trash")
+                                    }
+                                }
+                                .listRowCardChrome(
+                                    rowInsets: workoutsRowInsets,
+                                    contentInsets: EdgeInsets(),
+                                    fillColor: flashingSegmentIDs.contains(segment.id)
+                                        ? theme.background.emphasisAction(settings.primaryAccentColor)
+                                        : nil
+                                )
+                                .animation(.easeInOut(duration: 0.25), value: flashingSegmentIDs.contains(segment.id))
                                 .contentShape(Rectangle())
                             }
-                            .buttonStyle(CompanionNoPressOpacityButtonStyle())
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) {
-                                    withAnimation {
-                                        deleteSegment(segment)
-                                    }
-                                } label: {
-                                    Label(L10n.delete, systemImage: "trash")
-                                }
-                            }
-                            .listRowCardChrome(
-                                rowInsets: workoutsRowInsets,
-                                contentInsets: EdgeInsets(),
-                                fillColor: flashingSegmentIDs.contains(segment.id)
-                                    ? theme.background.emphasisAction(settings.primaryAccentColor)
-                                    : nil
-                            )
-                            .animation(.easeInOut(duration: 0.25), value: flashingSegmentIDs.contains(segment.id))
-                            .contentShape(Rectangle())
+                            .onMove(perform: moveSegments)
                         }
-                        .onMove(perform: moveSegments)
 
                         Button {
                             animateSegmentAddition()
@@ -337,9 +308,6 @@ private struct CompanionWorkoutsView: View {
                     deleteSegment(segmentToDelete, keepsAtLeastOne: false)
                 }
             }
-            .navigationDestination(item: $selectedOriginRoute) { route in
-                CompanionPresetRouteDestinationView(route: route, onUseActivity: {})
-            }
             .navigationDestination(isPresented: Binding(
                 get: { selectedSession != nil },
                 set: { isPresented in
@@ -400,9 +368,6 @@ private struct CompanionWorkoutsView: View {
     private func deleteSegment(_ segment: DistanceSegment, keepsAtLeastOne: Bool = true) {
         var updatedSegments = segments
         updatedSegments.removeAll { $0.id == segment.id }
-        if keepsAtLeastOne, updatedSegments.isEmpty {
-            updatedSegments = [.default]
-        }
 
         if keepsAtLeastOne || !updatedSegments.isEmpty {
             settings.distanceSegments = WorkoutPlanSupport.normalizedSegments(updatedSegments)
@@ -1759,9 +1724,6 @@ private struct CompanionHomeSectionHeader: View {
     }
 }
 
-private struct CompanionAppearanceSettingsDetailView: View {
-    @EnvironmentObject private var settings: SettingsStore
-    @Environment(\.appTheme) private var theme
 private struct CompanionEmptyStateCard: View {
     let title: String
     var detail: String? = nil
@@ -1784,6 +1746,9 @@ private struct CompanionEmptyStateCard: View {
     }
 }
 
+private struct CompanionAppearanceSettingsDetailView: View {
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
 
     var body: some View {
         List {
@@ -2222,36 +2187,47 @@ private struct CompanionWorkoutEditorView: View {
 
             if trackingMode.usesManualIntervals {
                 Section {
-                    ForEach(segments) { segment in
-                        Button {
-                            guard !isReorderingSegments else { return }
-                            selectedSegment = segment
-                        } label: {
-                            HStack(spacing: 0) {
-                                CompanionSegmentRow(segment: segment, distanceUnit: distanceUnit)
-                                    .padding(CompanionSessionPlanStyle.cellContentInsets)
-                                Spacer(minLength: 0)
+                    if segments.isEmpty {
+                        CompanionEmptyStateCard(
+                            title: L10n.noSessionPlanIntervalsTitle,
+                            detail: L10n.noSessionPlanIntervalsDetail
+                        )
+                        .listRowCardChrome(
+                            rowInsets: CompanionSessionPlanStyle.rowInsets,
+                            contentInsets: CompanionSessionPlanStyle.cellContentInsets
+                        )
+                    } else {
+                        ForEach(segments) { segment in
+                            Button {
+                                guard !isReorderingSegments else { return }
+                                selectedSegment = segment
+                            } label: {
+                                HStack(spacing: 0) {
+                                    CompanionSegmentRow(segment: segment, distanceUnit: distanceUnit)
+                                        .padding(CompanionSessionPlanStyle.cellContentInsets)
+                                    Spacer(minLength: 0)
+                                }
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .listRowCardChrome(
+                                rowInsets: CompanionSessionPlanStyle.rowInsets,
+                                contentInsets: EdgeInsets()
+                            )
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    withAnimation {
+                                        deleteSegment(segment)
+                                    }
+                                } label: {
+                                    Label(L10n.delete, systemImage: "trash")
+                                }
                             }
                             .contentShape(Rectangle())
                         }
-                        .buttonStyle(.plain)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .listRowCardChrome(
-                            rowInsets: CompanionSessionPlanStyle.rowInsets,
-                            contentInsets: EdgeInsets()
-                        )
-                        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                            Button(role: .destructive) {
-                                withAnimation {
-                                    deleteSegment(segment)
-                                }
-                            } label: {
-                                Label(L10n.delete, systemImage: "trash")
-                            }
-                        }
-                        .contentShape(Rectangle())
+                        .onMove(perform: moveSegments)
                     }
-                    .onMove(perform: moveSegments)
 
                     Button {
                         animateSegmentAddition()
@@ -2360,9 +2336,6 @@ private struct CompanionWorkoutEditorView: View {
         .onAppear(perform: loadSnapshot)
         .onChange(of: trackingMode) { _, newValue in
             guard newValue.usesManualIntervals else { return }
-            if segments.isEmpty {
-                segments = [.default]
-            }
         }
         .environment(\.editMode, $segmentEditMode)
     }
@@ -2375,7 +2348,7 @@ private struct CompanionWorkoutEditorView: View {
         trackingMode = snapshot.trackingMode
         restMode = snapshot.restMode
         distanceUnit = settings.distanceUnit
-        segments = snapshot.distanceSegments.isEmpty ? [.default] : snapshot.distanceSegments
+        segments = snapshot.distanceSegments
         customTitle = initialCustomTitle ?? ""
         customDescription = initialCustomDescription ?? ""
         storedPresetID = initialStoredPresetID
@@ -2406,18 +2379,12 @@ private struct CompanionWorkoutEditorView: View {
 
     private func deleteSegments(at offsets: IndexSet) {
         segments.remove(atOffsets: offsets)
-        if segments.isEmpty {
-            segments = [.default]
-        }
         segments = WorkoutPlanSupport.normalizedSegments(segments)
         persistPresetAfterEditIfNeeded()
     }
 
     private func deleteSegment(_ segment: DistanceSegment, keepsAtLeastOne: Bool = true) {
         segments.removeAll { $0.id == segment.id }
-        if keepsAtLeastOne, segments.isEmpty {
-            segments = [.default]
-        }
         if keepsAtLeastOne || !segments.isEmpty {
             segments = WorkoutPlanSupport.normalizedSegments(segments)
         }
@@ -2807,6 +2774,10 @@ private struct CompanionSegmentEditorView: View {
                     .animation(.spring(response: 0.2, dampingFraction: 0.62), value: bouncingField)
                 }
 
+                if segment.usesOpenDistance {
+                    timeTargetRow
+                }
+
                 Stepper(value: Binding(
                     get: { segment.repeatCount ?? 0 },
                     set: {
@@ -2874,29 +2845,9 @@ private struct CompanionSegmentEditorView: View {
                 .scaleEffect(bouncingField == .lastRest ? 0.97 : 1.0)
                 .animation(.spring(response: 0.2, dampingFraction: 0.62), value: bouncingField)
 
-                Stepper(value: Binding(
-                    get: { Int(segment.targetTimeSeconds ?? 0) },
-                    set: {
-                        let updatedTargets = SegmentEditorValueRules.updatedTargetsAfterSettingTime(
-                            seconds: $0,
-                            currentPaceSecondsPerKm: segment.targetPaceSecondsPerKm
-                        )
-                        segment.targetTimeSeconds = updatedTargets.targetTimeSeconds
-                        segment.targetPaceSecondsPerKm = updatedTargets.targetPaceSecondsPerKm
-                    }
-                ), in: 0...7200, step: 5) {
-                    editableStepperContent(
-                        title: L10n.time,
-                        value: segment.targetTimeSeconds.map { Formatters.timeString(from: $0) } ?? L10n.off,
-                        field: .time
-                    )
+                if !segment.usesOpenDistance {
+                    timeTargetRow
                 }
-                .companionSettingsOptionRowChrome(
-                    rowInsets: editorRowInsets,
-                    contentInsets: editorRowContentInsets
-                )
-                .scaleEffect(bouncingField == .time ? 0.97 : 1.0)
-                .animation(.spring(response: 0.2, dampingFraction: 0.62), value: bouncingField)
 
                 if !segment.usesOpenDistance {
                     Stepper(value: Binding(
@@ -2981,6 +2932,10 @@ private struct CompanionSegmentEditorView: View {
             segment.targetPaceSecondsPerKm = SegmentEditorValueRules.normalizedTargetPace(
                 for: segment.distanceGoalMode,
                 targetPaceSecondsPerKm: segment.targetPaceSecondsPerKm
+            )
+            segment.targetTimeSeconds = SegmentEditorValueRules.normalizedTargetTime(
+                for: segment.distanceGoalMode,
+                targetTimeSeconds: segment.targetTimeSeconds
             )
         }
         .onDisappear(perform: commitIfNeeded)
@@ -3094,6 +3049,35 @@ private struct CompanionSegmentEditorView: View {
         }
     }
 
+    private var timeTargetRow: some View {
+        Stepper(value: Binding(
+            get: { Int(segment.targetTimeSeconds ?? 0) },
+            set: {
+                let updatedTargets = SegmentEditorValueRules.updatedTargetsAfterSettingTime(
+                    seconds: $0,
+                    currentPaceSecondsPerKm: segment.targetPaceSecondsPerKm
+                )
+                segment.targetTimeSeconds = SegmentEditorValueRules.normalizedTargetTime(
+                    for: segment.distanceGoalMode,
+                    targetTimeSeconds: updatedTargets.targetTimeSeconds
+                )
+                segment.targetPaceSecondsPerKm = updatedTargets.targetPaceSecondsPerKm
+            }
+        ), in: 0...7200, step: 5) {
+            editableStepperContent(
+                title: L10n.time,
+                value: segment.targetTimeSeconds.map { Formatters.timeString(from: $0) } ?? L10n.off,
+                field: .time
+            )
+        }
+        .companionSettingsOptionRowChrome(
+            rowInsets: editorRowInsets,
+            contentInsets: editorRowContentInsets
+        )
+        .scaleEffect(bouncingField == .time ? 0.97 : 1.0)
+        .animation(.spring(response: 0.2, dampingFraction: 0.62), value: bouncingField)
+    }
+
     private func commitIfNeeded() {
         guard !hasCommitted else { return }
         hasCommitted = true
@@ -3116,6 +3100,10 @@ private struct CompanionSegmentEditorView: View {
             for: segment.distanceGoalMode,
             targetPaceSecondsPerKm: segment.targetPaceSecondsPerKm
         )
+        segment.targetTimeSeconds = SegmentEditorValueRules.normalizedTargetTime(
+            for: segment.distanceGoalMode,
+            targetTimeSeconds: segment.targetTimeSeconds
+        )
 
         onSave(segment)
     }
@@ -3136,6 +3124,10 @@ private struct CompanionSegmentEditorView: View {
         segment.targetPaceSecondsPerKm = SegmentEditorValueRules.normalizedTargetPace(
             for: segment.distanceGoalMode,
             targetPaceSecondsPerKm: segment.targetPaceSecondsPerKm
+        )
+        segment.targetTimeSeconds = SegmentEditorValueRules.normalizedTargetTime(
+            for: segment.distanceGoalMode,
+            targetTimeSeconds: segment.targetTimeSeconds
         )
     }
 
@@ -3193,7 +3185,10 @@ private struct CompanionSegmentEditorView: View {
                 seconds: time,
                 currentPaceSecondsPerKm: segment.targetPaceSecondsPerKm
             )
-            segment.targetTimeSeconds = updatedTargets.targetTimeSeconds
+            segment.targetTimeSeconds = SegmentEditorValueRules.normalizedTargetTime(
+                for: segment.distanceGoalMode,
+                targetTimeSeconds: updatedTargets.targetTimeSeconds
+            )
             segment.targetPaceSecondsPerKm = updatedTargets.targetPaceSecondsPerKm
         case .pace:
             let pace = min(max(SegmentEditInputParser.parseDurationSeconds(from: editableValueText), 0), 1200)

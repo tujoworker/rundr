@@ -28,6 +28,8 @@
 "Long Twelves" = "Lange Zwölfer";
 "No saved intervals yet" = "Noch keine gespeicherten Intervalle";
 "Open a predefined interval to save your own version." = "Öffne ein vordefiniertes Intervall, um deine eigene Version zu speichern.";
+"No intervals yet" = "Noch keine Intervalle";
+"Tap + to add your first interval." = "+ tippen, um dein erstes Intervall hinzuzufügen.";
 "Tracking Mode" = "Tracking-Modus";
 "Distance" = "Distanz";
 "Distance (meters)" = "Distanz (Meter)";
@@ -36,7 +38,7 @@
 "Distance (ft)" = "Distanz (ft)";
 "Interval Type" = "Intervalltyp";
 "Name" = "Name";
-"Name (optional)" = "Name (optional)";
+"Title (optional)" = "Titel (optional)";
 "Jog" = "Locker";
 "Sprint" = "Sprint";
 "Surge" = "Anziehen";

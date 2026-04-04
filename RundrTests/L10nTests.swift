@@ -36,6 +36,8 @@ final class L10nTests: XCTestCase {
             L10n.savedIntervalsPlaceholderDetail,
             "Open a predefined interval to save your own version."
         )
+        XCTAssertEqual(L10n.noSessionPlanIntervalsTitle, "No intervals yet")
+        XCTAssertEqual(L10n.noSessionPlanIntervalsDetail, "Tap + to add your first interval.")
     }
 
     func testUseItNowLabelExistsForCompanionAdjustIntervalAction() {
@@ -85,7 +87,7 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.distanceInterval, "Distance")
         XCTAssertEqual(L10n.timeInterval, "Time")
         XCTAssertEqual(L10n.segmentName, "Name")
-        XCTAssertEqual(L10n.optionalSegmentNamePlaceholder, "Name (optional)")
+        XCTAssertEqual(L10n.optionalSegmentNamePlaceholder, "Title (optional)")
     }
 
     func testMoreLabelExistsForCompanionOverflowTab() {

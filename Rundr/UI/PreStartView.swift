@@ -130,13 +130,20 @@ struct PreStartView: View {
                 .foregroundStyle(theme.text.subtle)
                 .padding(.horizontal, Tokens.Spacing.md)
 
-            ForEach(segments) { segment in
-                SegmentRow(
-                    segment: segment,
-                    distanceUnit: settings.distanceUnit,
-                    onTap: { beginEditingSegment(segment) },
-                    onDelete: { deleteSegment(segment) }
+            if segments.isEmpty {
+                WatchEmptyStateRow(
+                    title: L10n.noSessionPlanIntervalsTitle,
+                    detail: L10n.noSessionPlanIntervalsDetail
                 )
+            } else {
+                ForEach(segments) { segment in
+                    SegmentRow(
+                        segment: segment,
+                        distanceUnit: settings.distanceUnit,
+                        onTap: { beginEditingSegment(segment) },
+                        onDelete: { deleteSegment(segment) }
+                    )
+                }
             }
 
             Button {
@@ -444,9 +451,6 @@ struct PreStartView: View {
 
     private func deleteSegment(_ segment: DistanceSegment) {
         segments.removeAll { $0.id == segment.id }
-        if segments.isEmpty {
-            segments = [.default]
-        }
         persistSegments()
     }
 
@@ -495,12 +499,17 @@ struct PreStartView: View {
         lastAddedRestSeconds = editingSegmentRestSeconds
         lastAddedLastRestSeconds = editingSegmentLastRestSeconds
         lastAddedTargetPace = editingSegmentTargetPace
-        lastAddedTargetTime = editingSegmentTargetTime
+        lastAddedTargetTime = editingSegmentUsesOpenDistance
+            ? max(editingSegmentTargetTime, SegmentEditorValueRules.minimumTimeIntervalSeconds)
+            : editingSegmentTargetTime
         segments[idx].repeatCount = editingSegmentRepeatCount > 0 ? editingSegmentRepeatCount : nil
         segments[idx].restSeconds = editingSegmentRestSeconds > 0 ? editingSegmentRestSeconds : nil
         segments[idx].lastRestSeconds = editingSegmentLastRestSeconds > 0 ? editingSegmentLastRestSeconds : nil
         segments[idx].targetPaceSecondsPerKm = editingSegmentTargetPace > 0 ? Double(editingSegmentTargetPace) : nil
-        segments[idx].targetTimeSeconds = editingSegmentTargetTime > 0 ? Double(editingSegmentTargetTime) : nil
+        segments[idx].targetTimeSeconds = SegmentEditorValueRules.normalizedTargetTime(
+            for: segments[idx].distanceGoalMode,
+            targetTimeSeconds: editingSegmentTargetTime > 0 ? Double(editingSegmentTargetTime) : nil
+        )
         editingSegmentID = nil
         ensureDualModeForOpenDistanceSegments(showBanner: false)
         persistSegments()
@@ -510,6 +519,10 @@ struct PreStartView: View {
     private func handleEditingDistanceModeChanged(_ usesOpenDistance: Bool) {
         if usesOpenDistance {
             editingSegmentTargetPace = 0
+            editingSegmentTargetTime = max(
+                editingSegmentTargetTime,
+                SegmentEditorValueRules.minimumTimeIntervalSeconds
+            )
         }
         ensureDualModeForOpenDistanceSegments(showBanner: usesOpenDistance)
     }
@@ -900,13 +913,20 @@ private struct IntervalSetupView: View {
                 .foregroundStyle(theme.text.subtle)
                 .padding(.horizontal, Tokens.Spacing.md)
 
-            ForEach(segments) { segment in
-                SegmentRow(
-                    segment: segment,
-                    distanceUnit: settings.distanceUnit,
-                    onTap: { beginEditingSegment(segment) },
-                    onDelete: { deleteSegment(segment) }
+            if segments.isEmpty {
+                WatchEmptyStateRow(
+                    title: L10n.noSessionPlanIntervalsTitle,
+                    detail: L10n.noSessionPlanIntervalsDetail
                 )
+            } else {
+                ForEach(segments) { segment in
+                    SegmentRow(
+                        segment: segment,
+                        distanceUnit: settings.distanceUnit,
+                        onTap: { beginEditingSegment(segment) },
+                        onDelete: { deleteSegment(segment) }
+                    )
+                }
             }
 
             Button {
@@ -1023,7 +1043,7 @@ private struct IntervalSetupView: View {
     private func loadSnapshot() {
         let snapshot = initialWorkoutPlan
         trackingMode = snapshot.trackingMode
-        segments = snapshot.distanceSegments.isEmpty ? [.default] : snapshot.distanceSegments
+        segments = snapshot.distanceSegments
         customTitle = initialCustomTitle ?? ""
         storedPresetID = initialStoredPresetID
         originPlanID = snapshot.originPlanID
@@ -1104,9 +1124,6 @@ private struct IntervalSetupView: View {
 
     private func deleteSegment(_ segment: DistanceSegment) {
         segments.removeAll { $0.id == segment.id }
-        if segments.isEmpty {
-            segments = [.default]
-        }
         segments = normalizedSegments(segments)
     }
 
@@ -1162,12 +1179,17 @@ private struct IntervalSetupView: View {
         lastAddedRestSeconds = editingSegmentRestSeconds
         lastAddedLastRestSeconds = editingSegmentLastRestSeconds
         lastAddedTargetPace = editingSegmentTargetPace
-        lastAddedTargetTime = editingSegmentTargetTime
+        lastAddedTargetTime = editingSegmentUsesOpenDistance
+            ? max(editingSegmentTargetTime, SegmentEditorValueRules.minimumTimeIntervalSeconds)
+            : editingSegmentTargetTime
         segments[index].repeatCount = editingSegmentRepeatCount > 0 ? editingSegmentRepeatCount : nil
         segments[index].restSeconds = editingSegmentRestSeconds > 0 ? editingSegmentRestSeconds : nil
         segments[index].lastRestSeconds = editingSegmentLastRestSeconds > 0 ? editingSegmentLastRestSeconds : nil
         segments[index].targetPaceSecondsPerKm = editingSegmentTargetPace > 0 ? Double(editingSegmentTargetPace) : nil
-        segments[index].targetTimeSeconds = editingSegmentTargetTime > 0 ? Double(editingSegmentTargetTime) : nil
+        segments[index].targetTimeSeconds = SegmentEditorValueRules.normalizedTargetTime(
+            for: segments[index].distanceGoalMode,
+            targetTimeSeconds: editingSegmentTargetTime > 0 ? Double(editingSegmentTargetTime) : nil
+        )
         editingSegmentID = nil
         ensureDualModeForOpenDistanceSegments(showBanner: false)
         segments = normalizedSegments(segments)
@@ -1178,6 +1200,10 @@ private struct IntervalSetupView: View {
     private func handleEditingDistanceModeChanged(_ usesOpenDistance: Bool) {
         if usesOpenDistance {
             editingSegmentTargetPace = 0
+            editingSegmentTargetTime = max(
+                editingSegmentTargetTime,
+                SegmentEditorValueRules.minimumTimeIntervalSeconds
+            )
         }
         ensureDualModeForOpenDistanceSegments(showBanner: usesOpenDistance)
     }
@@ -1837,7 +1863,11 @@ private struct SegmentEditSheet: View {
 
             HStack(spacing: Tokens.Spacing.sm) {
                 Button {
-                    if targetTime >= 10 {
+                    if usesOpenDistance {
+                        if targetTime > SegmentEditorValueRules.minimumTimeIntervalSeconds {
+                            targetTime -= 5
+                        }
+                    } else if targetTime >= 10 {
                         targetTime -= 5
                     } else {
                         targetTime = 0
@@ -1856,13 +1886,13 @@ private struct SegmentEditSheet: View {
                     timeEditorText = targetTime > 0 ? timeLabel : ""
                     isTimeEditorPresented = true
                 } label: {
-                    editorValueField(targetTime > 0 ? timeLabel : L10n.off)
+                    editorValueField(targetTime > 0 ? timeLabel : (usesOpenDistance ? Formatters.compactTimeString(from: Double(SegmentEditorValueRules.minimumTimeIntervalSeconds)) : L10n.off))
                 }
                 .frame(maxWidth: .infinity)
                 .buttonStyle(.plain)
 
                 Button {
-                    if targetTime == 0 { targetTime = 90 }
+                    if targetTime == 0 { targetTime = usesOpenDistance ? SegmentEditorValueRules.minimumTimeIntervalSeconds : 90 }
                     else { targetTime += 5 }
                     targetPace = 0
                 } label: {
@@ -1932,6 +1962,9 @@ private struct SegmentEditSheet: View {
 
     private func commitTimeEditorText() {
         targetTime = SegmentEditInputParser.parseDurationSeconds(from: timeEditorText)
+        if usesOpenDistance {
+            targetTime = max(targetTime, SegmentEditorValueRules.minimumTimeIntervalSeconds)
+        }
         if targetTime > 0 {
             targetPace = 0
         }

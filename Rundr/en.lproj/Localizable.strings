@@ -28,6 +28,8 @@
 "Long Twelves" = "Long Twelves";
 "No saved intervals yet" = "No saved intervals yet";
 "Open a predefined interval to save your own version." = "Open a predefined interval to save your own version.";
+"No intervals yet" = "No intervals yet";
+"Tap + to add your first interval." = "Tap + to add your first interval.";
 "Tracking Mode" = "Tracking Mode";
 "Distance" = "Distance";
 "Distance (meters)" = "Distance (meters)";
@@ -36,7 +38,7 @@
 "Distance (ft)" = "Distance (ft)";
 "Interval Type" = "Interval Type";
 "Name" = "Name";
-"Name (optional)" = "Name (optional)";
+"Title (optional)" = "Title (optional)";
 "Jog" = "Jog";
 "Sprint" = "Sprint";
 "Surge" = "Surge";

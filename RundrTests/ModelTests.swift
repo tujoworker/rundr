@@ -174,6 +174,39 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(resolved, .dual)
     }
 
+    func testWorkoutPlanSnapshotAllowsEmptyManualSegments() {
+        let snapshot = WorkoutPlanSnapshot(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [],
+            restMode: .manual
+        )
+
+        XCTAssertTrue(snapshot.distanceSegments.isEmpty)
+        XCTAssertEqual(snapshot.distanceLapDistanceMeters, 400)
+    }
+
+    func testWorkoutPlanSupportNormalizedSegmentsPreservesEmptyInput() {
+        XCTAssertTrue(WorkoutPlanSupport.normalizedSegments([]).isEmpty)
+    }
+
+    func testSettingsStoreApplyWorkoutPlanAllowsEmptyManualSegments() {
+        UserDefaults.standard.removeObject(forKey: "distanceSegmentsJSON")
+        defer { UserDefaults.standard.removeObject(forKey: "distanceSegmentsJSON") }
+
+        let store = SettingsStore()
+        let workoutPlan = WorkoutPlanSnapshot(
+            trackingMode: .distanceDistance,
+            distanceLapDistanceMeters: 400,
+            distanceSegments: [],
+            restMode: .manual
+        )
+
+        store.apply(workoutPlan: workoutPlan)
+
+        XCTAssertTrue(store.distanceSegments.isEmpty)
+    }
+
     // MARK: - LapType
 
     func testLapTypeDisplayNames() {
@@ -520,6 +553,21 @@ final class ModelTests: XCTestCase {
         )
     }
 
+    func testSegmentEditorValueRulesRequirePositiveTimeForTimeIntervals() {
+        XCTAssertEqual(
+            SegmentEditorValueRules.normalizedTargetTime(for: .time, targetTimeSeconds: nil),
+            Double(SegmentEditorValueRules.minimumTimeIntervalSeconds)
+        )
+        XCTAssertEqual(
+            SegmentEditorValueRules.normalizedTargetTime(for: .time, targetTimeSeconds: 0),
+            Double(SegmentEditorValueRules.minimumTimeIntervalSeconds)
+        )
+        XCTAssertEqual(
+            SegmentEditorValueRules.normalizedTargetTime(for: .distance, targetTimeSeconds: nil),
+            nil
+        )
+    }
+
     func testSegmentEditorValueRulesNormalizeName() {
         XCTAssertEqual(SegmentEditorValueRules.normalizedName("  Sprint "), "Sprint")
         XCTAssertNil(SegmentEditorValueRules.normalizedName("   \n"))
@@ -774,8 +822,7 @@ final class ModelTests: XCTestCase {
 
         XCTAssertEqual(session.snapshotWorkoutPlan.trackingMode, .distanceDistance)
         XCTAssertEqual(session.snapshotWorkoutPlan.distanceLapDistanceMeters, 400)
-        XCTAssertEqual(session.snapshotWorkoutPlan.distanceSegments.count, 1)
-        XCTAssertEqual(session.snapshotWorkoutPlan.distanceSegments[0].distanceMeters, 400)
+        XCTAssertTrue(session.snapshotWorkoutPlan.distanceSegments.isEmpty)
         XCTAssertEqual(session.snapshotWorkoutPlan.restMode, .manual)
     }
 
@@ -1667,44 +1714,6 @@ final class ModelTests: XCTestCase {
                 unit: .km
             ),
             "Custom Fours"
-        )
-    }
-
-    func testSettingsStoreCurrentWorkoutPlanOriginReferenceReturnsSavedPresetTitle() {
-        let keys = ["intervalPresetsJSON", "workoutPlanOriginID", "distanceSegmentsJSON", "trackingMode", "distanceDistanceMeters", "restMode"]
-        keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
-        defer { keys.forEach { UserDefaults.standard.removeObject(forKey: $0) } }
-
-        let store = SettingsStore()
-        let workoutPlan = WorkoutPlanSnapshot(
-            trackingMode: .distanceDistance,
-            distanceLapDistanceMeters: 400,
-            distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
-            restMode: .manual
-        )
-
-        let preset = try? XCTUnwrap(store.saveIntervalPreset(workoutPlan, customTitle: "Track Sixes"))
-        store.apply(workoutPlan: preset?.workoutPlan ?? workoutPlan)
-
-        XCTAssertEqual(
-            store.currentWorkoutPlanOriginReference(),
-            WorkoutPlanOriginReference(source: .savedPreset(preset?.id ?? UUID()), title: "Track Sixes")
-        )
-    }
-
-    func testSettingsStoreCurrentWorkoutPlanOriginReferenceReturnsPredefinedTitle() {
-        let keys = ["intervalPresetsJSON", "workoutPlanOriginID", "distanceSegmentsJSON", "trackingMode", "distanceDistanceMeters", "restMode"]
-        keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
-        defer { keys.forEach { UserDefaults.standard.removeObject(forKey: $0) } }
-
-        let store = SettingsStore()
-        let preset = SettingsStore.predefinedIntervalPresets[0]
-
-        store.apply(workoutPlan: preset.workoutPlan)
-
-        XCTAssertEqual(
-            store.currentWorkoutPlanOriginReference(),
-            WorkoutPlanOriginReference(source: .predefinedPreset(preset.id), title: preset.title)
         )
     }
 

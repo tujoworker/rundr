@@ -82,8 +82,8 @@ struct IntervalPreset: Codable, Identifiable, Equatable {
 
     static func generatedTitle(for workoutPlan: WorkoutPlanSnapshot) -> String {
         let normalizedWorkoutPlan = normalizedWorkoutPlan(workoutPlan)
-        let segments = normalizedWorkoutPlan.distanceSegments.isEmpty ? [DistanceSegment.default] : normalizedWorkoutPlan.distanceSegments
-        guard let firstSegment = segments.first else { return "400 m" }
+        let segments = normalizedWorkoutPlan.distanceSegments
+        guard let firstSegment = segments.first else { return L10n.noSessionPlanIntervalsTitle }
         let segmentLabel = generatedSegmentTitle(firstSegment)
 
         if segments.count == 1, let repeatCount = firstSegment.repeatCount {
@@ -123,16 +123,6 @@ struct PredefinedIntervalPreset: Identifiable, Equatable {
     var signature: IntervalPresetSignature {
         IntervalPresetSignature(workoutPlan: workoutPlan)
     }
-}
-
-struct WorkoutPlanOriginReference: Equatable {
-    enum Source: Equatable {
-        case savedPreset(UUID)
-        case predefinedPreset(String)
-    }
-
-    let source: Source
-    let title: String
 }
 
 struct IntervalPresetSignature: Codable, Equatable {
@@ -508,7 +498,7 @@ final class SettingsStore: ObservableObject {
         restMode = workoutPlan.restMode
         workoutPlanOriginID = workoutPlan.originPlanID
 
-        let segments = workoutPlan.distanceSegments.isEmpty ? [.default] : workoutPlan.distanceSegments
+        let segments = workoutPlan.distanceSegments
         distanceSegments = segments
 
         if let distance = workoutPlan.distanceLapDistanceMeters ?? segments.first?.distanceMeters {
@@ -581,26 +571,6 @@ final class SettingsStore: ObservableObject {
         }
 
         return IntervalPreset.generatedTitle(for: normalizedPlan)
-    }
-
-    func currentWorkoutPlanOriginReference() -> WorkoutPlanOriginReference? {
-        if let originPlanID = workoutPlanOriginID,
-           let preset = intervalPresets.first(where: { $0.workoutPlan.originPlanID == originPlanID }) {
-            return WorkoutPlanOriginReference(
-                source: .savedPreset(preset.id),
-                title: preset.customTitle ?? IntervalPreset.generatedTitle(for: preset.workoutPlan)
-            )
-        }
-
-        let signature = IntervalPresetSignature(workoutPlan: currentWorkoutPlan)
-        if let preset = Self.predefinedIntervalPresets.first(where: { $0.signature == signature }) {
-            return WorkoutPlanOriginReference(
-                source: .predefinedPreset(preset.id),
-                title: preset.title
-            )
-        }
-
-        return nil
     }
 
     func storeSessionIntervalPresetIfUnique(_ workoutPlan: WorkoutPlanSnapshot) {

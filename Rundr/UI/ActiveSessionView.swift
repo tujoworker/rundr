@@ -79,6 +79,12 @@ struct ActiveSessionView: View {
         return total
     }
 
+    private var showsSessionCompletionIndicator: Bool {
+        ActiveSessionHeaderRouting.showsSessionCompletionIndicator(
+            remainingPlannedIntervals: workoutController.remainingPlannedIntervals
+        )
+    }
+
     private var showsLapCounterBadge: Bool {
         switch workoutController.runState {
         case .active, .rest, .paused, .ending:
@@ -221,6 +227,12 @@ struct ActiveSessionView: View {
                         Text(timerTopLabel)
                             .font(labelFont)
                             .foregroundStyle(theme.text.neutral)
+                    }
+
+                    if showsSessionCompletionIndicator {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: Tokens.FontSize.sm, weight: .bold))
+                            .foregroundStyle(theme.text.bold)
                     }
                 }
             }
@@ -1346,6 +1358,12 @@ enum ActiveSessionTimerAnimationRouting {
     ) -> Int? {
         guard let pendingLapAnimationCount else { return nil }
         return lapCount >= pendingLapAnimationCount ? nil : pendingLapAnimationCount
+    }
+}
+
+enum ActiveSessionHeaderRouting {
+    static func showsSessionCompletionIndicator(remainingPlannedIntervals: Int?) -> Bool {
+        remainingPlannedIntervals == 0
     }
 }
 

@@ -51,6 +51,7 @@
 "Name" = "Name";
 "(optional)" = "(optional)";
 "Jog" = "Locker";
+"Run" = "Lauf";
 "Sprint" = "Sprint";
 "Surge" = "Anziehen";
 "Threshold" = "Schwelle";

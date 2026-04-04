@@ -51,6 +51,7 @@
 "Name" = "名前";
 "(optional)" = "（任意）";
 "Jog" = "ジョグ";
+"Run" = "ラン";
 "Sprint" = "スプリント";
 "Surge" = "上げ";
 "Threshold" = "閾値";

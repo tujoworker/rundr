@@ -51,6 +51,7 @@
 "Name" = "Name";
 "(optional)" = "(optional)";
 "Jog" = "Jog";
+"Run" = "Run";
 "Sprint" = "Sprint";
 "Surge" = "Surge";
 "Threshold" = "Threshold";

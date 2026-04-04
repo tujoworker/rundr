@@ -61,6 +61,7 @@ enum L10n {
     static let segmentName = title
     static let optionalSegmentNamePlaceholder = String(localized: "(optional)", comment: "Optional segment title placeholder")
     static let jog = String(localized: "Jog", comment: "Default segment name for easier running")
+    static let run = String(localized: "Run", comment: "Default segment name for work interval")
     static let sprint = String(localized: "Sprint", comment: "Default segment name for faster running")
     static let surge = String(localized: "Surge", comment: "Default segment name for fartlek surge")
     static let threshold = String(localized: "Threshold", comment: "Default segment name for threshold interval")

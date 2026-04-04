@@ -51,6 +51,7 @@
 "Name" = "Navn";
 "(optional)" = "(valgfritt)";
 "Jog" = "Jogg";
+"Run" = "Løp";
 "Sprint" = "Sprint";
 "Surge" = "Drag";
 "Threshold" = "Terskel";

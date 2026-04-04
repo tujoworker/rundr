@@ -309,7 +309,13 @@ final class SettingsStore: ObservableObject {
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
-                    DistanceSegment(distanceMeters: 0, repeatCount: 4, restSeconds: 180, distanceGoalMode: .open, targetTimeSeconds: 240)
+                    DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 240),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 240),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 240),
+                    DistanceSegment(name: L10n.jog, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 180),
+                    DistanceSegment(name: L10n.run, distanceMeters: 0, repeatCount: 1, distanceGoalMode: .open, targetTimeSeconds: 240)
                 ],
                 restMode: .manual
             )

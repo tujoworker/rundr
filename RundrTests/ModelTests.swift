@@ -1573,6 +1573,18 @@ final class ModelTests: XCTestCase {
         )
     }
 
+    func testFourByFourPresetUsesExplicitRunAndJogSegments() {
+        let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "fourByFour" }))
+        let segments = preset?.workoutPlan.distanceSegments ?? []
+
+        XCTAssertEqual(segments.count, 7)
+        XCTAssertEqual(segments.map(\.trimmedName), [L10n.run, L10n.jog, L10n.run, L10n.jog, L10n.run, L10n.jog, L10n.run])
+        XCTAssertEqual(segments.map(\.targetTimeSeconds), [240, 180, 240, 180, 240, 180, 240])
+        XCTAssertTrue(segments.allSatisfy { $0.distanceGoalMode == .open })
+        XCTAssertTrue(segments.allSatisfy { $0.restSeconds == nil })
+        XCTAssertTrue(segments.allSatisfy { $0.lastRestSeconds == nil })
+    }
+
     func testFortyFiveFifteensPresetUsesTwoOpenSetsWithSetRest() {
         let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "fortyFiveFifteens" }))
         let segments = preset?.workoutPlan.distanceSegments ?? []

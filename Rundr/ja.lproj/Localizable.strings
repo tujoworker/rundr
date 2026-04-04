@@ -296,6 +296,13 @@
 "When to Use It" = "使う場面";
 "Choose Active Recovery for jog or float recoveries where you want a timed easy segment between repeats. Choose Rest when you want a stopped or separate rest block instead." = "反復の間に時間を決めた軽いジョグやフロートを入れたいならActive Recoveryを選びます。止まる休憩や独立した休憩ブロックにしたいならRestを選びます。";
 "Example: 6 x 400 m with 60 s active recovery lets each recovery stay attached to the repeat instead of creating a separate rest lap." = "例: 6 x 400 mに60秒のActive Recoveryを入れると、各回復が別のレストラップではなく反復にひもづいたままになります。";
+"Last Rest" = "最後のレスト";
+"Last Rest lets the final repeat use a different rest duration than the earlier repeats." = "Last Restを使うと、最後の反復だけ前の反復とは違うレスト時間にできます。";
+"When It Applies" = "使われる場面";
+"Rundr only uses Last Rest on the final repeat of an interval that has repeats. Add repeats first, then set Last Rest if you want a different recovery before the workout moves on." = "RundrがLast Restを使うのは、反復回数があるインターバルの最後の反復だけです。まず反復を追加し、そのあとで次の区間へ進む前に別の回復時間がほしいときにLast Restを設定します。";
+"Why Use It" = "使う理由";
+"Use Last Rest when most repeats should share one recovery, but the final recovery should be shorter, longer, or off before the next segment or cooldown." = "ほとんどの反復では同じ回復時間を使いたいけれど、最後だけ次の区間やクールダウン前に短くしたい、長くしたい、またはなしにしたいときにLast Restを使います。";
+"Example: 6 x 400 m with 60 s rest and 2 min Last Rest keeps 60 s between repeats, then gives you 2 min after the last one." = "例: 6 x 400 mで通常レスト60秒、Last Restを2分にすると、反復の間は60秒のままで、最後の1本のあとだけ2分取れます。";
 "Interval Type" = "インターバルタイプ";
 "Use Distance when the lap has a known distance, like 400 m or 1 km." = "400 mや1 kmのように距離が決まっているラップではDistanceを使います。";
 "Use Time when you want to define how long the lap should last, rather than how far it should be." = "距離ではなく、そのラップをどれくらい続けるかで決めたい場合はTimeを使います。";

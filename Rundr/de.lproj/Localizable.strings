@@ -298,6 +298,13 @@
 "When to Use It" = "Wann du es verwenden solltest";
 "Choose Active Recovery for jog or float recoveries where you want a timed easy segment between repeats. Choose Rest when you want a stopped or separate rest block instead." = "Wähle aktive Erholung für Trab- oder Float-Erholungen, wenn du zwischen Wiederholungen einen lockeren Abschnitt mit Zeitvorgabe möchtest. Wähle Pause, wenn du stattdessen einen gestoppten oder getrennten Pausenblock willst.";
 "Example: 6 x 400 m with 60 s active recovery lets each recovery stay attached to the repeat instead of creating a separate rest lap." = "Beispiel: 6 x 400 m mit 60 s aktiver Erholung lässt jede Erholung an der Wiederholung hängen, statt eine separate Pausenrunde zu erzeugen.";
+"Last Rest" = "Letzte Pause";
+"Last Rest lets the final repeat use a different rest duration than the earlier repeats." = "Mit „Letzte Pause“ kann die letzte Wiederholung eine andere Pausenlänge als die vorherigen Wiederholungen nutzen.";
+"When It Applies" = "Wann es gilt";
+"Rundr only uses Last Rest on the final repeat of an interval that has repeats. Add repeats first, then set Last Rest if you want a different recovery before the workout moves on." = "Rundr nutzt „Letzte Pause“ nur bei der letzten Wiederholung eines Intervalls mit Wiederholungen. Füge zuerst Wiederholungen hinzu und setze dann die letzte Pause, wenn du vor dem nächsten Abschnitt eine andere Erholung willst.";
+"Why Use It" = "Warum du es nutzen solltest";
+"Use Last Rest when most repeats should share one recovery, but the final recovery should be shorter, longer, or off before the next segment or cooldown." = "Nutze „Letzte Pause“, wenn die meisten Wiederholungen dieselbe Erholung haben sollen, die letzte Erholung vor dem nächsten Abschnitt oder Auslaufen aber kürzer, länger oder aus sein soll.";
+"Example: 6 x 400 m with 60 s rest and 2 min Last Rest keeps 60 s between repeats, then gives you 2 min after the last one." = "Beispiel: 6 x 400 m mit 60 s Pause und 2 Min. letzter Pause lässt 60 s zwischen den Wiederholungen und gibt dir danach 2 Min. nach der letzten.";
 "Interval Type" = "Intervalltyp";
 "Use Distance when the lap has a known distance, like 400 m or 1 km." = "Verwende „Distanz“, wenn die Runde eine bekannte Länge hat, zum Beispiel 400 m oder 1 km.";
 "Use Time when you want to define how long the lap should last, rather than how far it should be." = "Verwende „Zeit“, wenn du festlegen willst, wie lange die Runde dauern soll, statt wie weit sie sein soll.";

@@ -298,6 +298,13 @@
 "When to Use It" = "When to Use It";
 "Choose Active Recovery for jog or float recoveries where you want a timed easy segment between repeats. Choose Rest when you want a stopped or separate rest block instead." = "Choose Active Recovery for jog or float recoveries where you want a timed easy segment between repeats. Choose Rest when you want a stopped or separate rest block instead.";
 "Example: 6 x 400 m with 60 s active recovery lets each recovery stay attached to the repeat instead of creating a separate rest lap." = "Example: 6 x 400 m with 60 s active recovery lets each recovery stay attached to the repeat instead of creating a separate rest lap.";
+"Last Rest" = "Last Rest";
+"Last Rest lets the final repeat use a different rest duration than the earlier repeats." = "Last Rest lets the final repeat use a different rest duration than the earlier repeats.";
+"When It Applies" = "When It Applies";
+"Rundr only uses Last Rest on the final repeat of an interval that has repeats. Add repeats first, then set Last Rest if you want a different recovery before the workout moves on." = "Rundr only uses Last Rest on the final repeat of an interval that has repeats. Add repeats first, then set Last Rest if you want a different recovery before the workout moves on.";
+"Why Use It" = "Why Use It";
+"Use Last Rest when most repeats should share one recovery, but the final recovery should be shorter, longer, or off before the next segment or cooldown." = "Use Last Rest when most repeats should share one recovery, but the final recovery should be shorter, longer, or off before the next segment or cooldown.";
+"Example: 6 x 400 m with 60 s rest and 2 min Last Rest keeps 60 s between repeats, then gives you 2 min after the last one." = "Example: 6 x 400 m with 60 s rest and 2 min Last Rest keeps 60 s between repeats, then gives you 2 min after the last one.";
 "Interval Type" = "Interval Type";
 "Use Distance when the lap has a known distance, like 400 m or 1 km." = "Use Distance when the lap has a known distance, like 400 m or 1 km.";
 "Use Time when you want to define how long the lap should last, rather than how far it should be." = "Use Time when you want to define how long the lap should last, rather than how far it should be.";

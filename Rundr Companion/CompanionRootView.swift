@@ -1966,6 +1966,7 @@ private struct CompanionSegmentEditorView: View {
     @State private var hasCommitted = false
     @State private var isDistanceTypeHelpPresented = false
     @State private var isActiveRecoveryHelpPresented = false
+    @State private var isLastRestHelpPresented = false
     @State private var isLastRestInfoPresented = false
     @State private var editableField: EditableField?
     @State private var bouncingField: EditableField?
@@ -2338,6 +2339,21 @@ private struct CompanionSegmentEditorView: View {
                 .themedCompanionSettingsList()
             }
         }
+        .sheet(isPresented: $isLastRestHelpPresented) {
+            NavigationStack {
+                List {
+                    Section {
+                        CompanionHelpCard(topic: .lastRest)
+                            .listRowInsets(CompanionPreferencesStyle.detailRowInsets)
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                    }
+                }
+                .navigationTitle(L10n.helpLastRestTitle)
+                .navigationBarTitleDisplayMode(.inline)
+                .themedCompanionSettingsList()
+            }
+        }
     }
 
     @ViewBuilder
@@ -2358,6 +2374,18 @@ private struct CompanionSegmentEditorView: View {
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel(L10n.helpActiveRecoveryTitle)
+                }
+
+                if field == .lastRest {
+                    Button {
+                        isLastRestHelpPresented = true
+                    } label: {
+                        Image(systemName: "questionmark.circle")
+                            .font(.system(size: Tokens.FontSize.xl, weight: .semibold))
+                            .foregroundStyle(theme.isDark ? theme.text.subtle : settings.primaryAccentColor)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(L10n.helpLastRestTitle)
                 }
             }
 

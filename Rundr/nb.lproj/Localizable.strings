@@ -298,6 +298,13 @@
 "When to Use It" = "Når du bør bruke det";
 "Choose Active Recovery for jog or float recoveries where you want a timed easy segment between repeats. Choose Rest when you want a stopped or separate rest block instead." = "Velg aktiv restitusjon for jogge- eller flytrestitusjon når du vil ha et rolig segment med fast tid mellom repetisjonene. Velg hvile når du heller vil ha en stoppet eller separat hvileblokk.";
 "Example: 6 x 400 m with 60 s active recovery lets each recovery stay attached to the repeat instead of creating a separate rest lap." = "Eksempel: 6 x 400 m med 60 s aktiv restitusjon lar hver restitusjon forbli knyttet til repetisjonen i stedet for å lage en egen hvilerunde.";
+"Last Rest" = "Siste hvile";
+"Last Rest lets the final repeat use a different rest duration than the earlier repeats." = "Siste hvile lar den siste repetisjonen bruke en annen hviletid enn de tidligere repetisjonene.";
+"When It Applies" = "Når det gjelder";
+"Rundr only uses Last Rest on the final repeat of an interval that has repeats. Add repeats first, then set Last Rest if you want a different recovery before the workout moves on." = "Rundr bruker bare Siste hvile på den siste repetisjonen i et intervall som har repetisjoner. Legg først til repetisjoner, og sett deretter Siste hvile hvis du vil ha en annen restitusjon før økta går videre.";
+"Why Use It" = "Hvorfor bruke det";
+"Use Last Rest when most repeats should share one recovery, but the final recovery should be shorter, longer, or off before the next segment or cooldown." = "Bruk Siste hvile når de fleste repetisjonene skal dele samme restitusjon, men den siste restitusjonen før neste segment eller nedjogg skal være kortere, lengre eller av.";
+"Example: 6 x 400 m with 60 s rest and 2 min Last Rest keeps 60 s between repeats, then gives you 2 min after the last one." = "Eksempel: 6 x 400 m med 60 s hvile og 2 min Siste hvile beholder 60 s mellom repetisjonene og gir deg deretter 2 min etter den siste.";
 "Interval Type" = "Intervalltype";
 "Use Distance when the lap has a known distance, like 400 m or 1 km." = "Bruk Distance når runden har en kjent distanse, som 400 m eller 1 km.";
 "Use Time when you want to define how long the lap should last, rather than how far it should be." = "Bruk Time når du vil bestemme hvor lenge runden skal vare, i stedet for hvor lang den skal være.";

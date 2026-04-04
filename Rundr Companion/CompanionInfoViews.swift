@@ -200,6 +200,7 @@ struct CompanionHelpView: View {
                 tip: nil
             ),
             CompanionHelpTopic.activeRecovery,
+            CompanionHelpTopic.lastRest,
             CompanionHelpTopic(
                 id: L10n.helpDistanceTypeTitle,
                 icon: "road.lanes",
@@ -713,6 +714,31 @@ extension CompanionHelpTopic {
                 )
             ],
             example: L10n.helpActiveRecoveryExample,
+            tip: nil
+        )
+    }
+
+    static var lastRest: CompanionHelpTopic {
+        CompanionHelpTopic(
+            id: L10n.helpLastRestTitle,
+            icon: "flag.checkered",
+            title: L10n.helpLastRestTitle,
+            body: L10n.helpLastRestBody,
+            sections: [
+                CompanionHelpSection(
+                    title: L10n.helpLastRestWhenHeading,
+                    body: L10n.helpLastRestWhenBody,
+                    example: nil,
+                    tip: nil
+                ),
+                CompanionHelpSection(
+                    title: L10n.helpLastRestWhyHeading,
+                    body: L10n.helpLastRestWhyBody,
+                    example: nil,
+                    tip: nil
+                )
+            ],
+            example: L10n.helpLastRestExample,
             tip: nil
         )
     }

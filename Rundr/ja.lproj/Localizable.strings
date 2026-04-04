@@ -290,6 +290,12 @@
 "How Auto-detect Works" = "Auto-detectの仕組み";
 "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap." = "Auto Restは、動きを止めたあとに現在のラップをレストとして扱います。そのレストは同じラップにひもづいたままです。Rundrが自動で次のラップを作ることはありません。次のラップは、ラップを押したときに始まります。";
 "Finish a 400 m rep, stop at the rail, and the current lap becomes rest. When you are ready for the next rep, press lap to start the next lap." = "400 mの1本を終えて柵のところで止まると、現在のラップがレストになります。次の1本に進む準備ができたら、ラップを押して次のラップを始めます。";
+"Use Active Recovery when you want the recovery between hard intervals to stay part of the planned interval instead of becoming a separate rest block." = "きついインターバルの間の回復を別のレストブロックではなく、計画した同じインターバルの一部として残したいときはActive Recoveryを使います。";
+"How Rundr Tracks It" = "Rundrでの記録方法";
+"Rundr tracks active recovery as recovery time inside the interval. It is still recorded in the workout, while active totals and average pace stay focused on the harder work portions." = "RundrはActive Recoveryをインターバル内の回復時間として記録します。ワークアウトには記録されつつ、アクティブ合計や平均ペースはよりきついワーク区間に集中したままになります。";
+"When to Use It" = "使う場面";
+"Choose Active Recovery for jog or float recoveries where you want a timed easy segment between repeats. Choose Rest when you want a stopped or separate rest block instead." = "反復の間に時間を決めた軽いジョグやフロートを入れたいならActive Recoveryを選びます。止まる休憩や独立した休憩ブロックにしたいならRestを選びます。";
+"Example: 6 x 400 m with 60 s active recovery lets each recovery stay attached to the repeat instead of creating a separate rest lap." = "例: 6 x 400 mに60秒のActive Recoveryを入れると、各回復が別のレストラップではなく反復にひもづいたままになります。";
 "Interval Type" = "インターバルタイプ";
 "Use Distance when the lap has a known distance, like 400 m or 1 km." = "400 mや1 kmのように距離が決まっているラップではDistanceを使います。";
 "Use Time when you want to define how long the lap should last, rather than how far it should be." = "距離ではなく、そのラップをどれくらい続けるかで決めたい場合はTimeを使います。";

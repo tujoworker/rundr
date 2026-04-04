@@ -199,6 +199,7 @@ struct CompanionHelpView: View {
                 example: L10n.helpAutoRestExample,
                 tip: nil
             ),
+            CompanionHelpTopic.activeRecovery,
             CompanionHelpTopic(
                 id: L10n.helpDistanceTypeTitle,
                 icon: "road.lanes",
@@ -691,6 +692,31 @@ private struct CompanionLegalSectionCard: View {
 }
 
 extension CompanionHelpTopic {
+    static var activeRecovery: CompanionHelpTopic {
+        CompanionHelpTopic(
+            id: L10n.helpActiveRecoveryTitle,
+            icon: "figure.run",
+            title: L10n.helpActiveRecoveryTitle,
+            body: L10n.helpActiveRecoveryBody,
+            sections: [
+                CompanionHelpSection(
+                    title: L10n.helpActiveRecoveryTrackingHeading,
+                    body: L10n.helpActiveRecoveryTrackingBody,
+                    example: nil,
+                    tip: nil
+                ),
+                CompanionHelpSection(
+                    title: L10n.helpActiveRecoveryUseHeading,
+                    body: L10n.helpActiveRecoveryUseBody,
+                    example: nil,
+                    tip: nil
+                )
+            ],
+            example: L10n.helpActiveRecoveryExample,
+            tip: nil
+        )
+    }
+
     static var distanceType: CompanionHelpTopic {
         CompanionHelpTopic(
             id: L10n.helpDistanceTypeTitle,

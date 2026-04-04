@@ -292,6 +292,12 @@
 "How Auto-detect Works" = "How Auto-detect Works";
 "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap." = "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap.";
 "Finish a 400 m rep, stop at the rail, and the current lap becomes rest. When you are ready for the next rep, press lap to start the next lap." = "Finish a 400 m rep, stop at the rail, and the current lap becomes rest. When you are ready for the next rep, press lap to start the next lap.";
+"Use Active Recovery when you want the recovery between hard intervals to stay part of the planned interval instead of becoming a separate rest block." = "Use Active Recovery when you want the recovery between hard intervals to stay part of the planned interval instead of becoming a separate rest block.";
+"How Rundr Tracks It" = "How Rundr Tracks It";
+"Rundr tracks active recovery as recovery time inside the interval. It is still recorded in the workout, while active totals and average pace stay focused on the harder work portions." = "Rundr tracks active recovery as recovery time inside the interval. It is still recorded in the workout, while active totals and average pace stay focused on the harder work portions.";
+"When to Use It" = "When to Use It";
+"Choose Active Recovery for jog or float recoveries where you want a timed easy segment between repeats. Choose Rest when you want a stopped or separate rest block instead." = "Choose Active Recovery for jog or float recoveries where you want a timed easy segment between repeats. Choose Rest when you want a stopped or separate rest block instead.";
+"Example: 6 x 400 m with 60 s active recovery lets each recovery stay attached to the repeat instead of creating a separate rest lap." = "Example: 6 x 400 m with 60 s active recovery lets each recovery stay attached to the repeat instead of creating a separate rest lap.";
 "Interval Type" = "Interval Type";
 "Use Distance when the lap has a known distance, like 400 m or 1 km." = "Use Distance when the lap has a known distance, like 400 m or 1 km.";
 "Use Time when you want to define how long the lap should last, rather than how far it should be." = "Use Time when you want to define how long the lap should last, rather than how far it should be.";

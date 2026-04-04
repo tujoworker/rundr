@@ -1965,6 +1965,7 @@ private struct CompanionSegmentEditorView: View {
     @State private var segmentNameText: String
     @State private var hasCommitted = false
     @State private var isDistanceTypeHelpPresented = false
+    @State private var isActiveRecoveryHelpPresented = false
     @State private var isLastRestInfoPresented = false
     @State private var editableField: EditableField?
     @State private var bouncingField: EditableField?
@@ -2322,6 +2323,21 @@ private struct CompanionSegmentEditorView: View {
                 .themedCompanionSettingsList()
             }
         }
+        .sheet(isPresented: $isActiveRecoveryHelpPresented) {
+            NavigationStack {
+                List {
+                    Section {
+                        CompanionHelpCard(topic: .activeRecovery)
+                            .listRowInsets(CompanionPreferencesStyle.detailRowInsets)
+                            .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
+                    }
+                }
+                .navigationTitle(L10n.helpActiveRecoveryTitle)
+                .navigationBarTitleDisplayMode(.inline)
+                .themedCompanionSettingsList()
+            }
+        }
     }
 
     @ViewBuilder
@@ -2329,7 +2345,21 @@ private struct CompanionSegmentEditorView: View {
         HStack(spacing: Tokens.Spacing.md) {
             CompanionSettingsLeadingIcon(systemImage: field.systemImage)
 
-            Text(title)
+            HStack(spacing: Tokens.Spacing.xs) {
+                Text(title)
+
+                if field == .activeRecovery {
+                    Button {
+                        isActiveRecoveryHelpPresented = true
+                    } label: {
+                        Image(systemName: "questionmark.circle")
+                            .font(.system(size: Tokens.FontSize.xl, weight: .semibold))
+                            .foregroundStyle(theme.isDark ? theme.text.subtle : settings.primaryAccentColor)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(L10n.helpActiveRecoveryTitle)
+                }
+            }
 
             Spacer(minLength: Tokens.Spacing.md)
 

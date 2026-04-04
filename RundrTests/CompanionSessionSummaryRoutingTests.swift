@@ -36,7 +36,7 @@ final class CompanionSessionSummaryRoutingTests: XCTestCase {
         XCTAssertEqual(sections.map(\.title), [L10n.summary, L10n.activeRecovery])
         XCTAssertTrue(sections[0].items.contains(where: { $0.label == L10n.gpsDistanceLabel && $0.value == Formatters.distanceString(meters: 518, unit: .km) }))
         XCTAssertFalse(sections[0].items.contains(where: { $0.label == L10n.totalDistanceLabel }))
-        XCTAssertEqual(sections[1].items.map(\.label), [L10n.gpsDistanceLabel, L10n.averagePaceLabel])
+        XCTAssertEqual(sections[1].items.map(\.label), [L10n.distance, L10n.averagePaceLabel])
         XCTAssertEqual(sections[1].items[0].value, Formatters.distanceString(meters: 100, unit: .km))
         XCTAssertEqual(
             sections[1].items[1].value,

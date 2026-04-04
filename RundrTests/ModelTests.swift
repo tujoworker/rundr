@@ -202,7 +202,7 @@ final class ModelTests: XCTestCase {
         XCTAssertFalse(items.contains(where: { $0.label == L10n.totalDistanceLabel }))
     }
 
-    func testSessionHistorySummaryActiveRecoveryItemsUseGPSDistanceLabel() {
+    func testSessionHistorySummaryActiveRecoveryItemsKeepDistanceLabel() {
         let activeRecoveryLap = Lap(
             index: 0,
             startedAt: .now.addingTimeInterval(-60),
@@ -222,7 +222,7 @@ final class ModelTests: XCTestCase {
 
         let items = SessionHistorySummaryRouting.activeRecoveryItems(for: session, distanceUnit: .km)
 
-        XCTAssertEqual(items.map(\.label), [L10n.gpsDistanceLabel, L10n.averagePaceLabel])
+        XCTAssertEqual(items.map(\.label), [L10n.distance, L10n.averagePaceLabel])
         XCTAssertEqual(items.first?.value, Formatters.distanceString(meters: 100, unit: .km))
     }
 

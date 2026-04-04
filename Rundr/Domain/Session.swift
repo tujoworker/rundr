@@ -871,7 +871,7 @@ enum SessionHistorySummaryRouting {
 
         return [
             SessionHistorySummaryItem(
-                label: L10n.gpsDistanceLabel,
+                label: L10n.distance,
                 value: formattedDistance(distanceMeters, unit: distanceUnit)
             ),
             SessionHistorySummaryItem(

@@ -2098,6 +2098,7 @@ private struct CompanionSegmentEditorView: View {
                         .buttonStyle(.plain)
                         .disabled(segmentNameText.isEmpty)
                     }
+                    .padding(.trailing, Tokens.Spacing.xs)
                 }
                 .companionSettingsOptionRowChrome(
                     rowInsets: editorRowInsets,

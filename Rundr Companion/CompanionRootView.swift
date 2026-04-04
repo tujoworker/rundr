@@ -1725,7 +1725,7 @@ private struct CompanionSegmentRow: View {
     }
 
     private var showsTarget: Bool {
-        segment.targetTimeSeconds != nil || segment.targetPaceSecondsPerKm != nil
+        segment.targetPaceSecondsPerKm != nil || (!segment.usesOpenDistance && segment.targetTimeSeconds != nil)
     }
 
     private var metricItems: [MetricItem] {

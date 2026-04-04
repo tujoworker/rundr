@@ -857,14 +857,13 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     /// Change the type and distance of an already-completed lap.
     func updateLap(id: UUID, newType: LapType, newDistanceMeters: Double) {
         guard let index = completedLaps.firstIndex(where: { $0.id == id }) else { return }
+        let hadTrackedGPSDistance = completedLaps[index].gpsDistanceMeters != nil
 
         completedLaps[index].lapType = newType
         completedLaps[index].distanceMeters = newType.isRecovery ? 0 : max(0, newDistanceMeters)
         if newType == .rest {
             completedLaps[index].gpsDistanceMeters = nil
-        } else if newType == .activeRecovery {
-            completedLaps[index].gpsDistanceMeters = max(0, newDistanceMeters)
-        } else if trackingMode == .gps {
+        } else if newType == .activeRecovery || trackingMode == .gps || hadTrackedGPSDistance {
             completedLaps[index].gpsDistanceMeters = max(0, newDistanceMeters)
         }
 

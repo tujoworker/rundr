@@ -1067,6 +1067,20 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertGreaterThan(controller.completedLaps[0].averageSpeedMetersPerSecond, 0)
     }
 
+    func testUpdateLapUsesEditedDistanceForTrackedGPSLap() {
+        let controller = makeStartedController(trackingMode: .dual)
+
+        controller.handleGPSDistanceUpdate(additionalMeters: 418)
+        controller.markLap()
+
+        let lapID = controller.completedLaps[0].id
+        controller.updateLap(id: lapID, newType: .active, newDistanceMeters: 430)
+
+        XCTAssertEqual(controller.completedLaps[0].distanceMeters, 430)
+        XCTAssertEqual(controller.completedLaps[0].gpsDistanceMeters, 430)
+        XCTAssertEqual(controller.cumulativeDistanceMeters, 430)
+    }
+
     // MARK: - Time Goal Alerts
 
     func testTimeGoalWarningActivatesWhenTimeReached() async {

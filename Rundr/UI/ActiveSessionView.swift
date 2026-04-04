@@ -703,12 +703,14 @@ struct ActiveSessionView: View {
     }
 
     private func presentLapEditor(for lap: Lap) {
-        let initialDistanceText = distanceText(from: lap.distanceMeters)
-        let editableLapType: LapType = lap.lapType == .active ? .active : .rest
+        let editableLapType = ActiveSessionLapEditorRouting.editableLapType(for: lap)
+        let initialDistanceText = distanceText(from: ActiveSessionLapEditorRouting.editableDistanceMeters(for: lap))
         lapEditorState = LapEditorState(
             id: lap.id,
             lapType: editableLapType,
-            distanceText: editableLapType == .active ? defaultDistanceTextIfNeeded(initialDistanceText) : initialDistanceText
+            distanceText: ActiveSessionLapEditorRouting.usesDistanceInput(for: editableLapType)
+                ? defaultDistanceTextIfNeeded(initialDistanceText)
+                : initialDistanceText
         )
     }
 
@@ -887,6 +889,21 @@ private struct LapEditorState: Identifiable {
     var distanceText: String
 }
 
+enum ActiveSessionLapEditorRouting {
+    static func editableLapType(for lap: Lap) -> LapType {
+        lap.lapType
+    }
+
+    static func editableDistanceMeters(for lap: Lap) -> Double {
+        guard usesDistanceInput(for: lap.lapType) else { return lap.distanceMeters }
+        return lap.gpsDistanceMeters ?? lap.distanceMeters
+    }
+
+    static func usesDistanceInput(for lapType: LapType) -> Bool {
+        lapType != .rest
+    }
+}
+
 private let latestCardHeight: CGFloat = 58
 private let lapCardTopPadding: CGFloat = 10
 private let lapCardLeadingPadding: CGFloat = 8
@@ -1052,10 +1069,11 @@ private struct LapEditorScreen: View {
 
                     HStack(spacing: 8) {
                         lapTypeButton(title: L10n.activity, type: .active)
+                        lapTypeButton(title: L10n.activeRecovery, type: .activeRecovery)
                         lapTypeButton(title: L10n.restLap, type: .rest)
                     }
 
-                    if lapType == .active {
+                    if ActiveSessionLapEditorRouting.usesDistanceInput(for: lapType) {
                         DistanceInputView(
                             label: label,
                             accentColor: accentColor,
@@ -1098,7 +1116,7 @@ private struct LapEditorScreen: View {
     private func lapTypeButton(title: String, type: LapType) -> some View {
         SelectionToggleButton(title: title, isSelected: lapType == type) {
             lapType = type
-            if type == .active && distanceText.isEmpty {
+            if ActiveSessionLapEditorRouting.usesDistanceInput(for: type) && distanceText.isEmpty {
                 distanceText = defaultDistanceText
             }
         }

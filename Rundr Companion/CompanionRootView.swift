@@ -3131,7 +3131,7 @@ private struct CompanionSessionDetailView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
                 HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.sm) {
-                    Text(L10n.details)
+                    Text(L10n.summary)
                         .font(.title2.weight(.semibold))
                         .foregroundStyle(theme.text.neutral)
                         .padding(.leading, Tokens.ContentInsets.companionCard.leading + Tokens.Spacing.sm + Tokens.Spacing.xs)

@@ -62,6 +62,10 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.thisSession, "This Session")
     }
 
+    func testSummaryLabelExistsForHistoryHeading() {
+        XCTAssertEqual(L10n.summary, "Summary")
+    }
+
     func testYesLabelExistsForConfirmationActions() {
         XCTAssertEqual(L10n.yes, "Yes")
     }

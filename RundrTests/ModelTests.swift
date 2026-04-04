@@ -411,6 +411,94 @@ final class ModelTests: XCTestCase {
         )
     }
 
+    func testSegmentRecoveryEditorRulesRestoreRestValuesAfterSwitchingBackFromActiveRecovery() {
+        let initialMemory = SegmentRecoveryEditorMemory(
+            recoveryType: .rest,
+            restSeconds: 60,
+            lastRestSeconds: 90
+        )
+
+        let activeRecoveryState = SegmentRecoveryEditorRules.activateRecovery(
+            .activeRecovery,
+            currentType: .rest,
+            restSeconds: 60,
+            lastRestSeconds: 90,
+            repeatCount: 4,
+            memory: initialMemory
+        )
+
+        XCTAssertEqual(activeRecoveryState.restSeconds, 60)
+        XCTAssertEqual(activeRecoveryState.lastRestSeconds, 0)
+
+        let editedActiveRecoveryMemory = SegmentRecoveryEditorRules.rememberCurrentValues(
+            currentType: .activeRecovery,
+            restSeconds: 30,
+            lastRestSeconds: 0,
+            repeatCount: 4,
+            memory: activeRecoveryState.memory
+        )
+
+        let restoredRestState = SegmentRecoveryEditorRules.activateRecovery(
+            .rest,
+            currentType: .activeRecovery,
+            restSeconds: 30,
+            lastRestSeconds: 0,
+            repeatCount: 4,
+            memory: editedActiveRecoveryMemory
+        )
+
+        XCTAssertEqual(restoredRestState.restSeconds, 60)
+        XCTAssertEqual(restoredRestState.lastRestSeconds, 90)
+    }
+
+    func testSegmentRecoveryEditorRulesRestoreEditedActiveRecoveryValueWhenSwitchingBack() {
+        let initialMemory = SegmentRecoveryEditorMemory(
+            recoveryType: .rest,
+            restSeconds: 75,
+            lastRestSeconds: 120
+        )
+
+        let activeRecoveryState = SegmentRecoveryEditorRules.activateRecovery(
+            .activeRecovery,
+            currentType: .rest,
+            restSeconds: 75,
+            lastRestSeconds: 120,
+            repeatCount: 5,
+            memory: initialMemory
+        )
+
+        let editedActiveRecoveryMemory = SegmentRecoveryEditorRules.rememberCurrentValues(
+            currentType: .activeRecovery,
+            restSeconds: 45,
+            lastRestSeconds: 0,
+            repeatCount: 5,
+            memory: activeRecoveryState.memory
+        )
+
+        let restoredRestState = SegmentRecoveryEditorRules.activateRecovery(
+            .rest,
+            currentType: .activeRecovery,
+            restSeconds: 45,
+            lastRestSeconds: 0,
+            repeatCount: 5,
+            memory: editedActiveRecoveryMemory
+        )
+
+        let restoredActiveRecoveryState = SegmentRecoveryEditorRules.activateRecovery(
+            .activeRecovery,
+            currentType: .rest,
+            restSeconds: restoredRestState.restSeconds,
+            lastRestSeconds: restoredRestState.lastRestSeconds,
+            repeatCount: 5,
+            memory: restoredRestState.memory
+        )
+
+        XCTAssertEqual(restoredActiveRecoveryState.restSeconds, 45)
+        XCTAssertEqual(restoredActiveRecoveryState.lastRestSeconds, 0)
+        XCTAssertEqual(restoredRestState.restSeconds, 75)
+        XCTAssertEqual(restoredRestState.lastRestSeconds, 120)
+    }
+
     func testSegmentEditInputParserParsesDurationFormats() {
         XCTAssertEqual(SegmentEditInputParser.parseDurationSeconds(from: "75"), 75)
         XCTAssertEqual(SegmentEditInputParser.parseDurationSeconds(from: "1:15"), 75)

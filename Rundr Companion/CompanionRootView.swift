@@ -1962,6 +1962,7 @@ private struct CompanionSegmentEditorView: View {
     @State private var editableField: EditableField?
     @State private var bouncingField: EditableField?
     @State private var editableValueText = ""
+    @State private var recoveryMemory: SegmentRecoveryEditorMemory
     let distanceUnit: DistanceUnit
     let onSave: (DistanceSegment) -> Void
     let onDelete: (DistanceSegment) -> Void
@@ -2008,6 +2009,13 @@ private struct CompanionSegmentEditorView: View {
         _segment = State(initialValue: segment)
         _distanceText = State(initialValue: CompanionSegmentEditorView.distanceText(for: segment, unit: distanceUnit))
         _segmentNameText = State(initialValue: segment.trimmedName ?? "")
+        _recoveryMemory = State(
+            initialValue: SegmentRecoveryEditorMemory(
+                recoveryType: segment.recoveryType,
+                restSeconds: segment.restSeconds,
+                lastRestSeconds: segment.lastRestSeconds
+            )
+        )
         self.distanceUnit = distanceUnit
         self.onSave = onSave
         self.onDelete = onDelete
@@ -2078,6 +2086,7 @@ private struct CompanionSegmentEditorView: View {
                             lastRestSeconds: segment.lastRestSeconds,
                             repeatCount: segment.repeatCount
                         )
+                        syncRecoveryMemory()
                     }
                 ), in: 0...99, step: 1) {
                     editableStepperContent(
@@ -2096,9 +2105,10 @@ private struct CompanionSegmentEditorView: View {
                 Stepper(value: Binding(
                     get: { segment.recoveryType == .activeRecovery ? (segment.restSeconds ?? 0) : 0 },
                     set: {
-                        segment.recoveryType = .activeRecovery
-                        segment.restSeconds = $0 > 0 ? $0 : nil
-                        segment.lastRestSeconds = nil
+                        let previousType = segment.recoveryType
+                        activateRecovery(.activeRecovery)
+                        let updatedSeconds = previousType == .activeRecovery ? $0 : max($0, segment.restSeconds ?? 0)
+                        updateCurrentRecoverySeconds(updatedSeconds)
                     }
                 ), in: 0...600, step: 15) {
                     editableStepperContent(
@@ -2119,8 +2129,10 @@ private struct CompanionSegmentEditorView: View {
                 Stepper(value: Binding(
                     get: { segment.recoveryType == .rest ? (segment.restSeconds ?? 0) : 0 },
                     set: {
-                        segment.recoveryType = .rest
-                        segment.restSeconds = $0 > 0 ? $0 : nil
+                        let previousType = segment.recoveryType
+                        activateRecovery(.rest)
+                        let updatedSeconds = previousType == .rest ? $0 : max($0, segment.restSeconds ?? 0)
+                        updateCurrentRecoverySeconds(updatedSeconds)
                     }
                 ), in: 0...600, step: 15) {
                     editableStepperContent(
@@ -2150,6 +2162,7 @@ private struct CompanionSegmentEditorView: View {
                             lastRestSeconds: $0 > 0 ? $0 : nil,
                             repeatCount: segment.repeatCount
                         )
+                        syncRecoveryMemory()
                     }
                 ), in: 0...600, step: 15) {
                     editableStepperContent(
@@ -2462,6 +2475,7 @@ private struct CompanionSegmentEditorView: View {
             for: segment.distanceGoalMode,
             targetTimeSeconds: segment.targetTimeSeconds
         )
+        syncRecoveryMemory()
     }
 
     private func beginEditing(_ field: EditableField) {
@@ -2471,11 +2485,10 @@ private struct CompanionSegmentEditorView: View {
         case .repeats:
             editableValueText = segment.repeatCount.map(String.init) ?? ""
         case .activeRecovery:
-            segment.recoveryType = .activeRecovery
-            segment.lastRestSeconds = nil
+            activateRecovery(.activeRecovery)
             editableValueText = segment.recoveryType == .activeRecovery ? (segment.restSeconds.map { Formatters.timeString(from: Double($0)) } ?? "") : ""
         case .rest:
-            segment.recoveryType = .rest
+            activateRecovery(.rest)
             editableValueText = segment.recoveryType == .rest ? (segment.restSeconds.map { Formatters.timeString(from: Double($0)) } ?? "") : ""
         case .lastRest:
             guard canConfigureLastRest else {
@@ -2504,25 +2517,22 @@ private struct CompanionSegmentEditorView: View {
                 lastRestSeconds: segment.lastRestSeconds,
                 repeatCount: segment.repeatCount
             )
+            syncRecoveryMemory()
         case .activeRecovery:
             let activeRecoverySeconds = min(max(SegmentEditInputParser.parseDurationSeconds(from: editableValueText), 0), 600)
-            segment.recoveryType = .activeRecovery
-            segment.restSeconds = activeRecoverySeconds > 0 ? activeRecoverySeconds : nil
-            segment.lastRestSeconds = nil
+            activateRecovery(.activeRecovery)
+            updateCurrentRecoverySeconds(activeRecoverySeconds)
         case .rest:
             let rest = min(max(SegmentEditInputParser.parseDurationSeconds(from: editableValueText), 0), 600)
-            segment.recoveryType = .rest
-            segment.restSeconds = rest > 0 ? rest : nil
+            activateRecovery(.rest)
+            updateCurrentRecoverySeconds(rest)
         case .lastRest:
             guard canConfigureLastRest else {
                 isLastRestInfoPresented = true
                 return
             }
             let lastRest = min(max(SegmentEditInputParser.parseDurationSeconds(from: editableValueText), 0), 600)
-            segment.lastRestSeconds = SegmentEditorValueRules.normalizedLastRestSeconds(
-                lastRestSeconds: lastRest > 0 ? lastRest : nil,
-                repeatCount: segment.repeatCount
-            )
+            updateLastRestSeconds(lastRest)
         case .time:
             let time = min(max(SegmentEditInputParser.parseDurationSeconds(from: editableValueText), 0), 7200)
             let updatedTargets = SegmentEditorValueRules.updatedTargetsAfterSettingTime(
@@ -2563,6 +2573,49 @@ private struct CompanionSegmentEditorView: View {
             segment.distanceMeters = clamped / 3.28084
         }
         distanceText = CompanionSegmentEditorView.distanceText(for: segment, unit: distanceUnit)
+    }
+
+    private func activateRecovery(_ type: SegmentRecoveryType) {
+        let activatedState = SegmentRecoveryEditorRules.activateRecovery(
+            type,
+            currentType: segment.recoveryType,
+            restSeconds: segment.restSeconds ?? 0,
+            lastRestSeconds: segment.lastRestSeconds ?? 0,
+            repeatCount: segment.repeatCount ?? 0,
+            memory: recoveryMemory
+        )
+        segment.recoveryType = type
+        segment.restSeconds = activatedState.restSeconds > 0 ? activatedState.restSeconds : nil
+        segment.lastRestSeconds = SegmentEditorValueRules.normalizedLastRestSeconds(
+            lastRestSeconds: activatedState.lastRestSeconds > 0 ? activatedState.lastRestSeconds : nil,
+            repeatCount: segment.repeatCount
+        )
+        recoveryMemory = activatedState.memory
+    }
+
+    private func updateCurrentRecoverySeconds(_ seconds: Int) {
+        let normalizedSeconds = max(seconds, 0)
+        segment.restSeconds = normalizedSeconds > 0 ? normalizedSeconds : nil
+        syncRecoveryMemory()
+    }
+
+    private func updateLastRestSeconds(_ seconds: Int) {
+        let normalizedSeconds = max(seconds, 0)
+        segment.lastRestSeconds = SegmentEditorValueRules.normalizedLastRestSeconds(
+            lastRestSeconds: normalizedSeconds > 0 ? normalizedSeconds : nil,
+            repeatCount: segment.repeatCount
+        )
+        syncRecoveryMemory()
+    }
+
+    private func syncRecoveryMemory() {
+        recoveryMemory = SegmentRecoveryEditorRules.rememberCurrentValues(
+            currentType: segment.recoveryType,
+            restSeconds: segment.restSeconds ?? 0,
+            lastRestSeconds: segment.lastRestSeconds ?? 0,
+            repeatCount: segment.repeatCount ?? 0,
+            memory: recoveryMemory
+        )
     }
 
     private func keypadRows(for field: EditableField) -> [[String]] {

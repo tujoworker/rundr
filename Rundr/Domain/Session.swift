@@ -253,6 +253,108 @@ enum SegmentEditorValueRules {
     }
 }
 
+struct SegmentRecoveryEditorMemory: Equatable {
+    var restSeconds: Int
+    var lastRestSeconds: Int
+    var activeRecoverySeconds: Int
+
+    init(
+        restSeconds: Int = 0,
+        lastRestSeconds: Int = 0,
+        activeRecoverySeconds: Int = 0
+    ) {
+        self.restSeconds = restSeconds
+        self.lastRestSeconds = lastRestSeconds
+        self.activeRecoverySeconds = activeRecoverySeconds
+    }
+
+    init(recoveryType: SegmentRecoveryType, restSeconds: Int?, lastRestSeconds: Int?) {
+        let currentRestSeconds = max(restSeconds ?? 0, 0)
+        let currentLastRestSeconds = max(lastRestSeconds ?? 0, 0)
+
+        switch recoveryType {
+        case .rest:
+            self.init(
+                restSeconds: currentRestSeconds,
+                lastRestSeconds: currentLastRestSeconds,
+                activeRecoverySeconds: 0
+            )
+        case .activeRecovery:
+            self.init(
+                restSeconds: 0,
+                lastRestSeconds: 0,
+                activeRecoverySeconds: currentRestSeconds
+            )
+        case .none:
+            self.init()
+        }
+    }
+}
+
+enum SegmentRecoveryEditorRules {
+    static func activateRecovery(
+        _ newType: SegmentRecoveryType,
+        currentType: SegmentRecoveryType,
+        restSeconds: Int,
+        lastRestSeconds: Int,
+        repeatCount: Int,
+        memory: SegmentRecoveryEditorMemory
+    ) -> (restSeconds: Int, lastRestSeconds: Int, memory: SegmentRecoveryEditorMemory) {
+        var updatedMemory = rememberCurrentValues(
+            currentType: currentType,
+            restSeconds: restSeconds,
+            lastRestSeconds: lastRestSeconds,
+            repeatCount: repeatCount,
+            memory: memory
+        )
+
+        switch newType {
+        case .activeRecovery:
+            let restoredActiveRecovery = updatedMemory.activeRecoverySeconds > 0
+                ? updatedMemory.activeRecoverySeconds
+                : max(restSeconds, 0)
+            return (restoredActiveRecovery, 0, updatedMemory)
+
+        case .rest:
+            let restoredRest = updatedMemory.restSeconds > 0 ? updatedMemory.restSeconds : max(restSeconds, 0)
+            let restoredLastRest = normalizedStoredLastRest(
+                updatedMemory.lastRestSeconds,
+                repeatCount: repeatCount
+            )
+            return (restoredRest, restoredLastRest, updatedMemory)
+
+        case .none:
+            return (0, 0, updatedMemory)
+        }
+    }
+
+    static func rememberCurrentValues(
+        currentType: SegmentRecoveryType,
+        restSeconds: Int,
+        lastRestSeconds: Int,
+        repeatCount: Int,
+        memory: SegmentRecoveryEditorMemory
+    ) -> SegmentRecoveryEditorMemory {
+        var updatedMemory = memory
+
+        switch currentType {
+        case .rest:
+            updatedMemory.restSeconds = max(restSeconds, 0)
+            updatedMemory.lastRestSeconds = normalizedStoredLastRest(lastRestSeconds, repeatCount: repeatCount)
+        case .activeRecovery:
+            updatedMemory.activeRecoverySeconds = max(restSeconds, 0)
+        case .none:
+            break
+        }
+
+        return updatedMemory
+    }
+
+    private static func normalizedStoredLastRest(_ lastRestSeconds: Int, repeatCount: Int) -> Int {
+        SegmentEditSheetRules.normalizedLastRestSeconds(lastRestSeconds, repeatCount: repeatCount)
+    }
+}
+
 enum SegmentEditInputParser {
     static func parseRepeatCount(from value: String) -> Int {
         let trimmedValue = value.trimmingCharacters(in: .whitespacesAndNewlines)

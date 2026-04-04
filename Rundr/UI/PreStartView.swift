@@ -1365,6 +1365,8 @@ private struct SegmentEditSheet: View {
     @State private var restEditorText = ""
     @State private var lastRestEditorText = ""
     @State private var timeEditorText = ""
+    @State private var recoveryMemory = SegmentRecoveryEditorMemory()
+    @State private var hasInitializedRecoveryMemory = false
 
     private var repeatLabel: String {
         repeatCount > 0 ? "\(repeatCount)" : "∞"
@@ -1493,6 +1495,7 @@ private struct SegmentEditSheet: View {
             }
         }
         .onAppear {
+            initializeRecoveryMemoryIfNeeded()
             syncLastRestWithRepeatCount(animated: false)
         }
         .onChange(of: repeatCount) { _, _ in
@@ -1697,9 +1700,9 @@ private struct SegmentEditSheet: View {
                 Button {
                     activateRecovery(.activeRecovery)
                     if restSeconds >= 15 {
-                        restSeconds -= 15
+                        updateRestSeconds(restSeconds - 15)
                     } else if restSeconds > 0 {
-                        restSeconds = 0
+                        updateRestSeconds(0)
                     } else {
                         recoveryType = .none
                     }
@@ -1724,7 +1727,7 @@ private struct SegmentEditSheet: View {
 
                 Button {
                     activateRecovery(.activeRecovery)
-                    restSeconds = max(restSeconds, 15)
+                    updateRestSeconds(max(restSeconds, 15))
                 } label: {
                     Image(systemName: "plus")
                         .font(.system(size: Tokens.FontSize.xxl, weight: .bold))
@@ -1749,9 +1752,9 @@ private struct SegmentEditSheet: View {
                 Button {
                     activateRecovery(.rest)
                     if restSeconds >= 15 {
-                        restSeconds -= 15
+                        updateRestSeconds(restSeconds - 15)
                     } else if restSeconds > 0 {
-                        restSeconds = 0
+                        updateRestSeconds(0)
                     } else {
                         recoveryType = .none
                     }
@@ -1776,7 +1779,7 @@ private struct SegmentEditSheet: View {
 
                 Button {
                     activateRecovery(.rest)
-                    restSeconds += 15
+                    updateRestSeconds(restSeconds + 15)
                 } label: {
                     Image(systemName: "plus")
                         .font(.system(size: Tokens.FontSize.xxl, weight: .bold))
@@ -1803,9 +1806,9 @@ private struct SegmentEditSheet: View {
                     Button {
                         withAnimation(.easeInOut(duration: 0.22)) {
                             if lastRestSeconds >= 15 {
-                                lastRestSeconds -= 15
+                                updateLastRestSeconds(lastRestSeconds - 15)
                             } else {
-                                lastRestSeconds = 0
+                                updateLastRestSeconds(0)
                             }
                         }
                     } label: {
@@ -1828,7 +1831,7 @@ private struct SegmentEditSheet: View {
 
                     Button {
                         withAnimation(.easeInOut(duration: 0.22)) {
-                            lastRestSeconds += 15
+                            updateLastRestSeconds(lastRestSeconds + 15)
                         }
                     } label: {
                         Image(systemName: "plus")
@@ -1857,7 +1860,7 @@ private struct SegmentEditSheet: View {
             switch SegmentEditSheetRules.addLastRestAction(repeatCount: repeatCount) {
             case .addValue:
                 withAnimation(.easeInOut(duration: 0.22)) {
-                    lastRestSeconds = max(restSeconds, 15)
+                    updateLastRestSeconds(max(restSeconds, 15))
                 }
             case .showRepeatsInfo:
                 isLastRestInfoPresented = true
@@ -2030,18 +2033,18 @@ private struct SegmentEditSheet: View {
 
     private func commitActiveRecoveryEditorText() {
         activateRecovery(.activeRecovery)
-        restSeconds = SegmentEditInputParser.parseDurationSeconds(from: activeRecoveryEditorText)
+        updateRestSeconds(SegmentEditInputParser.parseDurationSeconds(from: activeRecoveryEditorText))
         isActiveRecoveryEditorPresented = false
     }
 
     private func commitRestEditorText() {
         activateRecovery(.rest)
-        restSeconds = SegmentEditInputParser.parseDurationSeconds(from: restEditorText)
+        updateRestSeconds(SegmentEditInputParser.parseDurationSeconds(from: restEditorText))
         isRestEditorPresented = false
     }
 
     private func commitLastRestEditorText() {
-        lastRestSeconds = SegmentEditInputParser.parseDurationSeconds(from: lastRestEditorText)
+        updateLastRestSeconds(SegmentEditInputParser.parseDurationSeconds(from: lastRestEditorText))
         isLastRestEditorPresented = false
     }
 
@@ -2085,12 +2088,50 @@ private struct SegmentEditSheet: View {
     }
 
     private func activateRecovery(_ type: SegmentRecoveryType) {
-        if recoveryType != type {
-            recoveryType = type
-        }
-        if type != .rest {
-            lastRestSeconds = 0
-        }
+        let activatedState = SegmentRecoveryEditorRules.activateRecovery(
+            type,
+            currentType: recoveryType,
+            restSeconds: restSeconds,
+            lastRestSeconds: lastRestSeconds,
+            repeatCount: repeatCount,
+            memory: recoveryMemory
+        )
+        recoveryType = type
+        restSeconds = activatedState.restSeconds
+        lastRestSeconds = activatedState.lastRestSeconds
+        recoveryMemory = activatedState.memory
+    }
+
+    private func updateRestSeconds(_ newValue: Int) {
+        restSeconds = max(newValue, 0)
+        recoveryMemory = SegmentRecoveryEditorRules.rememberCurrentValues(
+            currentType: recoveryType,
+            restSeconds: restSeconds,
+            lastRestSeconds: lastRestSeconds,
+            repeatCount: repeatCount,
+            memory: recoveryMemory
+        )
+    }
+
+    private func updateLastRestSeconds(_ newValue: Int) {
+        lastRestSeconds = max(newValue, 0)
+        recoveryMemory = SegmentRecoveryEditorRules.rememberCurrentValues(
+            currentType: recoveryType,
+            restSeconds: restSeconds,
+            lastRestSeconds: lastRestSeconds,
+            repeatCount: repeatCount,
+            memory: recoveryMemory
+        )
+    }
+
+    private func initializeRecoveryMemoryIfNeeded() {
+        guard !hasInitializedRecoveryMemory else { return }
+        hasInitializedRecoveryMemory = true
+        recoveryMemory = SegmentRecoveryEditorMemory(
+            recoveryType: recoveryType,
+            restSeconds: restSeconds,
+            lastRestSeconds: lastRestSeconds
+        )
     }
 
     private func distanceModeButton(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {

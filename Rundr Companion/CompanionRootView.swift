@@ -1826,7 +1826,7 @@ private struct CompanionSegmentRow: View {
         case .rest:
             items.append(MetricItem(title: L10n.rest, value: restValue))
         case .none:
-            items.append(MetricItem(title: L10n.rest, value: L10n.off))
+            items.append(MetricItem(title: L10n.rest, value: L10n.restManual))
         }
 
         if showsLastRest {

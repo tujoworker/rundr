@@ -57,6 +57,7 @@ struct WorkoutPlanMatchSegmentSignature: Equatable {
     let repeatCount: Int?
     let recoveryType: SegmentRecoveryType
     let restSeconds: Int?
+    let activeRecoverySeconds: Int?
     let lastRestSeconds: Int?
     let targetPaceSecondsPerKm: Double?
     let targetTimeSeconds: Double?
@@ -68,6 +69,7 @@ struct WorkoutPlanMatchSegmentSignature: Equatable {
         repeatCount = segment.repeatCount
         recoveryType = segment.recoveryType
         restSeconds = segment.restSeconds
+        activeRecoverySeconds = segment.activeRecoverySeconds
         lastRestSeconds = segment.lastRestSeconds
         targetPaceSecondsPerKm = segment.targetPaceSecondsPerKm
         targetTimeSeconds = segment.targetTimeSeconds
@@ -112,6 +114,7 @@ enum WorkoutPlanSupport {
             repeatCount: source.repeatCount,
             recoveryType: source.recoveryType,
             restSeconds: source.restSeconds,
+            activeRecoverySeconds: source.activeRecoverySeconds,
             lastRestSeconds: source.lastRestSeconds,
             distanceGoalMode: source.distanceGoalMode,
             targetPaceSecondsPerKm: source.targetPaceSecondsPerKm,

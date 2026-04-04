@@ -593,12 +593,22 @@ private struct SegmentRow: View {
             )
         }
 
-        if segment.usesRecovery {
+        if segment.usesActiveRecovery {
             items.append(
                 SessionStatItem(
-                    label: segment.usesActiveRecovery ? L10n.recovery : L10n.rest,
+                    label: L10n.recovery,
+                    value: segment.activeRecoverySeconds.map { Formatters.compactTimeString(from: Double($0)) }
+                        ?? L10n.off
+                )
+            )
+        }
+
+        if segment.usesRestRecovery {
+            items.append(
+                SessionStatItem(
+                    label: L10n.rest,
                     value: segment.restSeconds.map { Formatters.compactTimeString(from: Double($0)) }
-                        ?? (segment.usesActiveRecovery ? L10n.off : L10n.restManual)
+                        ?? L10n.restManual
                 )
             )
         }

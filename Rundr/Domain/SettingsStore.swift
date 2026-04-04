@@ -146,6 +146,7 @@ struct IntervalPresetSegmentSignature: Codable, Equatable {
     let repeatCount: Int?
     let recoveryType: SegmentRecoveryType
     let restSeconds: Int?
+    let activeRecoverySeconds: Int?
     let lastRestSeconds: Int?
     let targetPaceSecondsPerKm: Double?
     let targetTimeSeconds: Double?
@@ -157,6 +158,7 @@ struct IntervalPresetSegmentSignature: Codable, Equatable {
         repeatCount = segment.repeatCount
         recoveryType = segment.recoveryType
         restSeconds = segment.restSeconds
+        activeRecoverySeconds = segment.activeRecoverySeconds
         lastRestSeconds = segment.lastRestSeconds
         targetPaceSecondsPerKm = segment.targetPaceSecondsPerKm
         targetTimeSeconds = segment.targetTimeSeconds

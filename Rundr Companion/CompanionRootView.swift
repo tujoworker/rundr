@@ -1773,7 +1773,7 @@ private struct CompanionSegmentRow: View {
     }
 
     private var activeRecoveryValue: String {
-        segment.restSeconds.map { Formatters.compactTimeString(from: Double($0)) } ?? L10n.off
+        segment.activeRecoverySeconds.map { Formatters.compactTimeString(from: Double($0)) } ?? L10n.off
     }
 
     private var lastRestValue: String {
@@ -1797,7 +1797,7 @@ private struct CompanionSegmentRow: View {
     }
 
     private var showsLastRest: Bool {
-        segment.recoveryType != .none && segment.lastRestSeconds != nil
+        segment.usesRecovery && segment.lastRestSeconds != nil
     }
 
     private var showsTarget: Bool {
@@ -1816,12 +1816,20 @@ private struct CompanionSegmentRow: View {
             )
         }
 
-        if segment.usesRecovery {
+        if segment.usesActiveRecovery {
             items.append(
                 MetricItem(
-                    title: segment.usesActiveRecovery ? L10n.recovery : L10n.rest,
-                    value: segment.restSeconds.map { Formatters.compactTimeString(from: Double($0)) }
-                        ?? (segment.usesActiveRecovery ? L10n.off : L10n.restManual)
+                    title: L10n.recovery,
+                    value: activeRecoveryValue
+                )
+            )
+        }
+
+        if segment.usesRestRecovery {
+            items.append(
+                MetricItem(
+                    title: L10n.rest,
+                    value: restValue
                 )
             )
         }
@@ -2014,7 +2022,7 @@ private struct CompanionSegmentEditorView: View {
     }
 
     private var canConfigureLastRest: Bool {
-        segment.recoveryType != .none && SegmentEditSheetRules.canConfigureLastRest(
+        segment.usesRecovery && SegmentEditSheetRules.canConfigureLastRest(
             repeatCount: segment.repeatCount ?? 0,
             restSeconds: segment.restSeconds ?? 0
         )
@@ -2031,9 +2039,9 @@ private struct CompanionSegmentEditorView: View {
         _segmentNameText = State(initialValue: segment.trimmedName ?? "")
         _recoveryMemory = State(
             initialValue: SegmentRecoveryEditorMemory(
-                recoveryType: segment.recoveryType,
-                restSeconds: segment.restSeconds,
-                lastRestSeconds: segment.lastRestSeconds
+                restSeconds: segment.restSeconds ?? 0,
+                lastRestSeconds: segment.lastRestSeconds ?? 0,
+                activeRecoverySeconds: segment.activeRecoverySeconds ?? 0
             )
         )
         self.distanceUnit = distanceUnit
@@ -2123,11 +2131,9 @@ private struct CompanionSegmentEditorView: View {
                 .animation(.spring(response: 0.2, dampingFraction: 0.62), value: bouncingField)
 
                 Stepper(value: Binding(
-                    get: { segment.recoveryType == .activeRecovery ? (segment.restSeconds ?? 0) : 0 },
+                    get: { segment.activeRecoverySeconds ?? 0 },
                     set: {
-                        let previousType = segment.recoveryType
-                        let currentSeconds = segment.recoveryType == .activeRecovery ? (segment.restSeconds ?? 0) : 0
-                        activateRecovery(.activeRecovery)
+                        let currentSeconds = segment.activeRecoverySeconds ?? 0
                         let updatedSeconds: Int
 
                         if $0 > currentSeconds {
@@ -2139,17 +2145,15 @@ private struct CompanionSegmentEditorView: View {
                                 currentDurationSeconds: currentSeconds
                             )
                         } else {
-                            updatedSeconds = previousType == .activeRecovery ? currentSeconds : max(currentSeconds, 0)
+                            updatedSeconds = currentSeconds
                         }
 
-                        updateCurrentRecoverySeconds(updatedSeconds)
+                        updateActiveRecoverySeconds(updatedSeconds)
                     }
                 ), in: 0...600, step: 15) {
                     editableStepperContent(
                         title: L10n.activeRecovery,
-                        value: segment.recoveryType == .activeRecovery
-                            ? (segment.restSeconds.map { Formatters.timeString(from: Double($0)) } ?? L10n.off)
-                            : L10n.off,
+                        value: segment.activeRecoverySeconds.map { Formatters.timeString(from: Double($0)) } ?? L10n.off,
                         field: .activeRecovery
                     )
                 }
@@ -2161,11 +2165,9 @@ private struct CompanionSegmentEditorView: View {
                 .animation(.spring(response: 0.2, dampingFraction: 0.62), value: bouncingField)
 
                 Stepper(value: Binding(
-                    get: { segment.recoveryType == .rest ? (segment.restSeconds ?? 0) : 0 },
+                    get: { segment.restSeconds ?? 0 },
                     set: {
-                        let previousType = segment.recoveryType
-                        let currentSeconds = segment.recoveryType == .rest ? (segment.restSeconds ?? 0) : 0
-                        activateRecovery(.rest)
+                        let currentSeconds = segment.restSeconds ?? 0
                         let updatedSeconds: Int
 
                         if $0 > currentSeconds {
@@ -2177,17 +2179,15 @@ private struct CompanionSegmentEditorView: View {
                                 currentDurationSeconds: currentSeconds
                             )
                         } else {
-                            updatedSeconds = previousType == .rest ? currentSeconds : max(currentSeconds, 0)
+                            updatedSeconds = currentSeconds
                         }
 
-                        updateCurrentRecoverySeconds(updatedSeconds)
+                        updateRestSeconds(updatedSeconds)
                     }
                 ), in: 0...600, step: 15) {
                     editableStepperContent(
                         title: L10n.rest,
-                        value: segment.recoveryType == .rest
-                            ? (segment.restSeconds.map { Formatters.timeString(from: Double($0)) } ?? L10n.manual)
-                            : L10n.off,
+                        value: segment.restSeconds.map { Formatters.timeString(from: Double($0)) } ?? L10n.manual,
                         field: .rest
                     )
                 }
@@ -2199,14 +2199,14 @@ private struct CompanionSegmentEditorView: View {
                 .animation(.spring(response: 0.2, dampingFraction: 0.62), value: bouncingField)
 
                 Stepper(value: Binding(
-                    get: { segment.recoveryType != .none ? (segment.lastRestSeconds ?? 0) : 0 },
+                    get: { segment.usesRecovery ? (segment.lastRestSeconds ?? 0) : 0 },
                     set: {
                         guard canConfigureLastRest else {
                             isLastRestInfoPresented = true
                             return
                         }
 
-                        let currentSeconds = segment.recoveryType != .none ? (segment.lastRestSeconds ?? 0) : 0
+                        let currentSeconds = segment.usesRecovery ? (segment.lastRestSeconds ?? 0) : 0
                         let resolvedSeconds: Int
 
                         if $0 > currentSeconds {
@@ -2589,8 +2589,8 @@ private struct CompanionSegmentEditorView: View {
             lastRestSeconds: segment.lastRestSeconds,
             repeatCount: segment.repeatCount
         )
-        if segment.recoveryType == .none {
-            segment.restSeconds = nil
+        segment.normalizeRecoveryConfiguration()
+        if !segment.usesRecovery {
             segment.lastRestSeconds = nil
         }
         segment.targetPaceSecondsPerKm = SegmentEditorValueRules.normalizedTargetPace(
@@ -2618,8 +2618,8 @@ private struct CompanionSegmentEditorView: View {
             lastRestSeconds: segment.lastRestSeconds,
             repeatCount: segment.repeatCount
         )
-        if segment.recoveryType == .none {
-            segment.restSeconds = nil
+        segment.normalizeRecoveryConfiguration()
+        if !segment.usesRecovery {
             segment.lastRestSeconds = nil
         }
         segment.targetPaceSecondsPerKm = SegmentEditorValueRules.normalizedTargetPace(
@@ -2640,11 +2640,9 @@ private struct CompanionSegmentEditorView: View {
         case .repeats:
             editableValueText = segment.repeatCount.map(String.init) ?? ""
         case .activeRecovery:
-            activateRecovery(.activeRecovery)
-            editableValueText = segment.recoveryType == .activeRecovery ? (segment.restSeconds.map { Formatters.timeString(from: Double($0)) } ?? "") : ""
+            editableValueText = segment.activeRecoverySeconds.map { Formatters.timeString(from: Double($0)) } ?? ""
         case .rest:
-            activateRecovery(.rest)
-            editableValueText = segment.recoveryType == .rest ? (segment.restSeconds.map { Formatters.timeString(from: Double($0)) } ?? "") : ""
+            editableValueText = segment.restSeconds.map { Formatters.timeString(from: Double($0)) } ?? ""
         case .lastRest:
             guard canConfigureLastRest else {
                 isLastRestInfoPresented = true
@@ -2675,12 +2673,10 @@ private struct CompanionSegmentEditorView: View {
             syncRecoveryMemory()
         case .activeRecovery:
             let activeRecoverySeconds = min(max(SegmentEditInputParser.parseDurationSeconds(from: editableValueText), 0), 600)
-            activateRecovery(.activeRecovery)
-            updateCurrentRecoverySeconds(activeRecoverySeconds)
+            updateActiveRecoverySeconds(activeRecoverySeconds)
         case .rest:
             let rest = min(max(SegmentEditInputParser.parseDurationSeconds(from: editableValueText), 0), 600)
-            activateRecovery(.rest)
-            updateCurrentRecoverySeconds(rest)
+            updateRestSeconds(rest)
         case .lastRest:
             guard canConfigureLastRest else {
                 isLastRestInfoPresented = true
@@ -2730,27 +2726,17 @@ private struct CompanionSegmentEditorView: View {
         distanceText = CompanionSegmentEditorView.distanceText(for: segment, unit: distanceUnit)
     }
 
-    private func activateRecovery(_ type: SegmentRecoveryType) {
-        let activatedState = SegmentRecoveryEditorRules.activateRecovery(
-            type,
-            currentType: segment.recoveryType,
-            restSeconds: segment.restSeconds ?? 0,
-            lastRestSeconds: segment.lastRestSeconds ?? 0,
-            repeatCount: segment.repeatCount ?? 0,
-            memory: recoveryMemory
-        )
-        segment.recoveryType = type
-        segment.restSeconds = activatedState.restSeconds > 0 ? activatedState.restSeconds : nil
-        segment.lastRestSeconds = SegmentEditorValueRules.normalizedLastRestSeconds(
-            lastRestSeconds: activatedState.lastRestSeconds > 0 ? activatedState.lastRestSeconds : nil,
-            repeatCount: segment.repeatCount
-        )
-        recoveryMemory = activatedState.memory
+    private func updateActiveRecoverySeconds(_ seconds: Int) {
+        let normalizedSeconds = max(seconds, 0)
+        segment.activeRecoverySeconds = normalizedSeconds > 0 ? normalizedSeconds : nil
+        segment.normalizeRecoveryConfiguration()
+        syncRecoveryMemory()
     }
 
-    private func updateCurrentRecoverySeconds(_ seconds: Int) {
+    private func updateRestSeconds(_ seconds: Int) {
         let normalizedSeconds = max(seconds, 0)
         segment.restSeconds = normalizedSeconds > 0 ? normalizedSeconds : nil
+        segment.normalizeRecoveryConfiguration()
         syncRecoveryMemory()
     }
 
@@ -2764,12 +2750,10 @@ private struct CompanionSegmentEditorView: View {
     }
 
     private func syncRecoveryMemory() {
-        recoveryMemory = SegmentRecoveryEditorRules.rememberCurrentValues(
-            currentType: segment.recoveryType,
+        recoveryMemory = SegmentRecoveryEditorMemory(
             restSeconds: segment.restSeconds ?? 0,
             lastRestSeconds: segment.lastRestSeconds ?? 0,
-            repeatCount: segment.repeatCount ?? 0,
-            memory: recoveryMemory
+            activeRecoverySeconds: segment.activeRecoverySeconds ?? 0
         )
     }
 

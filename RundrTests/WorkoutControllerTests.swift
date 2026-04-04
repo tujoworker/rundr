@@ -274,6 +274,36 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.remainingPlannedIntervals, 1)
     }
 
+    func testSegmentCanQueueRestAfterActiveRecovery() {
+        let controller = makeStartedController(
+            trackingMode: .dual,
+            segments: [DistanceSegment(distanceMeters: 400, repeatCount: 2, restSeconds: 60, activeRecoverySeconds: 30)]
+        )
+
+        controller.handleGPSDistanceUpdate(additionalMeters: 400)
+        controller.markLap()
+
+        XCTAssertEqual(controller.runState, .rest)
+        XCTAssertEqual(controller.currentRecoveryType, .activeRecovery)
+        XCTAssertEqual(controller.restDurationSeconds, 30)
+
+        controller.handleGPSDistanceUpdate(additionalMeters: 120)
+        controller.markLap()
+
+        XCTAssertEqual(controller.runState, .rest)
+        XCTAssertEqual(controller.currentRecoveryType, .rest)
+        XCTAssertEqual(controller.restDurationSeconds, 60)
+        XCTAssertEqual(controller.completedLaps.count, 2)
+        XCTAssertEqual(controller.completedLaps[1].lapType, .activeRecovery)
+        XCTAssertEqual(controller.completedLaps[1].gpsDistanceMeters, 120)
+
+        controller.markLap()
+
+        XCTAssertEqual(controller.completedLaps.count, 3)
+        XCTAssertEqual(controller.completedLaps[2].lapType, .rest)
+        XCTAssertEqual(controller.runState, .active)
+    }
+
     func testTotalPlannedIntervalsForFinitePlan() {
         let segments = [
             DistanceSegment(distanceMeters: 400, repeatCount: 2),
@@ -799,6 +829,39 @@ final class WorkoutControllerTests: XCTestCase {
         restored.resumeSession()
         XCTAssertEqual(restored.runState, .rest)
         XCTAssertEqual(restored.restDurationSeconds, 30)
+    }
+
+    func testRecoverySnapshotPreservesQueuedRestAfterActiveRecovery() {
+        let store = OngoingWorkoutStore()
+        store.clear()
+
+        let controller = makeStartedController(
+            trackingMode: .dual,
+            segments: [DistanceSegment(distanceMeters: 400, repeatCount: 2, restSeconds: 60, activeRecoverySeconds: 30)]
+        )
+        controller.attachOngoingWorkoutStore(store)
+        controller.handleGPSDistanceUpdate(additionalMeters: 400)
+        controller.markLap()
+        controller.handleGPSDistanceUpdate(additionalMeters: 80)
+        controller.persistRecoverySnapshotIfNeeded()
+
+        guard let snapshot = store.snapshot else {
+            return XCTFail("Expected recovery snapshot")
+        }
+
+        let restored = WorkoutSessionController()
+        restored.restore(snapshot: snapshot, healthKitManager: HealthKitManager())
+        restored.resumeSession()
+
+        XCTAssertEqual(restored.runState, .rest)
+        XCTAssertEqual(restored.currentRecoveryType, .activeRecovery)
+        XCTAssertEqual(restored.restDurationSeconds, 30)
+
+        restored.markLap()
+
+        XCTAssertEqual(restored.runState, .rest)
+        XCTAssertEqual(restored.currentRecoveryType, .rest)
+        XCTAssertEqual(restored.restDurationSeconds, 60)
     }
 
     func testStartingWithRecoveryStorePersistsSnapshotAndEndingClearsIt() async {

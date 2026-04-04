@@ -399,7 +399,23 @@ final class ModelTests: XCTestCase {
         let segment = DistanceSegment(distanceMeters: 400, recoveryType: .activeRecovery, restSeconds: 45, lastRestSeconds: 90)
 
         XCTAssertEqual(segment.recoveryType, .activeRecovery)
-        XCTAssertEqual(segment.restSeconds, 45)
+        XCTAssertEqual(segment.activeRecoverySeconds, 45)
+        XCTAssertNil(segment.restSeconds)
+        XCTAssertEqual(segment.lastRestSeconds, 90)
+    }
+
+    func testDistanceSegmentPreservesActiveRecoveryAndRestTogether() {
+        let segment = DistanceSegment(
+            distanceMeters: 400,
+            repeatCount: 4,
+            restSeconds: 60,
+            activeRecoverySeconds: 45,
+            lastRestSeconds: 90
+        )
+
+        XCTAssertEqual(segment.recoveryType, .activeRecovery)
+        XCTAssertEqual(segment.activeRecoverySeconds, 45)
+        XCTAssertEqual(segment.restSeconds, 60)
         XCTAssertEqual(segment.lastRestSeconds, 90)
     }
 
@@ -1877,7 +1893,7 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(segments.first?.trimmedName, L10n.run)
         XCTAssertEqual(segments.first?.repeatCount, 4)
         XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
-        XCTAssertEqual(segments.first?.restSeconds, 180)
+        XCTAssertEqual(segments.first?.activeRecoverySeconds, 180)
         XCTAssertEqual(segments.first?.targetTimeSeconds, 240)
         XCTAssertEqual(segments.first?.distanceGoalMode, .open)
         XCTAssertNil(segments.first?.lastRestSeconds)
@@ -1891,7 +1907,7 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(segments.first?.trimmedName, L10n.threshold)
         XCTAssertEqual(segments.first?.repeatCount, 5)
         XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
-        XCTAssertEqual(segments.first?.restSeconds, 60)
+        XCTAssertEqual(segments.first?.activeRecoverySeconds, 60)
         XCTAssertEqual(segments.first?.targetTimeSeconds, 360)
         XCTAssertEqual(segments.first?.distanceGoalMode, .open)
         XCTAssertNil(segments.first?.lastRestSeconds)
@@ -1907,7 +1923,7 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(segments.first?.distanceMeters, 1000)
         XCTAssertEqual(segments.first?.repeatCount, 6)
         XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
-        XCTAssertEqual(segments.first?.restSeconds, 90)
+        XCTAssertEqual(segments.first?.activeRecoverySeconds, 90)
         XCTAssertEqual(segments.first?.distanceGoalMode, .distance)
         XCTAssertNil(segments.first?.targetTimeSeconds)
         XCTAssertNil(segments.first?.lastRestSeconds)
@@ -1923,7 +1939,7 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(segments.first?.distanceMeters, 400)
         XCTAssertEqual(segments.first?.repeatCount, 10)
         XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
-        XCTAssertEqual(segments.first?.restSeconds, 90)
+        XCTAssertEqual(segments.first?.activeRecoverySeconds, 90)
         XCTAssertEqual(segments.first?.distanceGoalMode, .distance)
         XCTAssertNil(segments.first?.targetTimeSeconds)
         XCTAssertNil(segments.first?.lastRestSeconds)
@@ -1938,7 +1954,7 @@ final class ModelTests: XCTestCase {
         XCTAssertNil(segments.first?.trimmedName)
         XCTAssertEqual(segments.first?.repeatCount, 4)
         XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
-        XCTAssertEqual(segments.first?.restSeconds, 120)
+        XCTAssertEqual(segments.first?.activeRecoverySeconds, 120)
         XCTAssertEqual(segments.first?.targetTimeSeconds, 480)
         XCTAssertEqual(segments.first?.distanceGoalMode, .open)
         XCTAssertNil(segments.first?.lastRestSeconds)
@@ -1980,7 +1996,7 @@ final class ModelTests: XCTestCase {
         XCTAssertTrue(segments.allSatisfy { $0.trimmedName == nil })
         XCTAssertEqual(segments.map(\.targetTimeSeconds), [60, 120, 180, 240, 180, 120, 60])
             XCTAssertEqual(segments.map(\.recoveryType), [.activeRecovery, .activeRecovery, .activeRecovery, .activeRecovery, .activeRecovery, .activeRecovery, .activeRecovery])
-            XCTAssertEqual(segments.map(\.restSeconds), [60, 120, 180, 240, 180, 120, 60])
+            XCTAssertEqual(segments.map(\.activeRecoverySeconds), [60, 120, 180, 240, 180, 120, 60])
         XCTAssertTrue(segments.allSatisfy { $0.distanceGoalMode == .open })
         XCTAssertTrue(segments.allSatisfy { $0.lastRestSeconds == nil })
     }
@@ -1995,12 +2011,12 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(segments.first?.targetTimeSeconds, 45)
         XCTAssertEqual(segments.first?.repeatCount, 15)
         XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
-        XCTAssertEqual(segments.first?.restSeconds, 15)
+        XCTAssertEqual(segments.first?.activeRecoverySeconds, 15)
         XCTAssertEqual(segments.first?.lastRestSeconds, 90)
         XCTAssertEqual(segments.last?.targetTimeSeconds, 45)
         XCTAssertEqual(segments.last?.repeatCount, 15)
         XCTAssertEqual(segments.last?.recoveryType, .activeRecovery)
-        XCTAssertEqual(segments.last?.restSeconds, 15)
+        XCTAssertEqual(segments.last?.activeRecoverySeconds, 15)
         XCTAssertNil(segments.last?.lastRestSeconds)
     }
 
@@ -2013,12 +2029,12 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(segments.first?.targetTimeSeconds, 30)
         XCTAssertEqual(segments.first?.repeatCount, 10)
         XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
-        XCTAssertEqual(segments.first?.restSeconds, 15)
+        XCTAssertEqual(segments.first?.activeRecoverySeconds, 15)
         XCTAssertEqual(segments.first?.lastRestSeconds, 120)
         XCTAssertEqual(segments.last?.targetTimeSeconds, 30)
         XCTAssertEqual(segments.last?.repeatCount, 10)
         XCTAssertEqual(segments.last?.recoveryType, .activeRecovery)
-        XCTAssertEqual(segments.last?.restSeconds, 15)
+        XCTAssertEqual(segments.last?.activeRecoverySeconds, 15)
         XCTAssertNil(segments.last?.lastRestSeconds)
     }
 
@@ -2030,7 +2046,7 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(segments.first?.trimmedName, L10n.surge)
         XCTAssertEqual(segments.first?.repeatCount, 6)
         XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
-        XCTAssertEqual(segments.first?.restSeconds, 180)
+        XCTAssertEqual(segments.first?.activeRecoverySeconds, 180)
         XCTAssertNil(segments.first?.lastRestSeconds)
     }
 
@@ -2042,7 +2058,7 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(segments.first?.trimmedName, L10n.threshold)
         XCTAssertEqual(segments.first?.repeatCount, 3)
         XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
-        XCTAssertEqual(segments.first?.restSeconds, 180)
+        XCTAssertEqual(segments.first?.activeRecoverySeconds, 180)
         XCTAssertEqual(segments.first?.targetTimeSeconds, 720)
     }
 

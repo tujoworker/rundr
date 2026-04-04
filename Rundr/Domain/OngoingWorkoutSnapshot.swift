@@ -68,6 +68,8 @@ struct OngoingWorkoutSnapshot: Codable, Equatable {
     var currentRecoveryType: SegmentRecoveryType? = nil
     var restElapsedSeconds: Int?
     var restDurationSeconds: Int?
+    var pendingRecoveryType: SegmentRecoveryType? = nil
+    var pendingRecoveryDurationSeconds: Int?
     var pauseStartedAt: Date?
 
     var workoutPlan: WorkoutPlanSnapshot {
@@ -112,6 +114,8 @@ struct OngoingWorkoutSnapshot: Codable, Equatable {
         currentRecoveryType: SegmentRecoveryType? = nil,
         restElapsedSeconds: Int?,
         restDurationSeconds: Int?,
+        pendingRecoveryType: SegmentRecoveryType? = nil,
+        pendingRecoveryDurationSeconds: Int? = nil,
         pauseStartedAt: Date?
     ) {
         self.sessionID = sessionID
@@ -137,6 +141,8 @@ struct OngoingWorkoutSnapshot: Codable, Equatable {
         self.currentRecoveryType = currentRecoveryType
         self.restElapsedSeconds = restElapsedSeconds
         self.restDurationSeconds = restDurationSeconds
+        self.pendingRecoveryType = pendingRecoveryType
+        self.pendingRecoveryDurationSeconds = pendingRecoveryDurationSeconds
         self.pauseStartedAt = pauseStartedAt
     }
 
@@ -163,6 +169,8 @@ struct OngoingWorkoutSnapshot: Codable, Equatable {
         resumeRunState: WorkoutRunState,
         restElapsedSeconds: Int?,
         restDurationSeconds: Int?,
+        pendingRecoveryType: SegmentRecoveryType? = nil,
+        pendingRecoveryDurationSeconds: Int? = nil,
         pauseStartedAt: Date?
     ) {
         self.init(
@@ -189,6 +197,8 @@ struct OngoingWorkoutSnapshot: Codable, Equatable {
             currentRecoveryType: nil,
             restElapsedSeconds: restElapsedSeconds,
             restDurationSeconds: restDurationSeconds,
+            pendingRecoveryType: pendingRecoveryType,
+            pendingRecoveryDurationSeconds: pendingRecoveryDurationSeconds,
             pauseStartedAt: pauseStartedAt
         )
     }

@@ -232,7 +232,7 @@ struct ActiveSessionView: View {
                     if showsSessionCompletionIndicator {
                         Image(systemName: "checkmark")
                             .font(.system(size: Tokens.FontSize.sm, weight: .bold))
-                            .foregroundStyle(theme.text.bold)
+                            .foregroundStyle(theme.text.neutral)
                     }
                 }
             }

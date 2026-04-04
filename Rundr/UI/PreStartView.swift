@@ -484,7 +484,7 @@ struct PreStartView: View {
         segments[idx].repeatCount = editingSegmentRepeatCount > 0 ? editingSegmentRepeatCount : nil
         segments[idx].recoveryType = editingSegmentRecoveryType
         segments[idx].restSeconds = editingSegmentRecoveryType == .none ? nil : (editingSegmentRestSeconds > 0 ? editingSegmentRestSeconds : nil)
-        segments[idx].lastRestSeconds = editingSegmentRecoveryType == .rest && editingSegmentLastRestSeconds > 0 ? editingSegmentLastRestSeconds : nil
+        segments[idx].lastRestSeconds = editingSegmentRecoveryType != .none && editingSegmentLastRestSeconds > 0 ? editingSegmentLastRestSeconds : nil
         segments[idx].targetPaceSecondsPerKm = editingSegmentTargetPace > 0 ? Double(editingSegmentTargetPace) : nil
         segments[idx].targetTimeSeconds = SegmentEditorValueRules.normalizedTargetTime(
             for: segments[idx].distanceGoalMode,
@@ -569,7 +569,7 @@ private struct SegmentRow: View {
     }
 
     private var hasLastRestDuration: Bool {
-        segment.usesRestRecovery && segment.lastRestSeconds != nil
+        segment.usesRecovery && segment.lastRestSeconds != nil
     }
 
     private var hasTarget: Bool {
@@ -611,7 +611,7 @@ private struct SegmentRow: View {
             }
         }
 
-        if segment.usesRestRecovery, let lastRest = segment.lastRestSeconds {
+        if segment.usesRecovery, let lastRest = segment.lastRestSeconds {
             items.append(
                 SessionStatItem(
                     label: L10n.lastRest,
@@ -623,7 +623,7 @@ private struct SegmentRow: View {
         if let targetTime = segment.targetTimeSeconds {
             items.append(
                 SessionStatItem(
-                    label: L10n.targetTimeLabel,
+                    label: L10n.time,
                     value: Formatters.compactTimeString(from: targetTime)
                 )
             )
@@ -632,7 +632,7 @@ private struct SegmentRow: View {
         if let targetPace = segment.targetPaceSecondsPerKm {
             items.append(
                 SessionStatItem(
-                    label: L10n.targetPaceLabel,
+                    label: L10n.pace,
                     value: Formatters.compactPaceString(secondsPerKm: targetPace, unit: distanceUnit)
                 )
             )
@@ -711,10 +711,11 @@ struct IntervalLibraryView: View {
     var body: some View {
         List {
             Section {
-                if settings.intervalPresets.isEmpty {
+                if visiblePresets.isEmpty {
                     WatchEmptyStateRow(
                         title: L10n.noSavedIntervalsYet,
-                        detail: L10n.savedIntervalsPlaceholderDetail
+                        detail: L10n.savedIntervalsPlaceholderDetail,
+                        surfaceStyle: .history
                     )
                     .padding(.vertical, Tokens.Spacing.xs)
                     .listRowInsets(Tokens.ListRowInsets.card)
@@ -790,9 +791,9 @@ struct IntervalLibraryView: View {
                             headerTitle: L10n.adjustSettings,
                             subtitle: preset.title,
                             initialWorkoutPlan: preset.workoutPlan,
-                            initialCustomTitle: preset.title,
+                            initialCustomTitle: nil,
                             initialStoredPresetID: nil,
-                            showsCustomTitle: true,
+                            showsCustomTitle: false,
                             autoSaveOnSegmentDone: true,
                             onContinue: { workoutPlan, customTitle, storedPresetID in
                                 let normalizedTitle = IntervalPreset.sanitizeTitle(customTitle)
@@ -899,10 +900,24 @@ private struct IntervalSetupView: View {
     @ViewBuilder
     private var intervalsSection: some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
-            Text(L10n.intervalsTitle)
-                .font(.caption.bold())
-                .foregroundStyle(theme.text.subtle)
-                .padding(.horizontal, Tokens.Spacing.md)
+            HStack(alignment: .center, spacing: Tokens.Spacing.md) {
+                Text(L10n.intervalsTitle)
+                    .font(.caption.bold())
+                    .foregroundStyle(theme.text.subtle)
+
+                Spacer(minLength: Tokens.Spacing.md)
+
+                Button {
+                    isUseActivityConfirmationPresented = true
+                } label: {
+                    Image(systemName: "play.circle.fill")
+                        .font(.system(size: Tokens.FontSize.xxxl, weight: .semibold))
+                        .foregroundStyle(settings.primaryAccentColor)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(L10n.useItNow)
+            }
+            .padding(.horizontal, Tokens.Spacing.md)
 
             if segments.isEmpty {
                 WatchEmptyStateRow(
@@ -1186,7 +1201,7 @@ private struct IntervalSetupView: View {
         segments[index].repeatCount = editingSegmentRepeatCount > 0 ? editingSegmentRepeatCount : nil
         segments[index].recoveryType = editingSegmentRecoveryType
         segments[index].restSeconds = editingSegmentRecoveryType == .none ? nil : (editingSegmentRestSeconds > 0 ? editingSegmentRestSeconds : nil)
-        segments[index].lastRestSeconds = editingSegmentRecoveryType == .rest && editingSegmentLastRestSeconds > 0 ? editingSegmentLastRestSeconds : nil
+        segments[index].lastRestSeconds = editingSegmentRecoveryType != .none && editingSegmentLastRestSeconds > 0 ? editingSegmentLastRestSeconds : nil
         segments[index].targetPaceSecondsPerKm = editingSegmentTargetPace > 0 ? Double(editingSegmentTargetPace) : nil
         segments[index].targetTimeSeconds = SegmentEditorValueRules.normalizedTargetTime(
             for: segments[index].distanceGoalMode,
@@ -1311,6 +1326,7 @@ private struct IntervalTitleField: View {
                 .padding(.horizontal, Tokens.Spacing.md)
 
             TextField(placeholder, text: $text)
+                .font(.body.weight(.medium))
                 .textInputAutocapitalization(.words)
                 .foregroundStyle(theme.text.neutral)
                 .padding(.horizontal, Tokens.Spacing.md)
@@ -1403,7 +1419,7 @@ private struct SegmentEditSheet: View {
     }
 
     private var canConfigureLastRest: Bool {
-        recoveryType == .rest && SegmentEditSheetRules.canConfigureLastRest(repeatCount: repeatCount, restSeconds: restSeconds)
+        recoveryType != .none && SegmentEditSheetRules.canConfigureLastRest(repeatCount: repeatCount, restSeconds: restSeconds)
     }
 
     private var orderedSections: [SegmentEditSheetSection] {
@@ -1699,8 +1715,12 @@ private struct SegmentEditSheet: View {
             HStack(spacing: Tokens.Spacing.sm) {
                 Button {
                     activateRecovery(.activeRecovery)
-                    if restSeconds >= 15 {
-                        updateRestSeconds(restSeconds - 15)
+                    if restSeconds >= SegmentEditorValueRules.recoveryDurationStepSeconds {
+                        updateRestSeconds(
+                            SegmentEditorValueRules.decrementedRecoveryDurationSeconds(
+                                currentDurationSeconds: restSeconds
+                            )
+                        )
                     } else if restSeconds > 0 {
                         updateRestSeconds(0)
                     } else {
@@ -1727,7 +1747,11 @@ private struct SegmentEditSheet: View {
 
                 Button {
                     activateRecovery(.activeRecovery)
-                    updateRestSeconds(max(restSeconds, 15))
+                    updateRestSeconds(
+                        SegmentEditorValueRules.incrementedRecoveryDurationSeconds(
+                            currentDurationSeconds: restSeconds
+                        )
+                    )
                 } label: {
                     Image(systemName: "plus")
                         .font(.system(size: Tokens.FontSize.xxl, weight: .bold))
@@ -1751,8 +1775,12 @@ private struct SegmentEditSheet: View {
             HStack(spacing: Tokens.Spacing.sm) {
                 Button {
                     activateRecovery(.rest)
-                    if restSeconds >= 15 {
-                        updateRestSeconds(restSeconds - 15)
+                    if restSeconds >= SegmentEditorValueRules.recoveryDurationStepSeconds {
+                        updateRestSeconds(
+                            SegmentEditorValueRules.decrementedRecoveryDurationSeconds(
+                                currentDurationSeconds: restSeconds
+                            )
+                        )
                     } else if restSeconds > 0 {
                         updateRestSeconds(0)
                     } else {
@@ -1779,7 +1807,11 @@ private struct SegmentEditSheet: View {
 
                 Button {
                     activateRecovery(.rest)
-                    updateRestSeconds(restSeconds + 15)
+                    updateRestSeconds(
+                        SegmentEditorValueRules.incrementedRecoveryDurationSeconds(
+                            currentDurationSeconds: restSeconds
+                        )
+                    )
                 } label: {
                     Image(systemName: "plus")
                         .font(.system(size: Tokens.FontSize.xxl, weight: .bold))
@@ -1794,7 +1826,7 @@ private struct SegmentEditSheet: View {
 
     @ViewBuilder
     private var lastRestSection: some View {
-        if recoveryType == .rest && lastRestSeconds > 0 && canConfigureLastRest {
+        if recoveryType != .none && lastRestSeconds > 0 && canConfigureLastRest {
             VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
                 Text(L10n.lastRest)
                     .font(.caption.bold())
@@ -1805,8 +1837,12 @@ private struct SegmentEditSheet: View {
                 HStack(spacing: Tokens.Spacing.sm) {
                     Button {
                         withAnimation(.easeInOut(duration: 0.22)) {
-                            if lastRestSeconds >= 15 {
-                                updateLastRestSeconds(lastRestSeconds - 15)
+                            if lastRestSeconds >= SegmentEditorValueRules.recoveryDurationStepSeconds {
+                                updateLastRestSeconds(
+                                    SegmentEditorValueRules.decrementedRecoveryDurationSeconds(
+                                        currentDurationSeconds: lastRestSeconds
+                                    )
+                                )
                             } else {
                                 updateLastRestSeconds(0)
                             }
@@ -1831,7 +1867,11 @@ private struct SegmentEditSheet: View {
 
                     Button {
                         withAnimation(.easeInOut(duration: 0.22)) {
-                            updateLastRestSeconds(lastRestSeconds + 15)
+                            updateLastRestSeconds(
+                                SegmentEditorValueRules.incrementedRecoveryDurationSeconds(
+                                    currentDurationSeconds: lastRestSeconds
+                                )
+                            )
                         }
                     } label: {
                         Image(systemName: "plus")
@@ -1853,14 +1893,18 @@ private struct SegmentEditSheet: View {
     }
 
     private var addLastRestButton: some View {
-        let isActive = recoveryType == .rest && SegmentEditSheetRules.shouldShowAddLastRestButton(lastRestSeconds: lastRestSeconds)
+        let isActive = recoveryType != .none && SegmentEditSheetRules.shouldShowAddLastRestButton(lastRestSeconds: lastRestSeconds)
         let isEnabled = canConfigureLastRest && isActive
 
         return Button {
             switch SegmentEditSheetRules.addLastRestAction(repeatCount: repeatCount) {
             case .addValue:
                 withAnimation(.easeInOut(duration: 0.22)) {
-                    updateLastRestSeconds(max(restSeconds, 15))
+                    updateLastRestSeconds(
+                        SegmentEditorValueRules.incrementedRecoveryDurationSeconds(
+                            currentDurationSeconds: lastRestSeconds
+                        )
+                    )
                 }
             case .showRepeatsInfo:
                 isLastRestInfoPresented = true
@@ -1959,6 +2003,11 @@ private struct SegmentEditSheet: View {
                 .padding(.top, Tokens.Spacing.xs)
 
             HStack(spacing: Tokens.Spacing.sm) {
+                let minimumTargetTime = SegmentEditorValueRules.minimumTargetTimeSeconds(
+                    for: usesOpenDistance ? .time : .distance
+                )
+                let isTimeDecrementDisabled = usesOpenDistance && targetTime <= minimumTargetTime
+
                 Button {
                     if usesOpenDistance {
                         if targetTime > SegmentEditorValueRules.minimumTimeIntervalSeconds {
@@ -1978,6 +2027,8 @@ private struct SegmentEditSheet: View {
                         .foregroundStyle(theme.text.neutral)
                 }
                 .buttonStyle(.plain)
+                .disabled(isTimeDecrementDisabled)
+                .opacity(isTimeDecrementDisabled ? Tokens.Opacity.foregroundDisabled : 1)
 
                 Button {
                     timeEditorText = targetTime > 0 ? timeLabel : ""
@@ -2048,7 +2099,7 @@ private struct SegmentEditSheet: View {
     }
 
     private func syncLastRestWithRepeatCount(animated: Bool = true) {
-        if recoveryType != .rest {
+        if recoveryType == .none {
             if animated, lastRestSeconds != 0 {
                 withAnimation(.easeInOut(duration: 0.22)) {
                     lastRestSeconds = 0

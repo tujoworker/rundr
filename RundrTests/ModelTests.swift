@@ -323,12 +323,12 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(decoded.recoveryType, .rest)
     }
 
-    func testDistanceSegmentClearsLastRestOutsideRestRecovery() {
+    func testDistanceSegmentPreservesLastRestForActiveRecovery() {
         let segment = DistanceSegment(distanceMeters: 400, recoveryType: .activeRecovery, restSeconds: 45, lastRestSeconds: 90)
 
         XCTAssertEqual(segment.recoveryType, .activeRecovery)
         XCTAssertEqual(segment.restSeconds, 45)
-        XCTAssertNil(segment.lastRestSeconds)
+        XCTAssertEqual(segment.lastRestSeconds, 90)
     }
 
     func testDistanceGoalModeDecodesLegacyAndEncodesCurrentValues() throws {
@@ -428,12 +428,12 @@ final class ModelTests: XCTestCase {
         )
 
         XCTAssertEqual(activeRecoveryState.restSeconds, 60)
-        XCTAssertEqual(activeRecoveryState.lastRestSeconds, 0)
+    XCTAssertEqual(activeRecoveryState.lastRestSeconds, 90)
 
         let editedActiveRecoveryMemory = SegmentRecoveryEditorRules.rememberCurrentValues(
             currentType: .activeRecovery,
             restSeconds: 30,
-            lastRestSeconds: 0,
+            lastRestSeconds: 90,
             repeatCount: 4,
             memory: activeRecoveryState.memory
         )
@@ -442,7 +442,7 @@ final class ModelTests: XCTestCase {
             .rest,
             currentType: .activeRecovery,
             restSeconds: 30,
-            lastRestSeconds: 0,
+            lastRestSeconds: 90,
             repeatCount: 4,
             memory: editedActiveRecoveryMemory
         )
@@ -470,7 +470,7 @@ final class ModelTests: XCTestCase {
         let editedActiveRecoveryMemory = SegmentRecoveryEditorRules.rememberCurrentValues(
             currentType: .activeRecovery,
             restSeconds: 45,
-            lastRestSeconds: 0,
+            lastRestSeconds: 120,
             repeatCount: 5,
             memory: activeRecoveryState.memory
         )
@@ -479,7 +479,7 @@ final class ModelTests: XCTestCase {
             .rest,
             currentType: .activeRecovery,
             restSeconds: 45,
-            lastRestSeconds: 0,
+            lastRestSeconds: 120,
             repeatCount: 5,
             memory: editedActiveRecoveryMemory
         )
@@ -494,7 +494,7 @@ final class ModelTests: XCTestCase {
         )
 
         XCTAssertEqual(restoredActiveRecoveryState.restSeconds, 45)
-        XCTAssertEqual(restoredActiveRecoveryState.lastRestSeconds, 0)
+        XCTAssertEqual(restoredActiveRecoveryState.lastRestSeconds, 120)
         XCTAssertEqual(restoredRestState.restSeconds, 75)
         XCTAssertEqual(restoredRestState.lastRestSeconds, 120)
     }
@@ -627,7 +627,7 @@ final class ModelTests: XCTestCase {
                 lastRestSeconds: 15
             )
         )
-        XCTAssertFalse(
+        XCTAssertTrue(
             CompanionSegmentEditorRules.canOpenEditor(
                 field: .lastRest,
                 lastRestSeconds: 0
@@ -648,7 +648,7 @@ final class ModelTests: XCTestCase {
         )
     }
 
-    func testCompanionSegmentEditorRulesLastRestTapActionIgnoresEmptyConfigurableField() {
+    func testCompanionSegmentEditorRulesLastRestTapActionOpensEditorWhenConfigurableAndOff() {
         XCTAssertEqual(
             CompanionSegmentEditorRules.tapAction(
                 for: .lastRest,
@@ -657,7 +657,7 @@ final class ModelTests: XCTestCase {
                 restSeconds: 45,
                 lastRestSeconds: nil
             ),
-            .ignore
+            .openEditor
         )
     }
 
@@ -723,6 +723,17 @@ final class ModelTests: XCTestCase {
                 targetPaceSecondsPerKm: 320
             ),
             320
+        )
+    }
+
+    func testSegmentEditorValueRulesMinimumTargetTimeDependsOnGoalMode() {
+        XCTAssertEqual(
+            SegmentEditorValueRules.minimumTargetTimeSeconds(for: .time),
+            SegmentEditorValueRules.minimumTimeIntervalSeconds
+        )
+        XCTAssertEqual(
+            SegmentEditorValueRules.minimumTargetTimeSeconds(for: .distance),
+            0
         )
     }
 
@@ -796,6 +807,32 @@ final class ModelTests: XCTestCase {
         )
         XCTAssertEqual(
             SegmentEditorValueRules.decrementedTargetPaceSeconds(currentPaceSecondsPerKm: 10),
+            0
+        )
+    }
+
+    func testSegmentEditorValueRulesIncrementRecoveryDurationUsesDefaultWhenOff() {
+        XCTAssertEqual(
+            SegmentEditorValueRules.incrementedRecoveryDurationSeconds(currentDurationSeconds: 0),
+            60
+        )
+        XCTAssertEqual(
+            SegmentEditorValueRules.incrementedRecoveryDurationSeconds(currentDurationSeconds: 60),
+            75
+        )
+    }
+
+    func testSegmentEditorValueRulesDecrementRecoveryDurationMatchesEditorBehavior() {
+        XCTAssertEqual(
+            SegmentEditorValueRules.decrementedRecoveryDurationSeconds(currentDurationSeconds: 60),
+            45
+        )
+        XCTAssertEqual(
+            SegmentEditorValueRules.decrementedRecoveryDurationSeconds(currentDurationSeconds: 15),
+            0
+        )
+        XCTAssertEqual(
+            SegmentEditorValueRules.decrementedRecoveryDurationSeconds(currentDurationSeconds: 0),
             0
         )
     }
@@ -1543,8 +1580,9 @@ final class ModelTests: XCTestCase {
         XCTAssertNil(
             CompanionSegmentEditorRules.emptyDisplayValue(for: .repeats)
         )
-        XCTAssertNil(
+        XCTAssertEqual(
             CompanionSegmentEditorRules.emptyDisplayValue(for: .lastRest)
+            , L10n.off
         )
         XCTAssertEqual(segment.restSeconds, 30)
     }
@@ -1741,7 +1779,6 @@ final class ModelTests: XCTestCase {
                 "thresholdSixes",
                 "thousandRepeats",
                 "fourHundredRepeats",
-                "fourHundredRepeatsNoRest",
                 "fortyFiveFifteens",
                 "thirtyFifteens",
                 "overUnder",
@@ -1814,22 +1851,9 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(segments.first?.distanceMeters, 400)
         XCTAssertEqual(segments.first?.repeatCount, 10)
         XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
-        XCTAssertEqual(segments.first?.restSeconds, 60)
+        XCTAssertEqual(segments.first?.restSeconds, 90)
         XCTAssertEqual(segments.first?.distanceGoalMode, .distance)
         XCTAssertNil(segments.first?.targetTimeSeconds)
-        XCTAssertNil(segments.first?.lastRestSeconds)
-    }
-
-    func testFourHundredRepeatsNoRestPresetKeepsContinuousDistanceRepeats() {
-        let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "fourHundredRepeatsNoRest" }))
-        let segments = preset?.workoutPlan.distanceSegments ?? []
-
-        XCTAssertEqual(preset?.workoutPlan.trackingMode, .distanceDistance)
-        XCTAssertEqual(segments.count, 1)
-        XCTAssertEqual(segments.first?.distanceMeters, 400)
-        XCTAssertEqual(segments.first?.repeatCount, 10)
-        XCTAssertEqual(segments.first?.distanceGoalMode, .distance)
-        XCTAssertNil(segments.first?.restSeconds)
         XCTAssertNil(segments.first?.lastRestSeconds)
     }
 
@@ -1866,6 +1890,10 @@ final class ModelTests: XCTestCase {
             CompanionSegmentEditorRules.emptyDisplayValue(for: .pace),
             L10n.off
         )
+        XCTAssertEqual(
+            CompanionSegmentEditorRules.emptyDisplayValue(for: .lastRest),
+            L10n.off
+        )
         XCTAssertNil(
             CompanionSegmentEditorRules.emptyDisplayValue(for: .distance)
         )
@@ -1877,7 +1905,7 @@ final class ModelTests: XCTestCase {
 
         XCTAssertEqual(preset?.workoutPlan.trackingMode, .dual)
         XCTAssertEqual(segments.count, 7)
-        XCTAssertEqual(segments.map(\.trimmedName), Array(repeating: L10n.run, count: 7))
+        XCTAssertTrue(segments.allSatisfy { $0.trimmedName == nil })
         XCTAssertEqual(segments.map(\.targetTimeSeconds), [60, 120, 180, 240, 180, 120, 60])
         XCTAssertEqual(segments.map(\.recoveryType), [.activeRecovery, .activeRecovery, .activeRecovery, .activeRecovery, .activeRecovery, .activeRecovery, .none])
         XCTAssertEqual(segments.map(\.restSeconds), [60, 120, 180, 240, 180, 120, nil])
@@ -1885,58 +1913,53 @@ final class ModelTests: XCTestCase {
         XCTAssertTrue(segments.allSatisfy { $0.lastRestSeconds == nil })
     }
 
-    func testFortyFiveFifteensPresetUsesActiveRecoverySetsWithMidSetRestBlock() {
+    func testFortyFiveFifteensPresetUsesLastRestOnFirstActiveRecoveryBlock() {
         let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "fortyFiveFifteens" }))
         let segments = preset?.workoutPlan.distanceSegments ?? []
 
         XCTAssertEqual(preset?.workoutPlan.trackingMode, .dual)
-        XCTAssertEqual(segments.count, 3)
+        XCTAssertEqual(segments.count, 2)
         XCTAssertEqual(segments.first?.distanceGoalMode, .open)
         XCTAssertEqual(segments.first?.targetTimeSeconds, 45)
         XCTAssertEqual(segments.first?.repeatCount, 15)
         XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
         XCTAssertEqual(segments.first?.restSeconds, 15)
-        XCTAssertNil(segments.first?.lastRestSeconds)
-        XCTAssertEqual(segments[1].trimmedName, L10n.rest)
-        XCTAssertEqual(segments[1].targetTimeSeconds, 90)
-        XCTAssertEqual(segments[1].recoveryType, .none)
-        XCTAssertNil(segments[1].restSeconds)
+        XCTAssertEqual(segments.first?.lastRestSeconds, 90)
         XCTAssertEqual(segments.last?.targetTimeSeconds, 45)
         XCTAssertEqual(segments.last?.repeatCount, 15)
         XCTAssertEqual(segments.last?.recoveryType, .activeRecovery)
         XCTAssertEqual(segments.last?.restSeconds, 15)
+        XCTAssertNil(segments.last?.lastRestSeconds)
     }
 
-    func testThirtyFifteensPresetUsesActiveRecoverySetsWithMidSetRestBlock() {
+    func testThirtyFifteensPresetUsesLastRestOnFirstActiveRecoveryBlock() {
         let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "thirtyFifteens" }))
         let segments = preset?.workoutPlan.distanceSegments ?? []
 
         XCTAssertEqual(preset?.workoutPlan.trackingMode, .dual)
-        XCTAssertEqual(segments.count, 3)
+        XCTAssertEqual(segments.count, 2)
         XCTAssertEqual(segments.first?.targetTimeSeconds, 30)
         XCTAssertEqual(segments.first?.repeatCount, 10)
         XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
         XCTAssertEqual(segments.first?.restSeconds, 15)
-        XCTAssertEqual(segments[1].trimmedName, L10n.rest)
-        XCTAssertEqual(segments[1].targetTimeSeconds, 120)
+        XCTAssertEqual(segments.first?.lastRestSeconds, 120)
         XCTAssertEqual(segments.last?.targetTimeSeconds, 30)
         XCTAssertEqual(segments.last?.repeatCount, 10)
         XCTAssertEqual(segments.last?.recoveryType, .activeRecovery)
         XCTAssertEqual(segments.last?.restSeconds, 15)
+        XCTAssertNil(segments.last?.lastRestSeconds)
     }
 
-    func testStructuredFartlekPresetKeepsFinalRecoveryBlockAfterRepeatedSurges() {
+    func testStructuredFartlekPresetUsesLastRestOnRepeatedSurges() {
         let preset = try? XCTUnwrap(SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "structuredFartlek" }))
         let segments = preset?.workoutPlan.distanceSegments ?? []
 
-        XCTAssertEqual(segments.count, 2)
+        XCTAssertEqual(segments.count, 1)
         XCTAssertEqual(segments.first?.trimmedName, L10n.surge)
         XCTAssertEqual(segments.first?.repeatCount, 6)
         XCTAssertEqual(segments.first?.recoveryType, .activeRecovery)
         XCTAssertEqual(segments.first?.restSeconds, 180)
-        XCTAssertEqual(segments.last?.trimmedName, L10n.activeRecovery)
-        XCTAssertEqual(segments.last?.targetTimeSeconds, 180)
-        XCTAssertEqual(segments.last?.recoveryType, SegmentRecoveryType.none)
+        XCTAssertEqual(segments.first?.lastRestSeconds, 180)
     }
 
     func testLongTwelvesPresetUsesRepeatedThresholdSegmentWithActiveRecovery() {

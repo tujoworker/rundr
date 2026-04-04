@@ -207,6 +207,8 @@ enum SegmentEditorValueRules {
     static let minimumTimeIntervalSeconds = 5
     static let defaultTargetPaceSecondsPerKm = 300
     static let targetPaceStepSeconds = 5
+    static let defaultRecoveryDurationSeconds = 60
+    static let recoveryDurationStepSeconds = 15
 
     static func normalizedName(_ name: String?) -> String? {
         guard let name else { return nil }
@@ -236,6 +238,10 @@ enum SegmentEditorValueRules {
         return Double(max(seconds, minimumTimeIntervalSeconds))
     }
 
+    static func minimumTargetTimeSeconds(for distanceGoalMode: DistanceGoalMode) -> Int {
+        distanceGoalMode == .time ? minimumTimeIntervalSeconds : 0
+    }
+
     static func updatedTargetsAfterSettingTime(
         seconds: Int,
         currentPaceSecondsPerKm: Double?
@@ -263,6 +269,18 @@ enum SegmentEditorValueRules {
     static func decrementedTargetPaceSeconds(currentPaceSecondsPerKm: Int) -> Int {
         currentPaceSecondsPerKm >= targetPaceStepSeconds * 3
             ? currentPaceSecondsPerKm - targetPaceStepSeconds
+            : 0
+    }
+
+    static func incrementedRecoveryDurationSeconds(currentDurationSeconds: Int) -> Int {
+        currentDurationSeconds > 0
+            ? currentDurationSeconds + recoveryDurationStepSeconds
+            : defaultRecoveryDurationSeconds
+    }
+
+    static func decrementedRecoveryDurationSeconds(currentDurationSeconds: Int) -> Int {
+        currentDurationSeconds >= recoveryDurationStepSeconds
+            ? currentDurationSeconds - recoveryDurationStepSeconds
             : 0
     }
 }
@@ -296,7 +314,7 @@ struct SegmentRecoveryEditorMemory: Equatable {
         case .activeRecovery:
             self.init(
                 restSeconds: 0,
-                lastRestSeconds: 0,
+                lastRestSeconds: currentLastRestSeconds,
                 activeRecoverySeconds: currentRestSeconds
             )
         case .none:
@@ -314,7 +332,7 @@ enum SegmentRecoveryEditorRules {
         repeatCount: Int,
         memory: SegmentRecoveryEditorMemory
     ) -> (restSeconds: Int, lastRestSeconds: Int, memory: SegmentRecoveryEditorMemory) {
-        var updatedMemory = rememberCurrentValues(
+        let updatedMemory = rememberCurrentValues(
             currentType: currentType,
             restSeconds: restSeconds,
             lastRestSeconds: lastRestSeconds,
@@ -327,7 +345,11 @@ enum SegmentRecoveryEditorRules {
             let restoredActiveRecovery = updatedMemory.activeRecoverySeconds > 0
                 ? updatedMemory.activeRecoverySeconds
                 : max(restSeconds, 0)
-            return (restoredActiveRecovery, 0, updatedMemory)
+            let restoredLastRest = normalizedStoredLastRest(
+                updatedMemory.lastRestSeconds > 0 ? updatedMemory.lastRestSeconds : lastRestSeconds,
+                repeatCount: repeatCount
+            )
+            return (restoredActiveRecovery, restoredLastRest, updatedMemory)
 
         case .rest:
             let restoredRest = updatedMemory.restSeconds > 0 ? updatedMemory.restSeconds : max(restSeconds, 0)
@@ -357,6 +379,7 @@ enum SegmentRecoveryEditorRules {
             updatedMemory.lastRestSeconds = normalizedStoredLastRest(lastRestSeconds, repeatCount: repeatCount)
         case .activeRecovery:
             updatedMemory.activeRecoverySeconds = max(restSeconds, 0)
+            updatedMemory.lastRestSeconds = normalizedStoredLastRest(lastRestSeconds, repeatCount: repeatCount)
         case .none:
             break
         }
@@ -497,7 +520,7 @@ enum CompanionSegmentEditorRules {
         case .time, .pace, .distance, .repeats, .rest, .activeRecovery:
             return true
         case .lastRest:
-            return (lastRestSeconds ?? 0) > 0
+            return true
         }
     }
 
@@ -510,14 +533,15 @@ enum CompanionSegmentEditorRules {
     ) -> CompanionSegmentEditorTapAction {
         switch field {
         case .lastRest:
-            let canConfigureLastRest = recoveryType == .rest && SegmentEditSheetRules.canConfigureLastRest(
+            guard recoveryType != .none else { return .ignore }
+            let canConfigureLastRest = SegmentEditSheetRules.canConfigureLastRest(
                 repeatCount: repeatCount ?? 0,
                 restSeconds: restSeconds ?? 0
             )
-            if recoveryType == .rest && !canConfigureLastRest {
+            if !canConfigureLastRest {
                 return .showUnavailableInfo
             }
-            return canOpenEditor(field: field, lastRestSeconds: lastRestSeconds) ? .openEditor : .ignore
+            return .openEditor
         case .time, .pace, .distance, .repeats, .rest, .activeRecovery:
             return .openEditor
         }
@@ -531,7 +555,7 @@ enum CompanionSegmentEditorRules {
     ) -> Bool {
         switch field {
         case .lastRest:
-            return recoveryType == .rest && !SegmentEditSheetRules.canConfigureLastRest(
+            return recoveryType == .none || !SegmentEditSheetRules.canConfigureLastRest(
                 repeatCount: repeatCount ?? 0,
                 restSeconds: restSeconds ?? 0
             )
@@ -542,13 +566,13 @@ enum CompanionSegmentEditorRules {
 
     static func emptyDisplayValue(for field: CompanionSegmentEditorField) -> String? {
         switch field {
-        case .time, .pace:
+        case .time, .pace, .lastRest:
             return L10n.off
         case .rest:
             return L10n.restManual
         case .activeRecovery:
             return L10n.off
-        case .distance, .repeats, .lastRest:
+        case .distance, .repeats:
             return nil
         }
     }

@@ -769,7 +769,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
         let completesSegment = segment.repeatCount.map { nextRepeatCount >= $0 } ?? false
         let hasNextSegment = currentSegmentIndex + 1 < distanceSegments.count
 
-        if segment.usesRestRecovery && completesSegment && hasNextSegment {
+        if completesSegment && hasNextSegment, segment.lastRestSeconds != nil {
             return (segment.recoveryType, segment.lastRestSeconds ?? segment.restSeconds)
         }
 

@@ -31,10 +31,10 @@ final class L10nTests: XCTestCase {
 
     func testCompanionEmptyStateLabelsExist() {
         XCTAssertEqual(L10n.noSyncedSessionsYet, "Start an interval session on Apple Watch.")
-        XCTAssertEqual(L10n.noSavedIntervalsYet, "No saved intervals yet")
+        XCTAssertEqual(L10n.noSavedIntervalsYet, "No saved sessions yet")
         XCTAssertEqual(
             L10n.savedIntervalsPlaceholderDetail,
-            "Open a predefined interval to save your own version."
+            "Open a predefined session to save your own version."
         )
         XCTAssertEqual(L10n.noSessionPlanIntervalsTitle, "No intervals yet")
         XCTAssertEqual(L10n.noSessionPlanIntervalsDetail, "Tap + to add your first interval.")
@@ -49,9 +49,13 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.shareSession, "Share Session")
         XCTAssertEqual(L10n.importFile, "Import File")
         XCTAssertEqual(L10n.planImportedTitle, "Plan Imported")
+        XCTAssertEqual(L10n.planImportedMessage, "The plan was added to My Sessions.")
         XCTAssertEqual(L10n.sessionImportedTitle, "Session Imported")
-        XCTAssertEqual(L10n.newInterval, "New Interval")
-        XCTAssertEqual(L10n.addInterval, "Add Interval")
+        XCTAssertEqual(L10n.newInterval, "New Session")
+        XCTAssertEqual(L10n.addInterval, "Add Session")
+        XCTAssertEqual(L10n.myIntervals, "My Sessions")
+        XCTAssertEqual(L10n.editInterval, "Edit Session")
+        XCTAssertEqual(L10n.adjustSettings, "Adjust Session")
     }
 
     func testThisSessionLabelExistsForActionMenuTitle() {
@@ -126,15 +130,16 @@ final class L10nTests: XCTestCase {
         XCTAssertEqual(L10n.predefinedThirtyFifteensTitle, "30/15")
         XCTAssertEqual(L10n.predefinedOverUnderTitle, "Over/Under")
         XCTAssertEqual(L10n.predefinedPyramidTitle, "Pyramid")
-        XCTAssertEqual(L10n.predefinedFourHundredRepeatsTitle, "10 x 400 m with rest")
+        XCTAssertEqual(L10n.predefinedFourHundredRepeatsTitle, "10 x 400 m")
         XCTAssertEqual(L10n.predefinedFourHundredRepeatsNoRestTitle, "10 x 400 m without rest")
         XCTAssertEqual(L10n.predefinedStructuredFartlekTitle, "Structured Fartlek")
         XCTAssertEqual(L10n.predefinedLongTwelvesTitle, "Long Intervals")
     }
 
     func testPredefinedWorkoutDescriptionsExist() {
-        XCTAssertEqual(L10n.predefinedFortyFiveFifteensDescription, "20-30 x (45s / 15s), continuous or 2 sets. Maximum threshold time with micro-recovery. Core Norwegian method.")
+        XCTAssertEqual(L10n.predefinedFortyFiveFifteensDescription, "20-30 x (45s / 15s), continuous or 2 sets. Maximum threshold time with micro-recovery. High quality without full fatigue.")
         XCTAssertEqual(L10n.predefinedOverUnderDescription, "4 x 8 min alternating 1 min over / 1 min under. Trains lactate handling and pace changes.")
+        XCTAssertEqual(L10n.predefinedFourHundredRepeatsDescription, "10 x 400 m / 90s active recovery, split sets optional. Speed plus running economy. Classic and effective.")
         XCTAssertEqual(L10n.predefinedFourHundredRepeatsNoRestDescription, "10 x 400 m continuous, no rest between reps. Trains pace control and relaxed form under accumulating fatigue.")
     }
 

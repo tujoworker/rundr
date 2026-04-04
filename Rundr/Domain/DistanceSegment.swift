@@ -75,7 +75,7 @@ struct DistanceSegment: Codable, Identifiable, Equatable, Hashable {
     var recoveryType: SegmentRecoveryType
     /// Recovery duration in seconds after non-final repeats in this segment. `nil` means manual.
     var restSeconds: Int?
-    /// Optional final recovery duration before the next segment begins. Used for rest recovery only.
+    /// Optional final recovery duration before the next segment begins. Used for any enabled recovery type.
     var lastRestSeconds: Int?
     /// Target pace in seconds per kilometer. `nil` means no pace target.
     var targetPaceSecondsPerKm: Double?
@@ -95,7 +95,7 @@ struct DistanceSegment: Codable, Identifiable, Equatable, Hashable {
         self.repeatCount = repeatCount
         self.recoveryType = resolvedRecoveryType
         self.restSeconds = restSeconds
-        self.lastRestSeconds = resolvedRecoveryType == .rest ? lastRestSeconds : nil
+        self.lastRestSeconds = resolvedRecoveryType == .none ? nil : lastRestSeconds
         self.targetPaceSecondsPerKm = targetPaceSecondsPerKm
         self.targetTimeSeconds = targetTimeSeconds
     }
@@ -193,7 +193,7 @@ struct DistanceSegment: Codable, Identifiable, Equatable, Hashable {
         lastRestSeconds = try container.decodeIfPresent(Int.self, forKey: .lastRestSeconds)
         recoveryType = try container.decodeIfPresent(SegmentRecoveryType.self, forKey: .recoveryType)
             ?? ((restSeconds != nil || lastRestSeconds != nil) ? .rest : .none)
-        if recoveryType != .rest {
+        if recoveryType == .none {
             lastRestSeconds = nil
         }
         targetPaceSecondsPerKm = try container.decodeIfPresent(Double.self, forKey: .targetPaceSecondsPerKm)

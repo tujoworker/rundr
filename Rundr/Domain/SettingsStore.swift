@@ -411,20 +411,9 @@ final class SettingsStore: ObservableObject {
                         distanceMeters: 400,
                         repeatCount: 10,
                         recoveryType: .activeRecovery,
-                        recoverySeconds: 60
+                        recoverySeconds: 90
                     )
                 ],
-                restMode: .manual
-            )
-        ),
-        PredefinedIntervalPreset(
-            id: "fourHundredRepeatsNoRest",
-            title: L10n.predefinedFourHundredRepeatsNoRestTitle,
-            description: L10n.predefinedFourHundredRepeatsNoRestDescription,
-            workoutPlan: WorkoutPlanSnapshot(
-                trackingMode: .distanceDistance,
-                distanceLapDistanceMeters: 400,
-                distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 10)],
                 restMode: .manual
             )
         ),
@@ -441,11 +430,8 @@ final class SettingsStore: ObservableObject {
                         durationSeconds: 45,
                         repeatCount: 15,
                         recoveryType: .activeRecovery,
-                        recoverySeconds: 15
-                    ),
-                    openTimeSegment(
-                        name: L10n.rest,
-                        durationSeconds: 90
+                        recoverySeconds: 15,
+                        lastRecoverySeconds: 90
                     ),
                     openTimeSegment(
                         name: L10n.sprint,
@@ -471,11 +457,8 @@ final class SettingsStore: ObservableObject {
                         durationSeconds: 30,
                         repeatCount: 10,
                         recoveryType: .activeRecovery,
-                        recoverySeconds: 15
-                    ),
-                    openTimeSegment(
-                        name: L10n.rest,
-                        durationSeconds: 120
+                        recoverySeconds: 15,
+                        lastRecoverySeconds: 120
                     ),
                     openTimeSegment(
                         name: L10n.sprint,
@@ -515,13 +498,13 @@ final class SettingsStore: ObservableObject {
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
                 distanceSegments: [
-                    openTimeSegment(name: L10n.run, durationSeconds: 60, recoveryType: .activeRecovery, recoverySeconds: 60),
-                    openTimeSegment(name: L10n.run, durationSeconds: 120, recoveryType: .activeRecovery, recoverySeconds: 120),
-                    openTimeSegment(name: L10n.run, durationSeconds: 180, recoveryType: .activeRecovery, recoverySeconds: 180),
-                    openTimeSegment(name: L10n.run, durationSeconds: 240, recoveryType: .activeRecovery, recoverySeconds: 240),
-                    openTimeSegment(name: L10n.run, durationSeconds: 180, recoveryType: .activeRecovery, recoverySeconds: 180),
-                    openTimeSegment(name: L10n.run, durationSeconds: 120, recoveryType: .activeRecovery, recoverySeconds: 120),
-                    openTimeSegment(name: L10n.run, durationSeconds: 60)
+                    openTimeSegment(name: "", durationSeconds: 60, recoveryType: .activeRecovery, recoverySeconds: 60),
+                    openTimeSegment(name: "", durationSeconds: 120, recoveryType: .activeRecovery, recoverySeconds: 120),
+                    openTimeSegment(name: "", durationSeconds: 180, recoveryType: .activeRecovery, recoverySeconds: 180),
+                    openTimeSegment(name: "", durationSeconds: 240, recoveryType: .activeRecovery, recoverySeconds: 240),
+                    openTimeSegment(name: "", durationSeconds: 180, recoveryType: .activeRecovery, recoverySeconds: 180),
+                    openTimeSegment(name: "", durationSeconds: 120, recoveryType: .activeRecovery, recoverySeconds: 120),
+                    openTimeSegment(name: "", durationSeconds: 60)
                 ],
                 restMode: .manual
             )
@@ -539,9 +522,9 @@ final class SettingsStore: ObservableObject {
                         durationSeconds: 120,
                         repeatCount: 6,
                         recoveryType: .activeRecovery,
-                        recoverySeconds: 180
-                    ),
-                    openTimeSegment(name: L10n.activeRecovery, durationSeconds: 180)
+                        recoverySeconds: 180,
+                        lastRecoverySeconds: 180
+                    )
                 ],
                 restMode: .manual
             )

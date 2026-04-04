@@ -389,6 +389,29 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.currentTargetDistanceMeters, 800)
     }
 
+    func testLastRestOverridesActiveRecoveryBetweenBlocks() {
+        let controller = makeStartedController(
+            segments: [
+                DistanceSegment(distanceMeters: 400, repeatCount: 2, recoveryType: .activeRecovery, restSeconds: 30, lastRestSeconds: 90),
+                DistanceSegment(distanceMeters: 800, repeatCount: 1, recoveryType: .activeRecovery, restSeconds: 45)
+            ]
+        )
+
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .rest)
+        XCTAssertEqual(controller.currentRecoveryType, .activeRecovery)
+        XCTAssertEqual(controller.restDurationSeconds, 30)
+
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .active)
+
+        controller.markLap()
+        XCTAssertEqual(controller.runState, .rest)
+        XCTAssertEqual(controller.currentRecoveryType, .activeRecovery)
+        XCTAssertEqual(controller.restDurationSeconds, 90)
+        XCTAssertEqual(controller.currentTargetDistanceMeters, 800)
+    }
+
     func testFinalBlockFallsBackToRegularRestWhenLastRestMissing() {
         let controller = makeStartedController(
             segments: [

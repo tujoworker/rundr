@@ -128,6 +128,10 @@ private struct CompanionWorkoutsView: View {
         isReorderingSegments ? L10n.done : L10n.reorder
     }
 
+    private var canActivateReorder: Bool {
+        canReorderSegments || isReorderingSegments
+    }
+
     var body: some View {
         NavigationStack {
             List {
@@ -653,7 +657,7 @@ private struct CompanionPresetRouteDestinationView: View {
                     initialCustomDescription: preset.customDescription,
                     initialStoredPresetID: preset.id,
                     showsCustomTitle: true,
-                    showsInlineUseItNowButton: false,
+                    showsInlineUseItNowButton: true,
                     autoSaveOnSegmentDone: true
                 ) { workoutPlan, customTitle, customDescription, storedPresetID in
                     _ = settings.saveIntervalPreset(
@@ -684,12 +688,18 @@ private struct CompanionPresetRouteDestinationView: View {
                     autoSaveOnSegmentDone: true
                 ) { workoutPlan, customTitle, customDescription, storedPresetID in
                     let normalizedTitle = IntervalPreset.sanitizeTitle(customTitle)
-                    if IntervalPresetSignature(workoutPlan: workoutPlan) != preset.signature || normalizedTitle != nil {
+                    let effectiveTitle = normalizedTitle == IntervalPreset.sanitizeTitle(preset.title)
+                        ? nil
+                        : normalizedTitle
+                    let normalizedDescription = IntervalPreset.sanitizeDescription(customDescription)
+                    if IntervalPresetSignature(workoutPlan: workoutPlan) != preset.signature
+                        || effectiveTitle != nil
+                        || normalizedDescription != IntervalPreset.sanitizeDescription(preset.description) {
                         _ = settings.saveIntervalPreset(
                             workoutPlan,
-                            customTitle: normalizedTitle,
+                            customTitle: effectiveTitle,
                             existingPresetID: storedPresetID,
-                            customDescription: customDescription,
+                            customDescription: normalizedDescription,
                             updatesDescription: true
                         )
                     }
@@ -1123,18 +1133,15 @@ private struct CompanionSettingsLeadingIcon: View {
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
 
-    private var iconBackgroundColor: Color {
-        theme.background.neutralInteraction
-    }
-
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
-                .fill(iconBackgroundColor)
-                .frame(width: 28, height: 28)
-
-            companionSettingsIcon
-        }
+        companionSettingsIcon
+            .frame(width: 28, height: 28)
+            .background {
+                if !theme.isDark {
+                    RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
+                        .fill(theme.background.neutralInteraction)
+                }
+            }
     }
 
     @ViewBuilder
@@ -1350,6 +1357,10 @@ private struct CompanionWorkoutEditorView: View {
         isReorderingSegments ? L10n.done : L10n.reorder
     }
 
+    private var canActivateReorder: Bool {
+        canReorderSegments || isReorderingSegments
+    }
+
     private var customTitleRowContentInsets: EdgeInsets {
         EdgeInsets(
             top: Tokens.Spacing.xxxxl,
@@ -1359,90 +1370,125 @@ private struct CompanionWorkoutEditorView: View {
         )
     }
 
+    private var showsCustomDescription: Bool {
+        showsCustomTitle || initialCustomDescription != nil || !customDescription.isEmpty
+    }
+
+    private var showsCustomMetadataSection: Bool {
+        showsCustomTitle || showsCustomDescription
+    }
+
     var body: some View {
         List {
-            if showsCustomTitle {
+            if showsCustomMetadataSection {
                 Section {
-                    HStack(spacing: Tokens.Spacing.xs) {
-                        TextField(
-                            "",
-                            text: $customTitle,
-                            prompt: Text(L10n.optionalTitlePlaceholder)
-                                .foregroundStyle(theme.text.subtle)
-                        )
-                        .textInputAutocapitalization(.words)
-                        .multilineTextAlignment(.leading)
-                        .font(.body.weight(.medium))
-                        .foregroundStyle(theme.text.neutral)
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                    if showsCustomTitle {
+                        HStack(spacing: Tokens.Spacing.xs) {
+                            TextField(
+                                "",
+                                text: $customTitle,
+                                prompt: Text(L10n.optionalTitlePlaceholder)
+                                    .foregroundStyle(theme.text.subtle)
+                            )
+                            .textInputAutocapitalization(.words)
+                            .multilineTextAlignment(.leading)
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(theme.text.neutral)
+                            .frame(maxWidth: .infinity, alignment: .leading)
 
-                        Button {
-                            customTitle = ""
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(theme.text.subtle)
-                                .opacity(customTitle.isEmpty ? 0 : 1)
+                            Button {
+                                customTitle = ""
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(theme.text.subtle)
+                                    .opacity(customTitle.isEmpty ? 0 : 1)
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(customTitle.isEmpty)
+                            .padding(.leading, Tokens.Spacing.sm)
+                            .padding(.trailing, Tokens.Spacing.xxs)
+                            .padding(.vertical, Tokens.Spacing.xxs)
                         }
-                        .buttonStyle(.plain)
-                        .disabled(customTitle.isEmpty)
-                        .padding(.leading, Tokens.Spacing.sm)
-                        .padding(.trailing, Tokens.Spacing.xxs)
-                        .padding(.vertical, Tokens.Spacing.xxs)
-                    }
-                    .listRowCardChrome(
-                        rowInsets: CompanionSessionPlanStyle.rowInsets,
-                        contentInsets: customTitleRowContentInsets
-                    )
-
-                    HStack(spacing: Tokens.Spacing.xs) {
-                        TextField(
-                            "",
-                            text: $customDescription,
-                            prompt: Text(L10n.optionalDescriptionPlaceholder)
-                                .foregroundStyle(theme.text.subtle),
-                            axis: .vertical
+                        .listRowCardChrome(
+                            rowInsets: CompanionSessionPlanStyle.rowInsets,
+                            contentInsets: customTitleRowContentInsets
                         )
-                        .lineLimit(1...3)
-                        .multilineTextAlignment(.leading)
-                        .font(.subheadline)
-                        .foregroundStyle(theme.text.neutral)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-
-                        Button {
-                            customDescription = ""
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(theme.text.subtle)
-                                .opacity(customDescription.isEmpty ? 0 : 1)
-                        }
-                        .buttonStyle(.plain)
-                        .disabled(customDescription.isEmpty)
-                        .padding(.leading, Tokens.Spacing.sm)
-                        .padding(.trailing, Tokens.Spacing.xxs)
-                        .padding(.vertical, Tokens.Spacing.xxs)
                     }
-                    .listRowCardChrome(
-                        rowInsets: CompanionSessionPlanStyle.rowInsets,
-                        contentInsets: customTitleRowContentInsets
-                    )
+
+                    if showsCustomDescription {
+                        HStack(spacing: Tokens.Spacing.xs) {
+                            TextField(
+                                "",
+                                text: $customDescription,
+                                prompt: Text(L10n.optionalDescriptionPlaceholder)
+                                    .foregroundStyle(theme.text.subtle),
+                                axis: .vertical
+                            )
+                            .lineLimit(1...3)
+                            .multilineTextAlignment(.leading)
+                            .font(.subheadline)
+                            .foregroundStyle(theme.text.neutral)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                            Button {
+                                customDescription = ""
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .foregroundStyle(theme.text.subtle)
+                                    .opacity(customDescription.isEmpty ? 0 : 1)
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(customDescription.isEmpty)
+                            .padding(.leading, Tokens.Spacing.sm)
+                            .padding(.trailing, Tokens.Spacing.xxs)
+                            .padding(.vertical, Tokens.Spacing.xxs)
+                        }
+                        .listRowCardChrome(
+                            rowInsets: CompanionSessionPlanStyle.rowInsets,
+                            contentInsets: customTitleRowContentInsets
+                        )
+                    }
+
                 }
                 .listSectionSeparator(.hidden)
             }
 
             Section {
-                if canReorderSegments {
-                    HStack {
-                        Spacer(minLength: 0)
+                HStack(alignment: .center, spacing: Tokens.Spacing.md) {
+                    VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
+                        CompanionHomeSectionHeader(title: L10n.intervalsTitle)
 
-                        Button(reorderButtonTitle) {
-                            segmentEditMode = isReorderingSegments ? .inactive : .active
+                        if canActivateReorder {
+                            Button(reorderButtonTitle) {
+                                segmentEditMode = isReorderingSegments ? .inactive : .active
+                            }
+                            .buttonStyle(.plain)
+                            .foregroundStyle(theme.isDark ? theme.text.subtle : settings.primaryAccentColor)
                         }
-                        .foregroundStyle(theme.isDark ? theme.text.subtle : settings.primaryAccentColor)
                     }
-                    .listRowInsets(CompanionSessionPlanStyle.rowInsets)
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color.clear)
+
+                    Spacer(minLength: Tokens.Spacing.md)
+
+                    if showsInlineUseItNowButton {
+                        Button {
+                            isUseActivityConfirmationPresented = true
+                        } label: {
+                            Image(systemName: "play.circle.fill")
+                                .font(.system(size: Tokens.ControlSize.companionAddIcon, weight: .semibold))
+                                .foregroundStyle(settings.primaryAccentColor)
+                                .frame(width: Tokens.ControlSize.companionAddIcon, height: Tokens.ControlSize.companionAddIcon)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(L10n.useItNow)
+                    }
                 }
+                .padding(.top, showsCustomMetadataSection ? Tokens.Spacing.xxxl : 0)
+                .padding(.leading, CompanionSessionPlanStyle.cellContentInsets.leading)
+                .padding(.trailing, CompanionSessionPlanStyle.cellContentInsets.trailing)
+                .padding(.bottom, Tokens.Spacing.xs)
+                .listRowInsets(CompanionSessionPlanStyle.rowInsets)
+                .listRowSeparator(.hidden)
+                .listRowBackground(Color.clear)
 
                 if segments.isEmpty {
                     CompanionEmptyStateCard(
@@ -1466,7 +1512,7 @@ private struct CompanionWorkoutEditorView: View {
                             }
                             .contentShape(Rectangle())
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(CompanionNoPressOpacityButtonStyle())
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .listRowCardChrome(
                             rowInsets: CompanionSessionPlanStyle.rowInsets,
@@ -1505,24 +1551,6 @@ private struct CompanionWorkoutEditorView: View {
                 .listRowInsets(CompanionSessionPlanStyle.rowInsets)
                 .listRowSeparator(.hidden)
                 .listRowBackground(Color.clear)
-            } header: {
-                HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.md) {
-                    CompanionHomeSectionHeader(title: L10n.intervalsTitle)
-
-                    Spacer(minLength: Tokens.Spacing.md)
-
-                    if showsInlineUseItNowButton {
-                        Button {
-                            isUseActivityConfirmationPresented = true
-                        } label: {
-                            Label(L10n.useItNow, systemImage: "play.fill")
-                                .labelStyle(.titleAndIcon)
-                        }
-                        .foregroundStyle(theme.isDark ? theme.text.subtle : settings.primaryAccentColor)
-                    }
-                }
-                .padding(.leading, CompanionSessionPlanStyle.sectionHeaderLeadingInset)
-                .padding(.trailing, CompanionSessionPlanStyle.sectionHeaderLeadingInset)
             }
             .listSectionSeparator(.hidden)
 
@@ -1549,12 +1577,10 @@ private struct CompanionWorkoutEditorView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
-                    if !showsInlineUseItNowButton {
-                        Button {
-                            isUseActivityConfirmationPresented = true
-                        } label: {
-                            Label(L10n.useItNow, systemImage: "play.fill")
-                        }
+                    Button {
+                        isUseActivityConfirmationPresented = true
+                    } label: {
+                        Label(L10n.useItNow, systemImage: "play.fill")
                     }
 
                     Button {
@@ -1776,7 +1802,7 @@ private struct CompanionSegmentRow: View {
     }
 
     private var targetLabel: String {
-        segment.targetTimeSeconds != nil ? L10n.targetTimeLabel : L10n.targetPaceLabel
+        segment.targetTimeSeconds != nil ? L10n.time : L10n.pace
     }
 
     private var targetValue: String {
@@ -1792,7 +1818,7 @@ private struct CompanionSegmentRow: View {
     }
 
     private var showsLastRest: Bool {
-        segment.recoveryType == .rest && segment.lastRestSeconds != nil
+        segment.recoveryType != .none && segment.lastRestSeconds != nil
     }
 
     private var showsTarget: Bool {
@@ -2003,7 +2029,7 @@ private struct CompanionSegmentEditorView: View {
     }
 
     private var canConfigureLastRest: Bool {
-        segment.recoveryType == .rest && SegmentEditSheetRules.canConfigureLastRest(
+        segment.recoveryType != .none && SegmentEditSheetRules.canConfigureLastRest(
             repeatCount: segment.repeatCount ?? 0,
             restSeconds: segment.restSeconds ?? 0
         )
@@ -2115,8 +2141,22 @@ private struct CompanionSegmentEditorView: View {
                     get: { segment.recoveryType == .activeRecovery ? (segment.restSeconds ?? 0) : 0 },
                     set: {
                         let previousType = segment.recoveryType
+                        let currentSeconds = segment.recoveryType == .activeRecovery ? (segment.restSeconds ?? 0) : 0
                         activateRecovery(.activeRecovery)
-                        let updatedSeconds = previousType == .activeRecovery ? $0 : max($0, segment.restSeconds ?? 0)
+                        let updatedSeconds: Int
+
+                        if $0 > currentSeconds {
+                            updatedSeconds = SegmentEditorValueRules.incrementedRecoveryDurationSeconds(
+                                currentDurationSeconds: currentSeconds
+                            )
+                        } else if $0 < currentSeconds {
+                            updatedSeconds = SegmentEditorValueRules.decrementedRecoveryDurationSeconds(
+                                currentDurationSeconds: currentSeconds
+                            )
+                        } else {
+                            updatedSeconds = previousType == .activeRecovery ? currentSeconds : max(currentSeconds, 0)
+                        }
+
                         updateCurrentRecoverySeconds(updatedSeconds)
                     }
                 ), in: 0...600, step: 15) {
@@ -2139,8 +2179,22 @@ private struct CompanionSegmentEditorView: View {
                     get: { segment.recoveryType == .rest ? (segment.restSeconds ?? 0) : 0 },
                     set: {
                         let previousType = segment.recoveryType
+                        let currentSeconds = segment.recoveryType == .rest ? (segment.restSeconds ?? 0) : 0
                         activateRecovery(.rest)
-                        let updatedSeconds = previousType == .rest ? $0 : max($0, segment.restSeconds ?? 0)
+                        let updatedSeconds: Int
+
+                        if $0 > currentSeconds {
+                            updatedSeconds = SegmentEditorValueRules.incrementedRecoveryDurationSeconds(
+                                currentDurationSeconds: currentSeconds
+                            )
+                        } else if $0 < currentSeconds {
+                            updatedSeconds = SegmentEditorValueRules.decrementedRecoveryDurationSeconds(
+                                currentDurationSeconds: currentSeconds
+                            )
+                        } else {
+                            updatedSeconds = previousType == .rest ? currentSeconds : max(currentSeconds, 0)
+                        }
+
                         updateCurrentRecoverySeconds(updatedSeconds)
                     }
                 ), in: 0...600, step: 15) {
@@ -2160,15 +2214,30 @@ private struct CompanionSegmentEditorView: View {
                 .animation(.spring(response: 0.2, dampingFraction: 0.62), value: bouncingField)
 
                 Stepper(value: Binding(
-                    get: { segment.recoveryType == .rest ? (segment.lastRestSeconds ?? 0) : 0 },
+                    get: { segment.recoveryType != .none ? (segment.lastRestSeconds ?? 0) : 0 },
                     set: {
                         guard canConfigureLastRest else {
                             isLastRestInfoPresented = true
                             return
                         }
 
+                        let currentSeconds = segment.recoveryType != .none ? (segment.lastRestSeconds ?? 0) : 0
+                        let resolvedSeconds: Int
+
+                        if $0 > currentSeconds {
+                            resolvedSeconds = SegmentEditorValueRules.incrementedRecoveryDurationSeconds(
+                                currentDurationSeconds: currentSeconds
+                            )
+                        } else if $0 < currentSeconds {
+                            resolvedSeconds = SegmentEditorValueRules.decrementedRecoveryDurationSeconds(
+                                currentDurationSeconds: currentSeconds
+                            )
+                        } else {
+                            resolvedSeconds = currentSeconds
+                        }
+
                         segment.lastRestSeconds = SegmentEditorValueRules.normalizedLastRestSeconds(
-                            lastRestSeconds: $0 > 0 ? $0 : nil,
+                            lastRestSeconds: resolvedSeconds > 0 ? resolvedSeconds : nil,
                             repeatCount: segment.repeatCount
                         )
                         syncRecoveryMemory()
@@ -2249,19 +2318,10 @@ private struct CompanionSegmentEditorView: View {
                             prompt: Text(L10n.optionalSegmentNamePlaceholder)
                                 .foregroundStyle(theme.text.subtle)
                         )
+                        .font(.body.weight(.bold))
                         .textInputAutocapitalization(.words)
                         .multilineTextAlignment(.trailing)
                         .foregroundStyle(theme.text.neutral)
-
-                        Button {
-                            segmentNameText = ""
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .foregroundStyle(theme.text.subtle)
-                                .opacity(segmentNameText.isEmpty ? 0 : 1)
-                        }
-                        .buttonStyle(.plain)
-                        .disabled(segmentNameText.isEmpty)
                     }
                     .padding(.trailing, Tokens.Spacing.xs)
                 }
@@ -2376,7 +2436,7 @@ private struct CompanionSegmentEditorView: View {
         HStack(spacing: Tokens.Spacing.md) {
             CompanionSettingsLeadingIcon(systemImage: field.systemImage)
 
-            HStack(spacing: Tokens.Spacing.xs) {
+            HStack(alignment: .bottom, spacing: Tokens.Spacing.xs) {
                 Text(title)
 
                 if field == .activeRecovery {
@@ -2407,7 +2467,7 @@ private struct CompanionSegmentEditorView: View {
             Spacer(minLength: Tokens.Spacing.md)
 
             Text(value)
-                .font(.body.weight(.medium))
+                .font(.body.weight(.bold))
                 .foregroundStyle(theme.text.neutral)
         }
         .contentShape(Rectangle())
@@ -2493,8 +2553,10 @@ private struct CompanionSegmentEditorView: View {
     }
 
     private var timeTargetRow: some View {
-        Stepper(value: Binding(
-            get: { Int(segment.targetTimeSeconds ?? 0) },
+        let minimumTargetTime = SegmentEditorValueRules.minimumTargetTimeSeconds(for: segment.distanceGoalMode)
+
+        return Stepper(value: Binding(
+            get: { max(Int(segment.targetTimeSeconds ?? 0), minimumTargetTime) },
             set: {
                 let updatedTargets = SegmentEditorValueRules.updatedTargetsAfterSettingTime(
                     seconds: $0,
@@ -2506,10 +2568,13 @@ private struct CompanionSegmentEditorView: View {
                 )
                 segment.targetPaceSecondsPerKm = updatedTargets.targetPaceSecondsPerKm
             }
-        ), in: 0...7200, step: 5) {
+        ), in: minimumTargetTime...7200, step: 5) {
             editableStepperContent(
                 title: L10n.time,
-                value: segment.targetTimeSeconds.map { Formatters.timeString(from: $0) } ?? L10n.off,
+                value: segment.targetTimeSeconds.map { Formatters.timeString(from: $0) }
+                    ?? (segment.distanceGoalMode == .time
+                        ? Formatters.timeString(from: Double(minimumTargetTime))
+                        : L10n.off),
                 field: .time
             )
         }
@@ -2542,8 +2607,6 @@ private struct CompanionSegmentEditorView: View {
         if segment.recoveryType == .none {
             segment.restSeconds = nil
             segment.lastRestSeconds = nil
-        } else if segment.recoveryType != .rest {
-            segment.lastRestSeconds = nil
         }
         segment.targetPaceSecondsPerKm = SegmentEditorValueRules.normalizedTargetPace(
             for: segment.distanceGoalMode,
@@ -2572,8 +2635,6 @@ private struct CompanionSegmentEditorView: View {
         )
         if segment.recoveryType == .none {
             segment.restSeconds = nil
-            segment.lastRestSeconds = nil
-        } else if segment.recoveryType != .rest {
             segment.lastRestSeconds = nil
         }
         segment.targetPaceSecondsPerKm = SegmentEditorValueRules.normalizedTargetPace(
@@ -2814,11 +2875,12 @@ private struct CompanionLiveWorkoutCard: View {
                 .foregroundStyle(settings.primaryAccentColor)
 
             HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
-                CompanionMetricPill(title: L10n.laps, value: "\(state.completedLapCount)")
-                CompanionMetricPill(title: L10n.duration, value: Formatters.timeString(from: state.elapsedSeconds))
+                CompanionMetricPill(title: L10n.laps, value: "\(state.completedLapCount)", textStyle: .regular)
+                CompanionMetricPill(title: L10n.duration, value: Formatters.timeString(from: state.elapsedSeconds), textStyle: .regular)
                 CompanionMetricPill(
                     title: primaryDistanceLabel,
-                    value: Formatters.distanceString(meters: primaryDistanceMeters, unit: settings.distanceUnit)
+                    value: Formatters.distanceString(meters: primaryDistanceMeters, unit: settings.distanceUnit),
+                    textStyle: .regular
                 )
             }
             .padding(.top, Tokens.Spacing.xl)
@@ -2985,7 +3047,7 @@ private struct CompanionSessionRow: View {
                     ForEach(Array(metricRows.enumerated()), id: \.offset) { _, row in
                         HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
                             ForEach(row) { item in
-                                CompanionMetricPill(title: item.title, value: item.value)
+                                CompanionMetricPill(title: item.title, value: item.value, textStyle: .regular)
                             }
                         }
                     }

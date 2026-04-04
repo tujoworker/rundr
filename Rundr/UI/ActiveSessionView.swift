@@ -704,13 +704,23 @@ struct ActiveSessionView: View {
 
     private func presentLapEditor(for lap: Lap) {
         let editableLapType = ActiveSessionLapEditorRouting.editableLapType(for: lap)
-        let initialDistanceText = distanceText(from: ActiveSessionLapEditorRouting.editableDistanceMeters(for: lap))
+        let sourceSegment = ActiveSessionLapEditorRouting.sourceSegment(
+            for: lap,
+            laps: workoutController.completedLaps,
+            distanceSegments: workoutController.distanceSegments,
+            trackingMode: workoutController.trackingMode
+        )
+        let editableDistanceMeters = ActiveSessionLapEditorRouting.editableDistanceMeters(for: lap)
+        let initialDistanceText = distanceText(from: editableDistanceMeters)
+        let sourceAllowsDistanceInput = ActiveSessionLapEditorRouting.sourceAllowsDistanceInput(for: sourceSegment)
         lapEditorState = LapEditorState(
             id: lap.id,
             lapType: editableLapType,
-            distanceText: ActiveSessionLapEditorRouting.usesDistanceInput(for: editableLapType)
+            distanceText: sourceAllowsDistanceInput && ActiveSessionLapEditorRouting.usesDistanceInput(for: editableLapType)
                 ? defaultDistanceTextIfNeeded(initialDistanceText)
-                : initialDistanceText
+                : initialDistanceText,
+            editableDistanceMeters: editableDistanceMeters,
+            sourceAllowsDistanceInput: sourceAllowsDistanceInput
         )
     }
 
@@ -722,7 +732,9 @@ struct ActiveSessionView: View {
         workoutController.updateLap(
             id: editor.id,
             newType: editor.lapType,
-            newDistanceMeters: meters(from: defaultDistanceTextIfNeeded(editor.distanceText))
+            newDistanceMeters: editor.showsDistanceInput
+                ? meters(from: defaultDistanceTextIfNeeded(editor.distanceText))
+                : editor.editableDistanceMeters
         )
         lapEditorState = nil
     }
@@ -887,6 +899,12 @@ private struct LapEditorState: Identifiable {
     let id: UUID
     var lapType: LapType
     var distanceText: String
+    var editableDistanceMeters: Double
+    var sourceAllowsDistanceInput: Bool
+
+    var showsDistanceInput: Bool {
+        sourceAllowsDistanceInput && ActiveSessionLapEditorRouting.usesDistanceInput(for: lapType)
+    }
 }
 
 enum ActiveSessionLapEditorRouting {
@@ -897,6 +915,47 @@ enum ActiveSessionLapEditorRouting {
     static func editableDistanceMeters(for lap: Lap) -> Double {
         guard usesDistanceInput(for: lap.lapType) else { return lap.distanceMeters }
         return lap.gpsDistanceMeters ?? lap.distanceMeters
+    }
+
+    static func sourceSegment(
+        for lap: Lap,
+        laps: [Lap],
+        distanceSegments: [DistanceSegment],
+        trackingMode: TrackingMode
+    ) -> DistanceSegment? {
+        guard trackingMode.usesManualIntervals, !distanceSegments.isEmpty else { return nil }
+
+        let workoutPlan = WorkoutPlanSnapshot(
+            trackingMode: trackingMode,
+            distanceSegments: distanceSegments
+        )
+        let activeTargets = SessionLapTargetResolver.targetSegments(
+            for: laps,
+            workoutPlan: workoutPlan,
+            trackingMode: trackingMode
+        )
+
+        if let activeSegment = activeTargets[lap.id] {
+            return activeSegment
+        }
+
+        var lastActiveSegment: DistanceSegment?
+
+        for completedLap in laps {
+            if let activeSegment = activeTargets[completedLap.id] {
+                lastActiveSegment = activeSegment
+            }
+
+            if completedLap.id == lap.id {
+                return lastActiveSegment
+            }
+        }
+
+        return nil
+    }
+
+    static func sourceAllowsDistanceInput(for sourceSegment: DistanceSegment?) -> Bool {
+        sourceSegment?.usesOpenDistance != true
     }
 
     static func usesDistanceInput(for lapType: LapType) -> Bool {
@@ -1037,6 +1096,7 @@ private struct LapEditorScreen: View {
     @State private var lapType: LapType
     @State private var distanceText: String
     @State private var didDelete = false
+    @State private var isLapTypePickerPresented = false
 
     init(editor: LapEditorState, distanceUnit: DistanceUnit, accentColor: Color, onDismiss: @escaping (LapEditorState) -> Void, onDelete: @escaping (LapEditorState) -> Void) {
         self.editor = editor
@@ -1067,13 +1127,35 @@ private struct LapEditorScreen: View {
                         .font(.headline.weight(.semibold))
                         .foregroundStyle(theme.text.neutral)
 
-                    HStack(spacing: 8) {
-                        lapTypeButton(title: L10n.activity, type: .active)
-                        lapTypeButton(title: L10n.activeRecovery, type: .activeRecovery)
-                        lapTypeButton(title: L10n.restLap, type: .rest)
-                    }
+                    Button {
+                        isLapTypePickerPresented = true
+                    } label: {
+                        HStack(alignment: .center, spacing: Tokens.Spacing.sm) {
+                            VStack(alignment: .leading, spacing: Tokens.Spacing.xxxs) {
+                                Text(L10n.lapType)
+                                    .font(.system(size: Tokens.FontSize.sm, weight: .medium, design: .rounded))
+                                    .foregroundStyle(theme.text.subtle)
 
-                    if ActiveSessionLapEditorRouting.usesDistanceInput(for: lapType) {
+                                Text(currentLapTypeTitle)
+                                    .font(.system(size: Tokens.FontSize.lg, weight: .semibold, design: .rounded))
+                                    .foregroundStyle(theme.text.neutral)
+                            }
+
+                            Spacer(minLength: Tokens.Spacing.sm)
+
+                            Image(systemName: "chevron.up.chevron.down")
+                                .font(.system(size: Tokens.FontSize.md, weight: .bold))
+                                .foregroundStyle(theme.text.subtle)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, Tokens.Spacing.md)
+                        .padding(.vertical, Tokens.Spacing.md)
+                        .background(theme.background.neutralAction)
+                        .clipShape(RoundedRectangle(cornerRadius: Tokens.Radius.xl, style: .continuous))
+                    }
+                    .buttonStyle(.plain)
+
+                    if currentState.showsDistanceInput {
                         DistanceInputView(
                             label: label,
                             accentColor: accentColor,
@@ -1106,19 +1188,49 @@ private struct LapEditorScreen: View {
                 onDismiss(currentState)
             }
         }
+        .confirmationDialog(currentLapTypeTitle, isPresented: $isLapTypePickerPresented, titleVisibility: .visible) {
+            Button(L10n.activity) {
+                updateLapType(.active)
+            }
+
+            Button(L10n.activeRecovery) {
+                updateLapType(.activeRecovery)
+            }
+
+            Button(L10n.restLap) {
+                updateLapType(.rest)
+            }
+
+            Button(L10n.cancel, role: .cancel) {}
+        }
     }
 
     private var currentState: LapEditorState {
-        LapEditorState(id: editor.id, lapType: lapType, distanceText: distanceText)
+        LapEditorState(
+            id: editor.id,
+            lapType: lapType,
+            distanceText: distanceText,
+            editableDistanceMeters: editor.editableDistanceMeters,
+            sourceAllowsDistanceInput: editor.sourceAllowsDistanceInput
+        )
     }
 
-    @ViewBuilder
-    private func lapTypeButton(title: String, type: LapType) -> some View {
-        SelectionToggleButton(title: title, isSelected: lapType == type) {
-            lapType = type
-            if ActiveSessionLapEditorRouting.usesDistanceInput(for: type) && distanceText.isEmpty {
-                distanceText = defaultDistanceText
-            }
+    private var currentLapTypeTitle: String {
+        switch lapType {
+        case .active:
+            return L10n.activity
+        case .activeRecovery:
+            return L10n.activeRecovery
+        case .rest:
+            return L10n.restLap
+        }
+    }
+
+    private func updateLapType(_ type: LapType) {
+        lapType = type
+
+        if currentState.showsDistanceInput && distanceText.isEmpty {
+            distanceText = defaultDistanceText
         }
     }
 }

@@ -268,6 +268,7 @@ enum L10n {
     static let dark = String(localized: "Dark", comment: "Color")
 
     // MARK: - Lap Type
+    static let lapType = String(localized: "Lap Type", comment: "Label for the current lap type in the lap editor")
     static let activity = String(localized: "Activity", comment: "Lap type")
     static let restLap = String(localized: "Rest", comment: "Lap type")
 

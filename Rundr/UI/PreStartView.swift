@@ -161,6 +161,7 @@ struct PreStartView: View {
             .buttonStyle(.plain)
             .padding(.top, Tokens.Spacing.xxs)
         }
+        .padding(.top, Tokens.Spacing.lg)
     }
 
     var body: some View {
@@ -953,6 +954,7 @@ private struct IntervalSetupView: View {
             .buttonStyle(.plain)
             .padding(.top, Tokens.Spacing.xxs)
         }
+        .padding(.top, Tokens.Spacing.lg)
     }
 
     var body: some View {

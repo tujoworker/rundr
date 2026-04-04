@@ -173,6 +173,7 @@ private struct CompanionWorkoutsView: View {
                                 .foregroundStyle(theme.isDark ? theme.text.subtle : settings.primaryAccentColor)
                         }
                     }
+                    .padding(.top, CompanionSessionPlanStyle.headerTopSpacing)
                     .padding(.leading, workoutsSectionHeaderLeadingInset)
                     .padding(.trailing, workoutsSectionHeaderLeadingInset)
                     .listRowSeparator(.hidden)
@@ -1482,7 +1483,10 @@ private struct CompanionWorkoutEditorView: View {
                         .accessibilityLabel(L10n.useItNow)
                     }
                 }
-                .padding(.top, showsCustomMetadataSection ? Tokens.Spacing.xxxl : 0)
+                .padding(
+                    .top,
+                    (showsCustomMetadataSection ? Tokens.Spacing.xxxl : 0) + CompanionSessionPlanStyle.headerTopSpacing
+                )
                 .padding(.leading, CompanionSessionPlanStyle.cellContentInsets.leading)
                 .padding(.trailing, CompanionSessionPlanStyle.cellContentInsets.trailing)
                 .padding(.bottom, Tokens.Spacing.xs)
@@ -1742,6 +1746,10 @@ private struct CompanionWorkoutEditorView: View {
 }
 
 private enum CompanionSessionPlanStyle {
+    static var headerTopSpacing: CGFloat {
+        Tokens.Spacing.lg
+    }
+
     static var cellContentInsets: EdgeInsets {
         let baseInsets = Tokens.ContentInsets.companionCard
 

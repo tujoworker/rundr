@@ -114,14 +114,20 @@ final class L10nTests: XCTestCase {
 
     func testPredefinedWorkoutTitlesExist() {
         XCTAssertEqual(L10n.predefinedFortyFiveFifteensTitle, "45/15")
-        XCTAssertEqual(L10n.predefinedFourByFourTitle, "Four by Four")
-        XCTAssertEqual(L10n.predefinedThresholdSixesTitle, "Threshold Sixes")
-        XCTAssertEqual(L10n.predefinedThousandRepeatsTitle, "Thousand Repeats")
+        XCTAssertEqual(L10n.predefinedFourByFourTitle, "4x4 Intervals")
+        XCTAssertEqual(L10n.predefinedThresholdSixesTitle, "Threshold 6-Min Reps")
+        XCTAssertEqual(L10n.predefinedThousandRepeatsTitle, "6 x 1000 m")
         XCTAssertEqual(L10n.predefinedThirtyFifteensTitle, "30/15")
+        XCTAssertEqual(L10n.predefinedOverUnderTitle, "Over/Under")
         XCTAssertEqual(L10n.predefinedPyramidTitle, "Pyramid")
-        XCTAssertEqual(L10n.predefinedFourHundredRepeatsTitle, "Four Hundred Repeats")
+        XCTAssertEqual(L10n.predefinedFourHundredRepeatsTitle, "10 x 400 m")
         XCTAssertEqual(L10n.predefinedStructuredFartlekTitle, "Structured Fartlek")
-        XCTAssertEqual(L10n.predefinedLongTwelvesTitle, "Long Twelves")
+        XCTAssertEqual(L10n.predefinedLongTwelvesTitle, "Long Intervals")
+    }
+
+    func testPredefinedWorkoutDescriptionsExist() {
+        XCTAssertEqual(L10n.predefinedFortyFiveFifteensDescription, "20-30 x (45s / 15s), continuous or 2 sets. Maximum threshold time with micro-recovery. Core Norwegian method.")
+        XCTAssertEqual(L10n.predefinedOverUnderDescription, "4 x 8 min alternating 1 min over / 1 min under. Trains lactate handling and pace changes.")
     }
 
     func testUsedCountFormatsAsCompactBadgeText() {

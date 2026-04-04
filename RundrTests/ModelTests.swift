@@ -1557,10 +1557,19 @@ final class ModelTests: XCTestCase {
                 "fourHundredRepeats",
                 "fortyFiveFifteens",
                 "thirtyFifteens",
+                "overUnder",
                 "pyramid",
                 "structuredFartlek",
                 "longTwelves"
             ]
+        )
+    }
+
+    func testPredefinedIntervalPresetsProvideDescriptions() {
+        XCTAssertTrue(SettingsStore.predefinedIntervalPresets.allSatisfy { !$0.description.isEmpty })
+        XCTAssertEqual(
+            SettingsStore.predefinedIntervalPresets.first(where: { $0.id == "overUnder" })?.description,
+            L10n.predefinedOverUnderDescription
         )
     }
 
@@ -1717,7 +1726,7 @@ final class ModelTests: XCTestCase {
         let store = SettingsStore()
         let workoutPlan = SettingsStore.predefinedIntervalPresets[0].workoutPlan
 
-        XCTAssertEqual(store.title(for: workoutPlan), "Four by Four")
+        XCTAssertEqual(store.title(for: workoutPlan), "4x4 Intervals")
     }
 
     func testWorkoutPlanListTitleResolverUsesFallbackTitleBeforeSingleSegmentDistance() {
@@ -1729,7 +1738,7 @@ final class ModelTests: XCTestCase {
                 fallbackTitle: preset.title,
                 unit: .km
             ),
-            "Four by Four"
+            "4x4 Intervals"
         )
     }
 

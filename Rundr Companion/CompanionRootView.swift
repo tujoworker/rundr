@@ -669,7 +669,7 @@ private struct CompanionPresetRouteDestinationView: View {
                     subtitle: preset.title,
                     initialWorkoutPlan: preset.workoutPlan,
                     initialCustomTitle: preset.title,
-                    initialCustomDescription: nil,
+                    initialCustomDescription: preset.description,
                     initialStoredPresetID: nil,
                     showsCustomTitle: true,
                     autoSaveOnSegmentDone: true

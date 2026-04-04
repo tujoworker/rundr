@@ -118,6 +118,7 @@ struct IntervalPreset: Codable, Identifiable, Equatable {
 struct PredefinedIntervalPreset: Identifiable, Equatable {
     let id: String
     let title: String
+    let description: String
     let workoutPlan: WorkoutPlanSnapshot
 
     var signature: IntervalPresetSignature {
@@ -303,6 +304,7 @@ final class SettingsStore: ObservableObject {
         PredefinedIntervalPreset(
             id: "fourByFour",
             title: L10n.predefinedFourByFourTitle,
+            description: L10n.predefinedFourByFourDescription,
             workoutPlan: WorkoutPlanSnapshot(
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
@@ -315,6 +317,7 @@ final class SettingsStore: ObservableObject {
         PredefinedIntervalPreset(
             id: "thresholdSixes",
             title: L10n.predefinedThresholdSixesTitle,
+            description: L10n.predefinedThresholdSixesDescription,
             workoutPlan: WorkoutPlanSnapshot(
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
@@ -327,6 +330,7 @@ final class SettingsStore: ObservableObject {
         PredefinedIntervalPreset(
             id: "thousandRepeats",
             title: L10n.predefinedThousandRepeatsTitle,
+            description: L10n.predefinedThousandRepeatsDescription,
             workoutPlan: WorkoutPlanSnapshot(
                 trackingMode: .distanceDistance,
                 distanceLapDistanceMeters: 1000,
@@ -337,6 +341,7 @@ final class SettingsStore: ObservableObject {
         PredefinedIntervalPreset(
             id: "fourHundredRepeats",
             title: L10n.predefinedFourHundredRepeatsTitle,
+            description: L10n.predefinedFourHundredRepeatsDescription,
             workoutPlan: WorkoutPlanSnapshot(
                 trackingMode: .distanceDistance,
                 distanceLapDistanceMeters: 400,
@@ -347,6 +352,7 @@ final class SettingsStore: ObservableObject {
         PredefinedIntervalPreset(
             id: "fortyFiveFifteens",
             title: L10n.predefinedFortyFiveFifteensTitle,
+            description: L10n.predefinedFortyFiveFifteensDescription,
             workoutPlan: WorkoutPlanSnapshot(
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
@@ -360,6 +366,7 @@ final class SettingsStore: ObservableObject {
         PredefinedIntervalPreset(
             id: "thirtyFifteens",
             title: L10n.predefinedThirtyFifteensTitle,
+            description: L10n.predefinedThirtyFifteensDescription,
             workoutPlan: WorkoutPlanSnapshot(
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
@@ -371,8 +378,53 @@ final class SettingsStore: ObservableObject {
             )
         ),
         PredefinedIntervalPreset(
+            id: "overUnder",
+            title: L10n.predefinedOverUnderTitle,
+            description: L10n.predefinedOverUnderDescription,
+            workoutPlan: WorkoutPlanSnapshot(
+                trackingMode: .dual,
+                distanceLapDistanceMeters: 0,
+                distanceSegments: [
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, lastRestSeconds: 120, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, lastRestSeconds: 120, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, lastRestSeconds: 120, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.surge, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60),
+                    DistanceSegment(name: L10n.threshold, distanceMeters: 0, distanceGoalMode: .open, targetTimeSeconds: 60)
+                ],
+                restMode: .manual
+            )
+        ),
+        PredefinedIntervalPreset(
             id: "pyramid",
             title: L10n.predefinedPyramidTitle,
+            description: L10n.predefinedPyramidDescription,
             workoutPlan: WorkoutPlanSnapshot(
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
@@ -391,6 +443,7 @@ final class SettingsStore: ObservableObject {
         PredefinedIntervalPreset(
             id: "structuredFartlek",
             title: L10n.predefinedStructuredFartlekTitle,
+            description: L10n.predefinedStructuredFartlekDescription,
             workoutPlan: WorkoutPlanSnapshot(
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,
@@ -414,6 +467,7 @@ final class SettingsStore: ObservableObject {
         PredefinedIntervalPreset(
             id: "longTwelves",
             title: L10n.predefinedLongTwelvesTitle,
+            description: L10n.predefinedLongTwelvesDescription,
             workoutPlan: WorkoutPlanSnapshot(
                 trackingMode: .dual,
                 distanceLapDistanceMeters: 0,

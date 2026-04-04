@@ -717,7 +717,7 @@ struct IntervalLibraryView: View {
                     ForEach(visiblePresets) { preset in
                         NavigationLink {
                             IntervalSetupView(
-                                headerTitle: L10n.adjustSettings,
+                                headerTitle: L10n.editInterval,
                                 subtitle: preset.trimmedCustomTitle ?? L10n.presetCountSummary(preset.workoutPlan.distanceSegments.count),
                                 initialWorkoutPlan: preset.workoutPlan,
                                 initialCustomTitle: preset.customTitle,

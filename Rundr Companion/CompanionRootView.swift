@@ -636,7 +636,7 @@ private struct CompanionPresetRouteDestinationView: View {
         case let .saved(presetID):
             if let preset = settings.intervalPresets.first(where: { $0.id == presetID }) {
                 CompanionWorkoutEditorView(
-                    headerTitle: L10n.adjustSettings,
+                    headerTitle: L10n.editInterval,
                     subtitle: preset.trimmedCustomTitle ?? L10n.presetCountSummary(preset.workoutPlan.distanceSegments.count),
                     initialWorkoutPlan: preset.workoutPlan,
                     initialCustomTitle: preset.customTitle,

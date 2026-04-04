@@ -284,70 +284,17 @@ struct LapRowView: View {
         String(lap.index)
     }
 
-    private var headerItems: [String] {
-        [Formatters.compactTimeString(from: lap.durationSeconds)]
+    private var presentation: HistoryLapPresentation {
+        HistoryLapPresentation.make(
+            lap: lap,
+            targetSegment: targetSegment,
+            trackingMode: trackingMode,
+            distanceUnit: distanceUnit
+        )
     }
 
     private var detailItems: [SessionStatItem] {
-        var items: [SessionStatItem] = []
-
-        guard lap.lapType == .active else { return items }
-
-        let isOpenInterval = targetSegment?.usesOpenDistance == true
-
-        let gpsDistanceMeters: Double?
-        if trackingMode == .gps {
-            gpsDistanceMeters = lap.distanceMeters > 0 ? lap.distanceMeters : nil
-        } else {
-            gpsDistanceMeters = lap.gpsDistanceMeters
-        }
-
-        let primaryDistanceMeters: Double?
-        if isOpenInterval || trackingMode == .gps {
-            primaryDistanceMeters = gpsDistanceMeters ?? (lap.distanceMeters > 0 ? lap.distanceMeters : nil)
-        } else {
-            primaryDistanceMeters = lap.distanceMeters > 0 ? lap.distanceMeters : nil
-        }
-
-        items.append(
-            SessionStatItem(
-                label: L10n.distance,
-                value: primaryDistanceMeters.flatMap { distance in
-                    distance > 0 ? Formatters.distanceString(meters: distance, unit: distanceUnit) : nil
-                } ?? L10n.dash
-            )
-        )
-
-        items.append(
-            SessionStatItem(
-                label: L10n.pace,
-                value: primaryDistanceMeters.flatMap { distance in
-                    distance > 0
-                        ? Formatters.paceString(distanceMeters: distance, durationSeconds: lap.durationSeconds, unit: distanceUnit)
-                        : nil
-                } ?? L10n.dash
-            )
-        )
-
-        if let targetPace = targetSegment?.targetPaceSecondsPerKm {
-            items.append(
-                SessionStatItem(
-                    label: L10n.targetPaceLabel,
-                    value: Formatters.compactPaceString(secondsPerKm: targetPace, unit: distanceUnit)
-                )
-            )
-        }
-
-        if let averageHeartRateBPM = lap.averageHeartRateBPM {
-            items.append(
-                SessionStatItem(
-                    label: L10n.heartRate,
-                    value: "\(Int(averageHeartRateBPM)) bpm"
-                )
-            )
-        }
-
-        return items
+        presentation.statItems.map { SessionStatItem(label: $0.label, value: $0.value) }
     }
 
     private var timeDeltaText: String? {
@@ -363,7 +310,7 @@ struct LapRowView: View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
             HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.sm) {
                 if lap.lapType.isRecovery {
-                    Text(L10n.rest)
+                    Text(presentation.title)
                         .font(.caption.bold())
                 } else {
                     Text(badgeTitle)
@@ -380,7 +327,7 @@ struct LapRowView: View {
                         }
                 }
 
-                Text(headerItems.joined(separator: " • "))
+                Text(presentation.title)
                     .font(.system(size: Tokens.FontSize.base, weight: .medium))
 
                 if let delta = timeDeltaText {

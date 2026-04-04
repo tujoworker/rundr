@@ -160,6 +160,99 @@ final class FormattersTests: XCTestCase {
         )
     }
 
+    // MARK: - History Lap Presentation
+
+    func testHistoryLapPresentationUsesSegmentNameAsPrimaryTitle() {
+        let lap = Lap(
+            index: 1,
+            startedAt: Date(),
+            endedAt: Date().addingTimeInterval(242),
+            durationSeconds: 242,
+            distanceMeters: 1000,
+            averageSpeedMetersPerSecond: 4.13,
+            averageHeartRateBPM: 168,
+            lapType: .active,
+            source: .distanceTap
+        )
+        let segment = DistanceSegment(
+            name: L10n.threshold,
+            distanceMeters: 1000,
+            targetPaceSecondsPerKm: 240
+        )
+
+        let presentation = HistoryLapPresentation.make(
+            lap: lap,
+            targetSegment: segment,
+            trackingMode: .distanceDistance,
+            distanceUnit: .km
+        )
+
+        XCTAssertEqual(presentation.title, L10n.threshold)
+        XCTAssertEqual(
+            presentation.statItems.map(\.label),
+            [L10n.time, L10n.distance, L10n.pace, L10n.targetPaceLabel, L10n.heartRate]
+        )
+        XCTAssertEqual(presentation.statItems[0].value, Formatters.compactTimeString(from: lap.durationSeconds))
+        XCTAssertEqual(presentation.statItems[1].value, Formatters.distanceString(meters: lap.distanceMeters, unit: .km))
+    }
+
+    func testHistoryLapPresentationUsesActiveRecoveryTitleAndGPSDistance() {
+        let lap = Lap(
+            index: 2,
+            startedAt: Date(),
+            endedAt: Date().addingTimeInterval(135),
+            durationSeconds: 135,
+            distanceMeters: 400,
+            gpsDistanceMeters: 380,
+            averageSpeedMetersPerSecond: 2.8,
+            averageHeartRateBPM: 145,
+            lapType: .activeRecovery,
+            source: .distanceTap
+        )
+
+        let presentation = HistoryLapPresentation.make(
+            lap: lap,
+            targetSegment: nil,
+            trackingMode: .dual,
+            distanceUnit: .km
+        )
+
+        XCTAssertEqual(presentation.title, L10n.activeRecovery)
+        XCTAssertEqual(
+            presentation.statItems.map(\.label),
+            [L10n.time, L10n.distance, L10n.pace, L10n.heartRate]
+        )
+        XCTAssertEqual(presentation.primaryDistanceMeters, 380)
+        XCTAssertEqual(presentation.statItems[1].value, Formatters.distanceString(meters: 380, unit: .km))
+    }
+
+    func testHistoryLapPresentationKeepsRestRowsFocusedOnTimeAndHeartRate() {
+        let lap = Lap(
+            index: 3,
+            startedAt: Date(),
+            endedAt: Date().addingTimeInterval(60),
+            durationSeconds: 60,
+            distanceMeters: 0,
+            averageSpeedMetersPerSecond: 0,
+            averageHeartRateBPM: 110,
+            lapType: .rest,
+            source: .distanceTap
+        )
+
+        let presentation = HistoryLapPresentation.make(
+            lap: lap,
+            targetSegment: nil,
+            trackingMode: .distanceDistance,
+            distanceUnit: .km
+        )
+
+        XCTAssertEqual(presentation.title, L10n.rest)
+        XCTAssertEqual(
+            presentation.statItems.map(\.label),
+            [L10n.time, L10n.heartRate]
+        )
+    }
+
     // MARK: - History Date Formatting
 
     func testHistorySessionDateTimeStringUsesTodayLabel() throws {

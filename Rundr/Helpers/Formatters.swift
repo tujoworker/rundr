@@ -10,6 +10,123 @@ struct HistoryDateRangeParts: Equatable {
     let timeText: String
 }
 
+struct HistoryLapStatItem: Equatable {
+    let label: String
+    let value: String
+}
+
+struct HistoryLapPresentation: Equatable {
+    let title: String
+    let primaryDistanceMeters: Double?
+    let statItems: [HistoryLapStatItem]
+
+    static func make(
+        lap: Lap,
+        targetSegment: DistanceSegment?,
+        trackingMode: TrackingMode,
+        distanceUnit: DistanceUnit
+    ) -> HistoryLapPresentation {
+        let primaryDistanceMeters = resolvedPrimaryDistanceMeters(
+            for: lap,
+            targetSegment: targetSegment,
+            trackingMode: trackingMode
+        )
+
+        var statItems = [
+            HistoryLapStatItem(
+                label: L10n.time,
+                value: Formatters.compactTimeString(from: lap.durationSeconds)
+            )
+        ]
+
+        if lap.lapType != .rest {
+            statItems.append(
+                HistoryLapStatItem(
+                    label: L10n.distance,
+                    value: primaryDistanceMeters.flatMap { distance in
+                        distance > 0 ? Formatters.distanceString(meters: distance, unit: distanceUnit) : nil
+                    } ?? L10n.dash
+                )
+            )
+
+            statItems.append(
+                HistoryLapStatItem(
+                    label: L10n.pace,
+                    value: primaryDistanceMeters.flatMap { distance in
+                        distance > 0
+                            ? Formatters.paceString(distanceMeters: distance, durationSeconds: lap.durationSeconds, unit: distanceUnit)
+                            : nil
+                    } ?? L10n.dash
+                )
+            )
+        }
+
+        if lap.lapType == .active,
+           let targetPace = targetSegment?.targetPaceSecondsPerKm {
+            statItems.append(
+                HistoryLapStatItem(
+                    label: L10n.targetPaceLabel,
+                    value: Formatters.compactPaceString(secondsPerKm: targetPace, unit: distanceUnit)
+                )
+            )
+        }
+
+        if let averageHeartRateBPM = lap.averageHeartRateBPM {
+            statItems.append(
+                HistoryLapStatItem(
+                    label: L10n.heartRate,
+                    value: "\(Int(averageHeartRateBPM)) bpm"
+                )
+            )
+        }
+
+        return HistoryLapPresentation(
+            title: resolvedTitle(for: lap, targetSegment: targetSegment, distanceUnit: distanceUnit),
+            primaryDistanceMeters: primaryDistanceMeters,
+            statItems: statItems
+        )
+    }
+
+    private static func resolvedTitle(
+        for lap: Lap,
+        targetSegment: DistanceSegment?,
+        distanceUnit: DistanceUnit
+    ) -> String {
+        switch lap.lapType {
+        case .active:
+            targetSegment?.intervalRowHeadline(unit: distanceUnit) ?? lap.lapType.displayName
+        case .rest, .activeRecovery:
+            lap.lapType.displayName
+        }
+    }
+
+    private static func resolvedPrimaryDistanceMeters(
+        for lap: Lap,
+        targetSegment: DistanceSegment?,
+        trackingMode: TrackingMode
+    ) -> Double? {
+        let manualDistanceMeters = lap.distanceMeters > 0 ? lap.distanceMeters : nil
+
+        let gpsDistanceMeters: Double?
+        if trackingMode == .gps {
+            gpsDistanceMeters = manualDistanceMeters
+        } else {
+            gpsDistanceMeters = lap.gpsDistanceMeters
+        }
+
+        if lap.lapType == .activeRecovery {
+            return gpsDistanceMeters ?? manualDistanceMeters
+        }
+
+        let isOpenInterval = targetSegment?.usesOpenDistance == true
+        if isOpenInterval || trackingMode == .gps {
+            return gpsDistanceMeters ?? manualDistanceMeters
+        }
+
+        return manualDistanceMeters
+    }
+}
+
 enum Formatters {
 
     private static let relativeDayFormatter: DateFormatter = {

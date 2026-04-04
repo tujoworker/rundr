@@ -3086,7 +3086,16 @@ private struct CompanionSessionLapRow: View {
     }
 
     private var activeHeaderTime: String {
-        Formatters.compactTimeString(from: lap.durationSeconds)
+        presentation.title
+    }
+
+    private var presentation: HistoryLapPresentation {
+        HistoryLapPresentation.make(
+            lap: lap,
+            targetSegment: targetSegment,
+            trackingMode: trackingMode,
+            distanceUnit: distanceUnit
+        )
     }
 
     private var rowInsets: EdgeInsets {
@@ -3108,61 +3117,15 @@ private struct CompanionSessionLapRow: View {
     }
 
     private var detailItems: [CompanionSessionStatItem] {
-        var items: [CompanionSessionStatItem] = []
-
-        guard !isRestLap else {
-            if let averageHeartRateBPM = lap.averageHeartRateBPM {
-                items.append(CompanionSessionStatItem(label: L10n.heartRate, value: "\(Int(averageHeartRateBPM)) bpm"))
-            }
-            return items
-        }
-
-        let isOpenInterval = targetSegment?.usesOpenDistance == true
-        let gpsDistance = trackingMode == .gps ? lap.distanceMeters : lap.gpsDistanceMeters
-        let primaryDistanceMeters: Double?
-        if isOpenInterval || trackingMode == .gps {
-            primaryDistanceMeters = gpsDistance ?? (lap.distanceMeters > 0 ? lap.distanceMeters : nil)
-        } else {
-            primaryDistanceMeters = lap.distanceMeters > 0 ? lap.distanceMeters : nil
-        }
-
-        items.append(
-            CompanionSessionStatItem(
-                label: L10n.distance,
-                value: primaryDistanceMeters.flatMap { distance in
-                    distance > 0 ? Formatters.distanceString(meters: distance, unit: distanceUnit) : nil
-                } ?? L10n.dash
-            )
-        )
-
-        items.append(
-            CompanionSessionStatItem(
-                label: L10n.pace,
-                value: primaryDistanceMeters.flatMap { distance in
-                    distance > 0
-                        ? Formatters.paceString(distanceMeters: distance, durationSeconds: lap.durationSeconds, unit: distanceUnit)
-                        : nil
-                } ?? L10n.dash
-            )
-        )
-
-        if let averageHeartRateBPM = lap.averageHeartRateBPM {
-            items.append(CompanionSessionStatItem(label: L10n.heartRate, value: "\(Int(averageHeartRateBPM)) bpm"))
-        }
-
-        return items
+        presentation.statItems.map { CompanionSessionStatItem(label: $0.label, value: $0.value) }
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
             HStack(alignment: isRestLap ? .center : .firstTextBaseline, spacing: Tokens.Spacing.sm) {
                 if isRestLap {
-                    Text(L10n.rest)
+                    Text(presentation.title)
                         .font(.headline.weight(.semibold))
-                        .foregroundStyle(theme.text.historyRest)
-
-                    Text(Formatters.compactTimeString(from: lap.durationSeconds))
-                        .font(.headline.weight(.regular))
                         .foregroundStyle(theme.text.historyRest)
                 } else {
                     Text(badgeTitle)

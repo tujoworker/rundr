@@ -306,13 +306,14 @@ struct LapRowView: View {
         return "(\(sign)\(delta)s)"
     }
 
+    private var showsLapBadge: Bool {
+        SessionHistoryLapRowRouting.showsLapBadge(for: lap.lapType)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: Tokens.Spacing.xs) {
             HStack(alignment: .firstTextBaseline, spacing: Tokens.Spacing.sm) {
-                if lap.lapType.isRecovery {
-                    Text(presentation.title)
-                        .font(.caption.bold())
-                } else {
+                if showsLapBadge {
                     Text(badgeTitle)
                         .font(.system(size: Tokens.FontSize.sm, weight: .semibold, design: .rounded))
                         .foregroundStyle(theme.text.bold)
@@ -360,6 +361,12 @@ struct LapRowView: View {
         .foregroundColor(lap.lapType.isRecovery ? theme.text.historyRest : theme.text.neutral)
         .cornerRadius(Tokens.Radius.medium)
         .padding(.horizontal, Tokens.Spacing.xs)
+    }
+}
+
+enum SessionHistoryLapRowRouting {
+    static func showsLapBadge(for lapType: LapType) -> Bool {
+        !lapType.isRecovery
     }
 }
 

@@ -3530,7 +3530,7 @@ private struct CompanionSessionLapRow: View {
             HStack(alignment: isRestLap ? .center : .firstTextBaseline, spacing: Tokens.Spacing.sm) {
                 if isRestLap {
                     Text(presentation.title)
-                        .font(.headline.weight(.semibold))
+                        .font(.system(size: CompanionSessionLapRowLayout.titleFontSize, weight: .semibold))
                         .foregroundStyle(theme.text.historyRest)
                 } else {
                     Text(badgeTitle)
@@ -3552,7 +3552,7 @@ private struct CompanionSessionLapRow: View {
                         }
 
                     Text(activeHeaderTime)
-                        .font(.body.weight(.medium))
+                        .font(.system(size: CompanionSessionLapRowLayout.titleFontSize, weight: .medium))
                         .foregroundStyle(theme.text.neutral)
                 }
             }
@@ -3582,6 +3582,10 @@ private struct CompanionSessionLapRow: View {
         .padding(.horizontal, Tokens.Spacing.xs)
         .padding(.bottom, Tokens.Spacing.xs)
     }
+}
+
+enum CompanionSessionLapRowLayout {
+    static let titleFontSize: CGFloat = Tokens.FontSize.xxl + Tokens.Spacing.xxxs
 }
 
 private struct CompanionScreenBackground: View {

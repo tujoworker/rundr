@@ -262,8 +262,10 @@
 "Use your Session Plan for precise manual distance, or keep it together with GPS in Dual." = "正確な手動距離にはセッションプランを使い、必要ならDualでGPSも一緒に使えます。";
 "Mark every lap" = "ラップを毎回記録する";
 "Each lap should be marked with a button press on Apple Watch, or with the Action Button when your watch supports it. That keeps your workout structure clean and stores the laps in Apple Health." = "各ラップはApple Watchでのボタン操作、または対応するWatchならアクションボタンで記録するのがおすすめです。そうすることでワークアウトの構成が整い、ラップはApple Healthにも保存されます。";
-"Rest belongs to the lap flow" = "レストもラップの流れの一部";
-"Rest is tied to a lap, so your workout history stays readable. Rundr can also detect rest automatically, which helps when you want the watch to follow the rhythm of the session with less manual work." = "レストはラップにひもづくので、ワークアウト履歴が読みやすく保たれます。Rundrはレストを自動検出することもでき、手動操作を減らしながらセッションの流れに合わせてWatchを動かしたいときに役立ちます。";
+"Active Recovery or a Rest" = "アクティブリカバリーまたはレスト";
+"These are tied to a lap, so your workout history stays readable. Rundr can also detect rest automatically, which helps when you want the watch to follow the rhythm of the session." = "これらはラップにひもづくので、ワークアウト履歴が読みやすく保たれます。Rundrはレストを自動検出することもでき、セッションの流れに合わせてWatchを動かしたいときに役立ちます。";
+"Pick your color" = "色を選ぶ";
+"Choose the accent that feels right before you start. It carries through the companion and the watch, so Rundr feels like yours from the beginning." = "始める前に、しっくりくるアクセントカラーを選べます。その色はCompanionとWatchの両方に反映されるので、最初からRundrを自分のものとして感じられます。";
 "Bring good sessions back" = "良かったセッションをまた使える";
 "When the run is done, your session is waiting on iPhone for review. Reuse the ones that worked, adjust the ones that did not, and keep moving without rebuilding everything from scratch." = "ランが終わると、セッションはiPhoneで振り返れる状態になります。うまくいったものは再利用し、合わなかったものは少し調整して、毎回ゼロから作り直さずに次へ進めます。";
 "Rundr is built for interval days." = "Rundrはインターバルの日のために作られています。";

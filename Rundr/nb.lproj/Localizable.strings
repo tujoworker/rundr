@@ -264,8 +264,10 @@
 "Use your Session Plan for precise manual distance, or keep it together with GPS in Dual." = "Bruk øktplanen for presis manuell distanse, eller behold den sammen med GPS i Dual.";
 "Mark every lap" = "Marker hver runde";
 "Each lap should be marked with a button press on Apple Watch, or with the Action Button when your watch supports it. That keeps your workout structure clean and stores the laps in Apple Health." = "Hver runde bør markeres med et knappetrykk på Apple Watch, eller med handlingsknappen når klokken din støtter det. Det holder øktstrukturen ryddig og lagrer rundene i Apple Health.";
-"Rest belongs to the lap flow" = "Hvile hører til rundeflyten";
-"Rest is tied to a lap, so your workout history stays readable. Rundr can also detect rest automatically, which helps when you want the watch to follow the rhythm of the session with less manual work." = "Hvile er knyttet til en runde, slik at økthistorikken holder seg lett å lese. Rundr kan også oppdage hvile automatisk, noe som hjelper når du vil at klokken skal følge rytmen i økten med mindre manuelt arbeid.";
+"Active Recovery or a Rest" = "Aktiv restitusjon eller en pause";
+"These are tied to a lap, so your workout history stays readable. Rundr can also detect rest automatically, which helps when you want the watch to follow the rhythm of the session." = "Disse er knyttet til en runde, slik at økthistorikken holder seg lett å lese. Rundr kan også oppdage hvile automatisk, noe som hjelper når du vil at klokken skal følge rytmen i økten.";
+"Pick your color" = "Velg fargen din";
+"Choose the accent that feels right before you start. It carries through the companion and the watch, so Rundr feels like yours from the beginning." = "Velg aksentfargen som føles riktig før du starter. Den følger med i Companion-appen og på klokken, slik at Rundr føles som ditt helt fra starten.";
 "Bring good sessions back" = "Ta gode økter tilbake";
 "When the run is done, your session is waiting on iPhone for review. Reuse the ones that worked, adjust the ones that did not, and keep moving without rebuilding everything from scratch." = "Når løpet er ferdig, ligger økten klar på iPhone for gjennomgang. Bruk de som fungerte på nytt, juster de som ikke gjorde det, og kom videre uten å bygge alt opp fra bunnen igjen.";
 "Rundr is built for interval days." = "Rundr er laget for intervalløkter.";

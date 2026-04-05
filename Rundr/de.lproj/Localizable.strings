@@ -264,8 +264,10 @@
 "Use your Session Plan for precise manual distance, or keep it together with GPS in Dual." = "Nutze deinen Trainingsplan für präzise manuelle Distanz oder zusammen mit GPS im Dual-Modus.";
 "Mark every lap" = "Markiere jede Runde";
 "Each lap should be marked with a button press on Apple Watch, or with the Action Button when your watch supports it. That keeps your workout structure clean and stores the laps in Apple Health." = "Jede Runde sollte auf der Apple Watch per Tastendruck markiert werden, oder mit der Aktionstaste, wenn deine Uhr sie unterstützt. So bleibt deine Trainingsstruktur sauber und die Runden werden in Apple Health gespeichert.";
-"Rest belongs to the lap flow" = "Pause gehört zum Rundenablauf";
-"Rest is tied to a lap, so your workout history stays readable. Rundr can also detect rest automatically, which helps when you want the watch to follow the rhythm of the session with less manual work." = "Pausen sind an eine Runde gebunden, damit deine Trainingshistorie lesbar bleibt. Rundr kann Pausen auch automatisch erkennen. Das hilft, wenn die Uhr dem Rhythmus der Einheit mit weniger manueller Eingabe folgen soll.";
+"Active Recovery or a Rest" = "Aktive Erholung oder eine Pause";
+"These are tied to a lap, so your workout history stays readable. Rundr can also detect rest automatically, which helps when you want the watch to follow the rhythm of the session." = "Beides ist an eine Runde gebunden, damit deine Trainingshistorie lesbar bleibt. Rundr kann Pausen auch automatisch erkennen. Das hilft, wenn die Uhr dem Rhythmus der Einheit folgen soll.";
+"Pick your color" = "Wähle deine Farbe";
+"Choose the accent that feels right before you start. It carries through the companion and the watch, so Rundr feels like yours from the beginning." = "Wähle vor dem Start die Akzentfarbe, die sich richtig anfühlt. Sie begleitet dich in der Companion-App und auf der Watch, damit sich Rundr von Anfang an wie deins anfühlt.";
 "Bring good sessions back" = "Hol gute Einheiten zurück";
 "When the run is done, your session is waiting on iPhone for review. Reuse the ones that worked, adjust the ones that did not, and keep moving without rebuilding everything from scratch." = "Nach dem Lauf wartet deine Einheit auf dem iPhone zur Auswertung. Nutze gelungene Einheiten erneut, passe andere an und mach weiter, ohne alles von vorne aufzubauen.";
 "Rundr is built for interval days." = "Rundr ist für Intervalltage gemacht.";

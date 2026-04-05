@@ -3,6 +3,8 @@ import SwiftUI
 struct CompanionIntroView: View {
     @EnvironmentObject private var settings: SettingsStore
     @Environment(\.appTheme) private var theme
+    let requiresCompletion: Bool
+    let onFinish: () -> Void
     @State private var selectedPage = 0
 
     private var pages: [CompanionIntroPage] {
@@ -26,6 +28,12 @@ struct CompanionIntroView: View {
                 icon: "figure.walk.motion",
                 title: L10n.introRestTitle,
                 body: L10n.introRestBody
+            ),
+            CompanionIntroPage(
+                icon: "paintpalette.fill",
+                title: L10n.introColorTitle,
+                body: L10n.introColorBody,
+                contentStyle: .colorSelector
             ),
             CompanionIntroPage(
                 icon: "arrow.trianglehead.2.clockwise.rotate.90",
@@ -52,62 +60,155 @@ struct CompanionIntroView: View {
         .accessibilityLabel(L10n.introPageLabel(selectedPage + 1, pages.count))
     }
 
+    private var isLastPage: Bool {
+        selectedPage == pages.count - 1
+    }
+
+    private var finishButton: some View {
+        Button {
+            onFinish()
+        } label: {
+            Text(L10n.getReady)
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(theme.text.emphasis)
+                .padding(.horizontal, Tokens.Spacing.xxxxl)
+                .padding(.vertical, Tokens.Spacing.xl)
+                .background(
+                    Capsule(style: .continuous)
+                        .fill(theme.background.emphasisAction(settings.primaryAccentColor))
+                )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func introContentTopInset(for proxy: GeometryProxy) -> CGFloat {
+        proxy.safeAreaInsets.top + max(Tokens.Spacing.xxxxl, proxy.size.height * 0.18)
+    }
+
+    private var finishButtonTopSpacing: CGFloat {
+        Tokens.ControlSize.companionFeatureBadge
+    }
+
     var body: some View {
-        TabView(selection: $selectedPage) {
-            ForEach(Array(pages.enumerated()), id: \.offset) { index, page in
-                GeometryReader { proxy in
-                    ScrollView {
-                        VStack(spacing: Tokens.Spacing.xxxxl) {
-                            Spacer(minLength: Tokens.Spacing.xxxxl)
+        ZStack {
+            CompanionListBackgroundView()
+                .ignoresSafeArea()
 
-                            ZStack {
-                                Circle()
-                                    .fill(theme.background.emphasisAction(settings.primaryAccentColor))
+            TabView(selection: $selectedPage) {
+                ForEach(Array(pages.enumerated()), id: \.offset) { index, page in
+                    GeometryReader { proxy in
+                        ScrollView {
+                            VStack(spacing: Tokens.Spacing.xxxxl) {
+                                ZStack {
+                                    Circle()
+                                        .fill(theme.background.emphasisAction(settings.primaryAccentColor))
 
-                                Image(systemName: page.icon)
-                                    .font(.system(size: 46, weight: .semibold))
-                                    .foregroundStyle(theme.text.emphasis)
+                                    Image(systemName: page.icon)
+                                        .font(.system(size: 46, weight: .semibold))
+                                        .foregroundStyle(theme.text.emphasis)
+                                }
+                                .frame(
+                                    width: Tokens.ControlSize.companionFeatureBadge,
+                                    height: Tokens.ControlSize.companionFeatureBadge
+                                )
+
+                                VStack(spacing: Tokens.Spacing.xl) {
+                                    Text(page.title)
+                                        .font(.title.bold())
+                                        .foregroundStyle(theme.text.neutral)
+                                        .multilineTextAlignment(.center)
+
+                                    Text(page.body)
+                                        .font(.title3.weight(.regular))
+                                        .foregroundStyle(theme.text.subtle)
+                                        .multilineTextAlignment(.center)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                                .padding(.horizontal, Tokens.Spacing.xxxxl)
+
+                                if page.contentStyle == .colorSelector {
+                                    CompanionIntroColorSelector()
+                                        .padding(.horizontal, Tokens.Spacing.xxxxl)
+                                }
+
+                                if index == pages.count - 1 {
+                                    finishButton
+                                        .padding(.top, finishButtonTopSpacing)
+                                }
+
+                                Spacer(minLength: Tokens.Spacing.xxxxl)
                             }
-                            .frame(
-                                width: Tokens.ControlSize.companionFeatureBadge,
-                                height: Tokens.ControlSize.companionFeatureBadge
-                            )
-
-                            VStack(spacing: Tokens.Spacing.xl) {
-                                Text(page.title)
-                                    .font(.title.bold())
-                                    .foregroundStyle(theme.text.neutral)
-                                    .multilineTextAlignment(.center)
-
-                                Text(page.body)
-                                    .font(.title3.weight(.regular))
-                                    .foregroundStyle(theme.text.subtle)
-                                    .multilineTextAlignment(.center)
-                                    .fixedSize(horizontal: false, vertical: true)
-                            }
-                            .padding(.horizontal, Tokens.Spacing.xxxxl)
-
-                            Spacer(minLength: Tokens.Spacing.xxxxl)
+                            .frame(maxWidth: .infinity)
+                            .frame(minHeight: proxy.size.height, alignment: .top)
+                            .padding(.top, introContentTopInset(for: proxy))
+                            .padding(.bottom, Tokens.Spacing.xxxxl)
                         }
-                        .frame(maxWidth: .infinity)
-                        .frame(minHeight: proxy.size.height)
-                        .padding(.vertical, Tokens.Spacing.xxxxl)
                     }
-                    .background {
-                        CompanionListBackgroundView()
-                            .ignoresSafeArea()
-                    }
+                    .tag(index)
                 }
-                .tag(index)
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
         .safeAreaInset(edge: .bottom) {
             pageIndicatorView
+                .padding(.horizontal, Tokens.Spacing.xxxl)
                 .padding(.bottom, Tokens.Spacing.lg)
         }
-        .navigationTitle(L10n.intro)
-        .navigationBarTitleDisplayMode(.inline)
+        .ignoresSafeArea(edges: .top)
+        .interactiveDismissDisabled(requiresCompletion)
+    }
+}
+
+private struct CompanionIntroColorSelector: View {
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
+
+    private let columns = [
+        GridItem(.flexible(), spacing: Tokens.Spacing.md),
+        GridItem(.flexible(), spacing: Tokens.Spacing.md)
+    ]
+
+    var body: some View {
+        LazyVGrid(columns: columns, alignment: .leading, spacing: Tokens.Spacing.md) {
+            ForEach(PrimaryColorOption.allCases) { color in
+                Button {
+                    settings.primaryColor = color
+                } label: {
+                    HStack(spacing: Tokens.Spacing.md) {
+                        Circle()
+                            .fill(color.color)
+                            .frame(width: Tokens.Spacing.xxxl, height: Tokens.Spacing.xxxl)
+
+                        Text(color.displayName)
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(theme.text.neutral)
+                            .lineLimit(1)
+
+                        Spacer(minLength: 0)
+
+                        Image(systemName: "checkmark")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(settings.primaryAccentColor)
+                            .opacity(settings.primaryColor == color ? 1 : 0)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal, Tokens.Spacing.lg)
+                    .padding(.vertical, Tokens.Spacing.lg)
+                    .background(
+                        RoundedRectangle(cornerRadius: Tokens.Radius.xxxxl, style: .continuous)
+                            .fill(theme.background.history)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Tokens.Radius.xxxxl, style: .continuous)
+                            .stroke(
+                                settings.primaryColor == color ? settings.primaryAccentColor : theme.stroke.callout,
+                                lineWidth: Tokens.LineWidth.thin
+                            )
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 }
 
@@ -627,9 +728,15 @@ private struct CompanionHelpHighlight: View {
 }
 
 private struct CompanionIntroPage {
+    enum ContentStyle {
+        case standard
+        case colorSelector
+    }
+
     let icon: String
     let title: String
     let body: String
+    var contentStyle: ContentStyle = .standard
 }
 
 struct CompanionHelpTopic: Identifiable {

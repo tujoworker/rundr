@@ -6,12 +6,25 @@ struct CompanionRootView: View {
     @EnvironmentObject private var persistence: PersistenceManager
     @EnvironmentObject private var settings: SettingsStore
     @EnvironmentObject private var transferCoordinator: CompanionTransferCoordinator
+    @AppStorage("hasSeenCompanionIntro") private var hasSeenCompanionIntro = false
     @State private var selectedTab: CompanionTab = .workouts
+    @State private var introPresentation: CompanionIntroPresentation?
 
     private enum CompanionTab: Hashable {
         case workouts
         case browser
         case settings
+    }
+
+    private enum CompanionIntroPresentation: Int, Identifiable {
+        case automatic
+        case manual
+
+        var id: Int { rawValue }
+
+        var requiresCompletion: Bool {
+            self == .automatic
+        }
     }
 
     var body: some View {
@@ -30,7 +43,9 @@ struct CompanionRootView: View {
                     Label(L10n.browser, systemImage: "square.grid.2x2")
                 }
 
-            CompanionSettingsView()
+            CompanionSettingsView {
+                introPresentation = .manual
+            }
                 .tag(CompanionTab.settings)
                 .tabItem {
                     Label(L10n.more, systemImage: "ellipsis.circle")
@@ -56,6 +71,16 @@ struct CompanionRootView: View {
         .onOpenURL { url in
             guard url.isFileURL else { return }
             transferCoordinator.importTransfer(from: url, settings: settings, persistence: persistence)
+        }
+        .onAppear {
+            guard !hasSeenCompanionIntro, introPresentation == nil else { return }
+            introPresentation = .automatic
+        }
+        .fullScreenCover(item: $introPresentation) { presentation in
+            CompanionIntroView(requiresCompletion: presentation.requiresCompletion) {
+                hasSeenCompanionIntro = true
+                introPresentation = nil
+            }
         }
     }
 }
@@ -724,6 +749,7 @@ private struct CompanionPresetRouteDestinationView: View {
 private struct CompanionSettingsView: View {
     @EnvironmentObject private var settings: SettingsStore
     @EnvironmentObject private var transferCoordinator: CompanionTransferCoordinator
+    let onShowIntro: () -> Void
 
     var body: some View {
         NavigationStack {
@@ -790,17 +816,6 @@ private struct CompanionSettingsView: View {
 
                 Section {
                     NavigationLink {
-                        CompanionIntroView()
-                    } label: {
-                        CompanionSettingsNavigationRow(
-                            title: L10n.intro,
-                            value: "",
-                            systemImage: "sparkles"
-                        )
-                    }
-                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
-
-                    NavigationLink {
                         CompanionHelpView()
                     } label: {
                         CompanionSettingsNavigationRow(
@@ -809,6 +824,18 @@ private struct CompanionSettingsView: View {
                             systemImage: "questionmark.circle"
                         )
                     }
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
+
+                    Button {
+                        onShowIntro()
+                    } label: {
+                        CompanionSettingsNavigationRow(
+                            title: L10n.intro,
+                            value: "",
+                            systemImage: "sparkles"
+                        )
+                    }
+                    .buttonStyle(.plain)
                     .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
 
                     NavigationLink {

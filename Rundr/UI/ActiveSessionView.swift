@@ -156,7 +156,12 @@ struct ActiveSessionView: View {
 
     private var timerBorderOverlay: some View {
         Capsule()
-            .strokeBorder(theme.stroke.emphasisAction(primaryColor), style: StrokeStyle(lineWidth: Tokens.LineWidth.thick, dash: restButtonShowsEndRest ? [6, 4] : []))
+            .strokeBorder(
+                restButtonShowsEndRest
+                    ? (theme.isDark ? theme.stroke.emphasisAction(primaryColor) : Color.white)
+                    : theme.stroke.emphasisAction(primaryColor),
+                style: StrokeStyle(lineWidth: Tokens.LineWidth.thick, dash: restButtonShowsEndRest ? [6, 4] : [])
+            )
     }
 
     private var timerBounceAnimation: Animation {
@@ -1301,7 +1306,12 @@ private struct WorkoutControlIcon: View {
 
             if !isSecondary {
                 Circle()
-                    .stroke(theme.stroke.emphasisAction(baseColor), style: StrokeStyle(lineWidth: Tokens.LineWidth.thick, dash: isDashed ? [6, 4] : []))
+                    .stroke(
+                        isDashed
+                            ? (theme.isDark ? theme.stroke.emphasisAction(baseColor) : Color.white)
+                            : theme.stroke.emphasisAction(baseColor),
+                        style: StrokeStyle(lineWidth: Tokens.LineWidth.thick, dash: isDashed ? [6, 4] : [])
+                    )
                     .padding(Tokens.LineWidth.regular)
             }
         }

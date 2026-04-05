@@ -1,3 +1,4 @@
+import CoreGraphics
 import Foundation
 import SwiftData
 
@@ -808,6 +809,28 @@ final class Session {
 struct SessionHistorySummaryItem: Equatable {
     let label: String
     let value: String
+}
+
+enum CompanionMetricGridRouting {
+    static let minimumColumnWidth: CGFloat =
+        Tokens.ControlSize.companionAddIcon + Tokens.Spacing.xxxl + Tokens.Spacing.xxxxl + Tokens.Spacing.xxl
+    static let columnSpacing: CGFloat = Tokens.Spacing.xxxxl
+
+    static func columnCount(for availableWidth: CGFloat) -> Int {
+        guard availableWidth > 0 else { return 1 }
+
+        let columnFootprint = minimumColumnWidth + columnSpacing
+        let fittedColumnCount = Int((availableWidth + columnSpacing) / columnFootprint)
+        return max(1, fittedColumnCount)
+    }
+
+    static func rows<Item>(for items: [Item], availableWidth: CGFloat) -> [[Item]] {
+        let columns = columnCount(for: availableWidth)
+
+        return stride(from: 0, to: items.count, by: columns).map { start in
+            Array(items[start..<min(start + columns, items.count)])
+        }
+    }
 }
 
 enum SessionHistorySummaryRouting {

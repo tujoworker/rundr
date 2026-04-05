@@ -1353,6 +1353,47 @@ private struct CompanionMetricPill: View {
     }
 }
 
+private struct CompanionResponsiveMetricGrid<Item: Identifiable, Content: View>: View {
+    let items: [Item]
+    let rowSpacing: CGFloat
+    let content: (Item) -> Content
+
+    @State private var availableWidth: CGFloat =
+        (CompanionMetricGridRouting.minimumColumnWidth * 3) + (CompanionMetricGridRouting.columnSpacing * 2)
+
+    private var rows: [[Item]] {
+        CompanionMetricGridRouting.rows(for: items, availableWidth: availableWidth)
+    }
+
+    var body: some View {
+        Grid(
+            alignment: .leading,
+            horizontalSpacing: CompanionMetricGridRouting.columnSpacing,
+            verticalSpacing: rowSpacing
+        ) {
+            ForEach(Array(rows.enumerated()), id: \.offset) { _, row in
+                GridRow(alignment: .top) {
+                    ForEach(row) { item in
+                        content(item)
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background {
+            GeometryReader { proxy in
+                Color.clear
+                    .onAppear {
+                        availableWidth = proxy.size.width
+                    }
+                    .onChange(of: proxy.size.width) { _, newWidth in
+                        availableWidth = newWidth
+                    }
+            }
+        }
+    }
+}
+
 private struct CompanionPresetRowView: View {
     let title: String
     let subtitle: String
@@ -1983,12 +2024,6 @@ private struct CompanionSegmentRow: View {
         return items
     }
 
-    private var metricRows: [[MetricItem]] {
-        stride(from: 0, to: metricItems.count, by: 3).map { start in
-            Array(metricItems[start..<min(start + 3, metricItems.count)])
-        }
-    }
-
     private var metricLayoutSignature: String {
         metricItems
             .map { "\($0.title):\($0.value)" }
@@ -2033,21 +2068,10 @@ private struct CompanionSegmentRow: View {
                 }
 
                 VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
-                    Grid(alignment: .leading, horizontalSpacing: Tokens.Spacing.xxxxl, verticalSpacing: Tokens.Spacing.md) {
-                        ForEach(Array(metricRows.enumerated()), id: \.offset) { _, row in
-                            GridRow(alignment: .top) {
-                                ForEach(row) { item in
-                                    CompanionMetricPill(title: item.title, value: item.value, textStyle: .regular)
-                                }
-
-                                ForEach(0..<max(0, 3 - row.count), id: \.self) { _ in
-                                    Color.clear
-                                        .gridCellUnsizedAxes([.horizontal, .vertical])
-                                }
-                            }
-                        }
-                        .animation(.snappy(duration: 0.28, extraBounce: 0.0), value: metricLayoutSignature)
+                    CompanionResponsiveMetricGrid(items: metricItems, rowSpacing: Tokens.Spacing.md) { item in
+                        CompanionMetricPill(title: item.title, value: item.value, textStyle: .regular)
                     }
+                    .animation(.snappy(duration: 0.28, extraBounce: 0.0), value: metricLayoutSignature)
                 }
             }
         }
@@ -3153,12 +3177,6 @@ private struct CompanionSessionRow: View {
         ]
     }
 
-    private var metricRows: [[MetricItem]] {
-        stride(from: 0, to: metricItems.count, by: 3).map { start in
-            Array(metricItems[start..<min(start + 3, metricItems.count)])
-        }
-    }
-
     var body: some View {
         HStack(alignment: .top, spacing: Tokens.Spacing.md) {
             VStack(alignment: .leading, spacing: Tokens.Spacing.lg) {
@@ -3175,12 +3193,8 @@ private struct CompanionSessionRow: View {
                 }
 
                 VStack(alignment: .leading, spacing: Tokens.Spacing.md) {
-                    ForEach(Array(metricRows.enumerated()), id: \.offset) { _, row in
-                        HStack(alignment: .top, spacing: Tokens.Spacing.xxxxl) {
-                            ForEach(row) { item in
-                                CompanionMetricPill(title: item.title, value: item.value, textStyle: .regular)
-                            }
-                        }
+                    CompanionResponsiveMetricGrid(items: metricItems, rowSpacing: Tokens.Spacing.md) { item in
+                        CompanionMetricPill(title: item.title, value: item.value, textStyle: .regular)
                     }
                 }
             }

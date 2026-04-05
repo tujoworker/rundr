@@ -236,6 +236,9 @@
 "On" = "An";
 "Alerts" = "Benachrichtigungen";
 "Active Recovery" = "Aktive Erholung";
+"For open timed intervals, Apple Watch plays a haptic when the target is reached and again every 5 seconds after." = "Bei offenen Zeitintervallen spielt die Apple Watch eine Haptik, wenn das Ziel erreicht ist, und danach alle 5 Sekunden erneut.";
+"For timed rest, Apple Watch taps for 5, 4, 3, 2, and 1 seconds remaining, then plays a stronger haptic at 0 and every 5 seconds after." = "Bei zeitgesteuerter Pause tippt die Apple Watch bei 5, 4, 3, 2 und 1 verbleibenden Sekunden und spielt dann bei 0 sowie danach alle 5 Sekunden eine stärkere Haptik.";
+"For timed active recovery, Apple Watch uses the same countdown haptics as timed rest." = "Bei zeitgesteuerter aktiver Erholung verwendet die Apple Watch dieselben Countdown-Haptiken wie bei der zeitgesteuerten Pause.";
 "%@ in %@" = "%@ in %@";
 
 /* Preset usage */
@@ -297,6 +300,11 @@
 "With Timed Rest" = "Bei zeitgesteuerter Pause";
 "Rundr starts rest after the lap and warns in the last 5 seconds if Rest Alerts is enabled in Settings. When passed, the next lap does not start by itself. The target rest is a guide, and you still decide when the next lap begins." = "Rundr startet die Pause nach der Runde und warnt in den letzten 5 Sekunden, wenn Pausenhinweise in den Einstellungen aktiviert sind. Wenn die Zielzeit vorbei ist, startet die nächste Runde nicht von selbst. Die Zielpause ist nur eine Orientierung, und du entscheidest weiter selbst, wann die nächste Runde beginnt.";
 "Use Manual when you want to choose exactly when Mark as Rest starts and ends. Use Auto-detect when you want Rundr to enter rest after you stop and end it again when you move." = "Verwende „Manuell“, wenn du genau festlegen willst, wann „Als Pause markieren“ beginnt und endet. Nutze „Automatisch erkennen“, wenn Rundr nach dem Anhalten in die Pause wechseln und sie bei Bewegung wieder beenden soll.";
+"Alerts use Apple Watch haptic feedback so you can feel timing cues without looking at the screen." = "Benachrichtigungen nutzen die Haptik der Apple Watch, damit du Zeitzeichen spüren kannst, ohne auf den Bildschirm zu schauen.";
+"Lap Alerts" = "Rundenhinweise";
+"Rest and Active Recovery" = "Pause und aktive Erholung";
+"For timed rest and active recovery, Rundr taps lightly for the last 5, 4, 3, 2, and 1 seconds. At 0 it plays a stronger haptic, then repeats that stronger haptic every 5 seconds if you stay in recovery." = "Bei zeitgesteuerter Pause und aktiver Erholung tippt Rundr in den letzten 5, 4, 3, 2 und 1 Sekunden leicht. Bei 0 spielt es eine stärkere Haptik und wiederholt diese alle 5 Sekunden, solange du in der Erholung bleibst.";
+"Use the toggles in Settings > Alerts to choose which of these haptics you want on Apple Watch." = "Verwende die Schalter unter Einstellungen > Benachrichtigungen, um auszuwählen, welche dieser Haptiken du auf der Apple Watch möchtest.";
 "How Auto-detect Works" = "So funktioniert Automatisch erkennen";
 "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap." = "Auto-Rest markiert die aktuelle Runde als Pause, nachdem du aufgehört hast dich zu bewegen. Diese Pause bleibt an dieselbe Runde gebunden. Rundr erstellt nicht von selbst eine neue Runde. Die nächste Runde beginnt, wenn du Runde drückst.";
 "Finish a 400 m rep, stop at the rail, and the current lap becomes rest. When you are ready for the next rep, press lap to start the next lap." = "Beende einen 400-m-Lauf, bleib am Geländer stehen, und die aktuelle Runde wird zur Pause. Wenn du für den nächsten Lauf bereit bist, drückst du Runde, um die nächste Runde zu starten.";

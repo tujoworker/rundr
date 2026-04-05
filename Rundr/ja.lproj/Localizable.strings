@@ -234,6 +234,9 @@
 "On" = "オン";
 "Alerts" = "アラート";
 "Active Recovery" = "アクティブリカバリー";
+"For open timed intervals, Apple Watch plays a haptic when the target is reached and again every 5 seconds after." = "オープンな時間インターバルでは、目標に達した時点でApple Watchが触覚通知を出し、その後も5秒ごとに繰り返します。";
+"For timed rest, Apple Watch taps for 5, 4, 3, 2, and 1 seconds remaining, then plays a stronger haptic at 0 and every 5 seconds after." = "時間指定のレストでは、残り5、4、3、2、1秒でApple Watchが軽く触れ、0秒でより強い触覚通知を出し、その後も5秒ごとに繰り返します。";
+"For timed active recovery, Apple Watch uses the same countdown haptics as timed rest." = "時間指定のアクティブリカバリーでは、Apple Watchは時間指定レストと同じカウントダウン触覚通知を使います。";
 "%@ in %@" = "%@を%@で";
 
 /* Preset usage */
@@ -295,6 +298,11 @@
 "With Timed Rest" = "時間指定のレスト";
 "Rundr starts rest after the lap and warns in the last 5 seconds if Rest Alerts is enabled in Settings. When passed, the next lap does not start by itself. The target rest is a guide, and you still decide when the next lap begins." = "Rundrはラップ後にレストを開始し、設定でRest Alertsが有効なら残り5秒で通知します。目標時間を過ぎても次のラップは自動では始まりません。目標レストは目安であり、次のラップを始めるタイミングは自分で決めます。";
 "Use Manual when you want to choose exactly when Mark as Rest starts and ends. Use Auto-detect when you want Rundr to enter rest after you stop and end it again when you move." = "「レストとしてマーク」をいつ開始していつ終えるかを自分で決めたいならManual、自分が止まったらRundrにレストへ入り、動き出したら終えてほしいならAuto-detectが向いています。";
+"Alerts use Apple Watch haptic feedback so you can feel timing cues without looking at the screen." = "アラートはApple Watchの触覚フィードバックを使うので、画面を見なくてもタイミングの合図を感じ取れます。";
+"Lap Alerts" = "ラップアラート";
+"Rest and Active Recovery" = "レストとアクティブリカバリー";
+"For timed rest and active recovery, Rundr taps lightly for the last 5, 4, 3, 2, and 1 seconds. At 0 it plays a stronger haptic, then repeats that stronger haptic every 5 seconds if you stay in recovery." = "時間指定のレストとアクティブリカバリーでは、残り5、4、3、2、1秒でRundrが軽く触れます。0秒ではより強い触覚通知になり、回復を続けている間は5秒ごとにその強い通知を繰り返します。";
+"Use the toggles in Settings > Alerts to choose which of these haptics you want on Apple Watch." = "設定 > アラートのトグルで、Apple Watchで使いたい触覚通知を選べます。";
 "How Auto-detect Works" = "Auto-detectの仕組み";
 "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap." = "Auto Restは、動きを止めたあとに現在のラップをレストとして扱います。そのレストは同じラップにひもづいたままです。Rundrが自動で次のラップを作ることはありません。次のラップは、ラップを押したときに始まります。";
 "Finish a 400 m rep, stop at the rail, and the current lap becomes rest. When you are ready for the next rep, press lap to start the next lap." = "400 mの1本を終えて柵のところで止まると、現在のラップがレストになります。次の1本に進む準備ができたら、ラップを押して次のラップを始めます。";

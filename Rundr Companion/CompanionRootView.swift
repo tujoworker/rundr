@@ -980,6 +980,7 @@ private struct CompanionRestModeSettingsDetailView: View {
                     .listRowBackground(Color.clear)
 
                 CompanionHelpCard(topic: .restMode)
+                    .padding(.top, Tokens.Spacing.lg)
                     .listRowInsets(CompanionPreferencesStyle.detailRowInsets)
                     .listRowSeparator(.hidden)
                     .listRowBackground(Color.clear)
@@ -1121,6 +1122,7 @@ private struct CompanionAlertsSettingsDetailView: View {
             Section {
                 CompanionSettingsToggleRow(
                     title: L10n.lapAlerts,
+                    detail: L10n.lapAlertsDetail,
                     systemImage: "bell.badge",
                     isOn: $settings.lapAlerts
                 )
@@ -1128,6 +1130,7 @@ private struct CompanionAlertsSettingsDetailView: View {
 
                 CompanionSettingsToggleRow(
                     title: L10n.restAlerts,
+                    detail: L10n.restAlertsDetail,
                     systemImage: "bell.badge",
                     isOn: $settings.restAlerts
                 )
@@ -1135,6 +1138,7 @@ private struct CompanionAlertsSettingsDetailView: View {
 
                 CompanionSettingsToggleRow(
                     title: L10n.activeRecoveryAlerts,
+                    detail: L10n.activeRecoveryAlertsDetail,
                     systemImage: "bell.badge",
                     isOn: $settings.activeRecoveryAlerts
                 )

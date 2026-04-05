@@ -236,6 +236,9 @@
 "On" = "På";
 "Alerts" = "Varsler";
 "Active Recovery" = "Aktiv restitusjon";
+"For open timed intervals, Apple Watch plays a haptic when the target is reached and again every 5 seconds after." = "For åpne tidsintervaller spiller Apple Watch av en haptisk beskjed når målet er nådd, og igjen hvert 5. sekund etterpå.";
+"For timed rest, Apple Watch taps for 5, 4, 3, 2, and 1 seconds remaining, then plays a stronger haptic at 0 and every 5 seconds after." = "For tidsstyrt hvile gir Apple Watch lette trykk ved 5, 4, 3, 2 og 1 sekunder igjen, og deretter en sterkere haptisk beskjed ved 0 og hvert 5. sekund etterpå.";
+"For timed active recovery, Apple Watch uses the same countdown haptics as timed rest." = "For tidsstyrt aktiv restitusjon bruker Apple Watch den samme nedtellingshaptikken som for tidsstyrt hvile.";
 "%@ in %@" = "%@ på %@";
 
 /* Preset usage */
@@ -297,6 +300,11 @@
 "With Timed Rest" = "Med tidsstyrt hvile";
 "Rundr starts rest after the lap and warns in the last 5 seconds if Rest Alerts is enabled in Settings. When passed, the next lap does not start by itself. The target rest is a guide, and you still decide when the next lap begins." = "Rundr starter hvilen etter runden og varsler i de siste 5 sekundene hvis hvilevarsler er aktivert i innstillingene. Når måltiden er passert, starter ikke neste runde av seg selv. Målhvilen er bare en veiledning, og du bestemmer fortsatt selv når neste runde begynner.";
 "Use Manual when you want to choose exactly when Mark as Rest starts and ends. Use Auto-detect when you want Rundr to enter rest after you stop and end it again when you move." = "Bruk Manuell når du vil velge nøyaktig når «Marker som hvile» starter og slutter. Bruk Automatisk når du vil at Rundr skal gå inn i hvile når du stopper og avslutte den igjen når du beveger deg.";
+"Alerts use Apple Watch haptic feedback so you can feel timing cues without looking at the screen." = "Varsler bruker haptisk tilbakemelding på Apple Watch, så du kan kjenne tidssignalene uten å se på skjermen.";
+"Lap Alerts" = "Rundevarsler";
+"Rest and Active Recovery" = "Hvile og aktiv restitusjon";
+"For timed rest and active recovery, Rundr taps lightly for the last 5, 4, 3, 2, and 1 seconds. At 0 it plays a stronger haptic, then repeats that stronger haptic every 5 seconds if you stay in recovery." = "For tidsstyrt hvile og aktiv restitusjon gir Rundr lette trykk de siste 5, 4, 3, 2 og 1 sekundene. Ved 0 spiller den av en sterkere haptisk beskjed, og gjentar den hvert 5. sekund hvis du fortsatt er i restitusjon.";
+"Use the toggles in Settings > Alerts to choose which of these haptics you want on Apple Watch." = "Bruk bryterne i Innstillinger > Varsler for å velge hvilke av disse haptiske beskjedene du vil ha på Apple Watch.";
 "How Auto-detect Works" = "Slik virker Automatisk";
 "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap." = "Auto-hvile markerer den gjeldende runden som hvile etter at du har stoppet å bevege deg. Den hvilen forblir knyttet til samme runde. Rundr lager ikke en ny runde av seg selv. Neste runde starter når du trykker runde.";
 "Finish a 400 m rep, stop at the rail, and the current lap becomes rest. When you are ready for the next rep, press lap to start the next lap." = "Fullfør en 400-meter, stopp ved gjerdet, og den gjeldende runden blir hvile. Når du er klar for neste drag, trykker du runde for å starte neste runde.";

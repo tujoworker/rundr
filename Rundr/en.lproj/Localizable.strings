@@ -235,6 +235,9 @@
 "On" = "On";
 "Alerts" = "Alerts";
 "Active Recovery" = "Active Recovery";
+"For open timed intervals, Apple Watch plays a haptic when the target is reached and again every 5 seconds after." = "For open timed intervals, Apple Watch plays a haptic when the target is reached and again every 5 seconds after.";
+"For timed rest, Apple Watch taps for 5, 4, 3, 2, and 1 seconds remaining, then plays a stronger haptic at 0 and every 5 seconds after." = "For timed rest, Apple Watch taps for 5, 4, 3, 2, and 1 seconds remaining, then plays a stronger haptic at 0 and every 5 seconds after.";
+"For timed active recovery, Apple Watch uses the same countdown haptics as timed rest." = "For timed active recovery, Apple Watch uses the same countdown haptics as timed rest.";
 "%@ in %@" = "%@ in %@";
 
 /* Preset usage */
@@ -293,6 +296,11 @@
 "With Timed Rest" = "With Timed Rest";
 "Rundr starts rest after the lap and warns in the last 5 seconds if Rest Alerts is enabled in Settings. When passed, the next lap does not start by itself. The target rest is a guide, and you still decide when the next lap begins." = "Rundr starts rest after the lap and warns in the last 5 seconds if Rest Alerts is enabled in Settings. When passed, the next lap does not start by itself. The target rest is a guide, and you still decide when the next lap begins.";
 "Use Manual when you want to choose exactly when Mark as Rest starts and ends. Use Auto-detect when you want Rundr to enter rest after you stop and end it again when you move." = "Use Manual when you want to choose exactly when Mark as Rest starts and ends. Use Auto-detect when you want Rundr to enter rest after you stop and end it again when you move.";
+"Alerts use Apple Watch haptic feedback so you can feel timing cues without looking at the screen." = "Alerts use Apple Watch haptic feedback so you can feel timing cues without looking at the screen.";
+"Lap Alerts" = "Lap Alerts";
+"Rest and Active Recovery" = "Rest and Active Recovery";
+"For timed rest and active recovery, Rundr taps lightly for the last 5, 4, 3, 2, and 1 seconds. At 0 it plays a stronger haptic, then repeats that stronger haptic every 5 seconds if you stay in recovery." = "For timed rest and active recovery, Rundr taps lightly for the last 5, 4, 3, 2, and 1 seconds. At 0 it plays a stronger haptic, then repeats that stronger haptic every 5 seconds if you stay in recovery.";
+"Use the toggles in Settings > Alerts to choose which of these haptics you want on Apple Watch." = "Use the toggles in Settings > Alerts to choose which of these haptics you want on Apple Watch.";
 "How Auto-detect Works" = "How Auto-detect Works";
 "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap." = "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap.";
 "Finish a 400 m rep, stop at the rail, and the current lap becomes rest. When you are ready for the next rep, press lap to start the next lap." = "Finish a 400 m rep, stop at the rail, and the current lap becomes rest. When you are ready for the next rep, press lap to start the next lap.";

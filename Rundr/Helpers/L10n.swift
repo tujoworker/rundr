@@ -290,6 +290,9 @@ enum L10n {
     static let lapAlerts = String(localized: "Lap", comment: "Lap alerts setting")
     static let restAlerts = String(localized: "Rest", comment: "Rest alerts setting")
     static let activeRecoveryAlerts = String(localized: "Active Recovery", comment: "Active recovery alerts setting")
+    static let lapAlertsDetail = String(localized: "For open timed intervals, Apple Watch plays a haptic when the target is reached and again every 5 seconds after.", comment: "Companion alerts setting description for lap alerts")
+    static let restAlertsDetail = String(localized: "For timed rest, Apple Watch taps for 5, 4, 3, 2, and 1 seconds remaining, then plays a stronger haptic at 0 and every 5 seconds after.", comment: "Companion alerts setting description for rest alerts")
+    static let activeRecoveryAlertsDetail = String(localized: "For timed active recovery, Apple Watch uses the same countdown haptics as timed rest.", comment: "Companion alerts setting description for active recovery alerts")
     static let unlimited = String(localized: "Unlimited", comment: "Unlimited repeat count label")
     static func targetDisplay(_ distance: String, _ time: String) -> String {
         String(format: String(localized: "%@ in %@", comment: "Target display: distance in time"), distance, time)
@@ -369,6 +372,13 @@ enum L10n {
     static let helpRestActiveRecoveryHeading = String(localized: "With Active Recovery", comment: "Companion help section heading")
     static let helpRestActiveRecoveryBody = String(localized: "Active recovery works like recovery time instead of a full work lap. Rundr tracks the recovery in the workout, but keeps active totals and average pace focused on the hard intervals.", comment: "Companion help section body")
     static let helpRestTip = String(localized: "Use Manual when you want to choose exactly when Mark as Rest starts and ends. Use Auto-detect when you want Rundr to enter rest after you stop and end it again when you move.", comment: "Companion help card tip")
+    static let helpAlertsTitle = String(localized: "Alerts", comment: "Companion help card title")
+    static let helpAlertsBody = String(localized: "Alerts use Apple Watch haptic feedback so you can feel timing cues without looking at the screen.", comment: "Companion help card body")
+    static let helpAlertsLapHeading = String(localized: "Lap Alerts", comment: "Companion help section heading")
+    static let helpAlertsLapBody = lapAlertsDetail
+    static let helpAlertsRecoveryHeading = String(localized: "Rest and Active Recovery", comment: "Companion help section heading")
+    static let helpAlertsRecoveryBody = String(localized: "For timed rest and active recovery, Rundr taps lightly for the last 5, 4, 3, 2, and 1 seconds. At 0 it plays a stronger haptic, then repeats that stronger haptic every 5 seconds if you stay in recovery.", comment: "Companion help section body")
+    static let helpAlertsTip = String(localized: "Use the toggles in Settings > Alerts to choose which of these haptics you want on Apple Watch.", comment: "Companion help card tip")
     static let helpAutoRestTitle = String(localized: "How Auto-detect Works", comment: "Companion help card title")
     static let helpAutoRestBody = String(localized: "Auto Rest marks the current lap as rest after you stop moving. That rest stays attached to the same lap. Rundr does not create a new lap by itself. The next lap starts when you press lap.", comment: "Companion help card body")
     static let helpAutoRestExample = String(localized: "Finish a 400 m rep, stop at the rail, and the current lap becomes rest. When you are ready for the next rep, press lap to start the next lap.", comment: "Companion help card example")

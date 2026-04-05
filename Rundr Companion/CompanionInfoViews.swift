@@ -353,6 +353,28 @@ struct CompanionHelpView: View {
                 tip: L10n.helpRestTip
             ),
             CompanionHelpTopic(
+                id: L10n.helpAlertsTitle,
+                icon: "bell.badge",
+                title: L10n.helpAlertsTitle,
+                body: L10n.helpAlertsBody,
+                sections: [
+                    CompanionHelpSection(
+                        title: L10n.helpAlertsLapHeading,
+                        body: L10n.helpAlertsLapBody,
+                        example: nil,
+                        tip: nil
+                    ),
+                    CompanionHelpSection(
+                        title: L10n.helpAlertsRecoveryHeading,
+                        body: L10n.helpAlertsRecoveryBody,
+                        example: nil,
+                        tip: nil
+                    )
+                ],
+                example: nil,
+                tip: L10n.helpAlertsTip
+            ),
+            CompanionHelpTopic(
                 id: L10n.helpAutoRestTitle,
                 icon: "figure.run.circle",
                 title: L10n.helpAutoRestTitle,

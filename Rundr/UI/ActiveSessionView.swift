@@ -160,7 +160,11 @@ struct ActiveSessionView: View {
                 restButtonShowsEndRest
                     ? (theme.isDark ? theme.stroke.emphasisAction(primaryColor) : Color.white)
                     : theme.stroke.emphasisAction(primaryColor),
-                style: StrokeStyle(lineWidth: Tokens.LineWidth.thick, dash: restButtonShowsEndRest ? [6, 4] : [])
+                style: StrokeStyle(
+                    lineWidth: Tokens.LineWidth.thick,
+                    lineCap: restButtonShowsEndRest ? .round : .butt,
+                    dash: restButtonShowsEndRest ? [1, 5] : []
+                )
             )
     }
 
@@ -1310,7 +1314,11 @@ private struct WorkoutControlIcon: View {
                         isDashed
                             ? (theme.isDark ? theme.stroke.emphasisAction(baseColor) : Color.white)
                             : theme.stroke.emphasisAction(baseColor),
-                        style: StrokeStyle(lineWidth: Tokens.LineWidth.thick, dash: isDashed ? [6, 4] : [])
+                        style: StrokeStyle(
+                            lineWidth: Tokens.LineWidth.thick,
+                            lineCap: isDashed ? .round : .butt,
+                            dash: isDashed ? [1, 5] : []
+                        )
                     )
                     .padding(Tokens.LineWidth.regular)
             }

@@ -20,7 +20,7 @@ struct CompanionIntroView: View {
                 body: L10n.introPlanBody
             ),
             CompanionIntroPage(
-                icon: "figure.run.circle",
+                icon: "flag.checkered",
                 title: L10n.introLapsTitle,
                 body: L10n.introLapsBody
             ),

@@ -202,6 +202,13 @@ struct AppTheme {
                 : .black.opacity(Tokens.Opacity.foregroundQuaternary)
         }
 
+        /// Body copy that should read softer than primary text without looking washed out.
+        var body: Color {
+            isDark
+                ? .white.opacity(Tokens.Opacity.foregroundBody)
+                : .black.opacity(Tokens.Opacity.foregroundBody)
+        }
+
         /// Text on emphasis (accent) surfaces.
         var emphasis: Color { .white }
 

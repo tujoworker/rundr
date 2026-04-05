@@ -15,7 +15,7 @@ struct CompanionIntroView: View {
                 body: L10n.introStartOnWatchBody
             ),
             CompanionIntroPage(
-                icon: "ruler",
+                icon: "square.stack.3d.down.right",
                 title: L10n.introPlanTitle,
                 body: L10n.introPlanBody
             ),
@@ -28,6 +28,12 @@ struct CompanionIntroView: View {
                 icon: "figure.walk.motion",
                 title: L10n.introRestTitle,
                 body: L10n.introRestBody
+            ),
+            CompanionIntroPage(
+                icon: "circle.lefthalf.filled",
+                title: L10n.appearance,
+                body: L10n.introAppearanceBody,
+                contentStyle: .appearanceSelector
             ),
             CompanionIntroPage(
                 icon: "paintpalette.fill",
@@ -85,6 +91,10 @@ struct CompanionIntroView: View {
         proxy.safeAreaInsets.top + max(Tokens.Spacing.xxxxl, proxy.size.height * 0.18)
     }
 
+    private func introContentMinHeight(for proxy: GeometryProxy) -> CGFloat {
+        max(0, proxy.size.height - introContentTopInset(for: proxy) - Tokens.Spacing.xxxxl)
+    }
+
     private var finishButtonTopSpacing: CGFloat {
         Tokens.ControlSize.companionFeatureBadge
     }
@@ -120,13 +130,20 @@ struct CompanionIntroView: View {
 
                                     Text(page.body)
                                         .font(.title3.weight(.regular))
-                                        .foregroundStyle(theme.text.subtle)
+                                        .foregroundStyle(theme.text.body)
+                                        .lineSpacing(Tokens.Spacing.xs)
                                         .multilineTextAlignment(.center)
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
                                 .padding(.horizontal, Tokens.Spacing.xxxxl)
 
-                                if page.contentStyle == .colorSelector {
+                                switch page.contentStyle {
+                                case .standard:
+                                    EmptyView()
+                                case .appearanceSelector:
+                                    CompanionIntroAppearanceSelector()
+                                        .padding(.horizontal, Tokens.Spacing.xxxxl)
+                                case .colorSelector:
                                     CompanionIntroColorSelector()
                                         .padding(.horizontal, Tokens.Spacing.xxxxl)
                                 }
@@ -139,7 +156,7 @@ struct CompanionIntroView: View {
                                 Spacer(minLength: Tokens.Spacing.xxxxl)
                             }
                             .frame(maxWidth: .infinity)
-                            .frame(minHeight: proxy.size.height, alignment: .top)
+                            .frame(minHeight: introContentMinHeight(for: proxy), alignment: .top)
                             .padding(.top, introContentTopInset(for: proxy))
                             .padding(.bottom, Tokens.Spacing.xxxxl)
                         }
@@ -156,6 +173,50 @@ struct CompanionIntroView: View {
         }
         .ignoresSafeArea(edges: .top)
         .interactiveDismissDisabled(requiresCompletion)
+    }
+}
+
+private struct CompanionIntroAppearanceSelector: View {
+    @EnvironmentObject private var settings: SettingsStore
+    @Environment(\.appTheme) private var theme
+
+    var body: some View {
+        VStack(spacing: Tokens.Spacing.md) {
+            ForEach(AppearanceMode.allCases) { mode in
+                Button {
+                    settings.appearanceMode = mode
+                } label: {
+                    HStack(spacing: Tokens.Spacing.md) {
+                        Text(mode.displayName)
+                            .font(.body.weight(.medium))
+                            .foregroundStyle(theme.text.neutral)
+
+                        Spacer(minLength: 0)
+
+                        Image(systemName: "checkmark")
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(settings.primaryAccentColor)
+                            .opacity(settings.appearanceMode == mode ? 1 : 0)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.leading, Tokens.Spacing.xxxl)
+                    .padding(.trailing, Tokens.Spacing.lg)
+                    .padding(.vertical, Tokens.Spacing.lg)
+                    .background(
+                        RoundedRectangle(cornerRadius: Tokens.Radius.xxxxl, style: .continuous)
+                            .fill(theme.background.history)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: Tokens.Radius.xxxxl, style: .continuous)
+                            .stroke(
+                                settings.appearanceMode == mode ? settings.primaryAccentColor : theme.stroke.callout,
+                                lineWidth: Tokens.LineWidth.thin
+                            )
+                    )
+                }
+                .buttonStyle(.plain)
+            }
+        }
     }
 }
 
@@ -730,6 +791,7 @@ private struct CompanionHelpHighlight: View {
 private struct CompanionIntroPage {
     enum ContentStyle {
         case standard
+        case appearanceSelector
         case colorSelector
     }
 

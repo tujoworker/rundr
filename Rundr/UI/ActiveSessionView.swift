@@ -158,7 +158,7 @@ struct ActiveSessionView: View {
         Capsule()
             .strokeBorder(
                 restButtonShowsEndRest
-                    ? (theme.isDark ? theme.stroke.emphasisAction(primaryColor) : Color.white)
+                    ? (theme.isDark ? theme.stroke.emphasisAction(primaryColor) : Color.white.opacity(0.6))
                     : theme.stroke.emphasisAction(primaryColor),
                 style: StrokeStyle(
                     lineWidth: Tokens.LineWidth.thick,
@@ -1313,7 +1313,7 @@ private struct WorkoutControlIcon: View {
                 Circle()
                     .stroke(
                         isDashed
-                            ? (theme.isDark ? theme.stroke.emphasisAction(baseColor) : Color.white)
+                            ? (theme.isDark ? theme.stroke.emphasisAction(baseColor) : Color.white.opacity(0.6))
                             : theme.stroke.emphasisAction(baseColor),
                         style: StrokeStyle(
                             lineWidth: Tokens.LineWidth.thick,

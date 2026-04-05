@@ -1123,7 +1123,7 @@ private struct CompanionAlertsSettingsDetailView: View {
                 CompanionSettingsToggleRow(
                     title: L10n.lapAlerts,
                     detail: L10n.lapAlertsDetail,
-                    systemImage: "bell.badge",
+                    systemImage: "clock",
                     isOn: $settings.lapAlerts
                 )
                 .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.detailRowContentInsets)
@@ -1131,7 +1131,7 @@ private struct CompanionAlertsSettingsDetailView: View {
                 CompanionSettingsToggleRow(
                     title: L10n.restAlerts,
                     detail: L10n.restAlertsDetail,
-                    systemImage: "bell.badge",
+                    systemImage: "figure.cooldown",
                     isOn: $settings.restAlerts
                 )
                 .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.detailRowContentInsets)
@@ -1139,7 +1139,7 @@ private struct CompanionAlertsSettingsDetailView: View {
                 CompanionSettingsToggleRow(
                     title: L10n.activeRecoveryAlerts,
                     detail: L10n.activeRecoveryAlertsDetail,
-                    systemImage: "bell.badge",
+                    systemImage: "figure.walk.motion",
                     isOn: $settings.activeRecoveryAlerts
                 )
                 .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.detailRowContentInsets)

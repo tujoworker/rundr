@@ -302,7 +302,7 @@ struct ActiveSessionView: View {
             .buttonStyle(.plain)
 
             timerTopOverlay
-                .offset(y: -31)
+                .offset(y: -35)
         }
     }
 

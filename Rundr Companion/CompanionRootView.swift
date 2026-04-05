@@ -1144,6 +1144,7 @@ private struct CompanionSettingsLeadingIcon: View {
     var body: some View {
         companionSettingsIcon
             .frame(width: 28, height: 28)
+            .offset(x: -CompanionPreferencesStyle.iconLeadingOffset)
             .background {
                 if !theme.isDark {
                     RoundedRectangle(cornerRadius: Tokens.Radius.medium, style: .continuous)
@@ -1165,6 +1166,8 @@ private struct CompanionSettingsLeadingIcon: View {
 }
 
 private enum CompanionPreferencesStyle {
+    static let iconLeadingOffset = Tokens.Spacing.sm
+
     static var detailRowInsets: EdgeInsets {
         EdgeInsets(
             top: 0,

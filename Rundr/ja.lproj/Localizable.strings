@@ -233,6 +233,7 @@
 "Off" = "オフ";
 "On" = "オン";
 "Alerts" = "アラート";
+"Active Recovery" = "アクティブリカバリー";
 "%@ in %@" = "%@を%@で";
 
 /* Preset usage */

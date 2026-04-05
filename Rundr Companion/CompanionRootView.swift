@@ -751,6 +751,24 @@ private struct CompanionSettingsView: View {
     @EnvironmentObject private var transferCoordinator: CompanionTransferCoordinator
     let onShowIntro: () -> Void
 
+    private var alertsSummary: String {
+        let enabledAlerts = [
+            settings.lapAlerts ? L10n.lapAlerts : nil,
+            settings.restAlerts ? L10n.restAlerts : nil,
+            settings.activeRecoveryAlerts ? L10n.activeRecoveryAlerts : nil
+        ].compactMap { $0 }
+
+        if enabledAlerts.count == 3 {
+            return L10n.on
+        }
+
+        if enabledAlerts.isEmpty {
+            return L10n.off
+        }
+
+        return enabledAlerts.joined(separator: ", ")
+    }
+
     var body: some View {
         NavigationStack {
             List {
@@ -762,6 +780,17 @@ private struct CompanionSettingsView: View {
                             title: L10n.restMode,
                             value: settings.restMode.displayName,
                             systemImage: "figure.cooldown"
+                        )
+                    }
+                    .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
+
+                    NavigationLink {
+                        CompanionAlertsSettingsDetailView()
+                    } label: {
+                        CompanionSettingsNavigationRow(
+                            title: L10n.alerts,
+                            value: alertsSummary,
+                            systemImage: "bell.badge"
                         )
                     }
                     .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.overviewRowContentInsets)
@@ -1079,6 +1108,40 @@ private struct CompanionColorSettingsDetailView: View {
             }
         }
         .navigationTitle(L10n.color)
+        .navigationBarTitleDisplayMode(.inline)
+        .themedCompanionSettingsList()
+    }
+}
+
+private struct CompanionAlertsSettingsDetailView: View {
+    @EnvironmentObject private var settings: SettingsStore
+
+    var body: some View {
+        List {
+            Section {
+                CompanionSettingsToggleRow(
+                    title: L10n.lapAlerts,
+                    systemImage: "bell.badge",
+                    isOn: $settings.lapAlerts
+                )
+                .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.detailRowContentInsets)
+
+                CompanionSettingsToggleRow(
+                    title: L10n.restAlerts,
+                    systemImage: "bell.badge",
+                    isOn: $settings.restAlerts
+                )
+                .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.detailRowContentInsets)
+
+                CompanionSettingsToggleRow(
+                    title: L10n.activeRecoveryAlerts,
+                    systemImage: "bell.badge",
+                    isOn: $settings.activeRecoveryAlerts
+                )
+                .companionSettingsOptionRowChrome(contentInsets: CompanionPreferencesStyle.detailRowContentInsets)
+            }
+        }
+        .navigationTitle(L10n.alerts)
         .navigationBarTitleDisplayMode(.inline)
         .themedCompanionSettingsList()
     }

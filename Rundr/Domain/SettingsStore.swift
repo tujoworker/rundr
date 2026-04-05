@@ -224,6 +224,7 @@ final class SettingsStore: ObservableObject {
     @AppStorage("pauseMode") private var legacyRestModeRaw: String = RestMode.manual.rawValue
     @AppStorage("lapAlerts") var lapAlerts: Bool = true
     @AppStorage("restAlerts") var restAlerts: Bool = true
+    @AppStorage("activeRecoveryAlerts") var activeRecoveryAlerts: Bool = true
     @AppStorage("appearanceMode") private var appearanceModeRaw: String = AppearanceMode.system.rawValue
     @AppStorage("syncAppearanceMode") var syncAppearanceMode: Bool = true
     @AppStorage("currentWorkoutPlanCreatedAt") private var currentWorkoutPlanCreatedAtInterval: Double = 0
@@ -644,6 +645,7 @@ final class SettingsStore: ObservableObject {
             restMode: restMode,
             lapAlerts: lapAlerts,
             restAlerts: restAlerts,
+            activeRecoveryAlerts: activeRecoveryAlerts,
             appearanceMode: appearanceMode,
             syncAppearanceMode: syncAppearanceMode,
             distanceSegments: distanceSegments,
@@ -665,6 +667,7 @@ final class SettingsStore: ObservableObject {
         restMode = settingsSyncRecord.restMode
         lapAlerts = settingsSyncRecord.lapAlerts
         restAlerts = settingsSyncRecord.restAlerts
+        activeRecoveryAlerts = settingsSyncRecord.activeRecoveryAlerts
         let resolvedSyncAppearanceMode = SettingsSyncAppearancePolicy.resolvedLocalSyncAppearanceMode(
             currentValue: syncAppearanceMode,
             incomingValue: settingsSyncRecord.syncAppearanceMode,

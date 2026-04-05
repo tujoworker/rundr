@@ -51,12 +51,21 @@ struct PreStartView: View {
     }
 
     private var alertsSummary: String {
-        switch (settings.lapAlerts, settings.restAlerts) {
-        case (true, true): return L10n.on
-        case (false, false): return L10n.off
-        case (true, false): return L10n.lapAlerts
-        case (false, true): return L10n.restAlerts
+        let enabledAlerts = [
+            settings.lapAlerts ? L10n.lapAlerts : nil,
+            settings.restAlerts ? L10n.restAlerts : nil,
+            settings.activeRecoveryAlerts ? L10n.activeRecoveryAlerts : nil
+        ].compactMap { $0 }
+
+        if enabledAlerts.count == 3 {
+            return L10n.on
         }
+
+        if enabledAlerts.isEmpty {
+            return L10n.off
+        }
+
+        return enabledAlerts.joined(separator: ", ")
     }
 
     @ViewBuilder
@@ -1285,6 +1294,7 @@ private struct AlertsSettingsSheet: View {
         List {
             Toggle(L10n.lapAlerts, isOn: $settings.lapAlerts)
             Toggle(L10n.restAlerts, isOn: $settings.restAlerts)
+            Toggle(L10n.activeRecoveryAlerts, isOn: $settings.activeRecoveryAlerts)
         }
         .navigationTitle(L10n.alerts)
         .tint(settings.primaryAccentColor)

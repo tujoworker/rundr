@@ -235,6 +235,7 @@
 "Off" = "Aus";
 "On" = "An";
 "Alerts" = "Benachrichtigungen";
+"Active Recovery" = "Aktive Erholung";
 "%@ in %@" = "%@ in %@";
 
 /* Preset usage */

@@ -2436,7 +2436,8 @@ final class ModelTests: XCTestCase {
             "syncAppearanceMode",
             "distanceUnit",
             "lapAlerts",
-            "restAlerts"
+            "restAlerts",
+            "activeRecoveryAlerts"
         ]
         keys.forEach { UserDefaults.standard.removeObject(forKey: $0) }
         defer { keys.forEach { UserDefaults.standard.removeObject(forKey: $0) } }
@@ -2458,6 +2459,7 @@ final class ModelTests: XCTestCase {
             restMode: .autoDetect,
             lapAlerts: false,
             restAlerts: true,
+            activeRecoveryAlerts: false,
             appearanceMode: .light,
             syncAppearanceMode: true,
             distanceSegments: presetPlan.distanceSegments,
@@ -2476,6 +2478,7 @@ final class ModelTests: XCTestCase {
         XCTAssertEqual(store.restMode, .autoDetect)
         XCTAssertFalse(store.lapAlerts)
         XCTAssertTrue(store.restAlerts)
+        XCTAssertFalse(store.activeRecoveryAlerts)
         XCTAssertEqual(store.appearanceMode, .light)
         XCTAssertTrue(store.syncAppearanceMode)
         XCTAssertEqual(store.distanceSegments, presetPlan.distanceSegments)
@@ -2505,6 +2508,7 @@ final class ModelTests: XCTestCase {
             restMode: .manual,
             lapAlerts: true,
             restAlerts: true,
+            activeRecoveryAlerts: true,
             appearanceMode: .light,
             syncAppearanceMode: false,
             distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
@@ -2541,6 +2545,7 @@ final class ModelTests: XCTestCase {
             restMode: .manual,
             lapAlerts: true,
             restAlerts: true,
+            activeRecoveryAlerts: true,
             appearanceMode: .light,
             syncAppearanceMode: true,
             distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
@@ -2577,6 +2582,7 @@ final class ModelTests: XCTestCase {
             restMode: .manual,
             lapAlerts: true,
             restAlerts: true,
+            activeRecoveryAlerts: true,
             appearanceMode: .light,
             syncAppearanceMode: false,
             distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],
@@ -2608,6 +2614,7 @@ final class ModelTests: XCTestCase {
         let record = store.makeSettingsSyncRecord(updatedAt: Date(), deviceSource: "iphone")
 
         XCTAssertEqual(record.appearanceMode, .dark)
+        XCTAssertTrue(record.activeRecoveryAlerts)
         XCTAssertFalse(record.syncAppearanceMode)
     }
 

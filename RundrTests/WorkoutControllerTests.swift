@@ -580,6 +580,76 @@ final class WorkoutControllerTests: XCTestCase {
         XCTAssertEqual(controller.runState, WorkoutRunState.active)
     }
 
+    func testTimedRestUsesLightHapticsForLastFiveSecondsThenHardHaptics() async {
+        let controller = makeStartedController(
+            segments: [
+                DistanceSegment(distanceMeters: 400, repeatCount: 2, restSeconds: 5)
+            ]
+        )
+        var haptics: [WKHapticType] = []
+        controller.hapticFeedbackHandler = { haptics.append($0) }
+
+        controller.markLap()
+        haptics.removeAll()
+
+        try? await Task.sleep(nanoseconds: 10_300_000_000)
+
+        XCTAssertEqual(haptics, [.click, .click, .click, .click, .click, .notification, .notification])
+    }
+
+    func testTimedActiveRecoveryUsesLightHapticsForLastFiveSecondsThenHardHaptics() async {
+        let controller = makeStartedController(
+            segments: [
+                DistanceSegment(distanceMeters: 400, repeatCount: 2, activeRecoverySeconds: 5)
+            ]
+        )
+        var haptics: [WKHapticType] = []
+        controller.hapticFeedbackHandler = { haptics.append($0) }
+
+        controller.markLap()
+        haptics.removeAll()
+
+        try? await Task.sleep(nanoseconds: 10_300_000_000)
+
+        XCTAssertEqual(haptics, [.click, .click, .click, .click, .click, .notification, .notification])
+    }
+
+    func testTimedActiveRecoveryCanDisableRecoveryAlerts() async {
+        let controller = makeStartedController(
+            segments: [
+                DistanceSegment(distanceMeters: 400, repeatCount: 2, activeRecoverySeconds: 5)
+            ]
+        )
+        controller.activeRecoveryAlertsEnabled = false
+        var haptics: [WKHapticType] = []
+        controller.hapticFeedbackHandler = { haptics.append($0) }
+
+        controller.markLap()
+        haptics.removeAll()
+
+        try? await Task.sleep(nanoseconds: 6_300_000_000)
+
+        XCTAssertTrue(haptics.isEmpty)
+    }
+
+    func testTimedRestCanDisableRestAlerts() async {
+        let controller = makeStartedController(
+            segments: [
+                DistanceSegment(distanceMeters: 400, repeatCount: 2, restSeconds: 5)
+            ]
+        )
+        controller.restAlertsEnabled = false
+        var haptics: [WKHapticType] = []
+        controller.hapticFeedbackHandler = { haptics.append($0) }
+
+        controller.markLap()
+        haptics.removeAll()
+
+        try? await Task.sleep(nanoseconds: 6_300_000_000)
+
+        XCTAssertTrue(haptics.isEmpty)
+    }
+
     func testManualLiveStateUsesCompletedLapDistance() {
         let controller = makeStartedController(trackingMode: .distanceDistance)
         let syncManager = WatchConnectivitySyncManager()
@@ -1318,6 +1388,7 @@ final class WorkoutControllerTests: XCTestCase {
         let controller = makeController()
         XCTAssertTrue(controller.lapAlertsEnabled)
         XCTAssertTrue(controller.restAlertsEnabled)
+        XCTAssertTrue(controller.activeRecoveryAlertsEnabled)
     }
 
     // MARK: - Toggle Rest While Paused

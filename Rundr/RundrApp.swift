@@ -76,6 +76,9 @@ struct RundrApp: App {
                 .onChange(of: settings.restAlerts) { _, _ in
                     syncManager.publishSettingsSnapshot()
                 }
+                .onChange(of: settings.activeRecoveryAlerts) { _, _ in
+                    syncManager.publishSettingsSnapshot()
+                }
                 .onChange(of: settings.intervalPresets) { _, _ in
                     syncManager.publishSettingsSnapshot()
                 }
@@ -136,6 +139,7 @@ struct RundrApp: App {
         )
         workoutController.lapAlertsEnabled = settings.lapAlerts
         workoutController.restAlertsEnabled = settings.restAlerts
+        workoutController.activeRecoveryAlertsEnabled = settings.activeRecoveryAlerts
         Task {
             await workoutController.start()
         }
@@ -156,6 +160,7 @@ struct RundrApp: App {
             )
             workoutController.lapAlertsEnabled = settings.lapAlerts
             workoutController.restAlertsEnabled = settings.restAlerts
+            workoutController.activeRecoveryAlertsEnabled = settings.activeRecoveryAlerts
             Task {
                 await workoutController.start()
             }

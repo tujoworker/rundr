@@ -41,6 +41,7 @@ final class WorkoutSessionController: NSObject, ObservableObject {
     private(set) var originPlanID: UUID?
     var lapAlertsEnabled: Bool = true
     var restAlertsEnabled: Bool = true
+    var activeRecoveryAlertsEnabled: Bool = true
 
     /// Tracks the last integer second at which a time-goal haptic was played.
     private var lastTimeGoalAlertSecond: Int = -1
@@ -862,13 +863,31 @@ final class WorkoutSessionController: NSObject, ObservableObject {
                     if !self.isRestWarningActive {
                         self.isRestWarningActive = true
                     }
-                    if self.restAlertsEnabled {
-                        self.playHaptic(.notification)
-                    }
+                }
+
+                if self.recoveryAlertsEnabled,
+                   let haptic = self.recoveryCountdownHaptic(forRemainingSeconds: remaining) {
+                    self.playHaptic(haptic)
                 }
 
                 self.persistRecoverySnapshot()
             }
+    }
+
+    private func recoveryCountdownHaptic(forRemainingSeconds remaining: Int) -> WKHapticType? {
+        if (1...5).contains(remaining) {
+            return .click
+        }
+
+        if remaining == 0 {
+            return .notification
+        }
+
+        if remaining < 0, abs(remaining) % 5 == 0 {
+            return .notification
+        }
+
+        return nil
     }
 
     private func cancelRestTimer() {
@@ -1227,6 +1246,19 @@ extension WorkoutSessionController: HKWorkoutSessionDelegate {
         // State changes handled internally
     }
 
+
+    private var recoveryAlertsEnabled: Bool {
+        guard let currentRecoveryType else {
+            return restAlertsEnabled
+        }
+
+        switch currentRecoveryType {
+        case .activeRecovery:
+            return activeRecoveryAlertsEnabled
+        case .rest, .none:
+            return restAlertsEnabled
+        }
+    }
     nonisolated func workoutSession(
         _ workoutSession: HKWorkoutSession,
         didGenerate event: HKWorkoutEvent

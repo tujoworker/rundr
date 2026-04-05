@@ -368,6 +368,7 @@ final class SessionSyncTests: XCTestCase {
             restMode: .manual,
             lapAlerts: true,
             restAlerts: false,
+            activeRecoveryAlerts: true,
             appearanceMode: .dark,
             syncAppearanceMode: true,
             distanceSegments: [DistanceSegment(distanceMeters: 400, repeatCount: 6, restSeconds: 60)],

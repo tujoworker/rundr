@@ -61,6 +61,9 @@ struct RundrCompanionApp: App {
             .onChange(of: settings.restAlerts) { _, _ in
                 syncManager.publishSettingsSnapshot()
             }
+            .onChange(of: settings.activeRecoveryAlerts) { _, _ in
+                syncManager.publishSettingsSnapshot()
+            }
             .onChange(of: settings.intervalPresets) { _, _ in
                 syncManager.publishSettingsSnapshot()
             }

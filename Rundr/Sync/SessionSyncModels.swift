@@ -458,6 +458,7 @@ struct SettingsSyncRecord: Codable, Equatable {
     var restMode: RestMode
     var lapAlerts: Bool
     var restAlerts: Bool
+    var activeRecoveryAlerts: Bool
     var appearanceMode: AppearanceMode
     var syncAppearanceMode: Bool
     var distanceSegments: [DistanceSegment]
@@ -474,6 +475,7 @@ struct SettingsSyncRecord: Codable, Equatable {
         restMode: RestMode,
         lapAlerts: Bool,
         restAlerts: Bool,
+        activeRecoveryAlerts: Bool,
         appearanceMode: AppearanceMode,
         syncAppearanceMode: Bool = true,
         distanceSegments: [DistanceSegment],
@@ -489,6 +491,7 @@ struct SettingsSyncRecord: Codable, Equatable {
         self.restMode = restMode
         self.lapAlerts = lapAlerts
         self.restAlerts = restAlerts
+        self.activeRecoveryAlerts = activeRecoveryAlerts
         self.appearanceMode = appearanceMode
         self.syncAppearanceMode = syncAppearanceMode
         self.distanceSegments = distanceSegments
@@ -506,6 +509,7 @@ struct SettingsSyncRecord: Codable, Equatable {
         case restMode
         case lapAlerts
         case restAlerts
+        case activeRecoveryAlerts
         case appearanceMode
         case syncAppearanceMode
         case distanceSegments
@@ -524,6 +528,7 @@ struct SettingsSyncRecord: Codable, Equatable {
         restMode = try container.decode(RestMode.self, forKey: .restMode)
         lapAlerts = try container.decode(Bool.self, forKey: .lapAlerts)
         restAlerts = try container.decode(Bool.self, forKey: .restAlerts)
+        activeRecoveryAlerts = try container.decodeIfPresent(Bool.self, forKey: .activeRecoveryAlerts) ?? true
         appearanceMode = try container.decode(AppearanceMode.self, forKey: .appearanceMode)
         syncAppearanceMode = try container.decodeIfPresent(Bool.self, forKey: .syncAppearanceMode) ?? true
         distanceSegments = try container.decode([DistanceSegment].self, forKey: .distanceSegments)
@@ -542,6 +547,7 @@ struct SettingsSyncRecord: Codable, Equatable {
         try container.encode(restMode, forKey: .restMode)
         try container.encode(lapAlerts, forKey: .lapAlerts)
         try container.encode(restAlerts, forKey: .restAlerts)
+        try container.encode(activeRecoveryAlerts, forKey: .activeRecoveryAlerts)
         try container.encode(appearanceMode, forKey: .appearanceMode)
         try container.encode(syncAppearanceMode, forKey: .syncAppearanceMode)
         try container.encode(distanceSegments, forKey: .distanceSegments)

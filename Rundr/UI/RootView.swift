@@ -283,6 +283,7 @@ struct RootView: View {
                                 )
                                 workoutController.lapAlertsEnabled = settings.lapAlerts
                                 workoutController.restAlertsEnabled = settings.restAlerts
+                                workoutController.activeRecoveryAlertsEnabled = settings.activeRecoveryAlerts
                                 Task {
                                     await workoutController.start()
                                 }

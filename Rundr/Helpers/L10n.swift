@@ -289,6 +289,7 @@ enum L10n {
     static let alerts = String(localized: "Alerts", comment: "Alerts setting")
     static let lapAlerts = String(localized: "Lap", comment: "Lap alerts setting")
     static let restAlerts = String(localized: "Rest", comment: "Rest alerts setting")
+    static let activeRecoveryAlerts = String(localized: "Active Recovery", comment: "Active recovery alerts setting")
     static let unlimited = String(localized: "Unlimited", comment: "Unlimited repeat count label")
     static func targetDisplay(_ distance: String, _ time: String) -> String {
         String(format: String(localized: "%@ in %@", comment: "Target display: distance in time"), distance, time)

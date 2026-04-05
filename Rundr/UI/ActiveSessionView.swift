@@ -163,7 +163,8 @@ struct ActiveSessionView: View {
                 style: StrokeStyle(
                     lineWidth: Tokens.LineWidth.thick,
                     lineCap: restButtonShowsEndRest ? .round : .butt,
-                    dash: restButtonShowsEndRest ? [1, 5] : []
+                    lineJoin: restButtonShowsEndRest ? .round : .miter,
+                    dash: restButtonShowsEndRest ? [0, 6] : []
                 )
             )
     }
@@ -1317,7 +1318,8 @@ private struct WorkoutControlIcon: View {
                         style: StrokeStyle(
                             lineWidth: Tokens.LineWidth.thick,
                             lineCap: isDashed ? .round : .butt,
-                            dash: isDashed ? [1, 5] : []
+                            lineJoin: isDashed ? .round : .miter,
+                            dash: isDashed ? [0, 6] : []
                         )
                     )
                     .padding(Tokens.LineWidth.regular)
